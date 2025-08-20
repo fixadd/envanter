@@ -1,18 +1,17 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import NavBlock from "./NavBlock";
 
 export default function ProtectedLayout() {
   const isAuthenticated = localStorage.getItem("isAuth") === "true";
-  const location = useLocation();
 
-  if (!isAuthenticated && location.pathname !== "/") {
-    return <Navigate to="/" replace />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
   }
 
-  return <ClassicShell limited={!isAuthenticated} />;
+  return <ClassicShell />;
 }
 
-function ClassicShell({ limited = false }) {
+function ClassicShell() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900">
       <div className="mx-auto max-w-6xl px-4 py-6">
@@ -20,29 +19,27 @@ function ClassicShell({ limited = false }) {
           <aside className="col-span-3 lg:col-span-2">
             <div className="sticky top-20 space-y-2">
               <NavBlock title="" items={[{ label: "Ana Sayfa", to: "/", icon: "Home" }]} />
-              {!limited && (
-                <>
-                  <NavBlock title="ENVANTER" items={[
-                    { label: "Envanter Takip", to: "/inventory", icon: "Box" },
-                    { label: "Lisans Takip", to: "/licenses", icon: "Key" },
-                    { label: "Aksesuar Takip", to: "/accessories", icon: "Package" },
-                    { label: "Yazıcı Takip", to: "/printers", icon: "Printer" },
-                  ]} />
-                  <NavBlock title="İŞLEMLER" items={[
-                    { label: "Talep Takip", to: "/requests", icon: "FileText" },
-                    { label: "Stok Takip", to: "/stock", icon: "Layers" },
-                    { label: "Çöp Kutusu", to: "/trash", icon: "Trash2" },
-                  ]} />
-                  <NavBlock title="AYARLAR" items={[
-                    { label: "Profil", to: "/profile", icon: "User" },
-                    { label: "Admin Paneli", to: "/admin", icon: "Settings" },
-                    { label: "Bağlantılar", to: "/integrations", icon: "Link" },
-                    { label: "Kayıtlar", to: "/logs", icon: "ClipboardList" },
-                    { label: "Envanter Ekleme", to: "/inventory/add", icon: "PlusCircle" },
-                  ]} />
-                  <NavBlock title="" items={[{ label: "Çıkış", to: "/logout", icon: "LogOut" }]} />
-                </>
-              )}
+              <>
+                <NavBlock title="ENVANTER" items={[
+                  { label: "Envanter Takip", to: "/inventory", icon: "Box" },
+                  { label: "Lisans Takip", to: "/licenses", icon: "Key" },
+                  { label: "Aksesuar Takip", to: "/accessories", icon: "Package" },
+                  { label: "Yazıcı Takip", to: "/printers", icon: "Printer" },
+                ]} />
+                <NavBlock title="İŞLEMLER" items={[
+                  { label: "Talep Takip", to: "/requests", icon: "FileText" },
+                  { label: "Stok Takip", to: "/stock", icon: "Layers" },
+                  { label: "Çöp Kutusu", to: "/trash", icon: "Trash2" },
+                ]} />
+                <NavBlock title="AYARLAR" items={[
+                  { label: "Profil", to: "/profile", icon: "User" },
+                  { label: "Admin Paneli", to: "/admin", icon: "Settings" },
+                  { label: "Bağlantılar", to: "/integrations", icon: "Link" },
+                  { label: "Kayıtlar", to: "/logs", icon: "ClipboardList" },
+                  { label: "Envanter Ekleme", to: "/inventory/add", icon: "PlusCircle" },
+                ]} />
+                <NavBlock title="" items={[{ label: "Çıkış", to: "/logout", icon: "LogOut" }]} />
+              </>
             </div>
           </aside>
           <main className="col-span-9 lg:col-span-10 space-y-6">
