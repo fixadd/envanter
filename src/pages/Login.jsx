@@ -8,13 +8,28 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    if (username === "admin" && password === "admin") {
-      localStorage.setItem("isAuth", "true");
+    setError("");
+
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.message || "Kullanıcı adı veya şifre hatalı");
+        return;
+      }
+
+      // Token'ı güvenli bir şekilde sakla
+      localStorage.setItem("token", data.token);
       navigate("/");
-    } else {
-      setError("Kullanıcı adı veya şifre hatalı");
+    } catch (err) {
+      setError("Sunucuya bağlanılamadı");
     }
   }
 
