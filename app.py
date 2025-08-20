@@ -6,7 +6,7 @@ routes for the main pages of the application so that requesting ``/``,
 ``404`` errors.
 """
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_jwt_extended import JWTManager, create_access_token
 
 
@@ -28,17 +28,11 @@ def login() -> tuple:
 
 
 @app.get("/")
-def index() -> str:
-    """Return a simple home page."""
-
-    return "Home page"
-
-
 @app.get("/login")
 def login_page() -> str:
-    """Return a simple login page."""
+    """Render the login page."""
 
-    return "Login page"
+    return render_template("login.html")
 
 
 @app.get("/inventory")
