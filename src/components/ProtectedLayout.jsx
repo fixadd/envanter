@@ -1,10 +1,39 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import NavBlock from "./NavBlock";
 
+function isTokenValid(token) {
+  if (!token) return false;
+  try {
+    const { exp } = JSON.parse(atob(token.split(".")[1]));
+    return exp * 1000 > Date.now();
+  } catch {
+    return false;
+  }
+}
+
 export default function ProtectedLayout() {
-  const isAuthenticated = localStorage.getItem("isAuth") === "true";
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const isAuthenticated = isTokenValid(token);
+
+  useEffect(() => {
+    if (!token || !isAuthenticated) return;
+    try {
+      const { exp } = JSON.parse(atob(token.split(".")[1]));
+      const timeout = setTimeout(() => {
+        localStorage.removeItem("token");
+        navigate("/login", { replace: true });
+      }, exp * 1000 - Date.now());
+      return () => clearTimeout(timeout);
+    } catch {
+      localStorage.removeItem("token");
+      navigate("/login", { replace: true });
+    }
+  }, [token, isAuthenticated, navigate]);
 
   if (!isAuthenticated) {
+    localStorage.removeItem("token");
     return <Navigate to="/login" replace />;
   }
 
