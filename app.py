@@ -1,20 +1,16 @@
 """Flask application for Envanter.
 
-This server serves the compiled front-end so that navigating directly to the
-server's IP address displays the login screen handled by the React app. Any
-unknown route will be routed to ``index.html`` allowing React Router to manage
-client-side navigation.
+Provides a minimal API endpoint for user authentication along with placeholder
+routes for the main pages of the application so that requesting ``/``,
+``/login``, ``/inventory``, ``/licenses`` and ``/logout`` no longer results in
+``404`` errors.
 """
 
-from pathlib import Path
-
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, create_access_token
 
 
-BASE_DIR = Path(__file__).resolve().parent / "dist"
-
-app = Flask(__name__, static_folder=str(BASE_DIR), static_url_path="")
+app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = "change-me"  # TODO: update in production
 jwt = JWTManager(app)
 
@@ -31,21 +27,39 @@ def login() -> tuple:
     return jsonify(error="Invalid credentials"), 401
 
 
-@app.route("/", defaults={"path": ""})
-@app.route("/<path:path>")
-def serve_spa(path: str) -> str:
-    """Serve the React single page application.
+@app.get("/")
+def index() -> str:
+    """Return a simple home page."""
 
-    If ``path`` points to an existing file, that file is served directly. For
-    any other route, ``index.html`` is returned so the client-side router can
-    take over. This ensures that visiting the server's root IP displays the
-    login page.
-    """
+    return "Home page"
 
-    file_path = BASE_DIR / path
-    if path and file_path.exists():
-        return send_from_directory(str(BASE_DIR), path)
-    return send_from_directory(str(BASE_DIR), "index.html")
+
+@app.get("/login")
+def login_page() -> str:
+    """Return a simple login page."""
+
+    return "Login page"
+
+
+@app.get("/inventory")
+def inventory_page() -> str:
+    """Return a simple inventory page."""
+
+    return "Inventory page"
+
+
+@app.get("/licenses")
+def licenses_page() -> str:
+    """Return a simple licenses page."""
+
+    return "Licenses page"
+
+
+@app.get("/logout")
+def logout_page() -> str:
+    """Return a simple logout page."""
+
+    return "Logout page"
 
 
 if __name__ == "__main__":
