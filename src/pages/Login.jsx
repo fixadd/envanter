@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import AuthShell from "../components/AuthShell";
 
@@ -6,12 +6,15 @@ export default function Login() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (username && password) {
+    if (username === "admin" && password === "admin") {
       localStorage.setItem("isAuth", "true");
       navigate("/");
+    } else {
+      setError("Kullanıcı adı veya şifre hatalı");
     }
   }
 
@@ -31,11 +34,9 @@ export default function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+        {error && <div className="text-sm text-red-500">{error}</div>}
         <button className="w-full rounded-xl border px-3 py-2 bg-slate-900 text-white">Giriş</button>
       </form>
-      <div className="mt-3 text-center text-sm text-slate-500">
-        <Link to="/">Demo: Doğrudan Ana Sayfaya Dön</Link>
-      </div>
     </AuthShell>
   );
 }
