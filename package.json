@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 5000",
     "build": "vite build",
-    "preview": "vite preview",
+    "preview": "vite preview --port 5000",
     "test": "echo \"No tests specified\" && exit 0"
   },
   "dependencies": {
