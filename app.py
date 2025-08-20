@@ -8,12 +8,27 @@ client-side navigation.
 
 from pathlib import Path
 
-from flask import Flask, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory
+from flask_jwt_extended import JWTManager, create_access_token
 
 
 BASE_DIR = Path(__file__).resolve().parent / "dist"
 
 app = Flask(__name__, static_folder=str(BASE_DIR), static_url_path="")
+app.config["JWT_SECRET_KEY"] = "change-me"  # TODO: update in production
+jwt = JWTManager(app)
+
+
+@app.post("/api/login")
+def login() -> tuple:
+    """Authenticate the user and return an access token."""
+    data = request.get_json() or {}
+    username = data.get("username")
+    password = data.get("password")
+    if username == "admin" and password == "password":
+        token = create_access_token(identity=username)
+        return jsonify(token=token), 200
+    return jsonify(error="Invalid credentials"), 401
 
 
 @app.route("/", defaults={"path": ""})
