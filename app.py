@@ -11,7 +11,7 @@ from pathlib import Path
 from flask import Flask, send_from_directory
 
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent / "dist"
 
 app = Flask(__name__, static_folder=str(BASE_DIR), static_url_path="")
 
