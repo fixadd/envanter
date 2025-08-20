@@ -37,7 +37,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route element={<ProtectedLayout />}>
+        <Route path="/" element={<ProtectedLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="inventory">
             <Route index element={<InventoryList />} />
