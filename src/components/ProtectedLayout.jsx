@@ -1,4 +1,5 @@
-import { Navigate, Outlet, Link } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
+import NavBlock from "./NavBlock";
 
 export default function ProtectedLayout() {
   const isAuthenticated = true; // demo
@@ -13,25 +14,26 @@ function ClassicShell() {
         <div className="grid grid-cols-12 gap-6">
           <aside className="col-span-3 lg:col-span-2">
             <div className="sticky top-20 space-y-2">
+              <NavBlock title="" items={[{ label: "Ana Sayfa", to: "/", icon: "Home" }]} />
               <NavBlock title="ENVANTER" items={[
-                { label: "Envanter Takip", to: "/inventory" },
-                { label: "Lisans Takip", to: "/licenses" },
-                { label: "Aksesuar Takip", to: "/accessories" },
-                { label: "Yazıcı Takip", to: "/printers" },
+                { label: "Envanter Takip", to: "/inventory", icon: "Box" },
+                { label: "Lisans Takip", to: "/licenses", icon: "Key" },
+                { label: "Aksesuar Takip", to: "/accessories", icon: "Package" },
+                { label: "Yazıcı Takip", to: "/printers", icon: "Printer" },
               ]} />
               <NavBlock title="İŞLEMLER" items={[
-                { label: "Talep Takip", to: "/requests" },
-                { label: "Stok Takip", to: "/stock" },
-                { label: "Çöp Kutusu", to: "/trash" },
+                { label: "Talep Takip", to: "/requests", icon: "FileText" },
+                { label: "Stok Takip", to: "/stock", icon: "Layers" },
+                { label: "Çöp Kutusu", to: "/trash", icon: "Trash2" },
               ]} />
               <NavBlock title="AYARLAR" items={[
-                { label: "Profil", to: "/profile" },
-                { label: "Admin Paneli", to: "/admin" },
-                { label: "Bağlantılar", to: "/integrations" },
-                { label: "Kayıtlar", to: "/logs" },
-                { label: "Envanter Ekleme", to: "/inventory/add" },
+                { label: "Profil", to: "/profile", icon: "User" },
+                { label: "Admin Paneli", to: "/admin", icon: "Settings" },
+                { label: "Bağlantılar", to: "/integrations", icon: "Link" },
+                { label: "Kayıtlar", to: "/logs", icon: "ClipboardList" },
+                { label: "Envanter Ekleme", to: "/inventory/add", icon: "PlusCircle" },
               ]} />
-              <NavBlock title="" items={[{ label: "Çıkış", to: "/logout" }]} />
+              <NavBlock title="" items={[{ label: "Çıkış", to: "/logout", icon: "LogOut" }]} />
             </div>
           </aside>
           <main className="col-span-9 lg:col-span-10 space-y-6">
@@ -50,17 +52,3 @@ function ClassicShell() {
   );
 }
 
-function NavBlock({ title, items }) {
-  return (
-    <div className="rounded-2xl border bg-white p-3 shadow-sm">
-      {title && <div className="mb-2 text-xs font-semibold tracking-wide text-slate-500">{title}</div>}
-      <ul className="space-y-1">
-        {items.map((it) => (
-          <li key={it.to}>
-            <Link className="block rounded-xl px-3 py-2 text-sm hover:bg-slate-50" to={it.to}>{it.label}</Link>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
