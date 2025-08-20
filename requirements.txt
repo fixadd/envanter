@@ -2,3 +2,4 @@ sqlalchemy==2.0.43
 fastapi==0.116.1
 flask==3.0.3
 gunicorn==23.0.0
+flask-jwt-extended==4.6.0
