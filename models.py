@@ -113,6 +113,30 @@ class LicenseLog(Base):
     license_: Mapped["License"] = relationship("License", back_populates="logs")
 
 
+class Brand(Base):
+    __tablename__ = "brands"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(150), unique=True, nullable=False, index=True)
+
+    models: Mapped[list["Model"]] = relationship(
+        "Model", back_populates="brand", cascade="all, delete-orphan"
+    )
+
+
+class Model(Base):
+    __tablename__ = "models"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    brand_id: Mapped[int] = mapped_column(
+        ForeignKey("brands.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    name: Mapped[str] = mapped_column(String(150), nullable=False, index=True)
+
+    brand: Mapped["Brand"] = relationship("Brand", back_populates="models")
+    __table_args__ = (UniqueConstraint("brand_id", "name", name="uq_brand_model"),)
+
+
 class Printer(Base):
     __tablename__ = "printers"
 
@@ -128,6 +152,15 @@ class Printer(Base):
     tarih: Mapped[str | None] = mapped_column(String(50))
     islem_yapan: Mapped[str | None] = mapped_column(String(150))
     sorumlu_personel: Mapped[str | None] = mapped_column(String(150), index=True)
+    brand_id: Mapped[int | None] = mapped_column(
+        ForeignKey("brands.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    model_id: Mapped[int | None] = mapped_column(
+        ForeignKey("models.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+
+    brand: Mapped[Brand | None] = relationship("Brand")
+    model: Mapped[Model | None] = relationship("Model")
 
     logs: Mapped[list["PrinterLog"]] = relationship(
         "PrinterLog", back_populates="printer", cascade="all, delete-orphan"
