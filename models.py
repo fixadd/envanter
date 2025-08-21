@@ -137,6 +137,34 @@ class Model(Base):
     __table_args__ = (UniqueConstraint("brand_id", "name", name="uq_brand_model"),)
 
 
+class UsageArea(Base):
+    __tablename__ = "usage_areas"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(150), unique=True, nullable=False, index=True)
+
+
+class Factory(Base):
+    __tablename__ = "factories"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(150), unique=True, nullable=False, index=True)
+
+
+class LicenseName(Base):
+    __tablename__ = "license_names"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(200), unique=True, nullable=False, index=True)
+
+
+class HardwareType(Base):
+    __tablename__ = "hardware_types"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(150), unique=True, nullable=False, index=True)
+
+
 class Printer(Base):
     __tablename__ = "printers"
 
