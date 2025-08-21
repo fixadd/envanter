@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Envanter – Liste{% endblock %}
+{% block content %}
+<h2 class="h5 mb-3">Envanter Listesi</h2>
+<div class="card p-3">
+  <form class="row g-2 mb-3">
+    <div class="col-auto"><input class="form-control" placeholder="Ara..."></div>
+    <div class="col-auto"><button class="btn btn-primary">Filtrele</button></div>
+  </form>
+  <div class="table-responsive">
+    <table class="table table-sm"><thead><tr><th>No</th><th>Tip</th><th>Model</th><th>Durum</th><th></th></tr></thead><tbody>
+      <tr><td>—</td><td>—</td><td>—</td><td>—</td><td><a class="btn btn-outline-secondary btn-sm">Detay</a></td></tr>
+    </tbody></table>
+  </div>
+</div>
+{% endblock %}

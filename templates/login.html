@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Giriş Yap – Envanter{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-12 col-sm-10 col-md-7 col-lg-5 col-xl-4">
+<div class="card shadow-lg rounded-4">
+<div class="card-body p-4">
+<h1 class="h4 text-center mb-3">Envanter Takip</h1>
+<p class="text-secondary small text-center mb-4">Lütfen giriş yapın</p>
+
+
+{% if error %}
+<div class="alert alert-danger py-2 small" role="alert">{{ error }}</div>
+{% endif %}
+
+
+<form method="post" action="/login" autocomplete="on">
+<input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+
+
+<div class="mb-3">
+<label for="username" class="form-label">Kullanıcı Adı</label>
+<input id="username" name="username" type="text" class="form-control" required autofocus>
+</div>
+
+
+<div class="mb-3">
+<label for="password" class="form-label">Parola</label>
+<input id="password" name="password" type="password" class="form-control" required>
+</div>
+
+
+<button class="btn btn-primary w-100" type="submit">Giriş Yap</button>
+</form>
+
+
+<div class="text-center mt-3 small text-secondary">
+<span>Varsayılan admin: <code>admin / admin123</code> (ilk girişte değiştiriniz)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+{% endblock %}
