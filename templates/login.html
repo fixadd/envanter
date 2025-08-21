@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Giriş Yap</title>
+</head>
+<body>
+  <form id="loginForm">
+    <label for="username">Kullanıcı Adı:</label>
+    <input type="text" id="username" name="username" required />
+    <br />
+    <label for="password">Şifre:</label>
+    <input type="password" id="password" name="password" required />
+    <br />
+    <button type="submit">Giriş</button>
+  </form>
+  <div id="error" style="color: red;"></div>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = e.target.username.value;
+      const password = e.target.password.value;
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      if (res.ok) {
+        alert('Giriş başarılı');
+      } else {
+        const data = await res.json();
+        document.getElementById('error').textContent = data.error || 'Giriş başarısız';
+      }
+    });
+  </script>
+</body>
+</html>
