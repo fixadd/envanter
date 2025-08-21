@@ -2,8 +2,17 @@
 from __future__ import annotations
 import os
 from pathlib import Path
-from sqlalchemy import create_engine, Integer, String, DateTime, func
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
+from datetime import datetime
+from sqlalchemy import (
+    create_engine,
+    Integer,
+    String,
+    DateTime,
+    func,
+    ForeignKey,
+    Text,
+)
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker, relationship
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/app.db")
 if DATABASE_URL.startswith("sqlite"):
@@ -27,6 +36,46 @@ class User(Base):
     full_name: Mapped[str] = mapped_column(String(120), default="")
     role: Mapped[str] = mapped_column(String(16), default="admin")  # admin/staff/user
     created_at: Mapped[str] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Inventory(Base):
+    __tablename__ = "inventories"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    no: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    fabrika: Mapped[str | None] = mapped_column(String(150), index=True)
+    departman: Mapped[str | None] = mapped_column(String(150), index=True)
+    donanim_tipi: Mapped[str | None] = mapped_column(String(100), index=True)
+    bilgisayar_adi: Mapped[str | None] = mapped_column(String(150), index=True)
+    marka: Mapped[str | None] = mapped_column(String(100))
+    model: Mapped[str | None] = mapped_column(String(100))
+    seri_no: Mapped[str | None] = mapped_column(String(150))
+    sorumlu_personel: Mapped[str | None] = mapped_column(String(150), index=True)
+    bagli_makina_no: Mapped[str | None] = mapped_column(String(150))
+    ifs_no: Mapped[str | None] = mapped_column(String(150))
+    tarih: Mapped[str | None] = mapped_column(String(50))
+    islem_yapan: Mapped[str | None] = mapped_column(String(150))
+    notlar: Mapped[str | None] = mapped_column("not", Text)
+
+    logs: Mapped[list["InventoryLog"]] = relationship(
+        "InventoryLog", back_populates="inventory", cascade="all, delete-orphan"
+    )
+
+
+class InventoryLog(Base):
+    __tablename__ = "inventory_logs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    inventory_id: Mapped[int] = mapped_column(
+        ForeignKey("inventories.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    field: Mapped[str] = mapped_column(String(100), nullable=False)
+    old_value: Mapped[str | None] = mapped_column(Text)
+    new_value: Mapped[str | None] = mapped_column(Text)
+    changed_by: Mapped[str] = mapped_column(String(150), nullable=False)
+    changed_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+    inventory: Mapped["Inventory"] = relationship("Inventory", back_populates="logs")
 
 def init_db():
     Base.metadata.create_all(bind=engine)
