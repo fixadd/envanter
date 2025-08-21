@@ -4,3 +4,5 @@ Jinja2==3.1.4
 SQLAlchemy==2.0.32
 passlib[bcrypt]==1.7.4
 python-dotenv==1.0.1
+itsdangerous==2.2.0
+python-multipart==0.0.9
