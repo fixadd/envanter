@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Envanter Listesi{% endblock %}
+{% block content %}
+<div class="container-fluid p-3">
+  <h5 class="mb-3">Envanter Takip</h5>
+  <div class="table-responsive">
+    <table class="table table-sm table-hover align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Envanter No</th>
+          <th>Fabrika</th>
+          <th>Departman</th>
+          <th>Donanım Tipi</th>
+          <th>Bilgisayar Adı</th>
+          <th>Sorumlu Personel</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r.id }}</td>
+          <td>
+            <a href="/inventory/{{ r.no }}" class="text-decoration-underline">{{ r.no }}</a>
+          </td>
+          <td>{{ r.fabrika or "" }}</td>
+          <td>{{ r.departman or "" }}</td>
+          <td>{{ r.donanim_tipi or "" }}</td>
+          <td>{{ r.bilgisayar_adi or "" }}</td>
+          <td>{{ r.sorumlu_personel or "" }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-muted">Kayıt yok</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
