@@ -1,10 +1,16 @@
 FROM python:3.11-slim
-WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1 \
+PYTHONUNBUFFERED=1
 
-# requirements varsa yükle
-COPY requirements.txt .
-RUN test -f requirements.txt && pip install --no-cache-dir -r requirements.txt || echo "no requirements.txt"
+
+WORKDIR /app
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
 
 COPY . .
+ENV PORT=5000
 EXPOSE 5000
-CMD ["python", "app.py"]
+
+
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "5000"]
