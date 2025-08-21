@@ -5,7 +5,7 @@
     <h5 class="mb-3">Envanter Takip</h5>
     <div class="d-flex justify-content-between mb-3">
       <div class="d-flex gap-2">
-        <a href="/inventory/add" class="btn btn-success btn-sm">Ekle</a>
+        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addInvModal">Ekle</button>
         <button class="btn btn-secondary btn-sm">Düzenle</button>
         <button class="btn btn-danger btn-sm">Sil</button>
       </div>
@@ -50,6 +50,43 @@
         {% endfor %}
       </tbody>
     </table>
+  </div>
+
+  <div class="modal fade" id="addInvModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <form method="post" action="/inventory/add" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Envanter Ekle</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Envanter No</label>
+            <input name="no" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Sorumlu Personel</label>
+            <select name="sorumlu_personel" class="form-select">
+              <option value="">Seçiniz</option>
+              {% for u in users %}
+              <option value="{{ u.full_name }}">{{ u.full_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Bağlı Makina No</label>
+            <input name="bagli_makina_no" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Notlar</label>
+            <textarea name="notlar" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Kaydet</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 {% endblock %}
