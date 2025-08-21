@@ -1,11 +1,10 @@
-from fastapi import APIRouter, Depends, Request, HTTPException, Form
+from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlalchemy.orm import Session
 from fastapi.templating import Jinja2Templates
 from starlette.responses import HTMLResponse, RedirectResponse
 from datetime import datetime
 
-from models import Printer, PrinterLog, User
-from .printer_schemas import PrinterCreate, PrinterUpdate
+from models import Printer, PrinterLog, Brand, Model
 from auth import get_db
 
 templates = Jinja2Templates(directory="templates")
@@ -14,23 +13,9 @@ router = APIRouter(prefix="/printers", tags=["Yazıcılar"])
 
 @router.get("", response_class=HTMLResponse)
 def printer_list(request: Request, db: Session = Depends(get_db)):
-    rows = (
-        db.query(
-            Printer.id,
-            Printer.envanter_no,
-            Printer.yazici_markasi,
-            Printer.yazici_modeli,
-            Printer.kullanim_alani,
-            Printer.ip_adresi,
-            Printer.mac,
-            Printer.hostname,
-        )
-        .order_by(Printer.id.desc())
-        .all()
-    )
-    users = db.query(User).order_by(User.full_name).all()
+    rows = db.query(Printer).order_by(Printer.id.desc()).all()
     return templates.TemplateResponse(
-        "printer_list.html", {"request": request, "rows": rows, "users": users}
+        "printer_list.html", {"request": request, "rows": rows}
     )
 
 
@@ -51,57 +36,60 @@ def printer_detail(printer_id: int, request: Request, db: Session = Depends(get_
     )
 
 
-@router.post("/add", response_class=HTMLResponse)
-def printer_add(
-    request: Request,
-    envanter_no: str = Form(...),
-    yazici_markasi: str | None = Form(None),
-    yazici_modeli: str | None = Form(None),
-    kullanim_alani: str | None = Form(None),
-    ip_adresi: str | None = Form(None),
-    mac: str | None = Form(None),
-    hostname: str | None = Form(None),
-    ifs_no: str | None = Form(None),
-    sorumlu_personel: str | None = Form(None),
-    db: Session = Depends(get_db),
-):
-    payload = PrinterCreate(
-        envanter_no=envanter_no,
-        yazici_markasi=yazici_markasi,
-        yazici_modeli=yazici_modeli,
-        kullanim_alani=kullanim_alani,
-        ip_adresi=ip_adresi,
-        mac=mac,
-        hostname=hostname,
-        ifs_no=ifs_no,
-        sorumlu_personel=sorumlu_personel,
-        tarih=datetime.now().strftime("%Y-%m-%d"),
-        islem_yapan=request.session.get("user_name"),
+@router.get("/create", response_class=HTMLResponse)
+def printer_create_form(request: Request):
+    return templates.TemplateResponse("printer_create.html", {"request": request})
+
+
+@router.post("")
+async def create_printer(request: Request, db: Session = Depends(get_db)):
+    form = await request.form()
+    prn = Printer(
+        envanter_no=form.get("envanter_no"),
+        brand_id=int(form.get("brand_id")) if form.get("brand_id") else None,
+        model_id=int(form.get("model_id")) if form.get("model_id") else None,
+        kullanim_alani=form.get("kullanim_alani"),
+        ip_adresi=form.get("ip_adresi"),
+        mac=form.get("mac"),
+        hostname=form.get("hostname"),
+        ifs_no=form.get("ifs_no"),
+        tarih=form.get("tarih"),
+        islem_yapan=form.get("islem_yapan"),
     )
-    prn = Printer(**payload.model_dump())
     db.add(prn)
     db.commit()
     return RedirectResponse("/printers", status_code=303)
 
 
-@router.post("")
-def create_printer(payload: PrinterCreate, db: Session = Depends(get_db)):
-    prn = Printer(**payload.model_dump())
-    db.add(prn)
-    db.commit()
-    return {"ok": True, "id": prn.id}
+@router.get("/{printer_id}/edit", response_class=HTMLResponse)
+def printer_edit(printer_id: int, request: Request, db: Session = Depends(get_db)):
+    prn = db.query(Printer).filter(Printer.id == printer_id).first()
+    if not prn:
+        raise HTTPException(404, "Yazıcı bulunamadı")
+    return templates.TemplateResponse(
+        "printer_edit.html", {"request": request, "item": prn}
+    )
+
+
+def _pretty_change(field: str, old, new, db: Session):
+    if field == "brand_id":
+        get = lambda _id: db.query(Brand).get(_id).name if _id else None
+        return ("brand", get(old), get(new))
+    if field == "model_id":
+        get = lambda _id: db.query(Model).get(_id).name if _id else None
+        return ("model", get(old), get(new))
+    return (field, old, new)
 
 
 @router.post("/{printer_id}/update")
-def update_printer(printer_id: int, payload: PrinterUpdate, db: Session = Depends(get_db)):
+async def update_printer(printer_id: int, request: Request, db: Session = Depends(get_db)):
     prn = db.query(Printer).filter(Printer.id == printer_id).first()
     if not prn:
         raise HTTPException(404, "Yazıcı yok")
 
+    form = await request.form()
     mutable_fields = [
         "envanter_no",
-        "yazici_markasi",
-        "yazici_modeli",
         "kullanim_alani",
         "ip_adresi",
         "mac",
@@ -110,24 +98,26 @@ def update_printer(printer_id: int, payload: PrinterUpdate, db: Session = Depend
         "tarih",
         "islem_yapan",
         "sorumlu_personel",
+        "brand_id",
+        "model_id",
     ]
 
-    changer = payload.islem_yapan or "Sistem"
+    changer = form.get("islem_yapan") or "Sistem"
     changed = False
 
     for f in mutable_fields:
-        new_val = getattr(payload, f, None)
-        if new_val is None:
-            continue
+        raw_val = form.get(f)
+        new_val = int(raw_val) if f.endswith("_id") and raw_val else raw_val
         old_val = getattr(prn, f)
         if new_val != old_val:
             setattr(prn, f, new_val)
+            field_name, old_pretty, new_pretty = _pretty_change(f, old_val, new_val, db)
             db.add(
                 PrinterLog(
                     printer_id=prn.id,
-                    field=f,
-                    old_value=str(old_val) if old_val is not None else None,
-                    new_value=str(new_val) if new_val is not None else None,
+                    field=field_name,
+                    old_value=str(old_pretty) if old_pretty is not None else None,
+                    new_value=str(new_pretty) if new_pretty is not None else None,
                     changed_by=changer,
                 )
             )
@@ -135,4 +125,4 @@ def update_printer(printer_id: int, payload: PrinterUpdate, db: Session = Depend
 
     if changed:
         db.commit()
-    return {"ok": True}
+    return RedirectResponse(f"/printers/{printer_id}", status_code=303)
