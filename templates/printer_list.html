@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Yazıcı Takip{% endblock %}
+{% block content %}
+<div class="container-fluid p-3">
+  <h5 class="mb-3">Yazıcılar</h5>
+  <div class="table-responsive">
+    <table class="table table-sm table-hover align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Envanter No</th>
+          <th>Yazıcı Markası</th>
+          <th>Yazıcı Modeli</th>
+          <th>Kullanım Alanı</th>
+          <th>IP Adresi</th>
+          <th>MAC</th>
+          <th>Hostname</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r.id }}</td>
+          <td>{{ r.envanter_no }}</td>
+          <td>{{ r.yazici_markasi or "" }}</td>
+          <td>{{ r.yazici_modeli or "" }}</td>
+          <td>{{ r.kullanim_alani or "" }}</td>
+          <td>{{ r.ip_adresi or "" }}</td>
+          <td>{{ r.mac or "" }}</td>
+          <td>
+            <a href="/printers/{{ r.id }}" class="text-decoration-underline">
+              {{ r.hostname or "(yok)" }}
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="text-muted">Kayıt yok</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
