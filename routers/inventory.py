@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Request, HTTPException, Form
 from sqlalchemy.orm import Session
 from starlette.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from datetime import datetime
 
 from models import Inventory, InventoryLog
 from auth import get_db
@@ -33,7 +34,10 @@ def create_inventory(payload: InventoryCreate, db: Session = Depends(get_db)):
     exists = db.query(Inventory).filter(Inventory.no == payload.no).first()
     if exists:
         raise HTTPException(400, "Aynı envanter no var")
-    inv = Inventory(**payload.model_dump())
+    data = payload.model_dump()
+    if not data.get("tarih"):
+        data["tarih"] = datetime.now().strftime("%Y-%m-%d")
+    inv = Inventory(**data)
     db.add(inv)
     db.commit()
     return {"ok": True}
@@ -51,7 +55,13 @@ def inventory_add(
     departman: str | None = Form(None),
     donanim_tipi: str | None = Form(None),
     bilgisayar_adi: str | None = Form(None),
+    marka: str | None = Form(None),
+    model: str | None = Form(None),
+    seri_no: str | None = Form(None),
     sorumlu_personel: str | None = Form(None),
+    bagli_makina_no: str | None = Form(None),
+    islem_yapan: str | None = Form(None),
+    notlar: str | None = Form(None),
     db: Session = Depends(get_db),
 ):
     payload = InventoryCreate(
@@ -60,7 +70,14 @@ def inventory_add(
         departman=departman,
         donanim_tipi=donanim_tipi,
         bilgisayar_adi=bilgisayar_adi,
+        marka=marka,
+        model=model,
+        seri_no=seri_no,
         sorumlu_personel=sorumlu_personel,
+        bagli_makina_no=bagli_makina_no,
+        islem_yapan=islem_yapan,
+        notlar=notlar,
+        tarih=datetime.now().strftime("%Y-%m-%d"),
     )
     exists = db.query(Inventory).filter(Inventory.no == payload.no).first()
     if exists:
