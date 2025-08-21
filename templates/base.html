@@ -47,16 +47,12 @@
           <a class="side-link" href="/inventory/add">Envanter Ekleme</a>
         </div>
       </aside>
-
-      <!-- İçerik -->
       <main class="col-12 col-lg-10">
-        {% block content %}{% endblock %}
-      </main>
       {% else %}
       <main class="col-12">
+      {% endif %}
         {% block content %}{% endblock %}
       </main>
-      {% endif %}
     </div>
   </div>
 
