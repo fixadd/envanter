@@ -28,7 +28,12 @@ def inventory_list(request: Request, db: Session = Depends(get_db)):
 
     return templates.TemplateResponse(
         "inventory_list.html",
-        {"request": request, "rows": rows, "users": users},
+        {
+            "request": request,
+            "rows": rows,
+            "users": users,
+            "today": datetime.now().strftime("%Y-%m-%d"),
+        },
     )
 
 
@@ -49,17 +54,32 @@ def create_inventory(payload: InventoryCreate, db: Session = Depends(get_db)):
 @router.post("/add", response_class=HTMLResponse)
 def inventory_add(
     no: str = Form(...),
+    fabrika: str | None = Form(None),
+    departman: str | None = Form(None),
+    donanim_tipi: str | None = Form(None),
+    bilgisayar_adi: str | None = Form(None),
+    marka: str | None = Form(None),
+    model: str | None = Form(None),
+    seri_no: str | None = Form(None),
     sorumlu_personel: str | None = Form(None),
     bagli_makina_no: str | None = Form(None),
+    tarih: str | None = Form(None),
     notlar: str | None = Form(None),
     db: Session = Depends(get_db),
 ):
     payload = InventoryCreate(
         no=no,
+        fabrika=fabrika,
+        departman=departman,
+        donanim_tipi=donanim_tipi,
+        bilgisayar_adi=bilgisayar_adi,
+        marka=marka,
+        model=model,
+        seri_no=seri_no,
         sorumlu_personel=sorumlu_personel,
         bagli_makina_no=bagli_makina_no,
+        tarih=tarih or datetime.now().strftime("%Y-%m-%d"),
         notlar=notlar,
-        tarih=datetime.now().strftime("%Y-%m-%d"),
     )
     exists = db.query(Inventory).filter(Inventory.no == payload.no).first()
     if exists:
