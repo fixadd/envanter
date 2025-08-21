@@ -126,9 +126,17 @@ async def login_form(request: Request):
     if request.session.get("user_id"):
         return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
     csrf_token = _ensure_csrf(request)
+    saved_username = request.cookies.get("saved_username", "")
+    saved_password = request.cookies.get("saved_password", "")
     return templates.TemplateResponse(
         "login.html",
-        {"request": request, "csrf_token": csrf_token, "error": None},
+        {
+            "request": request,
+            "csrf_token": csrf_token,
+            "error": None,
+            "saved_username": saved_username,
+            "saved_password": saved_password,
+        },
     )
 
 @app.post("/login", response_class=HTMLResponse)
@@ -136,14 +144,23 @@ async def login_submit(
     request: Request,
     username: str = Form(...),
     password: str = Form(...),
+    remember: Optional[str] = Form(None),
     csrf_token: str = Form(""),
     db: Session = Depends(get_db),
 ):
+    saved_username = request.cookies.get("saved_username", "")
+    saved_password = request.cookies.get("saved_password", "")
     if not _check_csrf(request, csrf_token):
         csrf_token = _ensure_csrf(request)
         return templates.TemplateResponse(
             "login.html",
-            {"request": request, "csrf_token": csrf_token, "error": "Oturum süresi doldu. Lütfen tekrar deneyin."},
+            {
+                "request": request,
+                "csrf_token": csrf_token,
+                "error": "Oturum süresi doldu. Lütfen tekrar deneyin.",
+                "saved_username": saved_username,
+                "saved_password": saved_password,
+            },
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -152,7 +169,13 @@ async def login_submit(
         csrf_token = _ensure_csrf(request)
         return templates.TemplateResponse(
             "login.html",
-            {"request": request, "csrf_token": csrf_token, "error": "Kullanıcı adı veya parola hatalı."},
+            {
+                "request": request,
+                "csrf_token": csrf_token,
+                "error": "Kullanıcı adı veya parola hatalı.",
+                "saved_username": saved_username,
+                "saved_password": saved_password,
+            },
             status_code=status.HTTP_401_UNAUTHORIZED,
         )
 
@@ -160,39 +183,14 @@ async def login_submit(
     request.session["user_id"] = user.id
     request.session["user_name"] = user.full_name or user.username
     _ensure_csrf(request)  # token yenile
-    return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
-
-@app.get("/remember", response_class=HTMLResponse)
-async def remember_form(request: Request):
-    csrf_token = _ensure_csrf(request)
-    return templates.TemplateResponse(
-        "remember.html",
-        {"request": request, "csrf_token": csrf_token, "sent": False, "error": None},
-    )
-
-@app.post("/remember", response_class=HTMLResponse)
-async def remember_submit(
-    request: Request,
-    email: str = Form(...),
-    csrf_token: str = Form(""),
-):
-    if not _check_csrf(request, csrf_token):
-        csrf_token = _ensure_csrf(request)
-        return templates.TemplateResponse(
-            "remember.html",
-            {
-                "request": request,
-                "csrf_token": csrf_token,
-                "sent": False,
-                "error": "Oturum süresi doldu. Lütfen tekrar deneyin.",
-            },
-            status_code=status.HTTP_400_BAD_REQUEST,
-        )
-    csrf_token = _ensure_csrf(request)
-    return templates.TemplateResponse(
-        "remember.html",
-        {"request": request, "csrf_token": csrf_token, "sent": True, "error": None},
-    )
+    response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+    if remember:
+        response.set_cookie("saved_username", username, max_age=60 * 60 * 24 * 30)
+        response.set_cookie("saved_password", password, max_age=60 * 60 * 24 * 30)
+    else:
+        response.delete_cookie("saved_username")
+        response.delete_cookie("saved_password")
+    return response
 
 @app.get("/logout")
 async def logout(request: Request):
