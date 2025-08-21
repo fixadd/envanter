@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, Request, HTTPException, Form
 from sqlalchemy.orm import Session
 from fastapi.templating import Jinja2Templates
-from starlette.responses import HTMLResponse
+from starlette.responses import HTMLResponse, RedirectResponse
+from datetime import datetime
 
-from models import Printer, PrinterLog
+from models import Printer, PrinterLog, User
 from .printer_schemas import PrinterCreate, PrinterUpdate
 from auth import get_db
 
@@ -27,7 +28,10 @@ def printer_list(request: Request, db: Session = Depends(get_db)):
         .order_by(Printer.id.desc())
         .all()
     )
-    return templates.TemplateResponse("printer_list.html", {"request": request, "rows": rows})
+    users = db.query(User).order_by(User.full_name).all()
+    return templates.TemplateResponse(
+        "printer_list.html", {"request": request, "rows": rows, "users": users}
+    )
 
 
 @router.get("/{printer_id}", response_class=HTMLResponse)
@@ -45,6 +49,39 @@ def printer_detail(printer_id: int, request: Request, db: Session = Depends(get_
     return templates.TemplateResponse(
         "printer_detail.html", {"request": request, "item": prn, "logs": logs}
     )
+
+
+@router.post("/add", response_class=HTMLResponse)
+def printer_add(
+    request: Request,
+    envanter_no: str = Form(...),
+    yazici_markasi: str | None = Form(None),
+    yazici_modeli: str | None = Form(None),
+    kullanim_alani: str | None = Form(None),
+    ip_adresi: str | None = Form(None),
+    mac: str | None = Form(None),
+    hostname: str | None = Form(None),
+    ifs_no: str | None = Form(None),
+    sorumlu_personel: str | None = Form(None),
+    db: Session = Depends(get_db),
+):
+    payload = PrinterCreate(
+        envanter_no=envanter_no,
+        yazici_markasi=yazici_markasi,
+        yazici_modeli=yazici_modeli,
+        kullanim_alani=kullanim_alani,
+        ip_adresi=ip_adresi,
+        mac=mac,
+        hostname=hostname,
+        ifs_no=ifs_no,
+        sorumlu_personel=sorumlu_personel,
+        tarih=datetime.now().strftime("%Y-%m-%d"),
+        islem_yapan=request.session.get("user_name"),
+    )
+    prn = Printer(**payload.model_dump())
+    db.add(prn)
+    db.commit()
+    return RedirectResponse("/printers", status_code=303)
 
 
 @router.post("")
