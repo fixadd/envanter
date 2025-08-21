@@ -9,7 +9,7 @@
 <body class="bg-app">
   <nav class="navbar navbar-light bg-transparent p-3 pb-0">
     <div class="container-fluid">
-      <a class="navbar-brand fw-semibold">Envanter</a>
+      <a class="navbar-brand fw-semibold"></a>
       {% if request.session.get('user_id') %}
       <div class="d-flex align-items-center gap-2">
         <span class="small text-muted d-none d-md-inline">{{ request.session.get('user_name') }}</span>
