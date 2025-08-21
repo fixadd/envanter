@@ -30,7 +30,7 @@ from routers import (
     stock,
     trash,
     profile,
-    admin,
+    admin as admin_router,
     integrations,
     logs,
 )
@@ -99,7 +99,7 @@ app.include_router(integrations.router, prefix="/integrations", tags=["Integrati
 
 # Sadece admin
 app.include_router(logs.router, prefix="/logs", tags=["Logs"], dependencies=[Depends(require_roles("admin"))])
-app.include_router(admin.router, prefix="/admin", tags=["Admin"], dependencies=[Depends(require_roles("admin"))])
+app.include_router(admin_router.router, dependencies=[Depends(require_roles("admin"))])
 
 # --- Startup: DB init & default admin ----------------------------------------
 @app.on_event("startup")
