@@ -5,6 +5,7 @@ from typing import Optional
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, Form, Depends, status, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.exception_handlers import http_exception_handler
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
@@ -56,11 +57,21 @@ app = FastAPI(title="Envanter Takip – Login")
 
 @app.exception_handler(HTTPException)
 async def redirect_on_auth(request, exc: HTTPException):
-    # security.py'den gelen "redirect:/..." sinyalini işle
+    """Handle custom redirect signals while delegating other errors.
+
+    `security.py` may raise an ``HTTPException`` whose ``detail`` begins with
+    ``"redirect:/"`` to indicate the user should be redirected. For all other
+    ``HTTPException`` instances we fall back to FastAPI's default behaviour
+    instead of re-raising, which previously resulted in a 500 response.
+    """
+
     if isinstance(exc.detail, str) and exc.detail.startswith("redirect:/"):
         url = exc.detail.split(":", 1)[1]
         return RedirectResponse(url=url, status_code=st_status.HTTP_303_SEE_OTHER)
-    raise exc
+
+    # Delegate to FastAPI's standard HTTP exception handler for all other
+    # errors so the appropriate status code (e.g. 404) is returned.
+    return await http_exception_handler(request, exc)
 
 app.add_middleware(
     SessionMiddleware,
