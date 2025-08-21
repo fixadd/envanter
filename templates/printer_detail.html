@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Yazıcı Detay - {{ item.hostname or item.envanter_no }}{% endblock %}
+{% block content %}
+<div class="container-fluid p-3">
+  <div class="d-flex align-items-center justify-content-between mb-2">
+    <h5>Yazıcı: {{ item.hostname or item.envanter_no }}</h5>
+    <a href="/printers" class="btn btn-sm btn-outline-secondary">← Listeye dön</a>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-header">Temel Bilgiler</div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-5 text-muted">ID</div><div class="col-7">{{ item.id }}</div>
+            <div class="col-5 text-muted">Envanter No</div><div class="col-7">{{ item.envanter_no }}</div>
+            <div class="col-5 text-muted">Yazıcı Markası</div><div class="col-7">{{ item.yazici_markasi }}</div>
+            <div class="col-5 text-muted">Yazıcı Modeli</div><div class="col-7">{{ item.yazici_modeli }}</div>
+            <div class="col-5 text-muted">Kullanım Alanı</div><div class="col-7">{{ item.kullanim_alani }}</div>
+            <div class="col-5 text-muted">IP Adresi</div><div class="col-7">{{ item.ip_adresi }}</div>
+            <div class="col-5 text-muted">MAC</div><div class="col-7">{{ item.mac }}</div>
+            <div class="col-5 text-muted">Hostname</div><div class="col-7">{{ item.hostname }}</div>
+            <div class="col-5 text-muted">IFS No</div><div class="col-7">{{ item.ifs_no }}</div>
+            <div class="col-5 text-muted">Tarih</div><div class="col-7">{{ item.tarih }}</div>
+            <div class="col-5 text-muted">İşlem Yapan</div><div class="col-7">{{ item.islem_yapan }}</div>
+            <div class="col-5 text-muted">Sorumlu Personel</div><div class="col-7">{{ item.sorumlu_personel }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-header">Değişiklik Geçmişi</div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-sm table-striped mb-0">
+              <thead>
+                <tr>
+                  <th>Alan</th>
+                  <th>Önce</th>
+                  <th>Sonra</th>
+                  <th>Değiştiren</th>
+                  <th>Tarih</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for log in logs %}
+                <tr>
+                  <td><code>{{ log.field }}</code></td>
+                  <td class="text-muted">{{ log.old_value }}</td>
+                  <td>{{ log.new_value }}</td>
+                  <td>{{ log.changed_by }}</td>
+                  <td>{{ log.changed_at }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="text-muted">Henüz değişiklik yok</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -25,7 +25,7 @@ from routers import (
     inventory as inventory_router,
     license as license_router,
     accessories,
-    printers,
+    printers as printers_router,
     requests as reqs,
     stock,
     trash,
@@ -90,7 +90,7 @@ app.include_router(home.router, prefix="", dependencies=[Depends(current_user)])
 app.include_router(inventory_router.router, dependencies=[Depends(current_user)])
 app.include_router(license_router.router, dependencies=[Depends(current_user)])
 app.include_router(accessories.router, prefix="/accessories", tags=["Accessories"], dependencies=[Depends(current_user)])
-app.include_router(printers.router, prefix="/printers", tags=["Printers"], dependencies=[Depends(current_user)])
+app.include_router(printers_router.router, dependencies=[Depends(current_user)])
 app.include_router(reqs.router, prefix="/requests", tags=["Requests"], dependencies=[Depends(current_user)])
 app.include_router(stock.router, prefix="/stock", tags=["Stock"], dependencies=[Depends(current_user)])
 app.include_router(trash.router, prefix="/trash", tags=["Trash"], dependencies=[Depends(current_user)])
