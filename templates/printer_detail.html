@@ -15,8 +15,8 @@
           <div class="row">
             <div class="col-5 text-muted">ID</div><div class="col-7">{{ item.id }}</div>
             <div class="col-5 text-muted">Envanter No</div><div class="col-7">{{ item.envanter_no }}</div>
-            <div class="col-5 text-muted">Yazıcı Markası</div><div class="col-7">{{ item.yazici_markasi }}</div>
-            <div class="col-5 text-muted">Yazıcı Modeli</div><div class="col-7">{{ item.yazici_modeli }}</div>
+            <div class="col-5 text-muted">Marka</div><div class="col-7">{{ item.brand.name if item.brand else "" }}</div>
+            <div class="col-5 text-muted">Model</div><div class="col-7">{{ item.model.name if item.model else "" }}</div>
             <div class="col-5 text-muted">Kullanım Alanı</div><div class="col-7">{{ item.kullanim_alani }}</div>
             <div class="col-5 text-muted">IP Adresi</div><div class="col-7">{{ item.ip_adresi }}</div>
             <div class="col-5 text-muted">MAC</div><div class="col-7">{{ item.mac }}</div>
