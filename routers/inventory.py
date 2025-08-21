@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, Request, HTTPException, Form
 from sqlalchemy.orm import Session
-from starlette.responses import HTMLResponse
+from starlette.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from models import Inventory, InventoryLog
@@ -99,4 +99,36 @@ def update_inventory(no: str, payload: InventoryUpdate, db: Session = Depends(ge
             )
     db.commit()
     return {"ok": True}
+
+
+@router.get("/add", response_class=HTMLResponse)
+def inventory_add_form(request: Request):
+    return templates.TemplateResponse("inventory_add.html", {"request": request})
+
+
+@router.post("/add", response_class=HTMLResponse)
+def inventory_add(
+    no: str = Form(...),
+    fabrika: str | None = Form(None),
+    departman: str | None = Form(None),
+    donanim_tipi: str | None = Form(None),
+    bilgisayar_adi: str | None = Form(None),
+    sorumlu_personel: str | None = Form(None),
+    db: Session = Depends(get_db),
+):
+    payload = InventoryCreate(
+        no=no,
+        fabrika=fabrika,
+        departman=departman,
+        donanim_tipi=donanim_tipi,
+        bilgisayar_adi=bilgisayar_adi,
+        sorumlu_personel=sorumlu_personel,
+    )
+    exists = db.query(Inventory).filter(Inventory.no == payload.no).first()
+    if exists:
+        raise HTTPException(400, "Aynı envanter no var")
+    inv = Inventory(**payload.model_dump())
+    db.add(inv)
+    db.commit()
+    return RedirectResponse("/inventory", status_code=303)
 

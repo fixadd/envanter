@@ -1,9 +1,25 @@
 {% extends "base.html" %}
 {% block title %}Envanter Listesi{% endblock %}
 {% block content %}
-<div class="container-fluid p-3">
-  <h5 class="mb-3">Envanter Takip</h5>
-  <div class="table-responsive">
+  <div class="container-fluid p-3">
+    <h5 class="mb-3">Envanter Takip</h5>
+    <div class="d-flex justify-content-between mb-3">
+      <div class="d-flex gap-2">
+        <a href="/inventory/add" class="btn btn-success btn-sm">Ekle</a>
+        <button class="btn btn-secondary btn-sm">Düzenle</button>
+        <button class="btn btn-danger btn-sm">Sil</button>
+      </div>
+      <div class="d-flex gap-2 align-items-center">
+        <select class="form-select form-select-sm w-auto">
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+        <button class="btn btn-primary btn-sm">🔍</button>
+        <input type="text" class="form-control form-control-sm" placeholder="Ara...">
+      </div>
+    </div>
+    <div class="table-responsive">
     <table class="table table-sm table-hover align-middle">
       <thead>
         <tr>
