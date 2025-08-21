@@ -52,8 +52,6 @@ def admin_panel(request: Request, q: Optional[str] = None, db: Session = Depends
         )
 
     CATS = [
-        "yazici_markasi",
-        "yazici_modeli",
         "kullanim_alani",
         "lisans_adi",
         "fabrika",
