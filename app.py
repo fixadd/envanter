@@ -70,23 +70,23 @@ templates = Jinja2Templates(directory="templates")
 
 @app.on_event("startup")
 def on_startup():
-# DB'yi oluştur ve default admin ekle
-from models import SessionLocal, User
-init_db()
-db = SessionLocal()
-try:
-existing = db.query(User).filter(User.username == DEFAULT_ADMIN_USERNAME).first()
-if not existing:
-u = User(
-username=DEFAULT_ADMIN_USERNAME,
-password_hash=hash_password(DEFAULT_ADMIN_PASSWORD),
-full_name=DEFAULT_ADMIN_FULLNAME,
-)
-db.add(u)
-db.commit()
-print(f"[*] Varsayılan admin oluşturuldu: {DEFAULT_ADMIN_USERNAME} / (parolayı .env'den bakın)")
-finally:
-db.close()
+    from models import SessionLocal, User
+    init_db()
+    db = SessionLocal()
+    try:
+        existing = db.query(User).filter(User.username == DEFAULT_ADMIN_USERNAME).first()
+        if not existing:
+            u = User(
+                username=DEFAULT_ADMIN_USERNAME,
+                password_hash=hash_password(DEFAULT_ADMIN_PASSWORD),
+                full_name=DEFAULT_ADMIN_FULLNAME,
+            )
+            db.add(u)
+            db.commit()
+            print(f"[*] Varsayılan admin oluşturuldu: {DEFAULT_ADMIN_USERNAME}")
+    finally:
+        db.close()
+
 
 
 
