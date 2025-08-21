@@ -4,7 +4,7 @@ from starlette.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
 
-from models import Inventory, InventoryLog
+from models import Inventory, InventoryLog, User
 from auth import get_db
 from .inventory_schemas import InventoryCreate, InventoryUpdate
 
@@ -24,8 +24,11 @@ def inventory_list(request: Request, db: Session = Depends(get_db)):
         Inventory.sorumlu_personel,
     ).order_by(Inventory.id.desc()).all()
 
+    users = db.query(User).order_by(User.full_name).all()
+
     return templates.TemplateResponse(
-        "inventory_list.html", {"request": request, "rows": rows}
+        "inventory_list.html",
+        {"request": request, "rows": rows, "users": users},
     )
 
 
@@ -43,39 +46,18 @@ def create_inventory(payload: InventoryCreate, db: Session = Depends(get_db)):
     return {"ok": True}
 
 
-@router.get("/add", response_class=HTMLResponse)
-def inventory_add_form(request: Request):
-    return templates.TemplateResponse("inventory_add.html", {"request": request})
-
-
 @router.post("/add", response_class=HTMLResponse)
 def inventory_add(
     no: str = Form(...),
-    fabrika: str | None = Form(None),
-    departman: str | None = Form(None),
-    donanim_tipi: str | None = Form(None),
-    bilgisayar_adi: str | None = Form(None),
-    marka: str | None = Form(None),
-    model: str | None = Form(None),
-    seri_no: str | None = Form(None),
     sorumlu_personel: str | None = Form(None),
     bagli_makina_no: str | None = Form(None),
-    islem_yapan: str | None = Form(None),
     notlar: str | None = Form(None),
     db: Session = Depends(get_db),
 ):
     payload = InventoryCreate(
         no=no,
-        fabrika=fabrika,
-        departman=departman,
-        donanim_tipi=donanim_tipi,
-        bilgisayar_adi=bilgisayar_adi,
-        marka=marka,
-        model=model,
-        seri_no=seri_no,
         sorumlu_personel=sorumlu_personel,
         bagli_makina_no=bagli_makina_no,
-        islem_yapan=islem_yapan,
         notlar=notlar,
         tarih=datetime.now().strftime("%Y-%m-%d"),
     )
