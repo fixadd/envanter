@@ -162,6 +162,38 @@ async def login_submit(
     _ensure_csrf(request)  # token yenile
     return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
 
+@app.get("/remember", response_class=HTMLResponse)
+async def remember_form(request: Request):
+    csrf_token = _ensure_csrf(request)
+    return templates.TemplateResponse(
+        "remember.html",
+        {"request": request, "csrf_token": csrf_token, "sent": False, "error": None},
+    )
+
+@app.post("/remember", response_class=HTMLResponse)
+async def remember_submit(
+    request: Request,
+    email: str = Form(...),
+    csrf_token: str = Form(""),
+):
+    if not _check_csrf(request, csrf_token):
+        csrf_token = _ensure_csrf(request)
+        return templates.TemplateResponse(
+            "remember.html",
+            {
+                "request": request,
+                "csrf_token": csrf_token,
+                "sent": False,
+                "error": "Oturum süresi doldu. Lütfen tekrar deneyin.",
+            },
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+    csrf_token = _ensure_csrf(request)
+    return templates.TemplateResponse(
+        "remember.html",
+        {"request": request, "csrf_token": csrf_token, "sent": True, "error": None},
+    )
+
 @app.get("/logout")
 async def logout(request: Request):
     request.session.clear()
