@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Ana Sayfa{% endblock %}
+{% block content %}
+<h2 class="h5 mb-3">Genel Özet</h2>
+<div class="row g-3">
+  <div class="col-md-3"><div class="p-3 border rounded-4">Envanter: {{ stats.envanter_sayisi }}</div></div>
+  <div class="col-md-3"><div class="p-3 border rounded-4">Lisans: {{ stats.lisans_sayisi }}</div></div>
+  <div class="col-md-3"><div class="p-3 border rounded-4">Bekleyen Talep: {{ stats.bekleyen_talep }}</div></div>
+</div>
+{% endblock %}

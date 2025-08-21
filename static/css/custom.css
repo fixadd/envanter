@@ -1,0 +1,6 @@
+/* Basit koyu tema dokunuşları */
+:root { --radius: 1rem; }
+.card { border-radius: var(--radius) !important; }
+.navbar { border-color: rgba(255,255,255,.12) !important; }
+.sidebar-link{ display:block; padding:.375rem .5rem; border-radius:.5rem; text-decoration:none; color:inherit; }
+.sidebar-link:hover{ background:rgba(255,255,255,.065); }
