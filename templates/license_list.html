@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Lisans Takip{% endblock %}
+{% block content %}
+<div class="container-fluid p-3">
+  <h5 class="mb-3">Lisanslar</h5>
+  <div class="table-responsive">
+    <table class="table table-sm table-hover align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Bağlı Envanter No</th>
+          <th>Lisans Adı</th>
+          <th>Lisans Anahtarı</th>
+          <th>Sorumlu Personel</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r.id }}</td>
+          <td>{{ r.bagli_envanter_no or "" }}</td>
+          <td><a href="/licenses/{{ r.id }}" class="text-decoration-underline">{{ r.lisans_adi }}</a></td>
+          <td>{{ r.lisans_anahtari }}</td>
+          <td>{{ r.sorumlu_personel or "" }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-muted">Kayıt yok</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

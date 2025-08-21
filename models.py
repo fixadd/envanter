@@ -77,5 +77,39 @@ class InventoryLog(Base):
 
     inventory: Mapped["Inventory"] = relationship("Inventory", back_populates="logs")
 
+
+class License(Base):
+    __tablename__ = "licenses"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    lisans_adi: Mapped[str] = mapped_column(String(200), index=True, nullable=False)
+    lisans_anahtari: Mapped[str] = mapped_column(String(500), nullable=False)
+    sorumlu_personel: Mapped[str | None] = mapped_column(String(150), index=True)
+    bagli_envanter_no: Mapped[str | None] = mapped_column(String(150), index=True)
+    ifs_no: Mapped[str | None] = mapped_column(String(150))
+    tarih: Mapped[str | None] = mapped_column(String(50))
+    islem_yapan: Mapped[str | None] = mapped_column(String(150))
+    mail_adresi: Mapped[str | None] = mapped_column(String(200))
+
+    logs: Mapped[list["LicenseLog"]] = relationship(
+        "LicenseLog", back_populates="license_", cascade="all, delete-orphan"
+    )
+
+
+class LicenseLog(Base):
+    __tablename__ = "license_logs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    license_id: Mapped[int] = mapped_column(
+        ForeignKey("licenses.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    field: Mapped[str] = mapped_column(String(100), nullable=False)
+    old_value: Mapped[str | None] = mapped_column(Text)
+    new_value: Mapped[str | None] = mapped_column(Text)
+    changed_by: Mapped[str] = mapped_column(String(150), nullable=False)
+    changed_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+    license_: Mapped["License"] = relationship("License", back_populates="logs")
+
 def init_db():
     Base.metadata.create_all(bind=engine)
