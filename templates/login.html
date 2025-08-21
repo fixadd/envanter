@@ -13,17 +13,18 @@
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
       <div class="mb-3">
         <label class="form-label" for="username">Kullanıcı Adı</label>
-        <input id="username" name="username" type="text" class="form-control" required autofocus>
+        <input id="username" name="username" type="text" class="form-control" required autofocus value="{{ saved_username }}">
       </div>
       <div class="mb-3">
         <label class="form-label" for="password">Parola</label>
-        <input id="password" name="password" type="password" class="form-control" required>
+        <input id="password" name="password" type="password" class="form-control" required value="{{ saved_password }}">
+      </div>
+      <div class="mb-3 form-check">
+        <input class="form-check-input" type="checkbox" value="1" id="remember" name="remember" {% if saved_username or saved_password %}checked{% endif %}>
+        <label class="form-check-label small" for="remember">Beni hatırla</label>
       </div>
       <button class="btn btn-primary w-100" type="submit">Giriş Yap</button>
     </form>
-    <div class="text-center mt-2">
-      <a href="/remember" class="small">Kullanıcı adımı/şifremi unuttum</a>
-    </div>
   </div>
 </div>
 {% endblock %}
