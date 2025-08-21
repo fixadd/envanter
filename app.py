@@ -193,6 +193,7 @@ async def login_submit(
     # Başarılı giriş
     request.session["user_id"] = user.id
     request.session["user_name"] = user.full_name or user.username
+    request.session["user_role"] = getattr(user, "role", "")
     _ensure_csrf(request)  # token yenile
     response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
     if remember:

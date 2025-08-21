@@ -128,7 +128,7 @@
                   data-first_name="{{ u.first_name or '' }}"
                   data-last_name="{{ u.last_name or '' }}"
                   data-email="{{ u.email or '' }}"
-                  data-is_admin="{{ 1 if getattr(u,'is_admin',False) else 0 }}">
+                  data-is_admin="{{ 1 if u.is_admin else 0 }}">
                 <td><input type="radio" name="selUser" value="{{ u.id }}"></td>
                 <td>{{ u.id }}</td>
                 <td>{{ u.username }}</td>
