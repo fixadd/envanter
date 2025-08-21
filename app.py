@@ -25,8 +25,8 @@ load_dotenv()
 SESSION_SECRET = os.getenv("SESSION_SECRET")
 if not SESSION_SECRET or len(SESSION_SECRET) < 32:
 # Geliştirme kolaylığı için otomatik üret; üretimde .env zorunlu
-SESSION_SECRET = secrets.token_urlsafe(48)
-print("WARNING: SESSION_SECRET .env'de bulunamadı; geçici bir anahtar üretildi. Üretimde sabit bir gizli anahtar kullanın!")
+ SESSION_SECRET = secrets.token_urlsafe(48)
+ print("WARNING: SESSION_SECRET .env'de bulunamadı; geçici bir anahtar üretildi. Üretimde sabit bir gizli anahtar kullanın!")
 
 
 DEFAULT_ADMIN_USERNAME = os.getenv("DEFAULT_ADMIN_USERNAME", "admin")
