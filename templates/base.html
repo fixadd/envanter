@@ -23,13 +23,16 @@
     <div class="row g-3">
       {% if request.session.get('user_id') %}
       <!-- Sol bloklar -->
-      <aside class="col-12 col-lg-2">
-        <div class="side-group soft-card p-3 mb-3">
-          <div class="side-title">ENVANTER</div>
-          <a class="side-link" href="/inventory">Envanter Takip</a>
-          <a class="side-link" href="/licenses">Lisans Takip</a>
-          <a class="side-link" href="/accessories">Aksesuar Takip</a>
-          <a class="side-link" href="/printers">Yazıcı Takip</a>
+        <aside class="col-12 col-lg-2">
+          <div class="side-group soft-card p-3 mb-3">
+            <a class="side-link" href="/">Ana Sayfa</a>
+          </div>
+          <div class="side-group soft-card p-3 mb-3">
+            <div class="side-title">ENVANTER</div>
+            <a class="side-link" href="/inventory">Envanter Takip</a>
+            <a class="side-link" href="/licenses">Lisans Takip</a>
+            <a class="side-link" href="/accessories">Aksesuar Takip</a>
+            <a class="side-link" href="/printers">Yazıcı Takip</a>
         </div>
         <div class="side-group soft-card p-3 mb-3">
           <div class="side-title">İŞLEMLER</div>
