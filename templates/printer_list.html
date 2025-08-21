@@ -5,7 +5,7 @@
   <h5 class="mb-3">Yazıcılar</h5>
   <div class="d-flex justify-content-between mb-3">
     <div class="d-flex gap-2">
-      <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addPrinterModal">Ekle</button>
+      <a href="/printers/create" class="btn btn-success btn-sm">Ekle</a>
       <button class="btn btn-secondary btn-sm">Düzenle</button>
       <button class="btn btn-danger btn-sm">Sil</button>
     </div>
@@ -38,8 +38,8 @@
         <tr>
           <td>{{ r.id }}</td>
           <td>{{ r.envanter_no }}</td>
-          <td>{{ r.yazici_markasi or "" }}</td>
-          <td>{{ r.yazici_modeli or "" }}</td>
+          <td>{{ r.brand.name if r.brand else "" }}</td>
+          <td>{{ r.model.name if r.model else "" }}</td>
           <td>{{ r.kullanim_alani or "" }}</td>
           <td>{{ r.ip_adresi or "" }}</td>
           <td>{{ r.mac or "" }}</td>
@@ -54,65 +54,6 @@
         {% endfor %}
       </tbody>
     </table>
-  </div>
-
-  <div class="modal fade" id="addPrinterModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-      <form method="post" action="/printers/add" class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Yazıcı Ekle</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row g-2">
-            <div class="col-md-6">
-              <label class="form-label">Envanter No</label>
-              <input name="envanter_no" class="form-control" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Yazıcı Markası</label>
-              <input name="yazici_markasi" class="form-control">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Yazıcı Modeli</label>
-              <input name="yazici_modeli" class="form-control">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Kullanım Alanı</label>
-              <input name="kullanim_alani" class="form-control">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">IP Adresi</label>
-              <input name="ip_adresi" class="form-control">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">MAC</label>
-              <input name="mac" class="form-control">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Hostname</label>
-              <input name="hostname" class="form-control">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Sorumlu Personel</label>
-              <select name="sorumlu_personel" class="form-select">
-                <option value="">Seçiniz</option>
-                {% for u in users %}
-                <option value="{{ u.full_name }}">{{ u.full_name }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">IFS No</label>
-              <input name="ifs_no" class="form-control">
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-success">Kaydet</button>
-        </div>
-      </form>
-    </div>
   </div>
 </div>
 {% endblock %}
