@@ -49,6 +49,7 @@
   <div class="modal fade" id="addLicModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <form method="post" action="/licenses/add" class="modal-content">
+        {% include "_catalog_select.js" %}
         <div class="modal-header">
           <h5 class="modal-title">Lisans Ekle</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -57,7 +58,7 @@
           <div class="row g-2">
             <div class="col-md-6">
               <label class="form-label">Lisans Adı</label>
-              <input name="lisans_adi" class="form-control" required>
+              <select id="lisans_adi_select" class="form-select"></select>
             </div>
             <div class="col-md-6">
               <label class="form-label">Lisans Anahtarı</label>
@@ -98,4 +99,8 @@
     </div>
   </div>
 </div>
+
+<script>
+  basitSelectDoldur({selectId:"lisans_adi_select", url:"/catalog/license-names", hiddenName:"lisans_adi"});
+</script>
 {% endblock %}

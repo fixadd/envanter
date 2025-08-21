@@ -1,28 +1,21 @@
 <div class="row g-3">
-  <!-- ESKİ: yazici_markasi / yazici_modeli alanlarını SİLMİŞ görünecek şekilde kaldırdık -->
-
   <div class="col-md-6">
-    <label class="form-label">Marka</label>
-    <select id="brand" name="brand_id" class="form-select" required>
-      <option value="">Seçiniz…</option>
-    </select>
+    <label class="form-label">Yazıcı Markası</label>
+    <select id="marka_select" name="brand_id" class="form-select"></select>
+  </div>
+  <div class="col-md-6">
+    <label class="form-label">Yazıcı Modeli</label>
+    <select id="model_select" name="model_id" class="form-select" disabled></select>
   </div>
 
   <div class="col-md-6">
-    <label class="form-label">Model</label>
-    <select id="model" name="model_id" class="form-select" required disabled>
-      <option value="">Önce marka seçin…</option>
-    </select>
+    <label class="form-label">Kullanım Alanı</label>
+    <select id="kullanim_select" class="form-select"></select>
   </div>
 
   <div class="col-md-6">
     <label class="form-label">Envanter No</label>
     <input name="envanter_no" class="form-control" required>
-  </div>
-
-  <div class="col-md-6">
-    <label class="form-label">Kullanım Alanı</label>
-    <input name="kullanim_alani" class="form-control">
   </div>
 
   <div class="col-md-4">
@@ -55,50 +48,3 @@
     <input name="islem_yapan" class="form-control">
   </div>
 </div>
-
-<script>
-(async function initBrandModel() {
-  const brandSel = document.getElementById('brand');
-  const modelSel = document.getElementById('model');
-
-  // Markaları yükle
-  const brands = await fetch('/catalog/brands').then(r => r.json()).catch(() => []);
-  brands.forEach(b => {
-    const opt = document.createElement('option');
-    opt.value = b.id; opt.textContent = b.name;
-    if (brandSel.dataset.selected == String(b.id)) { opt.selected = true; }
-    brandSel.appendChild(opt);
-  });
-
-  async function loadModels() {
-    modelSel.innerHTML = '';
-    modelSel.disabled = true;
-    const bid = brandSel.value;
-    if (!bid) {
-      const o = document.createElement('option'); o.textContent = 'Önce marka seçin…';
-      modelSel.appendChild(o); return;
-    }
-    const models = await fetch(`/catalog/models?brand_id=${encodeURIComponent(bid)}`).then(r => r.json()).catch(() => []);
-    if (models.length === 0) {
-      const o = document.createElement('option'); o.textContent = 'Model bulunamadı';
-      modelSel.appendChild(o);
-    } else {
-      const o = document.createElement('option'); o.textContent = 'Seçiniz…'; o.value = '';
-      modelSel.appendChild(o);
-      models.forEach(m => {
-        const opt = document.createElement('option');
-        opt.value = m.id; opt.textContent = m.name;
-        if (modelSel.dataset.selected == String(m.id)) { opt.selected = true; }
-        modelSel.appendChild(opt);
-      });
-      modelSel.disabled = false;
-    }
-  }
-
-  brandSel.addEventListener('change', loadModels);
-
-  if (brandSel.dataset.selected) {
-    await loadModels();
-  }
-})();
-</script>

@@ -55,6 +55,7 @@
   <div class="modal fade" id="addInvModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <form method="post" action="/inventory/add" class="modal-content" style="height: 550px;width: 800px;">
+        {% include "_catalog_select.js" %}
         <div class="modal-header">
           <h5 class="modal-title">Envanter Ekle</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -67,15 +68,15 @@
             </div>
             <div class="col-md-3">
               <label class="form-label">Fabrika</label>
-              <input name="fabrika" class="form-control">
+              <select id="fabrika_select" class="form-select"></select>
             </div>
             <div class="col-md-3">
               <label class="form-label">Departman</label>
-              <input name="departman" class="form-control">
+              <select id="departman_select" class="form-select"></select>
             </div>
             <div class="col-md-3">
               <label class="form-label">Donanım Tipi</label>
-              <input name="donanim_tipi" class="form-control">
+              <select id="donanim_tipi_select" class="form-select"></select>
             </div>
 
             <div class="col-md-3">
@@ -84,11 +85,11 @@
             </div>
             <div class="col-md-3">
               <label class="form-label">Marka</label>
-              <input name="marka" class="form-control">
+              <select id="inv_marka_select" class="form-select"></select>
             </div>
             <div class="col-md-3">
               <label class="form-label">Model</label>
-              <input name="model" class="form-control">
+              <select id="inv_model_select" class="form-select" disabled></select>
             </div>
             <div class="col-md-3">
               <label class="form-label">Seri No</label>
@@ -125,5 +126,18 @@
     </div>
   </div>
 </div>
+
+<script>
+  basitSelectDoldur({selectId:"fabrika_select", url:"/catalog/factories", hiddenName:"fabrika"});
+  basitSelectDoldur({selectId:"departman_select", url:"/catalog/usage-areas", hiddenName:"departman"});
+  basitSelectDoldur({selectId:"donanim_tipi_select", url:"/catalog/hardware-types", hiddenName:"donanim_tipi"});
+  basitSelectDoldur({selectId:"inv_marka_select", url:"/catalog/brands", hiddenName:"marka"});
+  bağımlıSelectDoldur({
+    ustSelectId:"inv_marka_select",
+    altSelectId:"inv_model_select",
+    altUrlBuilder:(bid)=>`/catalog/models?brand_id=${encodeURIComponent(bid)}`,
+    altHiddenName:"model"
+  });
+</script>
 {% endblock %}
 
