@@ -21,7 +21,7 @@ from auth import (
 )
 from routers import (
     home,
-    inventory,
+    inventory as inventory_router,
     licenses,
     accessories,
     printers,
@@ -76,7 +76,7 @@ templates = Jinja2Templates(directory="templates")
 
 # --- Routers (korumalı) -------------------------------------------------------
 app.include_router(home.router, prefix="", dependencies=[Depends(current_user)])
-app.include_router(inventory.router, prefix="/inventory", tags=["Inventory"], dependencies=[Depends(current_user)])
+app.include_router(inventory_router.router, dependencies=[Depends(current_user)])
 app.include_router(licenses.router, prefix="/licenses", tags=["Licenses"], dependencies=[Depends(current_user)])
 app.include_router(accessories.router, prefix="/accessories", tags=["Accessories"], dependencies=[Depends(current_user)])
 app.include_router(printers.router, prefix="/printers", tags=["Printers"], dependencies=[Depends(current_user)])
