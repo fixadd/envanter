@@ -1,40 +1,59 @@
 from __future__ import annotations
 import os, secrets
 from typing import Optional
+
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request, Form, Depends, status
+from fastapi import FastAPI, Request, Form, Depends, status, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
-from sqlalchemy.orm import Session
-from fastapi import Depends, HTTPException
-from fastapi.responses import RedirectResponse
-from routers import home, inventory, licenses, accessories, printers, requests as reqs, stock, trash, profile, admin, integrations, logs
-from security import current_user, require_roles
 from starlette import status as st_status
-
+from sqlalchemy.orm import Session
 
 from models import init_db
-from auth import get_db, get_user_by_username, get_user_by_id, verify_password, hash_password
-
+from auth import (
+    get_db,
+    get_user_by_username,
+    get_user_by_id,
+    verify_password,
+    hash_password,
+)
+from routers import (
+    home,
+    inventory,
+    licenses,
+    accessories,
+    printers,
+    requests as reqs,
+    stock,
+    trash,
+    profile,
+    admin,
+    integrations,
+    logs,
+)
+from security import current_user, require_roles
 
 load_dotenv()
 
-
+# --- Secrets & Config ---------------------------------------------------------
 SESSION_SECRET = os.getenv("SESSION_SECRET")
 if not SESSION_SECRET or len(SESSION_SECRET) < 32:
-# Geliştirme kolaylığı için otomatik üret; üretimde .env zorunlu
- SESSION_SECRET = secrets.token_urlsafe(48)
- print("WARNING: SESSION_SECRET .env'de bulunamadı; geçici bir anahtar üretildi. Üretimde sabit bir gizli anahtar kullanın!")
-
+    # Geliştirme kolaylığı için otomatik üret; üretimde .env zorunlu
+    SESSION_SECRET = secrets.token_urlsafe(48)
+    print(
+        "WARNING: SESSION_SECRET .env'de bulunamadı ya da kısa; geçici anahtar üretildi. "
+        "Üretimde sabit ve 32+ karakter kullanın!"
+    )
 
 DEFAULT_ADMIN_USERNAME = os.getenv("DEFAULT_ADMIN_USERNAME", "admin")
 DEFAULT_ADMIN_PASSWORD = os.getenv("DEFAULT_ADMIN_PASSWORD", "admin123")
 DEFAULT_ADMIN_FULLNAME = os.getenv("DEFAULT_ADMIN_FULLNAME", "Sistem Yöneticisi")
 
-
+# --- App & Middleware ---------------------------------------------------------
 app = FastAPI(title="Envanter Takip – Login")
+
 @app.exception_handler(HTTPException)
 async def redirect_on_auth(request, exc: HTTPException):
     # security.py'den gelen "redirect:/..." sinyalini işle
@@ -42,7 +61,20 @@ async def redirect_on_auth(request, exc: HTTPException):
         url = exc.detail.split(":", 1)[1]
         return RedirectResponse(url=url, status_code=st_status.HTTP_303_SEE_OTHER)
     raise exc
-# Korumalı modüller
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=SESSION_SECRET,
+    max_age=60 * 60 * 8,
+    same_site="lax",
+    https_only=False,
+)
+
+# Statik dosyalar ve şablonlar
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
+
+# --- Routers (korumalı) -------------------------------------------------------
 app.include_router(home.router, prefix="", dependencies=[Depends(current_user)])
 app.include_router(inventory.router, prefix="/inventory", tags=["Inventory"], dependencies=[Depends(current_user)])
 app.include_router(licenses.router, prefix="/licenses", tags=["Licenses"], dependencies=[Depends(current_user)])
@@ -58,16 +90,7 @@ app.include_router(integrations.router, prefix="/integrations", tags=["Integrati
 app.include_router(logs.router, prefix="/logs", tags=["Logs"], dependencies=[Depends(require_roles("admin"))])
 app.include_router(admin.router, prefix="/admin", tags=["Admin"], dependencies=[Depends(require_roles("admin"))])
 
-app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET, max_age=60*60*8, same_site="lax", https_only=False)
-
-
-# Statik dosyalar ve şablonlar
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
-
-
-
-
+# --- Startup: DB init & default admin ----------------------------------------
 @app.on_event("startup")
 def on_startup():
     from models import SessionLocal, User
@@ -87,36 +110,59 @@ def on_startup():
     finally:
         db.close()
 
-
-
-
-
+# --- CSRF yardımcıları --------------------------------------------------------
 def _ensure_csrf(request: Request) -> str:
-token = secrets.token_urlsafe(32)
-request.session["csrf_token"] = token
-return token
-
-
-
+    token = secrets.token_urlsafe(32)
+    request.session["csrf_token"] = token
+    return token
 
 def _check_csrf(request: Request, token_from_form: Optional[str]) -> bool:
-return token_from_form and request.session.get("csrf_token") == token_from_form
+    return bool(token_from_form) and request.session.get("csrf_token") == token_from_form
 
-
-
-
+# --- Login/Logout -------------------------------------------------------------
 @app.get("/login", response_class=HTMLResponse)
 async def login_form(request: Request):
-# Zaten girişliyse yönlendir
-if request.session.get("user_id"):
-return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
-csrf_token = _ensure_csrf(request)
-return templates.TemplateResponse("login.html", {"request": request, "csrf_token": csrf_token, "error": None})
-
-
-
+    # Zaten girişliyse yönlendir
+    if request.session.get("user_id"):
+        return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+    csrf_token = _ensure_csrf(request)
+    return templates.TemplateResponse(
+        "login.html",
+        {"request": request, "csrf_token": csrf_token, "error": None},
+    )
 
 @app.post("/login", response_class=HTMLResponse)
 async def login_submit(
-request: Request,
-)
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+    csrf_token: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    if not _check_csrf(request, csrf_token):
+        csrf_token = _ensure_csrf(request)
+        return templates.TemplateResponse(
+            "login.html",
+            {"request": request, "csrf_token": csrf_token, "error": "Oturum süresi doldu. Lütfen tekrar deneyin."},
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+
+    user = get_user_by_username(db, username.strip())
+    if not user or not verify_password(password, user.password_hash):
+        csrf_token = _ensure_csrf(request)
+        return templates.TemplateResponse(
+            "login.html",
+            {"request": request, "csrf_token": csrf_token, "error": "Kullanıcı adı veya parola hatalı."},
+            status_code=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    # Başarılı giriş
+    request.session["user_id"] = user.id
+    request.session["user_name"] = user.full_name or user.username
+    _ensure_csrf(request)  # token yenile
+    return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+
+@app.get("/logout")
+async def logout(request: Request):
+    request.session.clear()
+    return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
