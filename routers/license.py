@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, Request, HTTPException, Form
 from sqlalchemy.orm import Session
 from fastapi.templating import Jinja2Templates
-from models import License, LicenseLog
+from starlette.responses import HTMLResponse, RedirectResponse
+from datetime import datetime
+from models import License, LicenseLog, User, Inventory
 from .license_schemas import LicenseCreate, LicenseUpdate
 from auth import get_db
 
@@ -11,7 +13,7 @@ templates = Jinja2Templates(directory="templates")
 router = APIRouter(prefix="/licenses", tags=["Lisanslar"])
 
 
-@router.get("")
+@router.get("", response_class=HTMLResponse)
 def license_list(request: Request, db: Session = Depends(get_db)):
     rows = (
         db.query(
@@ -24,7 +26,39 @@ def license_list(request: Request, db: Session = Depends(get_db)):
         .order_by(License.id.desc())
         .all()
     )
-    return templates.TemplateResponse("license_list.html", {"request": request, "rows": rows})
+    users = db.query(User).order_by(User.full_name).all()
+    inventory_nos = [r.no for r in db.query(Inventory.no).order_by(Inventory.no).all()]
+    return templates.TemplateResponse(
+        "license_list.html",
+        {"request": request, "rows": rows, "users": users, "inventory_nos": inventory_nos},
+    )
+
+
+@router.post("/add", response_class=HTMLResponse)
+def license_add(
+    request: Request,
+    lisans_adi: str = Form(...),
+    lisans_anahtari: str = Form(...),
+    sorumlu_personel: str | None = Form(None),
+    bagli_envanter_no: str | None = Form(None),
+    ifs_no: str | None = Form(None),
+    mail_adresi: str | None = Form(None),
+    db: Session = Depends(get_db),
+):
+    payload = LicenseCreate(
+        lisans_adi=lisans_adi,
+        lisans_anahtari=lisans_anahtari,
+        sorumlu_personel=sorumlu_personel,
+        bagli_envanter_no=bagli_envanter_no,
+        ifs_no=ifs_no,
+        mail_adresi=mail_adresi,
+        tarih=datetime.now().strftime("%Y-%m-%d"),
+        islem_yapan=request.session.get("user_name"),
+    )
+    lic = License(**payload.model_dump())
+    db.add(lic)
+    db.commit()
+    return RedirectResponse("/licenses", status_code=303)
 
 
 @router.get("/{license_id}")
