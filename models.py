@@ -11,6 +11,7 @@ from sqlalchemy import (
     func,
     ForeignKey,
     Text,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker, relationship
 
@@ -149,6 +150,19 @@ class PrinterLog(Base):
     )
 
     printer: Mapped["Printer"] = relationship("Printer", back_populates="logs")
+
+
+class Lookup(Base):
+    __tablename__ = "lookups"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    category: Mapped[str] = mapped_column(String(50), index=True, nullable=False)
+    value: Mapped[str] = mapped_column(String(200), nullable=False)
+    created_by: Mapped[str | None] = mapped_column(String(150))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+    __table_args__ = (UniqueConstraint("category", "value", name="uq_lookup_category_value"),)
+
 
 def init_db():
     Base.metadata.create_all(bind=engine)
