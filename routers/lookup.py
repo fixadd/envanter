@@ -1,40 +1,45 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import text
 
-from database import get_db
-from models import Factory, UsageArea, HardwareType, Brand, Model, LicenseName
+from database import get_db  # projedeki mevcut get_db
 
 router = APIRouter(prefix="/api/lookup", tags=["lookup"])
 
-ENTITY_MAP = {
-    "fabrika": Factory,
-    "kullanim-alani": UsageArea,
-    "donanim-tipi": HardwareType,
-    "marka": Brand,
-    "model": Model,
-    "lisans-adi": LicenseName,
+# Ürün Ekle sayfasındaki kartlara karşılık gelen tablolar:
+# (Gerekirse tablo adlarını birebir DB'nizdeki adlarla düzeltin.)
+ENTITY_TABLE = {
+    "kullanim-alani": "kullanim_alani",
+    "lisans-adi": "lisans_adi",
+    "fabrika": "fabrika",
+    "donanim-tipi": "donanim_tipi",
+    "marka": "marka",
+    "model": "model",
 }
-
 
 @router.get("/{entity}")
 def lookup_list(
     entity: str,
     q: str = Query(""),
-    limit: int = 30,
+    limit: int = 50,
     marka_id: int | None = None,
     db: Session = Depends(get_db),
 ):
-    ModelCls = ENTITY_MAP.get(entity)
-    if not ModelCls:
+    table = ENTITY_TABLE.get(entity)
+    if not table:
         raise HTTPException(404, "Geçersiz entity")
 
-    query = db.query(ModelCls)
-    if entity == "model" and marka_id:
-        query = query.filter(Model.brand_id == marka_id)
-
+    # Temel sorgu: id, ad kolonlarını bekliyoruz (modellerde marka_id var)
+    params = {"limit": limit}
+    where = []
     if q:
-        query = query.filter(func.lower(ModelCls.name).contains(q.lower()))
+        where.append("LOWER(ad) LIKE LOWER(:q)")
+        params["q"] = f"%{q}%"
+    if entity == "model" and marka_id:
+        where.append("marka_id = :marka_id")
+        params["marka_id"] = marka_id
 
-    rows = query.order_by(ModelCls.name).limit(limit).all()
-    return [{"id": r.id, "ad": r.name} for r in rows]
+    where_sql = (" WHERE " + " AND ".join(where)) if where else ""
+    sql = text(f"SELECT id, ad FROM {table}{where_sql} ORDER BY ad LIMIT :limit")
+    rows = db.execute(sql, params).mappings().all()
+    return [{"id": r["id"], "ad": r["ad"]} for r in rows]
