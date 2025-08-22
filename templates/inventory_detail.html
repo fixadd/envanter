@@ -78,7 +78,7 @@
           <th>Vendor</th>
           <th>Son Kullanma</th>
           <th>Anahtar</th>
-          <th>İşlem</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -88,8 +88,8 @@
           <td>{{ lic.vendor or '-' }}</td>
           <td>{{ lic.son_kullanma|date('Y-MM-dd') if lic.son_kullanma else '-' }}</td>
           <td class="text-monospace">{{ lic.anahtar or '-' }}</td>
-          <td>
-            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('license_edit', id=lic.id) }}" onclick="stopRowClick(event)">Düzenle</a>
+          <td class="text-nowrap">
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('license_edit', id=lic.id) }}" onclick="event.stopPropagation()">Düzenle</a>
           </td>
         </tr>
         {% endfor %}
