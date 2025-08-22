@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.responses import HTMLResponse, RedirectResponse
 from datetime import datetime
 
-from models import Printer, PrinterLog, Brand, Model, UsageArea
+from models import Printer, PrinterLog, Brand, Model, UsageArea, User
 from auth import get_db
 
 templates = Jinja2Templates(directory="templates")
@@ -14,8 +14,9 @@ router = APIRouter(prefix="/printers", tags=["Yazıcılar"])
 @router.get("", response_class=HTMLResponse)
 def printer_list(request: Request, db: Session = Depends(get_db)):
     rows = db.query(Printer).order_by(Printer.id.desc()).all()
+    users = db.query(User).order_by(User.full_name).all()
     return templates.TemplateResponse(
-        "printer_list.html", {"request": request, "rows": rows}
+        "printer_list.html", {"request": request, "rows": rows, "users": users}
     )
 
 
