@@ -124,19 +124,93 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const modalEl = document.getElementById('envanterEkleModal');
-  if (!modalEl) return;
+(function () {
+  // Basit fetch helper
+  async function getJSON(url) {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  }
 
-  modalEl.addEventListener('shown.bs.modal', async () => {
-    await _selects.fillChoices({ endpoint: "/api/lookup/fabrika",        selectId: "selFabrika",   placeholder: "Fabrika seçiniz…" });
-    await _selects.fillChoices({ endpoint: "/api/lookup/kullanim-alani", selectId: "selDepartman", placeholder: "Departman (Kullanım alanından) seçiniz…" });
-    await _selects.fillChoices({ endpoint: "/api/lookup/donanim-tipi",   selectId: "selDonanim",   placeholder: "Donanım tipi seçiniz…" });
-    await _selects.fillChoices({ endpoint: "/api/lookup/marka",          selectId: "selMarka",     placeholder: "Marka seçiniz…" });
+  // <select> doldurucu: option.value=id, option.text=name
+  async function fillSelect({ endpoint, selectId, params = {}, placeholder = "Seçiniz…" }) {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    const usp = new URLSearchParams(params);
+    const data = await getJSON(endpoint + (usp.toString() ? "?" + usp.toString() : ""));
 
-    await _selects.bindMarkaModel("selMarka", "selModel");
-    _selects.enableRemoteSearch("selModel", "/api/lookup/model", ()=>({ marka_id: document.getElementById("selMarka").value || "" }));
+    sel.innerHTML = "";
+    // placeholder
+    const ph = document.createElement("option");
+    ph.value = "";
+    ph.textContent = placeholder;
+    sel.appendChild(ph);
+
+    data.forEach(item => {
+      const opt = document.createElement("option");
+      opt.value = item.id;                       // kayda gidecek id
+      opt.textContent = item.name ?? item.ad;    // kullanıcıya görünen metin
+      sel.appendChild(opt);
+    });
+
+    sel.disabled = false;
+  }
+
+  // Marka -> Model bağımlılığı
+  function bindBrandToModel(brandSelectId, modelSelectId) {
+    const brandSel = document.getElementById(brandSelectId);
+    const modelSel = document.getElementById(modelSelectId);
+    if (!brandSel || !modelSel) return;
+
+    async function updateModels() {
+      modelSel.innerHTML = "";
+      modelSel.disabled = true;
+
+      const brandId = brandSel.value;
+      if (!brandId) {
+        // placeholder bırak
+        const ph = document.createElement("option");
+        ph.value = "";
+        ph.textContent = "Önce marka seçiniz…";
+        modelSel.appendChild(ph);
+        return;
+      }
+
+      // Seçilen marka id'sine göre modelleri getir
+      await fillSelect({
+        endpoint: "/api/lookup/model",
+        selectId: modelSelectId,
+        params: { marka_id: brandId },
+        placeholder: "Model seçiniz…"
+      });
+    }
+
+    // İlk durumda boş/disabled bırak
+    modelSel.innerHTML = '<option value="">Önce marka seçiniz…</option>';
+    modelSel.disabled = true;
+
+    brandSel.addEventListener("change", updateModels);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const modalEl = document.getElementById('envanterEkleModal');
+    if (!modalEl) return;
+
+    modalEl.addEventListener('shown.bs.modal', async () => {
+      try {
+        // Temel sözlükler
+        await fillSelect({ endpoint: "/api/lookup/fabrika",        selectId: "selFabrika",   placeholder: "Fabrika seçiniz…" });
+        await fillSelect({ endpoint: "/api/lookup/kullanim-alani", selectId: "selDepartman", placeholder: "Departman seçiniz…" });
+        await fillSelect({ endpoint: "/api/lookup/donanim-tipi",   selectId: "selDonanim",   placeholder: "Donanım tipi seçiniz…" });
+        await fillSelect({ endpoint: "/api/lookup/marka",          selectId: "selMarka",     placeholder: "Marka seçiniz…" });
+
+        // Marka -> Model bağla (marka değişince modeller yüklenir)
+        bindBrandToModel("selMarka", "selModel");
+      } catch (e) {
+        console.error(e);
+      }
+    });
   });
-});
+})();
 </script>
 {% endblock %}
