@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from fastapi.templating import Jinja2Templates
 from starlette.responses import HTMLResponse, RedirectResponse
 from datetime import datetime
-from models import License, LicenseLog, User, Inventory
+from models import License, LicenseLog, User, Inventory, LicenseName
 from .license_schemas import LicenseCreate, LicenseUpdate
 from auth import get_db
 
@@ -37,7 +37,7 @@ def license_list(request: Request, db: Session = Depends(get_db)):
 @router.post("/add", response_class=HTMLResponse)
 def license_add(
     request: Request,
-    lisans_adi: str = Form(...),
+    lisans_adi_id: int = Form(...),
     lisans_anahtari: str = Form(...),
     sorumlu_personel: str | None = Form(None),
     bagli_envanter_no: str | None = Form(None),
@@ -45,6 +45,8 @@ def license_add(
     mail_adresi: str | None = Form(None),
     db: Session = Depends(get_db),
 ):
+    name_obj = db.query(LicenseName).get(lisans_adi_id)
+    lisans_adi = name_obj.name if name_obj else ""
     payload = LicenseCreate(
         lisans_adi=lisans_adi,
         lisans_anahtari=lisans_anahtari,

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from auth import get_db
+from database import get_db
 from models import Factory, UsageArea, HardwareType, Brand, Model, LicenseName
 
 router = APIRouter(prefix="/api/lookup", tags=["lookup"])
@@ -37,4 +37,4 @@ def lookup_list(
         query = query.filter(func.lower(ModelCls.name).contains(q.lower()))
 
     rows = query.order_by(ModelCls.name).limit(limit).all()
-    return [{"id": r.id, "ad": getattr(r, "name", None)} for r in rows]
+    return [{"id": r.id, "ad": r.name} for r in rows]

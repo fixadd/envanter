@@ -4,7 +4,16 @@ from starlette.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
 
-from models import Inventory, InventoryLog, User
+from models import (
+    Inventory,
+    InventoryLog,
+    User,
+    Factory,
+    UsageArea,
+    HardwareType,
+    Brand,
+    Model,
+)
 from auth import get_db
 from .inventory_schemas import InventoryCreate, InventoryUpdate
 
@@ -54,12 +63,12 @@ def create_inventory(payload: InventoryCreate, db: Session = Depends(get_db)):
 @router.post("/add", response_class=HTMLResponse)
 def inventory_add(
     no: str = Form(...),
-    fabrika: str | None = Form(None),
-    departman: str | None = Form(None),
-    donanim_tipi: str | None = Form(None),
+    fabrika_id: int | None = Form(None),
+    departman_id: int | None = Form(None),
+    donanim_tipi_id: int | None = Form(None),
     bilgisayar_adi: str | None = Form(None),
-    marka: str | None = Form(None),
-    model: str | None = Form(None),
+    marka_id: int | None = Form(None),
+    model_id: int | None = Form(None),
     seri_no: str | None = Form(None),
     sorumlu_personel: str | None = Form(None),
     bagli_makina_no: str | None = Form(None),
@@ -67,6 +76,13 @@ def inventory_add(
     notlar: str | None = Form(None),
     db: Session = Depends(get_db),
 ):
+    fabrika = db.query(Factory).get(fabrika_id).name if fabrika_id else None
+    departman = db.query(UsageArea).get(departman_id).name if departman_id else None
+    donanim_tipi = (
+        db.query(HardwareType).get(donanim_tipi_id).name if donanim_tipi_id else None
+    )
+    marka = db.query(Brand).get(marka_id).name if marka_id else None
+    model = db.query(Model).get(model_id).name if model_id else None
     payload = InventoryCreate(
         no=no,
         fabrika=fabrika,
