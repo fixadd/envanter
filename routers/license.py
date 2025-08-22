@@ -12,9 +12,9 @@ templates = Jinja2Templates(directory="templates")
 
 @router.get("/licenses", name="license_list", response_class=HTMLResponse)
 def license_list(request: Request, db: Session = Depends(get_db)):
-    rows = db.query(License).order_by(License.adi.asc()).all()
+    lisanslar = db.query(License).order_by(License.adi.asc()).all()
     return templates.TemplateResponse(
-        "license_list.html", {"request": request, "rows": rows}
+        "license_list.html", {"request": request, "lisanslar": lisanslar}
     )
 
 
