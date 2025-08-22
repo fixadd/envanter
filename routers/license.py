@@ -1,131 +1,98 @@
-from fastapi import APIRouter, Depends, Request, HTTPException, Form
+from fastapi import APIRouter, Request, Depends, Form
 from sqlalchemy.orm import Session
 from fastapi.templating import Jinja2Templates
-from starlette.responses import HTMLResponse, RedirectResponse
-from datetime import datetime
-from models import License, LicenseLog, User, Inventory, LicenseName
-from .license_schemas import LicenseCreate, LicenseUpdate
-from auth import get_db
+from fastapi.responses import RedirectResponse, HTMLResponse
 
-# from auth import require_login  # login varsa Depends(require_login) ile sarabilirsin
+from models import License, Inventory
+from database import get_db
 
+router = APIRouter()
 templates = Jinja2Templates(directory="templates")
-router = APIRouter(prefix="/licenses", tags=["Lisanslar"])
 
 
-@router.get("", response_class=HTMLResponse)
+@router.get("/licenses", name="license_list", response_class=HTMLResponse)
 def license_list(request: Request, db: Session = Depends(get_db)):
-    rows = (
-        db.query(
-            License.id,
-            License.bagli_envanter_no,
-            License.lisans_adi,
-            License.lisans_anahtari,
-            License.sorumlu_personel,
-        )
-        .order_by(License.id.desc())
-        .all()
-    )
-    users = db.query(User).order_by(User.full_name).all()
-    inventory_nos = [r.no for r in db.query(Inventory.no).order_by(Inventory.no).all()]
+    rows = db.query(License).order_by(License.adi.asc()).all()
     return templates.TemplateResponse(
-        "license_list.html",
-        {"request": request, "rows": rows, "users": users, "inventory_nos": inventory_nos},
+        "license_list.html", {"request": request, "rows": rows}
     )
 
 
-@router.post("/add", response_class=HTMLResponse)
-def license_add(
+@router.get("/licenses/new", name="license_new")
+def license_new(request: Request, db: Session = Depends(get_db)):
+    envanterler = db.query(Inventory).order_by(Inventory.no.asc()).all()
+    return templates.TemplateResponse(
+        "license_form.html",
+        {
+            "request": request,
+            "form_action": request.url_for("license_create"),
+            "license": None,
+            "envanterler": envanterler,
+        },
+    )
+
+
+@router.post("/licenses", name="license_create")
+def license_create(
     request: Request,
-    lisans_adi_id: int = Form(...),
-    lisans_anahtari: str = Form(...),
-    sorumlu_personel: str | None = Form(None),
-    bagli_envanter_no: str | None = Form(None),
-    ifs_no: str | None = Form(None),
-    mail_adresi: str | None = Form(None),
     db: Session = Depends(get_db),
+    adi: str = Form(...),
+    vendor: str = Form(None),
+    anahtar: str = Form(None),
+    son_kullanma: str = Form(None),
+    inventory_id: int | None = Form(None),
 ):
-    name_obj = db.query(LicenseName).get(lisans_adi_id)
-    lisans_adi = name_obj.name if name_obj else ""
-    payload = LicenseCreate(
-        lisans_adi=lisans_adi,
-        lisans_anahtari=lisans_anahtari,
-        sorumlu_personel=sorumlu_personel,
-        bagli_envanter_no=bagli_envanter_no,
-        ifs_no=ifs_no,
-        mail_adresi=mail_adresi,
-        tarih=datetime.now().strftime("%Y-%m-%d"),
-        islem_yapan=request.session.get("user_name"),
+    lic = License(
+        adi=adi,
+        vendor=vendor,
+        anahtar=anahtar,
+        son_kullanma=son_kullanma or None,
+        inventory_id=inventory_id or None,
     )
-    lic = License(**payload.model_dump())
     db.add(lic)
     db.commit()
-    return RedirectResponse("/licenses", status_code=303)
+    return RedirectResponse(request.url_for("license_list"), status_code=303)
 
 
-@router.get("/{license_id}")
-def license_detail(license_id: int, request: Request, db: Session = Depends(get_db)):
-    lic = db.query(License).filter(License.id == license_id).first()
-    if not lic:
-        raise HTTPException(404, "Lisans bulunamadı")
-
-    logs = (
-        db.query(LicenseLog)
-        .filter(LicenseLog.license_id == lic.id)
-        .order_by(LicenseLog.changed_at.desc())
-        .all()
-    )
+@router.get("/licenses/{id}/edit", name="license_edit")
+def license_edit(id: int, request: Request, db: Session = Depends(get_db)):
+    lic = db.get(License, id)
+    envanterler = db.query(Inventory).order_by(Inventory.no.asc()).all()
     return templates.TemplateResponse(
-        "license_detail.html", {"request": request, "item": lic, "logs": logs}
+        "license_form.html",
+        {
+            "request": request,
+            "form_action": request.url_for("license_update", id=id),
+            "license": lic,
+            "envanterler": envanterler,
+        },
     )
 
 
-@router.post("")
-def create_license(payload: LicenseCreate, db: Session = Depends(get_db)):
-    lic = License(**payload.model_dump())
-    db.add(lic)
+@router.post("/licenses/{id}", name="license_update")
+def license_update(
+    id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    adi: str = Form(...),
+    vendor: str = Form(None),
+    anahtar: str = Form(None),
+    son_kullanma: str = Form(None),
+    inventory_id: int | None = Form(None),
+):
+    lic = db.get(License, id)
+    lic.adi = adi
+    lic.vendor = vendor
+    lic.anahtar = anahtar
+    lic.son_kullanma = son_kullanma or None
+    lic.inventory_id = inventory_id or None
     db.commit()
-    return {"ok": True, "id": lic.id}
+    return RedirectResponse(request.url_for("license_list"), status_code=303)
 
 
-@router.post("/{license_id}/update")
-def update_license(license_id: int, payload: LicenseUpdate, db: Session = Depends(get_db)):
-    lic = db.query(License).filter(License.id == license_id).first()
-    if not lic:
-        raise HTTPException(404, "Lisans yok")
-
-    mutable_fields = [
-        "lisans_adi",
-        "lisans_anahtari",
-        "sorumlu_personel",
-        "bagli_envanter_no",
-        "ifs_no",
-        "tarih",
-        "islem_yapan",
-        "mail_adresi",
-    ]
-
-    changer = payload.islem_yapan or "Sistem"
-
-    changed = False
-    for f in mutable_fields:
-        new_val = getattr(payload, f, None)
-        if new_val is None:
-            continue
-        old_val = getattr(lic, f)
-        if new_val != old_val:
-            setattr(lic, f, new_val)
-            db.add(
-                LicenseLog(
-                    license_id=lic.id,
-                    field=f,
-                    old_value=str(old_val) if old_val is not None else None,
-                    new_value=str(new_val) if new_val is not None else None,
-                    changed_by=changer,
-                )
-            )
-            changed = True
-
-    if changed:
-        db.commit()
-    return {"ok": True}
+@router.get("/licenses/{id}", name="license_detail", response_class=HTMLResponse)
+def license_detail(id: int, request: Request, db: Session = Depends(get_db)):
+    lic = db.get(License, id)
+    return templates.TemplateResponse(
+        "license_detail.html", {"request": request, "license": lic}
+    )

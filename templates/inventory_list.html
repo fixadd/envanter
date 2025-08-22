@@ -35,7 +35,7 @@
       </thead>
       <tbody>
         {% for r in rows %}
-        <tr data-href="/inventory/{{ r.no }}">
+        <tr data-href="{{ url_for('inventory_detail', id=r.id) }}">
           <td>
             <input type="checkbox" name="select_row" value="{{ r.id }}" onclick="stopRowClick(event)">
           </td>
@@ -46,7 +46,7 @@
           <td>{{ r.bilgisayar_adi or "" }}</td>
           <td>{{ r.sorumlu_personel or "" }}</td>
           <td class="text-nowrap">
-            <a class="btn btn-sm btn-outline-primary" href="/inventory/{{ r.no }}" onclick="stopRowClick(event)">Düzenle</a>
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('inventory_detail', id=r.id) }}" onclick="stopRowClick(event)">Düzenle</a>
             <button class="btn btn-sm btn-outline-danger" onclick="stopRowClick(event); deleteInventory('{{ r.id }}')">Sil</button>
           </td>
         </tr>
