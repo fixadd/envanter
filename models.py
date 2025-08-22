@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 from datetime import datetime, date
+from typing import Optional
 from sqlalchemy import (
     create_engine,
     Integer,
@@ -109,7 +110,9 @@ class License(Base):
         nullable=True,
         index=True,
     )
-    inventory: Mapped["Inventory" | None] = relationship("Inventory", back_populates="licenses")
+    inventory: Mapped[Optional["Inventory"]] = relationship(
+        "Inventory", back_populates="licenses"
+    )
 
     logs: Mapped[list["LicenseLog"]] = relationship(
         "LicenseLog", back_populates="license_", cascade="all, delete-orphan"
