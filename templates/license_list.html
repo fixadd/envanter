@@ -1,46 +1,55 @@
 {% extends "base.html" %}
 {% block title %}Lisanslar{% endblock %}
+
 {% block content %}
-<div class="container-fluid p-3">
-  <div class="d-flex justify-content-between mb-3">
-    <h5>Lisanslar</h5>
-    <a class="btn btn-primary btn-sm" href="{{ url_for('license_new') }}">Yeni Lisans</a>
+<div class="container-fluid p-3 content">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0">Lisanslar</h4>
+    <a class="btn btn-primary" href="{{ url_for('license_new') }}">Yeni Lisans</a>
   </div>
-  <div class="table-responsive">
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th>Lisans Adı</th>
-          <th>Vendor</th>
-          <th>Son Kullanma</th>
-          <th>Anahtar</th>
-          <th>Envanter</th>
-          <th>İşlem</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for lic in rows %}
-        <tr data-href="{{ url_for('license_detail', id=lic.id) }}">
-          <td>{{ lic.adi }}</td>
-          <td>{{ lic.vendor or '-' }}</td>
-          <td>{{ lic.son_kullanma|date('Y-MM-dd') if lic.son_kullanma else '-' }}</td>
-          <td class="text-monospace">{{ lic.anahtar or '-' }}</td>
-          <td>
-            {% if lic.inventory %}
-              <a href="{{ url_for('inventory_detail', id=lic.inventory.id) }}" onclick="stopRowClick(event)">{{ lic.inventory.no }}</a>
-            {% else %}
-              -
-            {% endif %}
-          </td>
-          <td>
-            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('license_edit', id=lic.id) }}" onclick="stopRowClick(event)">Düzenle</a>
-          </td>
-        </tr>
+
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Lisans Adı</th>
+            <th>Vendor</th>
+            <th>Son Kullanma</th>
+            <th>Anahtar</th>
+            <th>Envanter</th>
+            <th class="text-end">İşlem</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% if lisanslar|length == 0 %}
+          <tr><td colspan="6" class="text-muted">Kayıt yok</td></tr>
         {% else %}
-        <tr><td colspan="6" class="text-muted">Kayıt yok</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+          {% for lic in lisanslar %}
+          <tr data-href="{{ url_for('license_detail', id=lic.id) }}">
+            <td>{{ lic.adi }}</td>
+            <td>{{ lic.vendor or '-' }}</td>
+            <td>{{ lic.son_kullanma|date('Y-MM-dd') if lic.son_kullanma else '-' }}</td>
+            <td class="text-monospace">{{ lic.anahtar or '-' }}</td>
+            <td>
+              {% if lic.inventory %}
+                <a href="{{ url_for('inventory_detail', id=lic.inventory.id) }}" onclick="event.stopPropagation()">
+                  {{ lic.inventory.no }}
+                </a>
+              {% else %}-{% endif %}
+            </td>
+            <td class="text-end">
+              <a class="btn btn-sm btn-outline-primary"
+                 href="{{ url_for('license_edit', id=lic.id) }}"
+                 onclick="event.stopPropagation()">Düzenle</a>
+            </td>
+          </tr>
+          {% endfor %}
+        {% endif %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 {% endblock %}
+
