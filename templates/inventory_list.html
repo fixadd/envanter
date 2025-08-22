@@ -109,10 +109,7 @@
               <label class="form-label">Bağlı Makina No</label>
               <input name="bagli_makina_no" class="form-control">
             </div>
-            <div class="col-md-3">
-              <label class="form-label">Tarih</label>
-              <input name="tarih" type="date" class="form-control" value="{{ today }}">
-            </div>
+            <input name="tarih" type="hidden" value="{{ today }}">
             <div class="col-md-3">
               <label class="form-label">Notlar</label>
               <textarea name="notlar" class="form-control" rows="1"></textarea>
