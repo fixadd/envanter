@@ -112,9 +112,9 @@ def inventory_add(
     return RedirectResponse("/inventory", status_code=303)
 
 
-@router.get("/{no}", response_class=HTMLResponse)
-def inventory_detail(no: str, request: Request, db: Session = Depends(get_db)):
-    inv = db.query(Inventory).filter(Inventory.no == no).first()
+@router.get("/{id}", name="inventory_detail", response_class=HTMLResponse)
+def inventory_detail(id: int, request: Request, db: Session = Depends(get_db)):
+    inv = db.get(Inventory, id)
     if not inv:
         raise HTTPException(404, "Kayıt bulunamadı")
 
@@ -126,7 +126,7 @@ def inventory_detail(no: str, request: Request, db: Session = Depends(get_db)):
     )
 
     return templates.TemplateResponse(
-        "inventory_detail.html", {"request": request, "item": inv, "logs": logs}
+        "inventory_detail.html", {"request": request, "inv": inv, "logs": logs}
     )
 
 

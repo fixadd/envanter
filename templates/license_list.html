@@ -1,49 +1,39 @@
 {% extends "base.html" %}
-{% block title %}Lisans Takip{% endblock %}
+{% block title %}Lisanslar{% endblock %}
 {% block content %}
 <div class="container-fluid p-3">
-  <h5 class="mb-3">Lisanslar</h5>
   <div class="d-flex justify-content-between mb-3">
-    <div class="d-flex gap-2">
-      <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#lisansEkleModal">Ekle</button>
-      <button class="btn btn-warning btn-sm">Düzenle</button>
-      <button class="btn btn-danger btn-sm">Sil</button>
-    </div>
-    <div class="d-flex gap-2 align-items-center">
-      <select class="form-select form-select-sm w-auto">
-        <option value="25">25</option>
-        <option value="50">50</option>
-        <option value="100">100</option>
-      </select>
-      <button class="btn btn-primary btn-sm">🔍</button>
-      <input type="text" class="form-control form-control-sm" placeholder="Ara...">
-    </div>
+    <h5>Lisanslar</h5>
+    <a class="btn btn-primary btn-sm" href="{{ url_for('license_new') }}">Yeni Lisans</a>
   </div>
   <div class="table-responsive">
     <table class="table table-hover">
       <thead>
         <tr>
-          <th><input type="checkbox" onclick="stopRowClick(event)"></th>
           <th>Lisans Adı</th>
-          <th>Bağlı Envanter No</th>
-          <th>Lisans Anahtarı</th>
-          <th>Sorumlu</th>
-          <th>İşlemler</th>
+          <th>Vendor</th>
+          <th>Son Kullanma</th>
+          <th>Anahtar</th>
+          <th>Envanter</th>
+          <th>İşlem</th>
         </tr>
       </thead>
       <tbody>
-        {% for r in rows %}
-        <tr data-href="/licenses/{{ r.id }}">
+        {% for lic in rows %}
+        <tr data-href="{{ url_for('license_detail', id=lic.id) }}">
+          <td>{{ lic.adi }}</td>
+          <td>{{ lic.vendor or '-' }}</td>
+          <td>{{ lic.son_kullanma|date('Y-MM-dd') if lic.son_kullanma else '-' }}</td>
+          <td class="text-monospace">{{ lic.anahtar or '-' }}</td>
           <td>
-            <input type="checkbox" name="select_row" value="{{ r.id }}" onclick="stopRowClick(event)">
+            {% if lic.inventory %}
+              <a href="{{ url_for('inventory_detail', id=lic.inventory.id) }}" onclick="stopRowClick(event)">{{ lic.inventory.no }}</a>
+            {% else %}
+              -
+            {% endif %}
           </td>
-          <td>{{ r.lisans_adi }}</td>
-          <td>{{ r.bagli_envanter_no or "-" }}</td>
-          <td>{{ r.lisans_anahtari }}</td>
-          <td>{{ r.sorumlu_personel or "" }}</td>
-          <td class="text-nowrap">
-            <a class="btn btn-sm btn-outline-primary" href="/licenses/{{ r.id }}" onclick="stopRowClick(event)">Düzenle</a>
-            <button class="btn btn-sm btn-outline-secondary" onclick="stopRowClick(event); renewLicense('{{ r.id }}')">Yenile</button>
+          <td>
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('license_edit', id=lic.id) }}" onclick="stopRowClick(event)">Düzenle</a>
           </td>
         </tr>
         {% else %}
@@ -52,78 +42,5 @@
       </tbody>
     </table>
   </div>
-
-  <div class="modal fade" id="lisansEkleModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <form method="post" action="/licenses/add" class="modal-content">
-          <div class="modal-header">
-          <h5 class="modal-title">Lisans Ekle</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <div class="row g-2">
-              <div class="col-md-6">
-                <label class="form-label">Lisans Adı</label>
-                <select id="selLisansAdi" name="lisans_adi_id" class="form-select"></select>
-              </div>
-              <div class="col-md-6">
-              <label class="form-label">Lisans Anahtarı</label>
-              <input name="lisans_anahtari" class="form-control" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Sorumlu Personel</label>
-              <select id="selLisansPersonel" name="sorumlu_personel" class="form-select">
-                <option value="">Seçiniz</option>
-                {% for u in users %}
-                <option value="{{ u.full_name }}">{{ u.full_name }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Bağlı Envanter No</label>
-              <select id="selLisansBagliEnvanter" name="bagli_envanter_no" class="form-select"></select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">IFS No</label>
-              <input name="ifs_no" class="form-control">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Mail Adresi</label>
-              <input name="mail_adresi" class="form-control">
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-success">Kaydet</button>
-        </div>
-      </form>
-    </div>
-  </div>
 </div>
-<link href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-
-<script src="/static/js/choices_helpers.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const modalEl = document.getElementById('lisansEkleModal');
-  if (!modalEl) return;
-
-  modalEl.addEventListener('shown.bs.modal', async () => {
-    try {
-      await choicesHelper.fillChoices({ endpoint: "/api/lookup/lisans-adi", selectId: "selLisansAdi", placeholder: "Lisans adı seçiniz…" });
-      choicesHelper.initPersonelChoices("selLisansPersonel", "Personel seçiniz…");
-      await choicesHelper.initBagliEnvanterChoices("selLisansBagliEnvanter", 'table tbody a[href^="/inventory/"]');
-    } catch (e) {
-      console.error(e);
-    }
-  });
-});
-</script>
-
-<script>
-function renewLicense(id){
-  // … lisans yenileme işlemi
-}
-</script>
 {% endblock %}
