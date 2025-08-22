@@ -3,6 +3,9 @@ uvicorn[standard]==0.30.6
 Jinja2==3.1.4
 SQLAlchemy==2.0.32
 passlib[bcrypt]==1.7.4
+# Pin bcrypt to a version that exposes __about__.__version__ to avoid
+# passlib debug warnings about missing version metadata in newer releases.
+bcrypt==3.2.2
 python-dotenv==1.0.1
 itsdangerous==2.2.0
 python-multipart==0.0.9
