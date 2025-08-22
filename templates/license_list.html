@@ -57,12 +57,7 @@
             <div class="row g-2">
               <div class="col-md-6">
                 <label class="form-label">Lisans Adı</label>
-                <div class="input-group">
-                  <input id="txtLisansAdi" name="lisans_adi" class="form-control" placeholder="Lisans Adı">
-                  <input type="hidden" id="hidLisansAdiId">
-                  <button type="button" class="btn btn-outline-secondary"
-                    onclick="openPicker({entity:'lisans-adi', label:'Lisans Adı seç', targetTextId:'txtLisansAdi', targetHiddenId:'hidLisansAdiId'})">Seç</button>
-                </div>
+                <select id="selLisansAdi" name="lisans_adi_id" class="form-select"></select>
               </div>
               <div class="col-md-6">
               <label class="form-label">Lisans Anahtarı</label>
@@ -103,5 +98,12 @@
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  await _selects.fillChoices({ endpoint: "/api/lookup/lisans-adi", selectId: "selLisansAdi", placeholder: "Lisans adı seçin…" });
+  _selects.enableRemoteSearch("selLisansAdi", "/api/lookup/lisans-adi");
+});
+</script>
 
   {% endblock %}

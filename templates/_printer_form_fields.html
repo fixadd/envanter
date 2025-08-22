@@ -1,32 +1,17 @@
   <div class="row g-3">
     <div class="col-md-6">
       <label class="form-label">Yazıcı Markası</label>
-      <div class="input-group">
-        <input id="txtYaziciMarka" class="form-control" placeholder="Marka">
-        <input type="hidden" id="hidYaziciMarkaId" name="brand_id">
-        <button type="button" class="btn btn-outline-secondary"
-          onclick="openPicker({entity:'marka', label:'Marka seç', targetTextId:'txtYaziciMarka', targetHiddenId:'hidYaziciMarkaId'})">Seç</button>
-      </div>
+      <select id="selYaziciMarka" name="marka_id" class="form-select"></select>
     </div>
     <div class="col-md-6">
       <label class="form-label">Yazıcı Modeli</label>
-      <div class="input-group">
-        <input id="txtYaziciModel" class="form-control" placeholder="Model">
-        <input type="hidden" id="hidYaziciModelId" name="model_id">
-        <button type="button" class="btn btn-outline-secondary"
-          onclick="openPicker({entity:'model', label:'Model seç', targetTextId:'txtYaziciModel', targetHiddenId:'hidYaziciModelId', markaGetter:()=>document.getElementById('hidYaziciMarkaId').value})">Seç</button>
-      </div>
+      <select id="selYaziciModel" name="model_id" class="form-select" disabled></select>
       <small class="text-muted">Not: Model listesi seçilen Markaya göre filtrelenir.</small>
     </div>
 
     <div class="col-md-6">
       <label class="form-label">Kullanım Alanı</label>
-      <div class="input-group">
-        <input id="txtYaziciKullanim" name="kullanim_alani" class="form-control" placeholder="Kullanım Alanı">
-        <input type="hidden" id="hidYaziciKullanimId">
-        <button type="button" class="btn btn-outline-secondary"
-          onclick="openPicker({entity:'kullanim-alani', label:'Kullanım Alanı seç', targetTextId:'txtYaziciKullanim', targetHiddenId:'hidYaziciKullanimId'})">Seç</button>
-      </div>
+      <select id="selYaziciKullanim" name="kullanim_alani_id" class="form-select"></select>
     </div>
 
     <div class="col-md-6">
