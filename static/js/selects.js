@@ -1,0 +1,59 @@
+// static/js/selects.js
+const selects = {};
+
+function makeSearchableSelect(selectEl, placeholder="Seçin…") {
+  return new Choices(selectEl, {
+    searchEnabled: true,
+    shouldSort: true,
+    allowHTML: false,
+    itemSelectText: "",
+    placeholder: true,
+    placeholderValue: placeholder,
+    searchPlaceholderValue: "Ara...",
+    noResultsText: "Sonuç yok",
+    noChoicesText: "Seçenek yok",
+  });
+}
+
+async function fillChoices({endpoint, selectId, params={}, placeholder="Seçin…", keepValue=false}) {
+  const el = document.getElementById(selectId);
+  if (!el) return;
+  let inst = selects[selectId];
+  if (!inst) { inst = makeSearchableSelect(el, placeholder); selects[selectId] = inst; }
+  const usp = new URLSearchParams(params);
+  const res = await fetch(`${endpoint}?${usp.toString()}`);
+  const data = res.ok ? await res.json() : [];
+  const current = keepValue ? el.value : null;
+  inst.clearStore();
+  inst.setChoices(data.map(r => ({ value: r.id, label: r.ad })), 'value','label', true);
+  if (keepValue && current) inst.setChoiceByValue(current);
+}
+
+async function bindMarkaModel(markaSelectId, modelSelectId) {
+  const markaEl = document.getElementById(markaSelectId);
+  const modelEl = document.getElementById(modelSelectId);
+  if (!markaEl || !modelEl) return;
+  const modelInst = selects[modelSelectId] || makeSearchableSelect(modelEl, "Model seçin…");
+  selects[modelSelectId] = modelInst;
+
+  async function updateModels() {
+    const markaId = markaEl.value;
+    if (!markaId) { modelInst.clearStore(); modelEl.disabled = true; return; }
+    modelEl.disabled = false;
+    await fillChoices({ endpoint: "/api/lookup/model", selectId: modelSelectId, params: { marka_id: markaId }, placeholder: "Model seçin…" });
+  }
+  markaEl.addEventListener("change", updateModels);
+  await updateModels();
+}
+
+function debounce(fn, d=300){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), d); }; }
+function enableRemoteSearch(selectId, endpoint, extraParamsFn=()=>({})) {
+  const inst = selects[selectId]; if (!inst) return;
+  const input = inst.input?.element; if (!input) return;
+  input.addEventListener("input", debounce(async ()=>{
+    const q = input.value.trim();
+    await fillChoices({ endpoint, selectId, params: { q, ...extraParamsFn() }, placeholder: "Seçin…", keepValue: false });
+  }, 300));
+}
+
+window._selects = { fillChoices, bindMarkaModel, enableRemoteSearch };

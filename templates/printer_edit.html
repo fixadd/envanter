@@ -12,17 +12,21 @@
     </form>
   </div>
   <script>
-    document.querySelector('[name="envanter_no"]').value = "{{ item.envanter_no }}";
-    document.querySelector('[name="ip_adresi"]').value = "{{ item.ip_adresi or '' }}";
-    document.querySelector('[name="mac"]').value = "{{ item.mac or '' }}";
-    document.querySelector('[name="hostname"]').value = "{{ item.hostname or '' }}";
-    document.querySelector('[name="ifs_no"]').value = "{{ item.ifs_no or '' }}";
-    document.querySelector('[name="tarih"]').value = "{{ item.tarih or '' }}";
-    document.querySelector('[name="islem_yapan"]').value = "{{ item.islem_yapan or '' }}";
-    document.getElementById('hidYaziciMarkaId').value = "{{ item.brand_id or '' }}";
-    document.getElementById('txtYaziciMarka').value = "{{ item.brand.name if item.brand else '' }}";
-    document.getElementById('hidYaziciModelId').value = "{{ item.model_id or '' }}";
-    document.getElementById('txtYaziciModel').value = "{{ item.model.name if item.model else '' }}";
-    document.getElementById('txtYaziciKullanim').value = "{{ item.kullanim_alani or '' }}";
+document.addEventListener("DOMContentLoaded", async () => {
+  document.querySelector('[name="envanter_no"]').value = "{{ item.envanter_no }}";
+  document.querySelector('[name="ip_adresi"]').value = "{{ item.ip_adresi or '' }}";
+  document.querySelector('[name="mac"]').value = "{{ item.mac or '' }}";
+  document.querySelector('[name="hostname"]').value = "{{ item.hostname or '' }}";
+  document.querySelector('[name="ifs_no"]').value = "{{ item.ifs_no or '' }}";
+  document.querySelector('[name="tarih"]').value = "{{ item.tarih or '' }}";
+  document.querySelector('[name="islem_yapan"]').value = "{{ item.islem_yapan or '' }}";
+
+  await _selects.fillChoices({ endpoint: "/api/lookup/marka",          selectId: "selYaziciMarka",   placeholder: "Yazıcı markası seçin…" });
+  await _selects.fillChoices({ endpoint: "/api/lookup/kullanim-alani", selectId: "selYaziciKullanim", placeholder: "Kullanım alanı seçin…" });
+  document.getElementById('selYaziciMarka').value = "{{ item.brand_id or '' }}";
+  await _selects.bindMarkaModel("selYaziciMarka", "selYaziciModel");
+  document.getElementById('selYaziciModel').value = "{{ item.model_id or '' }}";
+  _selects.enableRemoteSearch("selYaziciModel", "/api/lookup/model", ()=>({ marka_id: document.getElementById('selYaziciMarka').value || '' }));
+});
   </script>
   {% endblock %}

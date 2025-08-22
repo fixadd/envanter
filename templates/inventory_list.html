@@ -5,7 +5,7 @@
     <h5 class="mb-3">Envanter Takip</h5>
     <div class="d-flex justify-content-between mb-3">
       <div class="d-flex gap-2">
-        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addInvModal">Ekle</button>
+        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#envanterEkleModal">Ekle</button>
         <button class="btn btn-secondary btn-sm">Düzenle</button>
         <button class="btn btn-danger btn-sm">Sil</button>
       </div>
@@ -52,10 +52,9 @@
     </table>
   </div>
 
-  <div class="modal fade" id="addInvModal" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" id="envanterEkleModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <form method="post" action="/inventory/add" class="modal-content" style="height: 550px;width: 800px;">
-        {% include "_catalog_select.js" %}
         <div class="modal-header">
           <h5 class="modal-title">Envanter Ekle</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -68,15 +67,15 @@
             </div>
             <div class="col-md-3">
               <label class="form-label">Fabrika</label>
-              <select id="fabrika_select" class="form-select"></select>
+              <select id="selFabrika" name="fabrika_id" class="form-select"></select>
             </div>
             <div class="col-md-3">
               <label class="form-label">Departman</label>
-              <select id="departman_select" class="form-select"></select>
+              <select id="selDepartman" name="departman_id" class="form-select"></select>
             </div>
             <div class="col-md-3">
               <label class="form-label">Donanım Tipi</label>
-              <select id="donanim_tipi_select" class="form-select"></select>
+              <select id="selDonanim" name="donanim_tipi_id" class="form-select"></select>
             </div>
 
             <div class="col-md-3">
@@ -85,11 +84,11 @@
             </div>
             <div class="col-md-3">
               <label class="form-label">Marka</label>
-              <select id="inv_marka_select" class="form-select"></select>
+              <select id="selMarka" name="marka_id" class="form-select"></select>
             </div>
             <div class="col-md-3">
               <label class="form-label">Model</label>
-              <select id="inv_model_select" class="form-select" disabled></select>
+              <select id="selModel" name="model_id" class="form-select" disabled></select>
             </div>
             <div class="col-md-3">
               <label class="form-label">Seri No</label>
@@ -125,16 +124,19 @@
 </div>
 
 <script>
-  basitSelectDoldur({selectId:"fabrika_select", url:"/catalog/factories", hiddenName:"fabrika"});
-  basitSelectDoldur({selectId:"departman_select", url:"/catalog/usage-areas", hiddenName:"departman"});
-  basitSelectDoldur({selectId:"donanim_tipi_select", url:"/catalog/hardware-types", hiddenName:"donanim_tipi"});
-  basitSelectDoldur({selectId:"inv_marka_select", url:"/catalog/brands", hiddenName:"marka"});
-  bağımlıSelectDoldur({
-    ustSelectId:"inv_marka_select",
-    altSelectId:"inv_model_select",
-    altUrlBuilder:(bid)=>`/catalog/models?brand_id=${encodeURIComponent(bid)}`,
-    altHiddenName:"model"
+document.addEventListener('DOMContentLoaded', () => {
+  const modalEl = document.getElementById('envanterEkleModal');
+  if (!modalEl) return;
+
+  modalEl.addEventListener('shown.bs.modal', async () => {
+    await _selects.fillChoices({ endpoint: "/api/lookup/fabrika",        selectId: "selFabrika",   placeholder: "Fabrika seçin…" });
+    await _selects.fillChoices({ endpoint: "/api/lookup/kullanim-alani", selectId: "selDepartman", placeholder: "Departman (Kullanım alanından) seçin…" });
+    await _selects.fillChoices({ endpoint: "/api/lookup/donanim-tipi",   selectId: "selDonanim",   placeholder: "Donanım tipi seçin…" });
+    await _selects.fillChoices({ endpoint: "/api/lookup/marka",          selectId: "selMarka",     placeholder: "Marka seçin…" });
+
+    await _selects.bindMarkaModel("selMarka", "selModel");
+    _selects.enableRemoteSearch("selModel", "/api/lookup/model", ()=>({ marka_id: document.getElementById("selMarka").value || "" }));
   });
+});
 </script>
 {% endblock %}
-
