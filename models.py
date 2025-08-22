@@ -12,6 +12,8 @@ from sqlalchemy import (
     ForeignKey,
     Text,
     UniqueConstraint,
+    inspect,
+    text,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker, relationship
 
@@ -227,3 +229,17 @@ class Lookup(Base):
 
 def init_db():
     Base.metadata.create_all(bind=engine)
+
+    # Ensure recently added optional foreign key columns exist on the printers
+    # table. Older SQLite databases may lack these fields, causing ORM queries
+    # to fail with "no such column" errors. We inspect the current schema and
+    # add the columns if they are missing. Foreign key constraints and indexes
+    # are omitted for simplicity as SQLite's `ALTER TABLE` has limited support,
+    # but null-able integer columns are sufficient for the application logic.
+    insp = inspect(engine)
+    cols = {col["name"] for col in insp.get_columns("printers")}
+    with engine.begin() as conn:
+        if "brand_id" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN brand_id INTEGER"))
+        if "model_id" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN model_id INTEGER"))
