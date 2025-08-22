@@ -88,7 +88,7 @@
             </div>
             <div class="col-md-3">
               <label class="form-label">Model</label>
-              <select id="selModel" name="model_id" class="form-select" disabled></select>
+              <select id="selModel" name="model_id" class="form-select"></select>
             </div>
             <div class="col-md-3">
               <label class="form-label">Seri No</label>
@@ -125,35 +125,43 @@
 
 <script>
 (function () {
-  // Basit fetch helper
+  // Her select için Choices instance tut
+  const choiceInstances = {};
+
   async function getJSON(url) {
     const r = await fetch(url);
     if (!r.ok) throw new Error(await r.text());
     return r.json();
   }
 
-  // <select> doldurucu: option.value=id, option.text=name
+  // Choices ile select doldur (option.value = id, label = name)
   async function fillSelect({ endpoint, selectId, params = {}, placeholder = "Seçiniz…" }) {
     const sel = document.getElementById(selectId);
     if (!sel) return;
+
+    // Choices instance yoksa oluştur
+    if (!choiceInstances[selectId]) {
+      choiceInstances[selectId] = new Choices(sel, {
+        searchEnabled: true,
+        itemSelectText: '',
+        shouldSort: true,
+        placeholder: true,
+        placeholderValue: placeholder,
+        allowHTML: false
+      });
+    }
+
     const usp = new URLSearchParams(params);
-    const data = await getJSON(endpoint + (usp.toString() ? "?" + usp.toString() : ""));
+    const data = await getJSON(endpoint + (usp.toString() ? "?" + usp : ""));
+    const choices = data.map(item => ({
+      value: item.id,
+      label: item.name ?? item.ad
+    }));
 
-    sel.innerHTML = "";
-    // placeholder
-    const ph = document.createElement("option");
-    ph.value = "";
-    ph.textContent = placeholder;
-    sel.appendChild(ph);
-
-    data.forEach(item => {
-      const opt = document.createElement("option");
-      opt.value = item.id;                       // kayda gidecek id
-      opt.textContent = item.name ?? item.ad;    // kullanıcıya görünen metin
-      sel.appendChild(opt);
-    });
-
-    sel.disabled = false;
+    // Mevcut seçenekleri temizleyip yenilerini yükle
+    const inst = choiceInstances[selectId];
+    inst.clearStore();
+    inst.setChoices(choices, 'value', 'label', true);
   }
 
   // Marka -> Model bağımlılığı
@@ -162,34 +170,38 @@
     const modelSel = document.getElementById(modelSelectId);
     if (!brandSel || !modelSel) return;
 
-    async function updateModels() {
-      modelSel.innerHTML = "";
-      modelSel.disabled = true;
+    // Model için Choices oluştur ve placeholder bırak
+    if (!choiceInstances[modelSelectId]) {
+      choiceInstances[modelSelectId] = new Choices(modelSel, {
+        searchEnabled: true,
+        itemSelectText: '',
+        placeholder: true,
+        placeholderValue: "Önce marka seçiniz…",
+        allowHTML: false
+      });
+    } else {
+      const inst = choiceInstances[modelSelectId];
+      inst.clearStore();
+      inst.setChoices([{ value: "", label: "Önce marka seçiniz…", disabled: true }], 'value', 'label', true);
+    }
 
+    brandSel.addEventListener("change", async () => {
       const brandId = brandSel.value;
+      const inst = choiceInstances[modelSelectId];
+      inst.clearStore();
+
       if (!brandId) {
-        // placeholder bırak
-        const ph = document.createElement("option");
-        ph.value = "";
-        ph.textContent = "Önce marka seçiniz…";
-        modelSel.appendChild(ph);
+        inst.setChoices([{ value: "", label: "Önce marka seçiniz…", disabled: true }], 'value', 'label', true);
         return;
       }
 
-      // Seçilen marka id'sine göre modelleri getir
       await fillSelect({
         endpoint: "/api/lookup/model",
         selectId: modelSelectId,
         params: { marka_id: brandId },
         placeholder: "Model seçiniz…"
       });
-    }
-
-    // İlk durumda boş/disabled bırak
-    modelSel.innerHTML = '<option value="">Önce marka seçiniz…</option>';
-    modelSel.disabled = true;
-
-    brandSel.addEventListener("change", updateModels);
+    });
   }
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -198,13 +210,13 @@
 
     modalEl.addEventListener('shown.bs.modal', async () => {
       try {
-        // Temel sözlükler
+        // Aramalı comboları doldur
         await fillSelect({ endpoint: "/api/lookup/fabrika",        selectId: "selFabrika",   placeholder: "Fabrika seçiniz…" });
         await fillSelect({ endpoint: "/api/lookup/kullanim-alani", selectId: "selDepartman", placeholder: "Departman seçiniz…" });
         await fillSelect({ endpoint: "/api/lookup/donanim-tipi",   selectId: "selDonanim",   placeholder: "Donanım tipi seçiniz…" });
         await fillSelect({ endpoint: "/api/lookup/marka",          selectId: "selMarka",     placeholder: "Marka seçiniz…" });
 
-        // Marka -> Model bağla (marka değişince modeller yüklenir)
+        // Marka değişince model listesi markaya göre dolsun
         bindBrandToModel("selMarka", "selModel");
       } catch (e) {
         console.error(e);
