@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.responses import HTMLResponse, RedirectResponse
 from datetime import datetime
 
-from models import Printer, PrinterLog, Brand, Model
+from models import Printer, PrinterLog, Brand, Model, UsageArea
 from auth import get_db
 
 templates = Jinja2Templates(directory="templates")
@@ -44,11 +44,17 @@ def printer_create_form(request: Request):
 @router.post("")
 async def create_printer(request: Request, db: Session = Depends(get_db)):
     form = await request.form()
+    marka_id = form.get("marka_id")
+    model_id = form.get("model_id")
+    kullanim_id = form.get("kullanim_alani_id")
+    kullanim_ad = (
+        db.query(UsageArea).get(int(kullanim_id)).name if kullanim_id else None
+    )
     prn = Printer(
         envanter_no=form.get("envanter_no"),
-        brand_id=int(form.get("brand_id")) if form.get("brand_id") else None,
-        model_id=int(form.get("model_id")) if form.get("model_id") else None,
-        kullanim_alani=form.get("kullanim_alani"),
+        brand_id=int(marka_id) if marka_id else None,
+        model_id=int(model_id) if model_id else None,
+        kullanim_alani=kullanim_ad,
         ip_adresi=form.get("ip_adresi"),
         mac=form.get("mac"),
         hostname=form.get("hostname"),
@@ -106,8 +112,17 @@ async def update_printer(printer_id: int, request: Request, db: Session = Depend
     changed = False
 
     for f in mutable_fields:
-        raw_val = form.get(f)
-        new_val = int(raw_val) if f.endswith("_id") and raw_val else raw_val
+        if f == "kullanim_alani":
+            raw_val = form.get("kullanim_alani_id")
+            new_val = (
+                db.query(UsageArea).get(int(raw_val)).name if raw_val else None
+            )
+        elif f == "brand_id":
+            raw_val = form.get("marka_id")
+            new_val = int(raw_val) if raw_val else None
+        else:
+            raw_val = form.get(f)
+            new_val = int(raw_val) if f.endswith("_id") and raw_val else raw_val
         old_val = getattr(prn, f)
         if new_val != old_val:
             setattr(prn, f, new_val)
