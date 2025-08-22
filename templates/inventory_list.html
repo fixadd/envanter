@@ -97,7 +97,7 @@
 
             <div class="col-md-3">
               <label class="form-label">Sorumlu Personel</label>
-              <select name="sorumlu_personel" class="form-select">
+              <select id="selPersonel" name="sorumlu_personel" class="form-select">
                 <option value="">Seçiniz</option>
                 {% for u in users %}
                 <option value="{{ u.full_name }}">{{ u.full_name }}</option>
@@ -105,8 +105,8 @@
               </select>
             </div>
             <div class="col-md-3">
-              <label class="form-label">Bağlı Makina No</label>
-              <input name="bagli_makina_no" class="form-control">
+              <label class="form-label">Bağlı Envanter No</label>
+              <select id="selBagliEnvanter" name="bagli_makina_no" class="form-select"></select>
             </div>
             <input name="tarih" type="hidden" value="{{ today }}">
             <div class="col-md-3">
@@ -204,6 +204,68 @@
     });
   }
 
+  function ensureChoices(selectEl, placeholder) {
+    const id = selectEl.id;
+    let inst = choiceInstances[id];
+    if (inst) return inst;
+    inst = new Choices(selectEl, {
+      searchEnabled: true,
+      itemSelectText: '',
+      placeholder: true,
+      placeholderValue: placeholder || 'Seçiniz…',
+      shouldSort: true,
+      allowHTML: false
+    });
+    choiceInstances[id] = inst;
+    return inst;
+  }
+
+  function initPersonelChoices() {
+    const sel = document.getElementById('selPersonel');
+    if (!sel) return;
+    ensureChoices(sel, 'Personel seçiniz…');
+  }
+
+  async function initBagliEnvanterChoices() {
+    const sel = document.getElementById('selBagliEnvanter');
+    if (!sel) return;
+
+    const inst = ensureChoices(sel, 'Envanter no seçiniz…');
+
+    async function fillFromEndpoint() {
+      const data = await getJSON('/api/lookup/inventory-no');
+      const choices = data.map(x => ({
+        value: x.no ?? x.name ?? x.id,
+        label: x.no ?? x.name ?? String(x.id)
+      }));
+      inst.clearStore();
+      inst.setChoices(choices, 'value', 'label', true);
+    }
+
+    function fillFromTableFallback() {
+      const links = document.querySelectorAll('table tbody a[href^="/inventory/"]');
+      const set = new Set();
+      links.forEach(a => {
+        const t = (a.textContent || '').trim();
+        if (t) set.add(t);
+      });
+      const arr = Array.from(set).sort();
+      const choices = arr.map(no => ({ value: no, label: no }));
+      inst.clearStore();
+      if (choices.length) {
+        inst.setChoices(choices, 'value', 'label', true);
+      } else {
+        inst.setChoices([{ value: '', label: 'Kayıt yok', disabled: true }], 'value', 'label', true);
+      }
+    }
+
+    try {
+      await fillFromEndpoint();
+    } catch {
+      fillFromTableFallback();
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     const modalEl = document.getElementById('envanterEkleModal');
     if (!modalEl) return;
@@ -218,6 +280,10 @@
 
         // Marka değişince model listesi markaya göre dolsun
         bindBrandToModel("selMarka", "selModel");
+
+        // Yeni: Personel ve Bağlı Envanter No
+        initPersonelChoices();
+        await initBagliEnvanterChoices();
       } catch (e) {
         console.error(e);
       }
