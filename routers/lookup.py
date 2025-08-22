@@ -1,32 +1,21 @@
-# routers/lookup.py
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import select, func
-from database import get_db
+from sqlalchemy import text
 
-# MODELLER: depodaki models.py'deki sınıf adlarıyla birebir eşleşmeli
-from models import Fabrika, KullanimAlani, DonanimTipi, Marka, Model, LisansAdi
+from database import get_db  # projedeki mevcut get_db
 
 router = APIRouter(prefix="/api/lookup", tags=["lookup"])
 
-ENTITY_MODEL = {
-    "fabrika": Fabrika,
-    "kullanim-alani": KullanimAlani,
-    "donanim-tipi": DonanimTipi,
-    "marka": Marka,
-    "model": Model,
-    "lisans-adi": LisansAdi,
+# Ürün Ekle sayfasındaki kartlara karşılık gelen tablolar:
+# (Gerekirse tablo adlarını birebir DB'nizdeki adlarla düzeltin.)
+ENTITY_TABLE = {
+    "kullanim-alani": "usage_areas",
+    "lisans-adi": "license_names",
+    "fabrika": "factories",
+    "donanim-tipi": "hardware_types",
+    "marka": "brands",
+    "model": "models",
 }
-
-def _name_column(cls):
-    """
-    Modellerdeki 'ad' alanı bazı repolarda 'adi' veya 'name' olabiliyor.
-    Güvenli şekilde kolon adını belirleyelim.
-    """
-    for cand in ("ad", "adi", "name", "isim", "title"):
-        if hasattr(cls, cand):
-            return getattr(cls, cand)
-    raise AttributeError(f"{cls.__name__} için ad/name kolonu bulunamadı")
 
 @router.get("/{entity}")
 def lookup_list(
@@ -36,27 +25,21 @@ def lookup_list(
     marka_id: int | None = None,
     db: Session = Depends(get_db),
 ):
-    ModelCls = ENTITY_MODEL.get(entity)
-    if not ModelCls:
+    table = ENTITY_TABLE.get(entity)
+    if not table:
         raise HTTPException(404, "Geçersiz entity")
 
-    name_col = _name_column(ModelCls)
-    stmt = select(ModelCls.id, name_col).order_by(name_col).limit(limit)
-
-    # marka → model bağımlılığı
-    if entity == "model" and marka_id:
-        stmt = stmt.where(Model.marka_id == marka_id)
-
-    # arama
+    # Temel sorgu: id, ad kolonlarını bekliyoruz (modellerde marka_id var)
+    params = {"limit": limit}
+    where = []
     if q:
-        stmt = stmt.where(func.lower(name_col).like(func.lower(f"%{q}%")))
+        where.append("LOWER(ad) LIKE LOWER(:q)")
+        params["q"] = f"%{q}%"
+    if entity == "model" and marka_id:
+        where.append("marka_id = :marka_id")
+        params["marka_id"] = marka_id
 
-    try:
-        rows = db.execute(stmt).all()
-    except Exception as e:
-        # Hatanın nedenini loglayalım ve 400 döndürelim ki frontend 500 görmesin
-        # (uvicorn logunda stacktrace'i göreceksin)
-        raise HTTPException(status_code=400, detail=f"lookup hata: {type(e).__name__}: {e}")
-
-    # JSON
-    return [{"id": r[0], "ad": r[1]} for r in rows]
+    where_sql = (" WHERE " + " AND ".join(where)) if where else ""
+    sql = text(f"SELECT id, ad FROM {table}{where_sql} ORDER BY ad LIMIT :limit")
+    rows = db.execute(sql, params).mappings().all()
+    return [{"id": r["id"], "ad": r["ad"]} for r in rows]
