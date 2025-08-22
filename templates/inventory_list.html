@@ -106,7 +106,7 @@
             </div>
             <div class="col-md-3">
               <label class="form-label">Bağlı Envanter No</label>
-              <select id="selBagliEnvanter" name="bagli_makina_no" class="form-select"></select>
+              <select id="selBagliEnvanter" name="bagli_envanter_no" class="form-select"></select>
             </div>
             <input name="tarih" type="hidden" value="{{ today }}">
             <div class="col-md-3">
@@ -122,173 +122,35 @@
     </div>
   </div>
 </div>
+<link href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
+<script src="/static/js/choices_helpers.js"></script>
 <script>
-(function () {
-  // Her select için Choices instance tut
-  const choiceInstances = {};
+document.addEventListener('DOMContentLoaded', () => {
+  const modalEl = document.getElementById('envanterEkleModal');
+  if (!modalEl) return;
 
-  async function getJSON(url) {
-    const r = await fetch(url);
-    if (!r.ok) throw new Error(await r.text());
-    return r.json();
-  }
-
-  // Choices ile select doldur (option.value = id, label = name)
-  async function fillSelect({ endpoint, selectId, params = {}, placeholder = "Seçiniz…" }) {
-    const sel = document.getElementById(selectId);
-    if (!sel) return;
-
-    // Choices instance yoksa oluştur
-    if (!choiceInstances[selectId]) {
-      choiceInstances[selectId] = new Choices(sel, {
-        searchEnabled: true,
-        itemSelectText: '',
-        shouldSort: true,
-        placeholder: true,
-        placeholderValue: placeholder,
-        allowHTML: false
-      });
-    }
-
-    const usp = new URLSearchParams(params);
-    const data = await getJSON(endpoint + (usp.toString() ? "?" + usp : ""));
-    const choices = data.map(item => ({
-      value: item.id,
-      label: item.name ?? item.ad
-    }));
-
-    // Mevcut seçenekleri temizleyip yenilerini yükle
-    const inst = choiceInstances[selectId];
-    inst.clearStore();
-    inst.setChoices(choices, 'value', 'label', true);
-  }
-
-  // Marka -> Model bağımlılığı
-  function bindBrandToModel(brandSelectId, modelSelectId) {
-    const brandSel = document.getElementById(brandSelectId);
-    const modelSel = document.getElementById(modelSelectId);
-    if (!brandSel || !modelSel) return;
-
-    // Model için Choices oluştur ve placeholder bırak
-    if (!choiceInstances[modelSelectId]) {
-      choiceInstances[modelSelectId] = new Choices(modelSel, {
-        searchEnabled: true,
-        itemSelectText: '',
-        placeholder: true,
-        placeholderValue: "Önce marka seçiniz…",
-        allowHTML: false
-      });
-    } else {
-      const inst = choiceInstances[modelSelectId];
-      inst.clearStore();
-      inst.setChoices([{ value: "", label: "Önce marka seçiniz…", disabled: true }], 'value', 'label', true);
-    }
-
-    brandSel.addEventListener("change", async () => {
-      const brandId = brandSel.value;
-      const inst = choiceInstances[modelSelectId];
-      inst.clearStore();
-
-      if (!brandId) {
-        inst.setChoices([{ value: "", label: "Önce marka seçiniz…", disabled: true }], 'value', 'label', true);
-        return;
-      }
-
-      await fillSelect({
-        endpoint: "/api/lookup/model",
-        selectId: modelSelectId,
-        params: { marka_id: brandId },
-        placeholder: "Model seçiniz…"
-      });
-    });
-  }
-
-  function ensureChoices(selectEl, placeholder) {
-    const id = selectEl.id;
-    let inst = choiceInstances[id];
-    if (inst) return inst;
-    inst = new Choices(selectEl, {
-      searchEnabled: true,
-      itemSelectText: '',
-      placeholder: true,
-      placeholderValue: placeholder || 'Seçiniz…',
-      shouldSort: true,
-      allowHTML: false
-    });
-    choiceInstances[id] = inst;
-    return inst;
-  }
-
-  function initPersonelChoices() {
-    const sel = document.getElementById('selPersonel');
-    if (!sel) return;
-    ensureChoices(sel, 'Personel seçiniz…');
-  }
-
-  async function initBagliEnvanterChoices() {
-    const sel = document.getElementById('selBagliEnvanter');
-    if (!sel) return;
-
-    const inst = ensureChoices(sel, 'Envanter no seçiniz…');
-
-    async function fillFromEndpoint() {
-      const data = await getJSON('/api/lookup/inventory-no');
-      const choices = data.map(x => ({
-        value: x.no ?? x.name ?? x.id,
-        label: x.no ?? x.name ?? String(x.id)
-      }));
-      inst.clearStore();
-      inst.setChoices(choices, 'value', 'label', true);
-    }
-
-    function fillFromTableFallback() {
-      const links = document.querySelectorAll('table tbody a[href^="/inventory/"]');
-      const set = new Set();
-      links.forEach(a => {
-        const t = (a.textContent || '').trim();
-        if (t) set.add(t);
-      });
-      const arr = Array.from(set).sort();
-      const choices = arr.map(no => ({ value: no, label: no }));
-      inst.clearStore();
-      if (choices.length) {
-        inst.setChoices(choices, 'value', 'label', true);
-      } else {
-        inst.setChoices([{ value: '', label: 'Kayıt yok', disabled: true }], 'value', 'label', true);
-      }
-    }
-
+  modalEl.addEventListener('shown.bs.modal', async () => {
     try {
-      await fillFromEndpoint();
-    } catch {
-      fillFromTableFallback();
+      // Sözlükler
+      await choicesHelper.fillChoices({ endpoint: "/api/lookup/fabrika",        selectId: "selFabrika",   placeholder: "Fabrika seçiniz…" });
+      await choicesHelper.fillChoices({ endpoint: "/api/lookup/kullanim-alani", selectId: "selDepartman", placeholder: "Departman seçiniz…" });
+      await choicesHelper.fillChoices({ endpoint: "/api/lookup/donanim-tipi",   selectId: "selDonanim",   placeholder: "Donanım tipi seçiniz…" });
+      await choicesHelper.fillChoices({ endpoint: "/api/lookup/marka",          selectId: "selMarka",     placeholder: "Marka seçiniz…" });
+
+      // Marka → Model
+      choicesHelper.bindBrandToModel("selMarka", "selModel");
+
+      // Personel (mevcut <option>’lardan)
+      choicesHelper.initPersonelChoices("selPersonel", "Personel seçiniz…");
+
+      // Bağlı Envanter No (endpoint varsa ondan; yoksa tablo fallback)
+      await choicesHelper.initBagliEnvanterChoices("selBagliEnvanter", 'table tbody a[href^="/inventory/"]');
+    } catch (e) {
+      console.error(e);
     }
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const modalEl = document.getElementById('envanterEkleModal');
-    if (!modalEl) return;
-
-    modalEl.addEventListener('shown.bs.modal', async () => {
-      try {
-        // Aramalı comboları doldur
-        await fillSelect({ endpoint: "/api/lookup/fabrika",        selectId: "selFabrika",   placeholder: "Fabrika seçiniz…" });
-        await fillSelect({ endpoint: "/api/lookup/kullanim-alani", selectId: "selDepartman", placeholder: "Departman seçiniz…" });
-        await fillSelect({ endpoint: "/api/lookup/donanim-tipi",   selectId: "selDonanim",   placeholder: "Donanım tipi seçiniz…" });
-        await fillSelect({ endpoint: "/api/lookup/marka",          selectId: "selMarka",     placeholder: "Marka seçiniz…" });
-
-        // Marka değişince model listesi markaya göre dolsun
-        bindBrandToModel("selMarka", "selModel");
-
-        // Yeni: Personel ve Bağlı Envanter No
-        initPersonelChoices();
-        await initBagliEnvanterChoices();
-      } catch (e) {
-        console.error(e);
-      }
-    });
   });
-})();
+});
 </script>
 {% endblock %}
