@@ -48,19 +48,23 @@
 
   <div class="modal fade" id="addLicModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-      <form method="post" action="/licenses/add" class="modal-content">
-        {% include "_catalog_select.js" %}
-        <div class="modal-header">
+        <form method="post" action="/licenses/add" class="modal-content">
+          <div class="modal-header">
           <h5 class="modal-title">Lisans Ekle</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="row g-2">
-            <div class="col-md-6">
-              <label class="form-label">Lisans Adı</label>
-              <select id="lisans_adi_select" class="form-select"></select>
-            </div>
-            <div class="col-md-6">
+            <div class="row g-2">
+              <div class="col-md-6">
+                <label class="form-label">Lisans Adı</label>
+                <div class="input-group">
+                  <input id="txtLisansAdi" name="lisans_adi" class="form-control" placeholder="Lisans Adı">
+                  <input type="hidden" id="hidLisansAdiId">
+                  <button type="button" class="btn btn-outline-secondary"
+                    onclick="openPicker({entity:'lisans-adi', label:'Lisans Adı seç', targetTextId:'txtLisansAdi', targetHiddenId:'hidLisansAdiId'})">Seç</button>
+                </div>
+              </div>
+              <div class="col-md-6">
               <label class="form-label">Lisans Anahtarı</label>
               <input name="lisans_anahtari" class="form-control" required>
             </div>
@@ -100,7 +104,4 @@
   </div>
 </div>
 
-<script>
-  basitSelectDoldur({selectId:"lisans_adi_select", url:"/catalog/license-names", hiddenName:"lisans_adi"});
-</script>
-{% endblock %}
+  {% endblock %}
