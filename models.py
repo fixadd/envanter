@@ -2,12 +2,13 @@
 from __future__ import annotations
 import os
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, date
 from sqlalchemy import (
     create_engine,
     Integer,
     String,
     DateTime,
+    Date,
     func,
     ForeignKey,
     Text,
@@ -15,7 +16,13 @@ from sqlalchemy import (
     inspect,
     text,
 )
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker, relationship
+from sqlalchemy.orm import (
+    DeclarativeBase,
+    Mapped,
+    mapped_column,
+    sessionmaker,
+    relationship,
+)
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/app.db")
 if DATABASE_URL.startswith("sqlite"):
@@ -64,6 +71,13 @@ class Inventory(Base):
         "InventoryLog", back_populates="inventory", cascade="all, delete-orphan"
     )
 
+    licenses: Mapped[list["License"]] = relationship(
+        "License",
+        back_populates="inventory",
+        cascade="save-update, merge",
+        passive_deletes=True,
+    )
+
 
 class InventoryLog(Base):
     __tablename__ = "inventory_logs"
@@ -85,14 +99,17 @@ class License(Base):
     __tablename__ = "licenses"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    lisans_adi: Mapped[str] = mapped_column(String(200), index=True, nullable=False)
-    lisans_anahtari: Mapped[str] = mapped_column(String(500), nullable=False)
-    sorumlu_personel: Mapped[str | None] = mapped_column(String(150), index=True)
-    bagli_envanter_no: Mapped[str | None] = mapped_column(String(150), index=True)
-    ifs_no: Mapped[str | None] = mapped_column(String(150))
-    tarih: Mapped[str | None] = mapped_column(String(50))
-    islem_yapan: Mapped[str | None] = mapped_column(String(150))
-    mail_adresi: Mapped[str | None] = mapped_column(String(200))
+    adi: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    vendor: Mapped[str | None] = mapped_column(String(150))
+    anahtar: Mapped[str | None] = mapped_column(String(500))
+    son_kullanma: Mapped[date | None] = mapped_column(Date)
+
+    inventory_id: Mapped[int | None] = mapped_column(
+        ForeignKey("inventories.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    inventory: Mapped["Inventory" | None] = relationship("Inventory", back_populates="licenses")
 
     logs: Mapped[list["LicenseLog"]] = relationship(
         "LicenseLog", back_populates="license_", cascade="all, delete-orphan"

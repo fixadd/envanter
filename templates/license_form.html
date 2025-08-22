@@ -1,0 +1,49 @@
+<form method="post" action="{{ form_action }}">
+  <div class="mb-2">
+    <label class="form-label">Lisans Adı</label>
+    <input name="adi" class="form-control" value="{{ license.adi if license else '' }}" required>
+  </div>
+
+  <div class="mb-2">
+    <label class="form-label">Vendor</label>
+    <input name="vendor" class="form-control" value="{{ license.vendor if license else '' }}">
+  </div>
+
+  <div class="mb-2">
+    <label class="form-label">Lisans Anahtarı</label>
+    <input name="anahtar" class="form-control" value="{{ license.anahtar if license else '' }}">
+  </div>
+
+  <div class="mb-2">
+    <label class="form-label">Son Kullanma</label>
+    <input type="date" name="son_kullanma" class="form-control"
+           value="{{ license.son_kullanma|date('Y-m-d') if license and license.son_kullanma }}">
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Bağlı Olduğu Envanter No</label>
+    <select id="selBagliEnvanter" name="inventory_id" class="form-select">
+      <option value="">(Seçimsiz)</option>
+      {% for inv in envanterler %}
+        <option value="{{ inv.id }}"
+          {% if license and license.inventory_id == inv.id %}selected{% endif %}>
+          {{ inv.no }} — {{ inv.marka }} {{ inv.model }}
+        </option>
+      {% endfor %}
+    </select>
+    <div class="form-text">Arama yaparak envanteri seçebilirsiniz.</div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button class="btn btn-primary" type="submit">Kaydet</button>
+    <a class="btn btn-secondary" href="{{ url_for('license_list') }}">İptal</a>
+  </div>
+</form>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    if (window.Choices) {
+      new Choices("#selBagliEnvanter", { searchEnabled: true, itemSelectText: '' });
+    }
+  });
+</script>
