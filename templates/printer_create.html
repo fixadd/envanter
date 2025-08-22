@@ -13,8 +13,8 @@
   </div>
   <script>
 document.addEventListener("DOMContentLoaded", async () => {
-  await _selects.fillChoices({ endpoint: "/api/lookup/marka",          selectId: "selYaziciMarka",   placeholder: "Yazıcı markası seçin…" });
-  await _selects.fillChoices({ endpoint: "/api/lookup/kullanim-alani", selectId: "selYaziciKullanim",placeholder: "Kullanım alanı seçin…" });
+  await _selects.fillChoices({ endpoint: "/api/lookup/marka",          selectId: "selYaziciMarka",   placeholder: "Yazıcı markası seçiniz…" });
+  await _selects.fillChoices({ endpoint: "/api/lookup/kullanim-alani", selectId: "selYaziciKullanim",placeholder: "Kullanım alanı seçiniz…" });
   await _selects.bindMarkaModel("selYaziciMarka", "selYaziciModel");
   _selects.enableRemoteSearch("selYaziciModel", "/api/lookup/model", ()=>({ marka_id: document.getElementById("selYaziciMarka").value || "" }));
 });

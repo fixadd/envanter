@@ -1,8 +1,8 @@
 // static/js/selects.js
 const selects = {};
 
-function makeSearchableSelect(selectEl, placeholder="Seçin…") {
-  return new Choices(selectEl, {
+function makeSearchableSelect(el, placeholder="Seçiniz…") {
+  return new Choices(el, {
     searchEnabled: true,
     shouldSort: true,
     allowHTML: false,
@@ -15,7 +15,7 @@ function makeSearchableSelect(selectEl, placeholder="Seçin…") {
   });
 }
 
-async function fillChoices({endpoint, selectId, params={}, placeholder="Seçin…", keepValue=false}) {
+async function fillChoices({ endpoint, selectId, params={}, placeholder="Seçiniz…", keepValue=false }) {
   const el = document.getElementById(selectId);
   if (!el) return;
   let inst = selects[selectId];
@@ -25,7 +25,7 @@ async function fillChoices({endpoint, selectId, params={}, placeholder="Seçin�
   const data = res.ok ? await res.json() : [];
   const current = keepValue ? el.value : null;
   inst.clearStore();
-  inst.setChoices(data.map(r => ({ value: r.id, label: r.ad })), 'value','label', true);
+  inst.setChoices(data.map(r => ({ value: r.id, label: r.ad })), 'value', 'label', true);
   if (keepValue && current) inst.setChoiceByValue(current);
 }
 
@@ -33,14 +33,14 @@ async function bindMarkaModel(markaSelectId, modelSelectId) {
   const markaEl = document.getElementById(markaSelectId);
   const modelEl = document.getElementById(modelSelectId);
   if (!markaEl || !modelEl) return;
-  const modelInst = selects[modelSelectId] || makeSearchableSelect(modelEl, "Model seçin…");
+  const modelInst = selects[modelSelectId] || makeSearchableSelect(modelEl, "Model seçiniz…");
   selects[modelSelectId] = modelInst;
 
   async function updateModels() {
-    const markaId = markaEl.value;
-    if (!markaId) { modelInst.clearStore(); modelEl.disabled = true; return; }
+    const m = markaEl.value;
+    if (!m) { modelInst.clearStore(); modelEl.disabled = true; return; }
     modelEl.disabled = false;
-    await fillChoices({ endpoint: "/api/lookup/model", selectId: modelSelectId, params: { marka_id: markaId }, placeholder: "Model seçin…" });
+    await fillChoices({ endpoint: "/api/lookup/model", selectId: modelSelectId, params: { marka_id: m }, placeholder: "Model seçiniz…" });
   }
   markaEl.addEventListener("change", updateModels);
   await updateModels();
@@ -52,7 +52,7 @@ function enableRemoteSearch(selectId, endpoint, extraParamsFn=()=>({})) {
   const input = inst.input?.element; if (!input) return;
   input.addEventListener("input", debounce(async ()=>{
     const q = input.value.trim();
-    await fillChoices({ endpoint, selectId, params: { q, ...extraParamsFn() }, placeholder: "Seçin…", keepValue: false });
+    await fillChoices({ endpoint, selectId, params: { q, ...extraParamsFn() }, keepValue: false });
   }, 300));
 }
 
