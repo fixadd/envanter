@@ -20,37 +20,36 @@
     </div>
   </div>
   <div class="table-responsive">
-    <table class="table table-sm table-hover align-middle">
+    <table class="table table-hover">
       <thead>
         <tr>
-          <th>ID</th>
+          <th><input type="checkbox" onclick="stopRowClick(event)"></th>
           <th>Envanter No</th>
-          <th>Yazıcı Markası</th>
-          <th>Yazıcı Modeli</th>
-          <th>Kullanım Alanı</th>
-          <th>IP Adresi</th>
-          <th>MAC</th>
-          <th>Hostname</th>
+          <th>Marka</th>
+          <th>Model</th>
+          <th>IP</th>
+          <th>Durum</th>
+          <th>İşlemler</th>
         </tr>
       </thead>
       <tbody>
         {% for r in rows %}
-        <tr>
-          <td>{{ r.id }}</td>
+        <tr data-href="/printers/{{ r.id }}">
+          <td>
+            <input type="checkbox" name="select_row" value="{{ r.id }}" onclick="stopRowClick(event)">
+          </td>
           <td>{{ r.envanter_no }}</td>
           <td>{{ r.brand.name if r.brand else "" }}</td>
           <td>{{ r.model.name if r.model else "" }}</td>
-          <td>{{ r.kullanim_alani or "" }}</td>
-          <td>{{ r.ip_adresi or "" }}</td>
-          <td>{{ r.mac or "" }}</td>
-          <td>
-            <a href="/printers/{{ r.id }}" class="text-decoration-underline">
-              {{ r.hostname or "(yok)" }}
-            </a>
+          <td>{{ r.ip_adresi or '-' }}</td>
+          <td>{{ r.kullanim_alani or '' }}</td>
+          <td class="text-nowrap">
+            <a class="btn btn-sm btn-outline-primary" href="/printers/{{ r.id }}/edit" onclick="stopRowClick(event)">Düzenle</a>
+            <button class="btn btn-sm btn-outline-warning" onclick="stopRowClick(event); openTonerModal('{{ r.id }}')">Toner</button>
           </td>
         </tr>
         {% else %}
-        <tr><td colspan="8" class="text-muted">Kayıt yok</td></tr>
+        <tr><td colspan="7" class="text-muted">Kayıt yok</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -153,5 +152,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+</script>
+
+<script>
+function openTonerModal(id){
+  // … modal aç; satır yönlendirmesi tetiklenmez
+}
 </script>
 {% endblock %}

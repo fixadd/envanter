@@ -20,27 +20,34 @@
     </div>
   </div>
   <div class="table-responsive">
-    <table class="table table-sm table-hover align-middle">
+    <table class="table table-hover">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Bağlı Envanter No</th>
+          <th><input type="checkbox" onclick="stopRowClick(event)"></th>
           <th>Lisans Adı</th>
+          <th>Bağlı Envanter No</th>
           <th>Lisans Anahtarı</th>
-          <th>Sorumlu Personel</th>
+          <th>Sorumlu</th>
+          <th>İşlemler</th>
         </tr>
       </thead>
       <tbody>
         {% for r in rows %}
-        <tr>
-          <td>{{ r.id }}</td>
-          <td>{{ r.bagli_envanter_no or "" }}</td>
-          <td><a href="/licenses/{{ r.id }}" class="text-decoration-underline">{{ r.lisans_adi }}</a></td>
+        <tr data-href="/licenses/{{ r.id }}">
+          <td>
+            <input type="checkbox" name="select_row" value="{{ r.id }}" onclick="stopRowClick(event)">
+          </td>
+          <td>{{ r.lisans_adi }}</td>
+          <td>{{ r.bagli_envanter_no or "-" }}</td>
           <td>{{ r.lisans_anahtari }}</td>
           <td>{{ r.sorumlu_personel or "" }}</td>
+          <td class="text-nowrap">
+            <a class="btn btn-sm btn-outline-primary" href="/licenses/{{ r.id }}" onclick="stopRowClick(event)">Düzenle</a>
+            <button class="btn btn-sm btn-outline-secondary" onclick="stopRowClick(event); renewLicense('{{ r.id }}')">Yenile</button>
+          </td>
         </tr>
         {% else %}
-        <tr><td colspan="5" class="text-muted">Kayıt yok</td></tr>
+        <tr><td colspan="6" class="text-muted">Kayıt yok</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -112,5 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+</script>
+
+<script>
+function renewLicense(id){
+  // … lisans yenileme işlemi
+}
 </script>
 {% endblock %}
