@@ -34,9 +34,9 @@ from routers import (
     admin as admin_router,
     integrations,
     logs,
-    lookup,
     refdata,
 )
+from routers import lookup
 from security import current_user, require_roles
 
 load_dotenv()
@@ -100,7 +100,7 @@ app.include_router(stock.router, prefix="/stock", tags=["Stock"], dependencies=[
 app.include_router(trash.router, prefix="/trash", tags=["Trash"], dependencies=[Depends(current_user)])
 app.include_router(profile.router, prefix="/profile", tags=["Profile"], dependencies=[Depends(current_user)])
 app.include_router(integrations.router, prefix="/integrations", tags=["Integrations"], dependencies=[Depends(current_user)])
-app.include_router(lookup.router, dependencies=[Depends(current_user)])
+app.include_router(lookup.router)
 app.include_router(refdata.router, dependencies=[Depends(current_user)])
 
 # Sadece admin
