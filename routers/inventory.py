@@ -71,7 +71,7 @@ def inventory_add(
     model_id: str | None = Form(None),
     seri_no: str | None = Form(None),
     sorumlu_personel: str | None = Form(None),
-    bagli_makina_no: str | None = Form(None),
+    bagli_envanter_no: str | None = Form(None),
     tarih: str | None = Form(None),
     notlar: str | None = Form(None),
     db: Session = Depends(get_db),
@@ -99,7 +99,7 @@ def inventory_add(
         model=model,
         seri_no=seri_no,
         sorumlu_personel=sorumlu_personel,
-        bagli_makina_no=bagli_makina_no,
+        bagli_makina_no=bagli_envanter_no,
         tarih=tarih or datetime.now().strftime("%Y-%m-%d"),
         notlar=notlar,
     )

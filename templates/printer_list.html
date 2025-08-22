@@ -5,7 +5,7 @@
   <h5 class="mb-3">Yazıcılar</h5>
   <div class="d-flex justify-content-between mb-3">
     <div class="d-flex gap-2">
-      <a href="/printers/create" class="btn btn-success btn-sm">Ekle</a>
+      <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#yaziciEkleModal">Ekle</button>
       <button class="btn btn-secondary btn-sm">Düzenle</button>
       <button class="btn btn-danger btn-sm">Sil</button>
     </div>
@@ -55,5 +55,103 @@
       </tbody>
     </table>
   </div>
+
+  <div class="modal fade" id="yaziciEkleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <form method="post" action="/printers" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Yazıcı Ekle</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Marka</label>
+              <select id="selYaziciMarka" name="marka_id" class="form-select"></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Model</label>
+              <select id="selYaziciModel" name="model_id" class="form-select"></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Kullanım Alanı</label>
+              <select id="selYaziciKullanim" name="kullanim_alani_id" class="form-select"></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Envanter No</label>
+              <input name="envanter_no" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">IP Adresi</label>
+              <input name="ip_adresi" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">MAC</label>
+              <input name="mac" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Hostname</label>
+              <input name="hostname" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">IFS No</label>
+              <input name="ifs_no" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Tarih</label>
+              <input name="tarih" class="form-control" placeholder="YYYY-MM-DD">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">İşlem Yapan</label>
+              <input name="islem_yapan" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Sorumlu Personel</label>
+              <select id="selYaziciPersonel" name="sorumlu_personel" class="form-select">
+                <option value="">Seçiniz</option>
+                {% for u in users %}
+                <option value="{{ u.full_name }}">{{ u.full_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Bağlı Envanter No</label>
+              <select id="selYaziciBagliEnvanter" name="bagli_envanter_no" class="form-select"></select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
+
+<link href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+<script src="/static/js/choices_helpers.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const modalEl = document.getElementById('yaziciEkleModal');
+  if (!modalEl) return;
+
+  modalEl.addEventListener('shown.bs.modal', async () => {
+    try {
+      await choicesHelper.fillChoices({ endpoint: "/api/lookup/marka",          selectId: "selYaziciMarka",   placeholder: "Marka seçiniz…" });
+      await choicesHelper.fillChoices({ endpoint: "/api/lookup/kullanim-alani", selectId: "selYaziciKullanim", placeholder: "Kullanım alanı seçiniz…" });
+
+      // Marka → Model
+      choicesHelper.bindBrandToModel("selYaziciMarka", "selYaziciModel");
+
+      // Personel ve Bağlı Envanter
+      choicesHelper.initPersonelChoices("selYaziciPersonel", "Personel seçiniz…");
+      await choicesHelper.initBagliEnvanterChoices("selYaziciBagliEnvanter", 'table tbody a[href^="/inventory/"]');
+    } catch (e) {
+      console.error(e);
+    }
+  });
+});
+</script>
 {% endblock %}
