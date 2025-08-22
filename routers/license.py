@@ -37,9 +37,9 @@ def license_create(
     request: Request,
     db: Session = Depends(get_db),
     adi: str = Form(...),
-    vendor: str = Form(None),
-    anahtar: str = Form(None),
-    son_kullanma: str = Form(None),
+    vendor: str | None = Form(None),
+    anahtar: str | None = Form(None),
+    son_kullanma: str | None = Form(None),
     inventory_id: int | None = Form(None),
 ):
     lic = License(
@@ -75,9 +75,9 @@ def license_update(
     request: Request,
     db: Session = Depends(get_db),
     adi: str = Form(...),
-    vendor: str = Form(None),
-    anahtar: str = Form(None),
-    son_kullanma: str = Form(None),
+    vendor: str | None = Form(None),
+    anahtar: str | None = Form(None),
+    son_kullanma: str | None = Form(None),
     inventory_id: int | None = Form(None),
 ):
     lic = db.get(License, id)
