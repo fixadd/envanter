@@ -63,12 +63,12 @@ def create_inventory(payload: InventoryCreate, db: Session = Depends(get_db)):
 @router.post("/add", response_class=HTMLResponse)
 def inventory_add(
     no: str = Form(...),
-    fabrika_id: int | None = Form(None),
-    departman_id: int | None = Form(None),
-    donanim_tipi_id: int | None = Form(None),
+    fabrika_id: str | None = Form(None),
+    departman_id: str | None = Form(None),
+    donanim_tipi_id: str | None = Form(None),
     bilgisayar_adi: str | None = Form(None),
-    marka_id: int | None = Form(None),
-    model_id: int | None = Form(None),
+    marka_id: str | None = Form(None),
+    model_id: str | None = Form(None),
     seri_no: str | None = Form(None),
     sorumlu_personel: str | None = Form(None),
     bagli_makina_no: str | None = Form(None),
@@ -76,6 +76,12 @@ def inventory_add(
     notlar: str | None = Form(None),
     db: Session = Depends(get_db),
 ):
+    fabrika_id = int(fabrika_id) if fabrika_id else None
+    departman_id = int(departman_id) if departman_id else None
+    donanim_tipi_id = int(donanim_tipi_id) if donanim_tipi_id else None
+    marka_id = int(marka_id) if marka_id else None
+    model_id = int(model_id) if model_id else None
+
     fabrika = db.query(Factory).get(fabrika_id).name if fabrika_id else None
     departman = db.query(UsageArea).get(departman_id).name if departman_id else None
     donanim_tipi = (
