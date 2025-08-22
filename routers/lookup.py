@@ -36,8 +36,8 @@ def lookup_list(
         where.append("LOWER(name) LIKE LOWER(:q)")
         params["q"] = f"%{q}%"
     if entity == "model" and marka_id:
-        where.append("marka_id = :marka_id")
-        params["marka_id"] = marka_id
+        where.append("brand_id = :brand_id")
+        params["brand_id"] = marka_id
 
     where_sql = (" WHERE " + " AND ".join(where)) if where else ""
     sql = text(f"SELECT id, name FROM {table}{where_sql} ORDER BY name LIMIT :limit")

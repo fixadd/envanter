@@ -33,7 +33,6 @@
         <!-- Liste içinde arama (client-side) -->
         <div class="d-flex align-items-center gap-2">
           <input type="text" id="tblSearch" class="form-control form-control-sm" placeholder="Listede ara...">
-          <!-- İstersen server-side için: action='/admin' input name='q' -->
         </div>
       </div>
 
@@ -147,36 +146,114 @@
     </div>
   </div>
 
-  <!-- ÜRÜN EKLE KUTUSU (SÖZLÜKLER) -->
+  <!-- ÜRÜN EKLE KUTUSU (REFERANS TABLOLARI) -->
   <div class="collapse" id="productBox">
     <div class="row g-3">
-      {% for cat in CATS %}
-      <div class="col-lg-3 col-md-4">
-        <div class="card h-100">
+
+      <!-- Kullanım Alanı -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card ref-card h-100" data-entity="kullanim-alani">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <span class="text-capitalize">{{ cat.replace('_',' ') }}</span>
+            <span>Kullanım Alanı</span>
           </div>
           <div class="card-body d-flex flex-column">
-            <form method="post" action="/admin/lookups/add" class="d-flex gap-2 mb-2">
-              <input type="hidden" name="category" value="{{ cat }}">
-              <input type="text" name="value" class="form-control form-control-sm" placeholder="Yeni değer..." required>
-              <input type="hidden" name="who" value="{{ request.session.get('username','') if request and request.session else '' }}">
-              <button class="btn btn-sm btn-success" type="submit">Ekle</button>
-            </form>
-            <div class="border rounded p-2 flex-grow-1 overflow-auto" style="max-height: 260px;">
-              {% for item in lookups[cat] %}
-              <form method="post" action="/admin/lookups/{{ item.id }}/delete" class="d-flex align-items-center justify-content-between py-1 border-bottom">
-                <span class="small">{{ item.value }}</span>
-                <button class="btn btn-outline-danger btn-sm">Sil</button>
-              </form>
-              {% else %}
-              <div class="text-muted small">Kayıt yok</div>
-              {% endfor %}
+            <div class="input-group mb-2">
+              <input class="form-control ref-input" placeholder="Yeni kullanım alanı..." />
+              <button class="btn btn-success ref-add">Ekle</button>
             </div>
+            <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
           </div>
         </div>
       </div>
-      {% endfor %}
+
+      <!-- Lisans Adı -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card ref-card h-100" data-entity="lisans-adi">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Lisans Adı</span>
+          </div>
+          <div class="card-body d-flex flex-column">
+            <div class="input-group mb-2">
+              <input class="form-control ref-input" placeholder="Yeni lisans adı..." />
+              <button class="btn btn-success ref-add">Ekle</button>
+            </div>
+            <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fabrika -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card ref-card h-100" data-entity="fabrika">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Fabrika</span>
+          </div>
+          <div class="card-body d-flex flex-column">
+            <div class="input-group mb-2">
+              <input class="form-control ref-input" placeholder="Yeni fabrika..." />
+              <button class="btn btn-success ref-add">Ekle</button>
+            </div>
+            <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Donanım Tipi -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card ref-card h-100" data-entity="donanim-tipi">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Donanım Tipi</span>
+          </div>
+          <div class="card-body d-flex flex-column">
+            <div class="input-group mb-2">
+              <input class="form-control ref-input" placeholder="Yeni donanım tipi..." />
+              <button class="btn btn-success ref-add">Ekle</button>
+            </div>
+            <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Marka -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card ref-card h-100" data-entity="marka">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Marka</span>
+          </div>
+          <div class="card-body d-flex flex-column">
+            <div class="input-group mb-2">
+              <input class="form-control ref-input" placeholder="Yeni marka..." />
+              <button class="btn btn-success ref-add">Ekle</button>
+            </div>
+            <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Model (Marka'ya bağlı) -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card ref-card h-100" data-entity="model">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Model</span>
+          </div>
+          <div class="card-body d-flex flex-column">
+            <div class="row g-2 mb-2">
+              <div class="col-12">
+                <!-- Marka seçimi; Choices.js ile aramalı yapılır -->
+                <select class="form-select ref-brand" aria-label="Marka seçin"></select>
+              </div>
+              <div class="col-12">
+                <div class="input-group">
+                  <input class="form-control ref-input" placeholder="Yeni model adı..." />
+                  <button class="btn btn-success ref-add">Ekle</button>
+                </div>
+              </div>
+            </div>
+            <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -198,7 +275,7 @@
 
   // Seçili kullanıcıyı bul
   function getSelectedRow() {
-    const checked = table.querySelector('input[name="selUser"]:checked');
+    const checked = table?.querySelector('input[name="selUser"]:checked');
     if (!checked) return null;
     return checked.closest('tr');
   }
@@ -248,5 +325,14 @@
     });
   }
 </script>
-{% endblock %}
 
+<!-- Ürün Ekle kartları için gerekli scriptler -->
+<link href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script defer src="/static/js/refdata.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.initRefAdmin) window.initRefAdmin();
+  });
+</script>
+{% endblock %}
