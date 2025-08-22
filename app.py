@@ -20,21 +20,23 @@ from auth import (
     verify_password,
     hash_password,
 )
-from routers import (
-    home,
-    inventory as inventory_router,
-    license as license_router,
-    accessories,
-    printers as printers_router,
-    catalog as catalog_router,
-    requests as reqs,
-    stock,
-    trash,
-    profile,
-    admin as admin_router,
-    integrations,
-    logs,
-)
+    from routers import (
+        home,
+        inventory as inventory_router,
+        license as license_router,
+        accessories,
+        printers as printers_router,
+        catalog as catalog_router,
+        requests as reqs,
+        stock,
+        trash,
+        profile,
+        admin as admin_router,
+        integrations,
+        logs,
+        lookup,
+        refdata,
+    )
 from security import current_user, require_roles
 
 load_dotenv()
@@ -98,6 +100,8 @@ app.include_router(stock.router, prefix="/stock", tags=["Stock"], dependencies=[
 app.include_router(trash.router, prefix="/trash", tags=["Trash"], dependencies=[Depends(current_user)])
 app.include_router(profile.router, prefix="/profile", tags=["Profile"], dependencies=[Depends(current_user)])
 app.include_router(integrations.router, prefix="/integrations", tags=["Integrations"], dependencies=[Depends(current_user)])
+app.include_router(lookup.router, dependencies=[Depends(current_user)])
+app.include_router(refdata.router, dependencies=[Depends(current_user)])
 
 # Sadece admin
 app.include_router(logs.router, prefix="/logs", tags=["Logs"], dependencies=[Depends(require_roles("admin"))])

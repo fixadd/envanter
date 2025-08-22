@@ -19,10 +19,10 @@
     </div>
   </nav>
 
-  <div class="container-fluid p-3">
-    <div class="row g-3">
-      {% if request.session.get('user_id') %}
-      <!-- Sol bloklar -->
+    <div class="container-fluid p-3">
+      <div class="row g-3">
+        {% if request.session.get('user_id') %}
+        <!-- Sol bloklar -->
         <aside class="col-12 col-lg-2">
           <div class="side-group soft-card p-3 mb-3">
             <a class="side-link" href="/">Ana Sayfa</a>
@@ -56,9 +56,31 @@
       {% endif %}
         {% block content %}{% endblock %}
       </main>
+      </div>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <!-- picker modal -->
+    <div id="pickerModal" class="modal" tabindex="-1" style="display:none;">
+      <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 id="pickerTitle" class="modal-title"></h5>
+            <button type="button" class="btn-close" data-close></button>
+          </div>
+          <div class="modal-body">
+            <input id="pickerSearch" class="form-control mb-2" placeholder="Ara...">
+            <div id="pickerList" class="list-group"></div>
+          </div>
+          <div class="modal-footer">
+            <input id="pickerNewName" class="form-control" placeholder="Yeni ad...">
+            <button id="pickerAddBtn" class="btn btn-success">Yeni ekle</button>
+            <button class="btn btn-secondary" data-close>Kapat</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', path='js/picker.js') }}"></script>
+  </body>
+  </html>
