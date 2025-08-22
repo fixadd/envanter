@@ -21,8 +21,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.querySelector('[name="tarih"]').value = "{{ item.tarih or '' }}";
   document.querySelector('[name="islem_yapan"]').value = "{{ item.islem_yapan or '' }}";
 
-  await _selects.fillChoices({ endpoint: "/api/lookup/marka",          selectId: "selYaziciMarka",   placeholder: "Yazıcı markası seçin…" });
-  await _selects.fillChoices({ endpoint: "/api/lookup/kullanim-alani", selectId: "selYaziciKullanim", placeholder: "Kullanım alanı seçin…" });
+  await _selects.fillChoices({ endpoint: "/api/lookup/marka",          selectId: "selYaziciMarka",   placeholder: "Yazıcı markası seçiniz…" });
+  await _selects.fillChoices({ endpoint: "/api/lookup/kullanim-alani", selectId: "selYaziciKullanim", placeholder: "Kullanım alanı seçiniz…" });
   document.getElementById('selYaziciMarka').value = "{{ item.brand_id or '' }}";
   await _selects.bindMarkaModel("selYaziciMarka", "selYaziciModel");
   document.getElementById('selYaziciModel').value = "{{ item.model_id or '' }}";

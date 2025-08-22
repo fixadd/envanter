@@ -129,10 +129,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!modalEl) return;
 
   modalEl.addEventListener('shown.bs.modal', async () => {
-    await _selects.fillChoices({ endpoint: "/api/lookup/fabrika",        selectId: "selFabrika",   placeholder: "Fabrika seçin…" });
-    await _selects.fillChoices({ endpoint: "/api/lookup/kullanim-alani", selectId: "selDepartman", placeholder: "Departman (Kullanım alanından) seçin…" });
-    await _selects.fillChoices({ endpoint: "/api/lookup/donanim-tipi",   selectId: "selDonanim",   placeholder: "Donanım tipi seçin…" });
-    await _selects.fillChoices({ endpoint: "/api/lookup/marka",          selectId: "selMarka",     placeholder: "Marka seçin…" });
+    await _selects.fillChoices({ endpoint: "/api/lookup/fabrika",        selectId: "selFabrika",   placeholder: "Fabrika seçiniz…" });
+    await _selects.fillChoices({ endpoint: "/api/lookup/kullanim-alani", selectId: "selDepartman", placeholder: "Departman (Kullanım alanından) seçiniz…" });
+    await _selects.fillChoices({ endpoint: "/api/lookup/donanim-tipi",   selectId: "selDonanim",   placeholder: "Donanım tipi seçiniz…" });
+    await _selects.fillChoices({ endpoint: "/api/lookup/marka",          selectId: "selMarka",     placeholder: "Marka seçiniz…" });
 
     await _selects.bindMarkaModel("selMarka", "selModel");
     _selects.enableRemoteSearch("selModel", "/api/lookup/model", ()=>({ marka_id: document.getElementById("selMarka").value || "" }));
