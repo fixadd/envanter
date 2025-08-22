@@ -33,13 +33,13 @@ def lookup_list(
     params = {"limit": limit}
     where = []
     if q:
-        where.append("LOWER(ad) LIKE LOWER(:q)")
+        where.append("LOWER(name) LIKE LOWER(:q)")
         params["q"] = f"%{q}%"
     if entity == "model" and marka_id:
         where.append("marka_id = :marka_id")
         params["marka_id"] = marka_id
 
     where_sql = (" WHERE " + " AND ".join(where)) if where else ""
-    sql = text(f"SELECT id, ad FROM {table}{where_sql} ORDER BY ad LIMIT :limit")
+    sql = text(f"SELECT id, name FROM {table}{where_sql} ORDER BY name LIMIT :limit")
     rows = db.execute(sql, params).mappings().all()
-    return [{"id": r["id"], "ad": r["ad"]} for r in rows]
+    return [{"id": r["id"], "name": r["name"]} for r in rows]
