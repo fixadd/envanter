@@ -85,5 +85,57 @@
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="{{ url_for('static', path='js/picker.js') }}"></script>
     <script defer src="/static/js/selects.js"></script>
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Event delegation: works for dynamically added rows
+  document.body.addEventListener("click", (e) => {
+    const row = e.target.closest("tr[data-href]");
+    if (!row) return;
+
+    // Prevent navigation when clicking on interactive elements
+    const interactive = e.target.closest("a, button, input, label, select, textarea");
+    if (interactive) return;
+
+    const url = row.dataset.href;
+    if (!url) return;
+
+    // Ctrl/Cmd open in new tab
+    if (e.metaKey || e.ctrlKey) {
+      window.open(url, "_blank");
+    } else {
+      window.location.href = url;
+    }
+  });
+
+  // Keyboard accessibility
+  document.querySelectorAll("tr[data-href]").forEach(tr => {
+    tr.tabIndex = 0;
+    tr.setAttribute("role", "link");
+    tr.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        const url = tr.dataset.href;
+        if (!url) return;
+        if (e.ctrlKey || e.metaKey) {
+          window.open(url, "_blank");
+        } else {
+          window.location.href = url;
+        }
+      }
+    });
+  });
+});
+
+// Use this for interactive elements inside rows
+function stopRowClick(e) { e.stopPropagation(); }
+    </script>
+
+    <style>
+    tr[data-href] { cursor: pointer; }
+    tr[data-href]:hover { background-color: #f8f9fa; }
+    @media (hover:hover) {
+      tr[data-href]:hover > td { transition: background-color .12s ease-in-out; }
+    }
+    </style>
   </body>
   </html>
