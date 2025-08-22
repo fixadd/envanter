@@ -20,23 +20,23 @@ from auth import (
     verify_password,
     hash_password,
 )
-    from routers import (
-        home,
-        inventory as inventory_router,
-        license as license_router,
-        accessories,
-        printers as printers_router,
-        catalog as catalog_router,
-        requests as reqs,
-        stock,
-        trash,
-        profile,
-        admin as admin_router,
-        integrations,
-        logs,
-        lookup,
-        refdata,
-    )
+from routers import (
+    home,
+    inventory as inventory_router,
+    license as license_router,
+    accessories,
+    printers as printers_router,
+    catalog as catalog_router,
+    requests as reqs,
+    stock,
+    trash,
+    profile,
+    admin as admin_router,
+    integrations,
+    logs,
+    lookup,
+    refdata,
+)
 from security import current_user, require_roles
 
 load_dotenv()
