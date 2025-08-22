@@ -3,17 +3,15 @@
 {% block content %}
 <div class="container-fluid p-3">
   <h5 class="mb-3">Yazıcı Güncelle</h5>
-  <form method="post" action="/printers/{{ item.id }}/update">
-    {% include "_catalog_select.js" %}
-    {% include "_printer_form_fields.html" %}
-    <div class="mt-3">
-      <button class="btn btn-primary btn-sm">Kaydet</button>
-      <a href="/printers/{{ item.id }}" class="btn btn-outline-secondary btn-sm">İptal</a>
-    </div>
-  </form>
-</div>
-<script>
-  (async () => {
+    <form method="post" action="/printers/{{ item.id }}/update">
+      {% include "_printer_form_fields.html" %}
+      <div class="mt-3">
+        <button class="btn btn-primary btn-sm">Kaydet</button>
+        <a href="/printers/{{ item.id }}" class="btn btn-outline-secondary btn-sm">İptal</a>
+      </div>
+    </form>
+  </div>
+  <script>
     document.querySelector('[name="envanter_no"]').value = "{{ item.envanter_no }}";
     document.querySelector('[name="ip_adresi"]').value = "{{ item.ip_adresi or '' }}";
     document.querySelector('[name="mac"]').value = "{{ item.mac or '' }}";
@@ -21,30 +19,10 @@
     document.querySelector('[name="ifs_no"]').value = "{{ item.ifs_no or '' }}";
     document.querySelector('[name="tarih"]').value = "{{ item.tarih or '' }}";
     document.querySelector('[name="islem_yapan"]').value = "{{ item.islem_yapan or '' }}";
-
-    await basitSelectDoldur({selectId:"marka_select", url:"/catalog/brands", hiddenName:"yazici_markasi"});
-    bağımlıSelectDoldur({
-      ustSelectId:"marka_select",
-      altSelectId:"model_select",
-      altUrlBuilder:(bid)=>`/catalog/models?brand_id=${encodeURIComponent(bid)}`,
-      altHiddenName:"yazici_modeli"
-    });
-    await basitSelectDoldur({selectId:"kullanim_select", url:"/catalog/usage-areas", hiddenName:"kullanim_alani"});
-
-    document.getElementById('marka_select').value = "{{ item.brand_id or '' }}";
-    document.getElementById('marka_select').dispatchEvent(new Event('change'));
-    await new Promise(r => setTimeout(r, 200));
-    document.getElementById('model_select').value = "{{ item.model_id or '' }}";
-
-    const kull = "{{ item.kullanim_alani or '' }}";
-    if (kull) {
-      const ks = document.getElementById('kullanim_select');
-      for (const opt of ks.options) {
-        if (opt.textContent === kull) { ks.value = opt.value; break; }
-      }
-      const hid = ks.closest('form').querySelector('input[name="kullanim_alani"]');
-      if (hid) hid.value = kull;
-    }
-  })();
-</script>
-{% endblock %}
+    document.getElementById('hidYaziciMarkaId').value = "{{ item.brand_id or '' }}";
+    document.getElementById('txtYaziciMarka').value = "{{ item.brand.name if item.brand else '' }}";
+    document.getElementById('hidYaziciModelId').value = "{{ item.model_id or '' }}";
+    document.getElementById('txtYaziciModel').value = "{{ item.model.name if item.model else '' }}";
+    document.getElementById('txtYaziciKullanim').value = "{{ item.kullanim_alani or '' }}";
+  </script>
+  {% endblock %}
