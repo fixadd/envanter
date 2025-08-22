@@ -248,6 +248,22 @@ class Lookup(Base):
 
 
 def init_db():
+    """Create tables and perform lightweight migrations for SQLite."""
+
+    insp = inspect(engine)
+
+    # Legacy databases may contain an old `licenses` table with mismatched
+    # columns (e.g. `lisans_adi`) from previous revisions. Accessing the
+    # relationship on the ORM then results in a "no such column: licenses.adi"
+    # error. If the expected `adi` column is missing we rename the existing
+    # table so that a new one matching the current model can be created.
+    if "licenses" in insp.get_table_names():
+        cols = {c["name"] for c in insp.get_columns("licenses")}
+        if "adi" not in cols:
+            with engine.begin() as conn:
+                conn.execute(text("ALTER TABLE licenses RENAME TO licenses_old"))
+
+    # Create tables (including the possibly new `licenses` table)
     Base.metadata.create_all(bind=engine)
 
     # Ensure recently added optional foreign key columns exist on the printers
