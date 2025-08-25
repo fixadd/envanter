@@ -105,6 +105,12 @@ class License(Base):
     anahtar: Mapped[str | None] = mapped_column(String(500))
     son_kullanma: Mapped[date | None] = mapped_column(Date)
 
+    sorumlu_personel: Mapped[str | None] = mapped_column(String(150))
+    ifs_no: Mapped[str | None] = mapped_column(String(150))
+    tarih: Mapped[date | None] = mapped_column(Date)
+    islem_yapan: Mapped[str | None] = mapped_column(String(150))
+    mail_adresi: Mapped[str | None] = mapped_column(String(150))
+
     inventory_id: Mapped[int | None] = mapped_column(
         ForeignKey("inventories.id", ondelete="SET NULL"),
         nullable=True,
@@ -115,7 +121,7 @@ class License(Base):
     )
 
     logs: Mapped[list["LicenseLog"]] = relationship(
-        "LicenseLog", back_populates="license_", cascade="all, delete-orphan"
+        "LicenseLog", back_populates="license", cascade="all, delete-orphan"
     )
 
 
@@ -129,10 +135,10 @@ class LicenseLog(Base):
     field: Mapped[str] = mapped_column(String(100), nullable=False)
     old_value: Mapped[str | None] = mapped_column(Text)
     new_value: Mapped[str | None] = mapped_column(Text)
-    changed_by: Mapped[str] = mapped_column(String(150), nullable=False)
+    changed_by: Mapped[str | None] = mapped_column(String(150), nullable=True)
     changed_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 
-    license_: Mapped["License"] = relationship("License", back_populates="logs")
+    license: Mapped["License"] = relationship("License", back_populates="logs")
 
 
 class Brand(Base):
