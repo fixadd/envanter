@@ -13,6 +13,7 @@ from starlette import status as st_status
 from sqlalchemy.orm import Session
 
 from models import init_db
+from db_bootstrap import bootstrap_schema
 from auth import (
     get_db,
     get_user_by_username,
@@ -40,6 +41,7 @@ from routers import lookup
 from security import current_user, require_roles
 
 load_dotenv()
+bootstrap_schema()
 
 # --- Secrets & Config ---------------------------------------------------------
 SESSION_SECRET = os.getenv("SESSION_SECRET")
