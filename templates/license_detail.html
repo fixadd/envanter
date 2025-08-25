@@ -1,94 +1,29 @@
 {% extends "base.html" %}
 {% block title %}Lisans Detayı{% endblock %}
-
 {% block content %}
-<div class="container-fluid p-3 content">
-
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h4 class="mb-0">Lisans: {{ license.adi }}</h4>
-    <div class="d-flex gap-2">
-      <a class="btn btn-outline-primary btn-sm" href="{{ url_for('license_edit', id=license.id) }}">Düzenle</a>
-      <a class="btn btn-light btn-sm" href="{{ url_for('license_list') }}">← Listeye Dön</a>
-    </div>
+<div class="container-fluid p-2 content">
+  <div class="table-responsive">
+    <table class="table table-sm">
+      <tbody>
+        <tr><th>No</th><td>{{ item.id }}</td></tr>
+        <tr><th>Lisans Adı</th><td>{{ item.lisans_adi }}</td></tr>
+        <tr><th>Key</th><td class="text-truncate" style="max-width:220px;">{{ item.lisans_key }}</td></tr>
+        <tr><th>Sorumlu</th><td>{{ item.sorumlu_personel or '-' }}</td></tr>
+        <tr><th>Bağlı Envanter</th><td>{{ item.bagli_envanter_no or '-' }}</td></tr>
+        <tr><th>Durum</th><td>{{ item.durum }}</td></tr>
+      </tbody>
+    </table>
   </div>
-
-  <div class="row g-3">
-    <div class="col-lg-6">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <h6 class="text-muted mb-3">Bilgiler</h6>
-          <div class="table-responsive">
-            <table class="table table-sm">
-              <tbody>
-                <tr><th style="width:220px">ID</th><td>{{ license.id }}</td></tr>
-                <tr><th>Lisans Adı</th><td>{{ license.adi }}</td></tr>
-                <tr><th>Lisans Anahtarı</th><td class="text-monospace">{{ license.anahtar or '-' }}</td></tr>
-                <tr><th>Sorumlu Personel</th><td>{{ license.sorumlu_personel or '-' }}</td></tr>
-                <tr>
-                  <th>Bağlı Envanter No</th>
-                  <td>
-                    {% if license.inventory %}
-                      <a href="{{ url_for('inventory.detail', item_id=license.inventory.id) }}">
-                        {{ license.inventory.no }}
-                      </a>
-                    {% else %}-{% endif %}
-                  </td>
-                </tr>
-                <tr><th>IFS No</th><td>{{ license.ifs_no or '-' }}</td></tr>
-                <tr><th>Tarih</th><td>{{ license.tarih.strftime('%Y-%m-%d') if license.tarih else '-' }}</td></tr>
-                <tr><th>İşlem Yapan</th><td>{{ license.islem_yapan or '-' }}</td></tr>
-                <tr><th>Mail Adresi</th><td>{{ license.mail_adresi or '-' }}</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-6">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <h6 class="text-muted mb-3">Değişiklik Logları</h6>
-          {% if logs|length == 0 %}
-            <div class="text-muted">Log kaydı yok.</div>
-          {% else %}
-            <div class="table-responsive">
-              <table class="table table-sm align-middle">
-                <thead>
-                  <tr>
-                    <th style="width:160px">Tarih</th>
-                    <th>Alan</th>
-                    <th>Eski</th>
-                    <th>Yeni</th>
-                    <th>İşlem Yapan</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for lg in logs %}
-                  <tr>
-                    <td>{{ lg.changed_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                    <td>{{ lg.field }}</td>
-                    <td>{{ lg.old_value or '-' }}</td>
-                    <td>{{ lg.new_value or '-' }}</td>
-                    <td>{{ lg.changed_by or '-' }}</td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-  </div>
-
+  <h6 class="mt-4">Geçmiş</h6>
+  <ul class="list-group">
+    {% for log in item.logs|sort(attribute='tarih', reverse=True) %}
+    <li class="list-group-item small">
+      <strong>{{ log.islem }}</strong> — {{ log.detay }}
+      <span class="text-muted">({{ log.islem_yapan }}, {{ log.tarih }})</span>
+    </li>
+    {% else %}
+    <li class="list-group-item text-muted">Kayıt yok.</li>
+    {% endfor %}
+  </ul>
 </div>
 {% endblock %}
-
-{% block styles %}
-{{ super() }}
-<style>
-  .text-monospace { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
-</style>
-{% endblock %}
-
