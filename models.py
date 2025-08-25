@@ -272,12 +272,23 @@ def init_db():
     # Create tables (including the possibly new `licenses` table)
     Base.metadata.create_all(bind=engine)
 
-    # Ensure recently added optional foreign key columns exist on the printers
-    # table. Older SQLite databases may lack these fields, causing ORM queries
-    # to fail with "no such column" errors. We inspect the current schema and
-    # add the columns if they are missing. Foreign key constraints and indexes
-    # are omitted for simplicity as SQLite's `ALTER TABLE` has limited support,
-    # but null-able integer columns are sufficient for the application logic.
+    # Ensure recently introduced nullable columns exist on older SQLite
+    # databases. Missing fields trigger "no such column" errors when the ORM
+    # attempts to access them. We inspect the schema and add any absent columns
+    # using ``ALTER TABLE``; constraints and indexes are omitted for simplicity.
+
+    # -- Licenses --------------------------------------------------------------
+    insp = inspect(engine)
+    cols = {col["name"] for col in insp.get_columns("licenses")}
+    with engine.begin() as conn:
+        if "sorumlu_personel" not in cols:
+            conn.execute(
+                text(
+                    "ALTER TABLE licenses ADD COLUMN sorumlu_personel VARCHAR(150)"
+                )
+            )
+
+    # -- Printers --------------------------------------------------------------
     insp = inspect(engine)
     cols = {col["name"] for col in insp.get_columns("printers")}
     with engine.begin() as conn:
