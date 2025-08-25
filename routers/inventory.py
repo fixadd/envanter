@@ -6,7 +6,7 @@ from datetime import datetime
 from fastapi.templating import Jinja2Templates
 
 from database import get_db
-from models import Inventory, InventoryLog, ScrapItem, User
+from models import Inventory, InventoryLog, ScrapItem, User, Factory
 from security import current_user
 
 templates = Jinja2Templates(directory="templates")
@@ -39,24 +39,17 @@ def detail(request: Request, item_id: int, db: Session = Depends(get_db), user=D
     )
 
 @router.get("/assign/sources", name="inventory.assign_sources")
-def assign_sources(type: str, exclude_id: int | None = None, db: Session = Depends(get_db), user=Depends(current_user)):
-  if type == "fabrika":
-    vals = db.query(Inventory.fabrika).distinct().all()
-    data = [{"value": v[0], "label": v[0]} for v in vals if v[0]]
-  elif type == "departman":
-    vals = db.query(Inventory.departman).distinct().all()
-    data = [{"value": v[0], "label": v[0]} for v in vals if v[0]]
-  elif type == "users":
-    users = db.query(User).order_by(User.full_name).all()
-    data = [{"value": u.full_name, "label": u.full_name} for u in users]
-  elif type == "envanter":
-    q = db.query(Inventory.id, Inventory.no)
-    if exclude_id:
-      q = q.filter(Inventory.id != exclude_id)
-    data = [{"value": no, "label": f"{no}"} for (_id, no) in q.all()]
-  else:
-    data = []
-  return JSONResponse(data)
+def assign_sources(type: str, db: Session = Depends(get_db)):
+    if type == "users":
+        users = db.query(User).order_by(User.full_name.asc()).all()
+        return [{"id": u.id, "text": u.full_name} for u in users if (u.full_name or "").strip()]
+    if type == "fabrika":
+        rows = db.query(Factory).order_by(Factory.name.asc()).all()
+        return [{"id": r.id, "text": r.name} for r in rows]
+    if type == "envanter":
+        rows = db.query(Inventory).order_by(Inventory.id.desc()).all()
+        return [{"id": r.id, "text": getattr(r, "envanter_no", str(r.id))} for r in rows]
+    return []
 
 @router.post("/assign", name="inventory.assign")
 def assign(

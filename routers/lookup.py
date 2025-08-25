@@ -9,12 +9,12 @@ router = APIRouter(prefix="/api/lookup", tags=["lookup"])
 # Ürün Ekle sayfasındaki kartlara karşılık gelen tablolar:
 # (Gerekirse tablo adlarını birebir DB'nizdeki adlarla düzeltin.)
 ENTITY_TABLE = {
-    "kullanim-alani": "usage_areas",
-    "lisans-adi": "license_names",
-    "fabrika": "factories",
-    "donanim-tipi": "hardware_types",
     "marka": "brands",
-    "model": "models",
+    "model": "models",           # Not: model listesi brand_id filtresi bekleyebilir.
+    "fabrika": "factories",
+    "kullanim-alani": "usage_areas",
+    "donanim-tipi": "hardware_types",
+    "lisans-adi": "license_names",
 }
 
 @router.get("/{entity}")
@@ -42,4 +42,4 @@ def lookup_list(
     where_sql = (" WHERE " + " AND ".join(where)) if where else ""
     sql = text(f"SELECT id, name FROM {table}{where_sql} ORDER BY name LIMIT :limit")
     rows = db.execute(sql, params).mappings().all()
-    return [{"id": r["id"], "name": r["name"]} for r in rows]
+    return [{"id": r["id"], "text": r["name"]} for r in rows]
