@@ -4,7 +4,12 @@
 {% block content %}
 <div class="container-fluid p-3">
   <div class="d-flex align-items-center justify-content-between mb-3">
-    <h5 class="mb-0">Yazıcılar</h5>
+    <div class="d-flex align-items-center gap-2">
+      <h5 class="mb-0">Yazıcılar</h5>
+      <a href="/printers/new" class="btn btn-success btn-sm" title="Yeni Ekle">
+        <i class="bi bi-plus-lg"></i>
+      </a>
+    </div>
     <form method="get" class="d-flex gap-2">
       <input type="text" name="q" value="{{ request.query_params.get('q','') }}" class="form-control form-control-sm" placeholder="Ara...">
       <select name="durum" class="form-select form-select-sm">
