@@ -15,7 +15,12 @@ router = APIRouter(prefix="/inventory", tags=["inventory"])
 
 @router.get("", name="inventory.list")
 def list_items(request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
-  items = db.query(Inventory).order_by(Inventory.id.desc()).all()
+  items = (
+    db.query(Inventory)
+    .filter(Inventory.durum != "hurda")
+    .order_by(Inventory.id.desc())
+    .all()
+  )
   return templates.TemplateResponse("inventory_list.html", {"request": request, "items": items})
 
 @router.get("/new", name="inventory.new")
@@ -77,16 +82,32 @@ def detail(request: Request, item_id: int, db: Session = Depends(get_db), user=D
     )
 
 @router.get("/assign/sources", name="inventory.assign_sources")
-def assign_sources(type: str, db: Session = Depends(get_db)):
+def assign_sources(type: str, exclude_id: int | None = None, db: Session = Depends(get_db)):
     if type == "users":
         users = db.query(User).order_by(User.full_name.asc()).all()
-        return [{"id": u.id, "text": u.full_name} for u in users if (u.full_name or "").strip()]
+        return [
+            {"id": u.full_name or u.username, "text": u.full_name or u.username}
+            for u in users
+            if (u.full_name or u.username or "").strip()
+        ]
     if type == "fabrika":
         rows = db.query(Factory).order_by(Factory.name.asc()).all()
-        return [{"id": r.id, "text": r.name} for r in rows]
+        return [{"id": r.name, "text": r.name} for r in rows]
+    if type == "departman":
+        rows = (
+            db.query(Inventory.departman)
+            .filter(Inventory.departman.isnot(None))
+            .distinct()
+            .order_by(Inventory.departman.asc())
+            .all()
+        )
+        return [{"id": r[0], "text": r[0]} for r in rows if (r[0] or "").strip()]
     if type == "envanter":
-        rows = db.query(Inventory).order_by(Inventory.id.desc()).all()
-        return [{"id": r.id, "text": getattr(r, "envanter_no", str(r.id))} for r in rows]
+        q = db.query(Inventory)
+        if exclude_id:
+            q = q.filter(Inventory.id != exclude_id)
+        rows = q.order_by(Inventory.id.desc()).all()
+        return [{"id": r.no, "text": r.no} for r in rows]
     return []
 
 @router.post("/assign", name="inventory.assign")
@@ -199,4 +220,15 @@ def scrap(item_id: int = Form(...), aciklama: str = Form(""), db: Session = Depe
 @router.get("/hurdalar", name="inventory.hurdalar")
 def hurdalar_listesi(request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
   hurdalar = db.query(Inventory).filter(Inventory.durum == "hurda").all()
-  return templates.TemplateResponse("hurdalar.html", {"request": request, "hurdalar": hurdalar})
+  logs_map = {
+    item.id: (
+      db.query(InventoryLog)
+      .filter(InventoryLog.inventory_id == item.id)
+      .order_by(InventoryLog.created_at.desc())
+      .all()
+    )
+    for item in hurdalar
+  }
+  return templates.TemplateResponse(
+    "hurdalar.html", {"request": request, "hurdalar": hurdalar, "logs_map": logs_map}
+  )

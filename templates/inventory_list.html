@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function fillSelect(id, arr) {
     const el = document.getElementById(id);
     el.innerHTML = '<option value="">Seçiniz</option>' + arr.map(x =>
-      `<option value="${x.value}">${x.label}</option>`).join('');
+      `<option value="${x.id}">${x.text}</option>`).join('');
   }
 
   // Atama submit
