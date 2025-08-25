@@ -153,10 +153,17 @@ class License(Base):
     lisans_key = Column(String(500), nullable=True)
     sorumlu_personel = Column(String(120), nullable=True)
     bagli_envanter_no = Column(String(120), nullable=True)
+    inventory_id = Column(
+        Integer,
+        ForeignKey("inventories.id", ondelete="SET NULL"),
+        index=True,
+        nullable=True,
+    )
     durum = Column(String(20), default="aktif")
     notlar = Column(Text, nullable=True)
 
     logs = relationship("LicenseLog", back_populates="license", cascade="all, delete-orphan")
+    inventory = relationship("Inventory", back_populates="licenses")
 
 
 class LicenseLog(Base):
@@ -314,6 +321,15 @@ def init_db():
             conn.execute(
                 text(
                     "ALTER TABLE licenses ADD COLUMN sorumlu_personel VARCHAR(150)"
+                )
+            )
+        if "inventory_id" not in cols:
+            conn.execute(
+                text("ALTER TABLE licenses ADD COLUMN inventory_id INTEGER")
+            )
+            conn.execute(
+                text(
+                    "CREATE INDEX IF NOT EXISTS idx_licenses_inventory_id ON licenses(inventory_id)"
                 )
             )
 
