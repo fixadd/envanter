@@ -2,6 +2,7 @@ from fastapi import APIRouter, Request, Depends, Form
 from sqlalchemy.orm import Session
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse, HTMLResponse
+from datetime import date
 
 from models import License, Inventory
 from database import get_db
@@ -46,7 +47,7 @@ def license_create(
         adi=adi,
         vendor=vendor,
         anahtar=anahtar,
-        son_kullanma=son_kullanma or None,
+        son_kullanma=date.fromisoformat(son_kullanma) if son_kullanma else None,
         inventory_id=inventory_id or None,
     )
     db.add(lic)
@@ -84,7 +85,9 @@ def license_update(
     lic.adi = adi
     lic.vendor = vendor
     lic.anahtar = anahtar
-    lic.son_kullanma = son_kullanma or None
+    lic.son_kullanma = (
+        date.fromisoformat(son_kullanma) if son_kullanma else None
+    )
     lic.inventory_id = inventory_id or None
     db.commit()
     return RedirectResponse(request.url_for("license_list"), status_code=303)
