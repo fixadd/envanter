@@ -336,6 +336,36 @@ def init_db():
                 )
             )
 
+    # -- Inventories -----------------------------------------------------------
+    insp = inspect(engine)
+    cols = {col["name"] for col in insp.get_columns("inventories")}
+    with engine.begin() as conn:
+        if "bagli_envanter_no" not in cols:
+            if "bagli_makina_no" in cols:
+                conn.execute(
+                    text(
+                        "ALTER TABLE inventories RENAME COLUMN bagli_makina_no TO bagli_envanter_no"
+                    )
+                )
+            else:
+                conn.execute(
+                    text(
+                        "ALTER TABLE inventories ADD COLUMN bagli_envanter_no VARCHAR(150)"
+                    )
+                )
+        if "kullanim_alani" not in cols:
+            conn.execute(
+                text("ALTER TABLE inventories ADD COLUMN kullanim_alani VARCHAR(150)")
+            )
+        if "durum" not in cols:
+            conn.execute(
+                text("ALTER TABLE inventories ADD COLUMN durum VARCHAR(50) DEFAULT 'aktif'")
+            )
+        if "ifs_no" not in cols:
+            conn.execute(
+                text("ALTER TABLE inventories ADD COLUMN ifs_no VARCHAR(150)")
+            )
+
     # -- Printers --------------------------------------------------------------
     insp = inspect(engine)
     cols = {col["name"] for col in insp.get_columns("printers")}
