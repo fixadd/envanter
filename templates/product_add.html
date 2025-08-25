@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Ürün Ekle{% endblock %}
+{% block content %}
+<div class="container-fluid p-3">
+  <h5 class="mb-3">Ürün Ekle</h5>
+  <form>
+    <label class="form-label">Marka</label>
+    <select id="selMarka" name="brand_id" class="form-select"></select>
+
+    <label class="form-label mt-3">Model</label>
+    <select id="selModel" name="model_id" class="form-select"></select>
+  </form>
+</div>
+<script>
+async function fillSelect(url, selectEl, placeholder = "Seçiniz") {
+  const res = await fetch(url);
+  if (!res.ok) return;
+  const data = await res.json(); // [{id, text}]
+  selectEl.innerHTML = `<option value="">${placeholder}</option>` +
+    data.map(x => `<option value="${x.id}">${x.text}</option>`).join("");
+  // Choices.js kullanıyorsan:
+  if (selectEl._choicesInstance) {
+    selectEl._choicesInstance.setChoices(
+      data.map(x => ({ value: x.id, label: x.text })), 'value', 'label', true
+    );
+  }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const selMarka = document.getElementById("selMarka");
+  const selModel = document.getElementById("selModel");
+
+  await fillSelect("/api/lookup/marka", selMarka, "Marka Seçiniz");
+
+  selMarka.addEventListener("change", async () => {
+    const markaId = selMarka.value;
+    if (!markaId) {
+      selModel.innerHTML = `<option value="">Önce marka seçin</option>`;
+      return;
+    }
+    await fillSelect(`/api/lookup/model?marka_id=${markaId}`, selModel, "Model Seçiniz");
+  });
+});
+</script>
+{% endblock %}

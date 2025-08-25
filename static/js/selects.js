@@ -25,7 +25,7 @@ async function fillChoices({ endpoint, selectId, params={}, placeholder="Seçini
   const data = res.ok ? await res.json() : [];
   const current = keepValue ? el.value : null;
   inst.clearStore();
-  inst.setChoices(data.map(r => ({ value: r.id, label: r.ad })), 'value', 'label', true);
+  inst.setChoices(data.map(r => ({ value: r.id, label: r.text ?? r.ad ?? r.name })), 'value', 'label', true);
   if (keepValue && current) inst.setChoiceByValue(current);
 }
 
