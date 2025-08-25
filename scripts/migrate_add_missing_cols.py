@@ -23,6 +23,16 @@ def main():
     cur.execute("PRAGMA table_info(licenses);")
     existing = {row[1] for row in cur.fetchall()}  # kolon adları
 
+    # Eski sürümlerdeki kolon adlarını yeni adlara taşı
+    renames = [("adi", "lisans_adi"), ("anahtari", "lisans_anahtari")]
+    for old, new in renames:
+        if old in existing and new not in existing:
+            sql = f"ALTER TABLE licenses RENAME COLUMN {old} TO {new};"
+            print("[…] " + sql)
+            cur.execute(sql)
+            existing.remove(old)
+            existing.add(new)
+
     to_add = [c for c in REQUIRED_COLS if c[0] not in existing]
     if not to_add:
         print("[✓] licenses tablosu zaten güncel.")
