@@ -1,59 +1,127 @@
 {% extends "base.html" %}
-{% block title %}Lisanslar{% endblock %}
-
+{% block title %}Lisans Takip{% endblock %}
 {% block content %}
-<div class="container-fluid p-3 content">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h4 class="mb-0">Lisanslar</h4>
-    <a class="btn btn-success btn-sm" href="{{ url_for('license_new') }}">Ekle</a>
-  </div>
-
-  <div class="card shadow-sm">
-    <div class="table-responsive">
-      <table class="table table-hover mb-0 align-middle">
-        <thead>
-          <tr>
-            <th style="width:80px">ID</th>
-            <th>Bağlı Envanter No</th>
-            <th>Lisans Adı</th>
-            <th>Lisans Anahtarı</th>
-            <th>Sorumlu Personel</th>
-            <th class="text-end" style="width:140px">İşlemler</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if lisanslar|length == 0 %}
-          <tr><td colspan="6" class="text-muted">Kayıt yok</td></tr>
-          {% else %}
-          {% for lic in lisanslar %}
-          <tr data-href="{{ url_for('license_detail', id=lic.id) }}">
-            <td>{{ lic.id }}</td>
-            <td>
-              {% if lic.inventory %}
-                <a href="{{ url_for('inventory.detail', item_id=lic.inventory.id) }}" onclick="event.stopPropagation()">
-                  {{ lic.inventory.no }}
-                </a>
-              {% else %}-{% endif %}
-            </td>
-            <td>
-              <a href="{{ url_for('license_detail', id=lic.id) }}" onclick="event.stopPropagation()">
-                {{ lic.adi }}
-              </a>
-            </td>
-            <td class="text-monospace">{{ lic.anahtar or '-' }}</td>
-            <td>{{ lic.sorumlu_personel or '-' }}</td>
-            <td class="text-end text-nowrap">
-              <a class="btn btn-sm btn-outline-primary"
-                 href="{{ url_for('license_edit', id=lic.id) }}"
-                 onclick="event.stopPropagation()">Düzenle</a>
-            </td>
-          </tr>
-          {% endfor %}
-          {% endif %}
-        </tbody>
-      </table>
-    </div>
+<div class="container-fluid p-2 content">
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th style="width:42px;">Detay</th>
+          <th>No</th>
+          <th>Lisans Adı</th>
+          <th>Key</th>
+          <th>Sorumlu</th>
+          <th>Bağlı Envanter</th>
+          <th>Durum</th>
+          <th style="width:170px;">İşlemler</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in items %}
+        <tr>
+          <td>
+            <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('license_detail', lic_id=row.id) }}" title="Detay">
+              <span style="display:inline-flex;width:24px;height:24px;align-items:center;justify-content:center;border:1px solid #ccc;border-radius:4px;">
+                <i class="bi bi-eye"></i>
+              </span>
+            </a>
+          </td>
+          <td>{{ row.id }}</td>
+          <td>{{ row.lisans_adi }}</td>
+          <td class="text-truncate" style="max-width:180px;">{{ row.lisans_key }}</td>
+          <td>{{ row.sorumlu_personel or '-' }}</td>
+          <td>{{ row.bagli_envanter_no or '-' }}</td>
+          <td>
+            {% if row.durum == 'hurda' %}<span class="badge bg-secondary">Hurda</span>
+            {% else %}<span class="badge bg-success">Aktif</span>{% endif %}
+          </td>
+          <td>
+            <select class="form-select form-select-sm action-select" data-id="{{ row.id }}">
+              <option value="">İşlem seçin…</option>
+              <option value="assign" {% if row.durum == 'hurda' %}disabled{% endif %}>Atama Yap</option>
+              <option value="edit">Düzenle</option>
+              <option value="scrap" {% if row.durum == 'hurda' %}disabled{% endif %}>Hurdaya Ayır</option>
+            </select>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
-{% endblock %}
 
+<!-- ATAMA MODALI -->
+<div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form method="post" id="assignForm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Atama Yap</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="islem_yapan" value="{{ current_user.full_name if current_user else 'system' }}">
+          <div class="mb-2">
+            <label class="form-label">Sorumlu Personel</label>
+            <select name="sorumlu_personel" class="form-select" id="selPersonel">
+              <option value="">Seçiniz</option>
+              {% for u in users %}<option value="{{ u.full_name }}">{{ u.full_name }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Bağlı Olduğu Envanter No</label>
+            <select name="bagli_envanter_no" class="form-select" id="selBagli">
+              <option value="">Seçiniz</option>
+              {% for inv in envanterler %}<option value="{{ inv.no }}">{{ inv.no }} - {{ inv.bilgisayar_adi or inv.marka }}</option>{% endfor %}
+            </select>
+          </div>
+          <small class="text-muted">Bu işlem lisansın geçmiş kayıtlarına eklenecek.</small>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" type="submit">Kaydet</button>
+          <button class="btn btn-light" type="button" data-bs-dismiss="modal">İptal</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const selects = document.querySelectorAll(".action-select");
+  const assignModal = new bootstrap.Modal(document.getElementById('assignModal'));
+  const assignForm  = document.getElementById('assignForm');
+
+  selects.forEach(sel => {
+    sel.addEventListener("change", () => {
+      const id = sel.dataset.id;
+      const v = sel.value;
+      if (!v) return;
+
+      if (v === "assign") {
+        assignForm.action = `/lisans/${id}/assign`;
+        assignModal.show();
+      } else if (v === "edit") {
+        window.location.href = `/lisans/${id}`; // license_detail sayfası
+      } else if (v === "scrap") {
+        const f = document.createElement("form");
+        f.method = "post";
+        f.action = `/lisans/${id}/scrap`;
+        const who = document.createElement("input");
+        who.name = "islem_yapan";
+        who.value = "{{ current_user.full_name if current_user else 'system' }}";
+        f.appendChild(who);
+        document.body.appendChild(f);
+        f.submit();
+      }
+      sel.value = "";
+    });
+  });
+
+  if (window.Choices) {
+    new Choices("#selPersonel", { searchEnabled: true, shouldSort: false });
+    new Choices("#selBagli", { searchEnabled: true, shouldSort: false });
+  }
+});
+</script>
+{% endblock %}
