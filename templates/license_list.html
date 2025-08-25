@@ -30,7 +30,7 @@
             <td>{{ lic.id }}</td>
             <td>
               {% if lic.inventory %}
-                <a href="{{ url_for('inventory_detail', id=lic.inventory.id) }}" onclick="event.stopPropagation()">
+                <a href="{{ url_for('inventory.detail', item_id=lic.inventory.id) }}" onclick="event.stopPropagation()">
                   {{ lic.inventory.no }}
                 </a>
               {% else %}-{% endif %}
