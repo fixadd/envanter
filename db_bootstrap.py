@@ -30,6 +30,10 @@ def bootstrap_schema():
         if "inventory_id" not in cols:
             stmts.append("ALTER TABLE licenses ADD COLUMN inventory_id INTEGER;")
             stmts.append("CREATE INDEX IF NOT EXISTS idx_licenses_inventory_id ON licenses(inventory_id);")
+        if "durum" not in cols:
+            stmts.append("ALTER TABLE licenses ADD COLUMN durum TEXT DEFAULT 'aktif';")
+        if "notlar" not in cols:
+            stmts.append("ALTER TABLE licenses ADD COLUMN notlar TEXT;")
 
         for s in stmts:
             conn.exec_driver_sql(s)

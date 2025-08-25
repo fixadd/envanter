@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class LicenseBase(BaseModel):
     lisans_adi: str
-    lisans_anahtari: str
+    anahtar: str
     sorumlu_personel: Optional[str] = None
     bagli_envanter_no: Optional[str] = None
     ifs_no: Optional[str] = None
@@ -20,7 +20,7 @@ class LicenseCreate(LicenseBase):
 
 class LicenseUpdate(BaseModel):
     lisans_adi: Optional[str] = None
-    lisans_anahtari: Optional[str] = None
+    anahtar: Optional[str] = None
     sorumlu_personel: Optional[str] = None
     bagli_envanter_no: Optional[str] = None
     ifs_no: Optional[str] = None
@@ -44,7 +44,7 @@ class LicenseListOut(BaseModel):
     id: int
     bagli_envanter_no: str | None
     lisans_adi: str
-    lisans_anahtari: str
+    anahtar: str
     sorumlu_personel: str | None
 
     class Config:
