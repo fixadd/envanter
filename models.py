@@ -150,7 +150,7 @@ class License(Base):
 
     id = Column(Integer, primary_key=True)
     lisans_adi = Column(String(200), nullable=False)
-    lisans_key = Column(String(500), nullable=True)
+    anahtar = Column("lisans_anahtari", String(500), nullable=True)
     sorumlu_personel = Column(String(120), nullable=True)
     bagli_envanter_no = Column(String(120), nullable=True)
     inventory_id = Column(
