@@ -25,6 +25,7 @@ from sqlalchemy.orm import (
     mapped_column,
     sessionmaker,
     relationship,
+    synonym,
 )
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/app.db")
@@ -150,7 +151,9 @@ class License(Base):
 
     id = Column(Integer, primary_key=True)
     lisans_adi = Column(String(200), nullable=True)
-    anahtar = Column("lisans_anahtari", String(500), nullable=True)
+    lisans_anahtari = Column(String(500), nullable=True)
+    lisans_key = synonym("lisans_anahtari")
+    anahtar = synonym("lisans_anahtari")
     sorumlu_personel = Column(String(120), nullable=True)
     bagli_envanter_no = Column(String(120), nullable=True)
     inventory_id = Column(
