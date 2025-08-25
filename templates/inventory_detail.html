@@ -21,11 +21,11 @@
             <div class="col-5 text-muted">Model</div><div class="col-7">{{ inv.model }}</div>
             <div class="col-5 text-muted">Seri No</div><div class="col-7">{{ inv.seri_no }}</div>
             <div class="col-5 text-muted">Sorumlu Personel</div><div class="col-7">{{ inv.sorumlu_personel }}</div>
-            <div class="col-5 text-muted">Bağlı Makina No</div><div class="col-7">{{ inv.bagli_makina_no }}</div>
+            <div class="col-5 text-muted">Bağlı Envanter No</div><div class="col-7">{{ inv.bagli_envanter_no }}</div>
             <div class="col-5 text-muted">IFS No</div><div class="col-7">{{ inv.ifs_no }}</div>
             <div class="col-5 text-muted">Tarih</div><div class="col-7">{{ inv.tarih }}</div>
             <div class="col-5 text-muted">İşlem Yapan</div><div class="col-7">{{ inv.islem_yapan }}</div>
-            <div class="col-5 text-muted">Not</div><div class="col-7"><pre class="mb-0">{{ inv.notlar }}</pre></div>
+            <div class="col-5 text-muted">Not</div><div class="col-7"><pre class="mb-0">{{ inv.not_ }}</pre></div>
           </div>
         </div>
       </div>
@@ -39,24 +39,26 @@
             <table class="table table-sm table-striped mb-0">
               <thead>
                 <tr>
-                  <th>Alan</th>
+                  <th>İşlem</th>
                   <th>Önce</th>
                   <th>Sonra</th>
-                  <th>Değiştiren</th>
+                  <th>Not</th>
+                  <th>Kullanıcı</th>
                   <th>Tarih</th>
                 </tr>
               </thead>
               <tbody>
                 {% for log in logs %}
                 <tr>
-                  <td><code>{{ log.field }}</code></td>
-                  <td class="text-muted">{{ log.old_value }}</td>
-                  <td>{{ log.new_value }}</td>
-                  <td>{{ log.changed_by }}</td>
-                  <td>{{ log.changed_at }}</td>
+                  <td>{{ log.action }}</td>
+                  <td class="text-muted"><pre class="mb-0">{{ log.before_json }}</pre></td>
+                  <td><pre class="mb-0">{{ log.after_json }}</pre></td>
+                  <td>{{ log.note }}</td>
+                  <td>{{ log.actor }}</td>
+                  <td>{{ log.created_at }}</td>
                 </tr>
                 {% else %}
-                <tr><td colspan="5" class="text-muted">Henüz değişiklik yok</td></tr>
+                <tr><td colspan="6" class="text-muted">Henüz değişiklik yok</td></tr>
                 {% endfor %}
               </tbody>
             </table>
