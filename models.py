@@ -19,6 +19,7 @@ from sqlalchemy import (
     JSON,
     Column,
 )
+from sqlalchemy.dialects.sqlite import JSON as SQLITE_JSON
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
@@ -231,53 +232,47 @@ class HardwareType(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(150), unique=True, nullable=False, index=True)
 
-
 class Printer(Base):
     __tablename__ = "printers"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    envanter_no: Mapped[str] = mapped_column(String(150), index=True, nullable=False)
-    yazici_markasi: Mapped[str | None] = mapped_column(String(150), index=True)
-    yazici_modeli: Mapped[str | None] = mapped_column(String(150), index=True)
-    kullanim_alani: Mapped[str | None] = mapped_column(String(200), index=True)
-    ip_adresi: Mapped[str | None] = mapped_column(String(100), index=True)
-    mac: Mapped[str | None] = mapped_column(String(100), index=True)
-    hostname: Mapped[str | None] = mapped_column(String(150), index=True)
-    ifs_no: Mapped[str | None] = mapped_column(String(150))
-    tarih: Mapped[str | None] = mapped_column(String(50))
-    islem_yapan: Mapped[str | None] = mapped_column(String(150))
-    sorumlu_personel: Mapped[str | None] = mapped_column(String(150), index=True)
-    brand_id: Mapped[int | None] = mapped_column(
-        ForeignKey("brands.id", ondelete="SET NULL"), nullable=True, index=True
-    )
-    model_id: Mapped[int | None] = mapped_column(
-        ForeignKey("models.id", ondelete="SET NULL"), nullable=True, index=True
-    )
+    id = Column(Integer, primary_key=True, index=True)
+    inventory_id = Column(Integer, index=True)
+    marka = Column(String(100))
+    model = Column(String(100))
+    seri_no = Column(String(100))
 
-    brand: Mapped[Brand | None] = relationship("Brand")
-    model: Mapped[Model | None] = relationship("Model")
+    fabrika = Column(String(100), nullable=True)
+    kullanim_alani = Column(String(150), nullable=True)
+    sorumlu_personel = Column(String(150), nullable=True)
+    bagli_envanter_no = Column(String(50), nullable=True)
 
-    logs: Mapped[list["PrinterLog"]] = relationship(
-        "PrinterLog", back_populates="printer", cascade="all, delete-orphan"
-    )
+    durum = Column(String(30), default="aktif")
+    notlar = Column(Text, nullable=True)
+
+    histories = relationship("PrinterHistory", back_populates="printer", cascade="all, delete-orphan")
 
 
-class PrinterLog(Base):
-    __tablename__ = "printer_logs"
+class PrinterHistory(Base):
+    __tablename__ = "printer_histories"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    printer_id: Mapped[int] = mapped_column(
-        ForeignKey("printers.id", ondelete="CASCADE"), index=True, nullable=False
-    )
-    field: Mapped[str] = mapped_column(String(100), nullable=False)
-    old_value: Mapped[str | None] = mapped_column(Text)
-    new_value: Mapped[str | None] = mapped_column(Text)
-    changed_by: Mapped[str] = mapped_column(String(150), nullable=False)
-    changed_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
-    )
+    id = Column(Integer, primary_key=True)
+    printer_id = Column(Integer, ForeignKey("printers.id"), index=True)
+    action = Column(String(50))
+    changes = Column(SQLITE_JSON, nullable=True)
+    actor = Column(String(150), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
-    printer: Mapped["Printer"] = relationship("Printer", back_populates="logs")
+    printer = relationship("Printer", back_populates="histories")
+
+
+class ScrapPrinter(Base):
+    __tablename__ = "scrap_printers"
+
+    id = Column(Integer, primary_key=True)
+    printer_id = Column(Integer, index=True, unique=True)
+    snapshot = Column(SQLITE_JSON)
+    reason = Column(String(200), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 
 class Lookup(Base):
@@ -411,7 +406,23 @@ def init_db():
     insp = inspect(engine)
     cols = {col["name"] for col in insp.get_columns("printers")}
     with engine.begin() as conn:
-        if "brand_id" not in cols:
-            conn.execute(text("ALTER TABLE printers ADD COLUMN brand_id INTEGER"))
-        if "model_id" not in cols:
-            conn.execute(text("ALTER TABLE printers ADD COLUMN model_id INTEGER"))
+        if "inventory_id" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN inventory_id INTEGER"))
+        if "marka" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN marka VARCHAR(100)"))
+        if "model" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN model VARCHAR(100)"))
+        if "seri_no" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN seri_no VARCHAR(100)"))
+        if "fabrika" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN fabrika VARCHAR(100)"))
+        if "kullanim_alani" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN kullanim_alani VARCHAR(150)"))
+        if "sorumlu_personel" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN sorumlu_personel VARCHAR(150)"))
+        if "bagli_envanter_no" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN bagli_envanter_no VARCHAR(50)"))
+        if "durum" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN durum VARCHAR(30) DEFAULT 'aktif'"))
+        if "notlar" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN notlar TEXT"))
