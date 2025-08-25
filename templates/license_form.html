@@ -18,19 +18,13 @@
           </div>
 
           <div class="col-md-6">
-            <label class="form-label">Vendor</label>
-            <input name="vendor" class="form-control" value="{{ license.vendor if license else '' }}">
-          </div>
-
-          <div class="col-md-6">
             <label class="form-label">Lisans Anahtarı</label>
             <input name="anahtar" class="form-control" value="{{ license.anahtar if license else '' }}">
           </div>
 
           <div class="col-md-6">
-            <label class="form-label">Son Kullanma</label>
-            <input type="date" name="son_kullanma" class="form-control"
-                   value="{{ license.son_kullanma.strftime('%Y-%m-%d') if license and license.son_kullanma }}">
+            <label class="form-label">Sorumlu Personel</label>
+            <input name="sorumlu_personel" class="form-control" value="{{ license.sorumlu_personel if license else '' }}">
           </div>
 
           <div class="col-md-6">
@@ -44,7 +38,27 @@
                 </option>
               {% endfor %}
             </select>
-            <div class="form-text">Envanteri seçerseniz lisans o envanterin detayında listelenir.</div>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">IFS No</label>
+            <input name="ifs_no" class="form-control" value="{{ license.ifs_no if license else '' }}">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Tarih</label>
+            <input type="date" name="tarih" class="form-control"
+                   value="{{ license.tarih.isoformat() if license and license.tarih }}">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">İşlem Yapan</label>
+            <input name="islem_yapan" class="form-control" value="{{ license.islem_yapan if license else '' }}">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Mail Adresi</label>
+            <input type="email" name="mail_adresi" class="form-control" value="{{ license.mail_adresi if license else '' }}">
           </div>
         </div>
 
