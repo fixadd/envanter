@@ -16,6 +16,7 @@ from sqlalchemy import (
     UniqueConstraint,
     inspect,
     text,
+    JSON,
 )
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -62,11 +63,11 @@ class Inventory(Base):
     model: Mapped[str | None] = mapped_column(String(100))
     seri_no: Mapped[str | None] = mapped_column(String(150))
     sorumlu_personel: Mapped[str | None] = mapped_column(String(150), index=True)
-    bagli_makina_no: Mapped[str | None] = mapped_column(String(150))
+    bagli_envanter_no: Mapped[str | None] = mapped_column(String(150))
+    kullanim_alani: Mapped[str | None] = mapped_column(String(150))
     ifs_no: Mapped[str | None] = mapped_column(String(150))
-    tarih: Mapped[str | None] = mapped_column(String(50))
-    islem_yapan: Mapped[str | None] = mapped_column(String(150))
-    notlar: Mapped[str | None] = mapped_column("not", Text)
+    durum: Mapped[str | None] = mapped_column(String(50), default="aktif")
+    not_: Mapped[str | None] = mapped_column("not", Text)
 
     logs: Mapped[list["InventoryLog"]] = relationship(
         "InventoryLog", back_populates="inventory", cascade="all, delete-orphan"
@@ -79,21 +80,68 @@ class Inventory(Base):
         passive_deletes=True,
     )
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "no": self.no,
+            "fabrika": self.fabrika,
+            "departman": self.departman,
+            "sorumlu_personel": self.sorumlu_personel,
+            "bagli_envanter_no": self.bagli_envanter_no,
+            "marka": self.marka,
+            "model": self.model,
+            "kullanim_alani": self.kullanim_alani,
+            "ifs_no": self.ifs_no,
+            "durum": self.durum,
+            "not": self.not_,
+        }
+
 
 class InventoryLog(Base):
-    __tablename__ = "inventory_logs"
+    __tablename__ = "inventory_log"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    inventory_id: Mapped[int] = mapped_column(
-        ForeignKey("inventories.id", ondelete="CASCADE"), index=True, nullable=False
-    )
-    field: Mapped[str] = mapped_column(String(100), nullable=False)
-    old_value: Mapped[str | None] = mapped_column(Text)
-    new_value: Mapped[str | None] = mapped_column(Text)
-    changed_by: Mapped[str] = mapped_column(String(150), nullable=False)
-    changed_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    inventory_id: Mapped[int] = mapped_column(ForeignKey("inventories.id"), index=True, nullable=False)
+    action: Mapped[str] = mapped_column(String, index=True)
+    before_json: Mapped[dict | None] = mapped_column(JSON)
+    after_json: Mapped[dict | None] = mapped_column(JSON)
+    note: Mapped[str | None] = mapped_column(Text)
+    actor: Mapped[str | None] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     inventory: Mapped["Inventory"] = relationship("Inventory", back_populates="logs")
+
+
+class ScrapItem(Base):
+    __tablename__ = "scrap_items"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    source_inventory_id: Mapped[int | None] = mapped_column(Integer, index=True)
+    no: Mapped[str | None] = mapped_column(String, index=True)
+    fabrika: Mapped[str | None] = mapped_column(String)
+    departman: Mapped[str | None] = mapped_column(String)
+    sorumlu_personel: Mapped[str | None] = mapped_column(String)
+    marka: Mapped[str | None] = mapped_column(String)
+    model: Mapped[str | None] = mapped_column(String)
+    ifs_no: Mapped[str | None] = mapped_column(String)
+    reason: Mapped[str | None] = mapped_column(Text)
+    actor: Mapped[str | None] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    @classmethod
+    def from_inventory(cls, inv: "Inventory", reason: str = "", actor: str = ""):
+        return cls(
+            source_inventory_id=inv.id,
+            no=inv.no,
+            fabrika=inv.fabrika,
+            departman=inv.departman,
+            sorumlu_personel=inv.sorumlu_personel,
+            marka=inv.marka,
+            model=inv.model,
+            ifs_no=inv.ifs_no,
+            reason=reason,
+            actor=actor,
+        )
 
 
 class License(Base):
