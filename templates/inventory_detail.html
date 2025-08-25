@@ -86,7 +86,7 @@
         <tr data-href="{{ url_for('license_detail', id=lic.id) }}">
           <td>{{ lic.adi }}</td>
           <td>{{ lic.vendor or '-' }}</td>
-          <td>{{ lic.son_kullanma|date('Y-MM-dd') if lic.son_kullanma else '-' }}</td>
+          <td>{{ lic.son_kullanma.strftime('%Y-%m-%d') if lic.son_kullanma else '-' }}</td>
           <td class="text-monospace">{{ lic.anahtar or '-' }}</td>
           <td class="text-nowrap">
             <a class="btn btn-sm btn-outline-primary" href="{{ url_for('license_edit', id=lic.id) }}" onclick="event.stopPropagation()">Düzenle</a>
