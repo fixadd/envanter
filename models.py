@@ -295,35 +295,45 @@ class Lookup(Base):
 def init_db():
     """Create tables and perform lightweight migrations for SQLite."""
 
-    insp = inspect(engine)
-
-    # Legacy databases may contain an old `licenses` table with mismatched
-    # columns (e.g. `lisans_adi`) from previous revisions. Accessing the
-    # relationship on the ORM then results in a "no such column: licenses.adi"
-    # error. If the expected `adi` column is missing we rename the existing
-    # table so that a new one matching the current model can be created.
-    if "licenses" in insp.get_table_names():
-        cols = {c["name"] for c in insp.get_columns("licenses")}
-        if "adi" not in cols:
-            with engine.begin() as conn:
-                conn.execute(text("ALTER TABLE licenses RENAME TO licenses_old"))
-
-    # Create tables (including the possibly new `licenses` table)
+    # Create all tables if they do not exist
     Base.metadata.create_all(bind=engine)
 
-    # Ensure recently introduced nullable columns exist on older SQLite
-    # databases. Missing fields trigger "no such column" errors when the ORM
-    # attempts to access them. We inspect the schema and add any absent columns
-    # using ``ALTER TABLE``; constraints and indexes are omitted for simplicity.
+    # Ensure recently introduced columns exist on older SQLite databases.
+    # Missing fields trigger "no such column" errors when the ORM attempts to
+    # access them. We inspect the schema and add or rename columns as needed.
 
     # -- Licenses --------------------------------------------------------------
     insp = inspect(engine)
     cols = {col["name"] for col in insp.get_columns("licenses")}
     with engine.begin() as conn:
+        if "lisans_adi" not in cols:
+            if "adi" in cols:
+                conn.execute(text("ALTER TABLE licenses RENAME COLUMN adi TO lisans_adi"))
+            else:
+                conn.execute(
+                    text("ALTER TABLE licenses ADD COLUMN lisans_adi VARCHAR(200)")
+                )
+        if "lisans_anahtari" not in cols:
+            if "anahtari" in cols:
+                conn.execute(
+                    text("ALTER TABLE licenses RENAME COLUMN anahtari TO lisans_anahtari")
+                )
+            else:
+                conn.execute(
+                    text(
+                        "ALTER TABLE licenses ADD COLUMN lisans_anahtari VARCHAR(500)"
+                    )
+                )
         if "sorumlu_personel" not in cols:
             conn.execute(
                 text(
                     "ALTER TABLE licenses ADD COLUMN sorumlu_personel VARCHAR(150)"
+                )
+            )
+        if "bagli_envanter_no" not in cols:
+            conn.execute(
+                text(
+                    "ALTER TABLE licenses ADD COLUMN bagli_envanter_no VARCHAR(150)"
                 )
             )
         if "inventory_id" not in cols:
@@ -335,6 +345,12 @@ def init_db():
                     "CREATE INDEX IF NOT EXISTS idx_licenses_inventory_id ON licenses(inventory_id)"
                 )
             )
+        if "durum" not in cols:
+            conn.execute(
+                text("ALTER TABLE licenses ADD COLUMN durum VARCHAR(20) DEFAULT 'aktif'")
+            )
+        if "notlar" not in cols:
+            conn.execute(text("ALTER TABLE licenses ADD COLUMN notlar TEXT"))
 
     # -- Inventories -----------------------------------------------------------
     insp = inspect(engine)
