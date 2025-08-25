@@ -40,7 +40,7 @@ function renderList(containerEl, rows) {
     (rows && rows.length)
       ? rows.map(r =>
           `<li class="list-group-item d-flex justify-content-between align-items-center">
-             <span>${r.name ?? r.ad ?? ''}</span>
+             <span>${r.name ?? r.ad ?? r.text ?? ''}</span>
            </li>`
         ).join('')
       : `<li class="list-group-item text-muted">Kayıt yok</li>`;
@@ -50,7 +50,7 @@ function renderList(containerEl, rows) {
 async function fillBrandSelect(selectEl) {
   const rows = await fetchList('marka');
   const opts = [`<option value="">Marka seçiniz…</option>`]
-    .concat(rows.map(r => `<option value="${r.id}">${r.name ?? r.ad}</option>`));
+    .concat(rows.map(r => `<option value="${r.id}">${r.name ?? r.ad ?? r.text}</option>`));
   selectEl.innerHTML = opts.join('');
 
   // Choices.js ile aramalı hale getir
@@ -70,7 +70,7 @@ async function fillBrandSelect(selectEl) {
       const inst = selectEl._choicesInstance;
       inst.clearStore();
       inst.setChoices(
-        rows.map(r => ({value: r.id, label: r.name ?? r.ad})),
+        rows.map(r => ({value: r.id, label: r.name ?? r.ad ?? r.text})),
         'value','label', true
       );
     }
