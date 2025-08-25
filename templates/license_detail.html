@@ -14,7 +14,7 @@
         <div class="card-body">
           <div class="row">
             <div class="col-5 text-muted">Vendor</div><div class="col-7">{{ license.vendor or '-' }}</div>
-            <div class="col-5 text-muted">Son Kullanma</div><div class="col-7">{{ license.son_kullanma|date('Y-MM-dd') if license.son_kullanma else '-' }}</div>
+            <div class="col-5 text-muted">Son Kullanma</div><div class="col-7">{{ license.son_kullanma.strftime('%Y-%m-%d') if license.son_kullanma else '-' }}</div>
             <div class="col-5 text-muted">Anahtar</div><div class="col-7"><code>{{ license.anahtar or '-' }}</code></div>
             <div class="col-5 text-muted">Bağlı Envanter</div>
             <div class="col-7">

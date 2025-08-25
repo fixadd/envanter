@@ -30,7 +30,7 @@
           <div class="col-md-6">
             <label class="form-label">Son Kullanma</label>
             <input type="date" name="son_kullanma" class="form-control"
-                   value="{{ license.son_kullanma|date('Y-m-d') if license and license.son_kullanma }}">
+                   value="{{ license.son_kullanma.strftime('%Y-%m-%d') if license and license.son_kullanma }}">
           </div>
 
           <div class="col-md-6">
