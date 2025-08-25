@@ -275,6 +275,30 @@ class ScrapPrinter(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+class StockLog(Base):
+    __tablename__ = "stock_logs"
+    id = Column(Integer, primary_key=True, index=True)
+    donanim_tipi = Column(String(150), index=True, nullable=False)
+    miktar = Column(Integer, nullable=False)
+    ifs_no = Column(String(100), index=True, nullable=True)
+    tarih = Column(DateTime, default=datetime.utcnow)
+    islem = Column(String(20), nullable=False)
+    actor = Column(String(150), nullable=True)
+
+
+class StockAssignment(Base):
+    __tablename__ = "stock_assignments"
+    id = Column(Integer, primary_key=True)
+    donanim_tipi = Column(String(150), nullable=False)
+    miktar = Column(Integer, nullable=False)
+    ifs_no = Column(String(100), nullable=True)
+    hedef_envanter_no = Column(String(100), nullable=True)
+    sorumlu_personel = Column(String(150), nullable=True)
+    kullanim_alani = Column(String(150), nullable=True)
+    tarih = Column(DateTime, default=datetime.utcnow)
+    actor = Column(String(150), nullable=True)
+
+
 class Lookup(Base):
     __tablename__ = "lookups"
 

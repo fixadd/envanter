@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% block title %}Stok Logları{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-3">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h5 class="mb-0">Stok Logları (En Güncel)</h5>
+    <div class="d-flex gap-2">
+      <button id="btnDurum" class="btn btn-outline-primary btn-sm">Stock Durumu</button>
+      <button id="btnAtama" class="btn btn-primary btn-sm">Atama</button>
+    </div>
+  </div>
+
+  <!-- Hızlı Girdi/Çıktı formu -->
+  <form class="row g-2 mb-3" method="post" action="/stock/log">
+    <div class="col-md-3">
+      <label class="form-label mb-1">Donanım Tipi</label>
+      <input name="donanim_tipi" class="form-control form-control-sm" required>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label mb-1">Miktar</label>
+      <input type="number" name="miktar" class="form-control form-control-sm" min="1" required>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label mb-1">IFS No</label>
+      <input name="ifs_no" class="form-control form-control-sm">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label mb-1">İşlem</label>
+      <select name="islem" class="form-select form-select-sm" required>
+        <option value="girdi">Girdi</option>
+        <option value="cikti">Çıktı</option>
+      </select>
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+      <button class="btn btn-success btn-sm w-100">Kaydet</button>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead class="table-light">
+        <tr>
+          <th style="width:72px;">ID</th>
+          <th>Donanım Tipi</th>
+          <th>Miktar</th>
+          <th>IFS No</th>
+          <th>Tarih</th>
+          <th>İşlem</th>
+          <th>İşlem Yapan</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in logs %}
+        <tr>
+          <td>#{{ r.id }}</td>
+          <td>{{ r.donanim_tipi }}</td>
+          <td>{{ r.miktar }}</td>
+          <td>{{ r.ifs_no or '-' }}</td>
+          <td>{{ (r.tarih).strftime("%d.%m.%Y %H:%M") if r.tarih else '-' }}</td>
+          <td>
+            {% if r.islem == 'girdi' %}<span class="badge text-bg-success">Girdi</span>
+            {% elif r.islem == 'cikti' %}<span class="badge text-bg-warning">Çıktı</span>
+            {% else %}<span class="badge text-bg-secondary">Atama</span>{% endif %}
+          </td>
+          <td>{{ r.actor or '-' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- STOCK DURUMU MODAL -->
+<div class="modal fade" id="durumModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title">Güncel Stoklarımız</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table table-sm align-middle" id="tblDurum">
+            <thead class="table-light">
+              <tr>
+                <th>Donanım Tipi</th>
+                <th>IFS No</th>
+                <th class="text-end">Stok</th>
+              </tr>
+            </thead>
+            <tbody><!-- doldurulacak --></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Kapat</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ATAMA MODAL -->
+<div class="modal fade" id="atamaModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" id="frmAtama">
+      <div class="modal-header">
+        <h6 class="modal-title">Stoktan Atama</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <label class="form-label">Donanım Tipi (Seç ya da yaz)</label>
+          <input name="donanim_tipi" id="a_donanim" class="form-control form-control-sm" required>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">IFS No</label>
+          <input name="ifs_no" id="a_ifs" class="form-control form-control-sm">
+        </div>
+        <div class="row g-2">
+          <div class="col-6">
+            <label class="form-label">Miktar</label>
+            <input type="number" min="1" name="miktar" class="form-control form-control-sm" required>
+          </div>
+          <div class="col-6 d-flex align-items-end">
+            <div class="small text-muted" id="a_mevcut">Mevcut: -</div>
+          </div>
+        </div>
+        <hr class="my-2">
+        <div class="mb-2">
+          <label class="form-label">Hedef Envanter No</label>
+          <input name="hedef_envanter_no" class="form-control form-control-sm">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Sorumlu Personel</label>
+          <input name="sorumlu_personel" class="form-control form-control-sm">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Kullanım Alanı</label>
+          <input name="kullanim_alani" class="form-control form-control-sm">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" type="button" data-bs-dismiss="modal">İptal</button>
+        <button class="btn btn-success btn-sm" type="submit">Atamayı Yap</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function(){
+  const durumModal = new bootstrap.Modal(document.getElementById('durumModal'));
+  const atamaModal = new bootstrap.Modal(document.getElementById('atamaModal'));
+
+  // Stock Durumu
+  document.getElementById('btnDurum').addEventListener('click', async ()=>{
+    const res = await fetch('/stock/durum');
+    const j = await res.json();
+    const tbody = document.querySelector('#tblDurum tbody');
+    tbody.innerHTML = '';
+    (j.rows || []).forEach(r=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${r.donanim_tipi || '-'}</td>
+        <td>${r.ifs_no || '-'}</td>
+        <td class="text-end">${r.stok}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+    durumModal.show();
+  });
+
+  // Atama akışı
+  const frmAtama = document.getElementById('frmAtama');
+  document.getElementById('btnAtama').addEventListener('click', ()=>{
+    document.getElementById('a_mevcut').textContent = 'Mevcut: -';
+    atamaModal.show();
+  });
+
+  // Mevcut stok gösterimi (donanim_tipi + ifs değişince)
+  async function refreshMevcut(){
+    const don = document.getElementById('a_donanim').value.trim();
+    const ifs = document.getElementById('a_ifs').value.trim() || null;
+    if(!don){ document.getElementById('a_mevcut').textContent = 'Mevcut: -'; return; }
+    const res = await fetch('/stock/durum'); const j = await res.json();
+    const m = (j.rows || []).find(x => x.donanim_tipi === don && (x.ifs_no||null) === ifs);
+    document.getElementById('a_mevcut').textContent = 'Mevcut: ' + (m ? m.stok : 0);
+  }
+  document.getElementById('a_donanim').addEventListener('input', refreshMevcut);
+  document.getElementById('a_ifs').addEventListener('input', refreshMevcut);
+
+  frmAtama.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const fd = new FormData(frmAtama);
+    const res = await fetch('/stock/assign', { method: 'POST', body: fd });
+    if(res.ok){
+      atamaModal.hide();
+      location.reload(); // log listesi güncellensin
+    }else{
+      const txt = await res.text();
+      alert('Hata: ' + txt);
+    }
+  });
+})();
+</script>
+{% endblock %}
+
