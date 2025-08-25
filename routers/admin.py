@@ -111,7 +111,8 @@ def update_user(
     is_admin: Optional[bool] = Form(False),
     db: Session = Depends(get_db),
 ):
-    user = db.query(User).get(user_id)
+    # SQLAlchemy 2.0 stili
+    user = db.get(User, user_id)
     if not user:
         raise HTTPException(404, "Kullanıcı bulunamadı.")
 
@@ -130,7 +131,7 @@ def update_user(
 
 @router.post("/users/{user_id}/delete")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
-    user = db.query(User).get(user_id)
+    user = db.get(User, user_id)
     if not user:
         raise HTTPException(404, "Kullanıcı bulunamadı.")
     if user.username.lower() == "admin":
@@ -160,7 +161,7 @@ def add_lookup(
 
 @router.post("/lookups/{lookup_id}/delete")
 def delete_lookup(lookup_id: int, db: Session = Depends(get_db)):
-    lk = db.query(Lookup).get(lookup_id)
+    lk = db.get(Lookup, lookup_id)
     if not lk:
         raise HTTPException(404, "Kayıt bulunamadı.")
     db.delete(lk)
