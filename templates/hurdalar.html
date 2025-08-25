@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Hurdalar{% endblock %}
+{% block content %}
+<div class="container-fluid p-3">
+  <h3>Hurdalar</h3>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Envanter No</th>
+        <th>Marka</th>
+        <th>Model</th>
+        <th>Seri No</th>
+        <th>Departman</th>
+        <th>Tarih</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in hurdalar %}
+      <tr>
+        <td>{{ item.no }}</td>
+        <td>{{ item.marka }}</td>
+        <td>{{ item.model }}</td>
+        <td>{{ item.seri_no }}</td>
+        <td>{{ item.departman }}</td>
+        <td>{{ item.tarih }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

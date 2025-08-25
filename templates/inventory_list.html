@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     const fd = new FormData(e.target);
     const res = await fetch(`{{ url_for('inventory.scrap') }}`, { method: 'POST', body: fd });
-    if (res.ok) window.location.href = `{{ url_for('inventory.scrap_list') }}`;
+    if (res.ok) window.location.href = `{{ url_for('inventory.hurdalar') }}`;
     else alert('Hurdaya ayırma başarısız');
   });
 });
