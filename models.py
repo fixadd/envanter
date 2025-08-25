@@ -17,6 +17,7 @@ from sqlalchemy import (
     inspect,
     text,
     JSON,
+    Column,
 )
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -147,46 +148,26 @@ class ScrapItem(Base):
 class License(Base):
     __tablename__ = "licenses"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    adi: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
-    vendor: Mapped[str | None] = mapped_column(String(150))
-    anahtar: Mapped[str | None] = mapped_column(String(500))
-    son_kullanma: Mapped[date | None] = mapped_column(Date)
+    id = Column(Integer, primary_key=True)
+    lisans_adi = Column(String(200), nullable=False)
+    lisans_key = Column(String(500), nullable=True)
+    sorumlu_personel = Column(String(120), nullable=True)
+    bagli_envanter_no = Column(String(120), nullable=True)
+    durum = Column(String(20), default="aktif")
+    notlar = Column(Text, nullable=True)
 
-    sorumlu_personel: Mapped[str | None] = mapped_column(String(150))
-    ifs_no: Mapped[str | None] = mapped_column(String(150))
-    tarih: Mapped[date | None] = mapped_column(Date)
-    islem_yapan: Mapped[str | None] = mapped_column(String(150))
-    mail_adresi: Mapped[str | None] = mapped_column(String(150))
-
-    inventory_id: Mapped[int | None] = mapped_column(
-        ForeignKey("inventories.id", ondelete="SET NULL"),
-        nullable=True,
-        index=True,
-    )
-    inventory: Mapped[Optional["Inventory"]] = relationship(
-        "Inventory", back_populates="licenses"
-    )
-
-    logs: Mapped[list["LicenseLog"]] = relationship(
-        "LicenseLog", back_populates="license", cascade="all, delete-orphan"
-    )
+    logs = relationship("LicenseLog", back_populates="license", cascade="all, delete-orphan")
 
 
 class LicenseLog(Base):
     __tablename__ = "license_logs"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    license_id: Mapped[int] = mapped_column(
-        ForeignKey("licenses.id", ondelete="CASCADE"), index=True, nullable=False
-    )
-    field: Mapped[str] = mapped_column(String(100), nullable=False)
-    old_value: Mapped[str | None] = mapped_column(Text)
-    new_value: Mapped[str | None] = mapped_column(Text)
-    changed_by: Mapped[str | None] = mapped_column(String(150), nullable=True)
-    changed_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
-
-    license: Mapped["License"] = relationship("License", back_populates="logs")
+    id = Column(Integer, primary_key=True)
+    license_id = Column(Integer, ForeignKey("licenses.id"), index=True, nullable=False)
+    islem = Column(String(50))
+    detay = Column(Text)
+    islem_yapan = Column(String(120))
+    tarih = Column(DateTime, default=datetime.utcnow)
+    license = relationship("License", back_populates="logs")
 
 
 class Brand(Base):
