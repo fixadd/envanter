@@ -18,6 +18,44 @@ def list_items(request: Request, db: Session = Depends(get_db), user=Depends(cur
   items = db.query(Inventory).order_by(Inventory.id.desc()).all()
   return templates.TemplateResponse("inventory_list.html", {"request": request, "items": items})
 
+@router.get("/new", name="inventory.new")
+def new_page(request: Request, user=Depends(current_user)):
+  return templates.TemplateResponse("inventory_new.html", {"request": request})
+
+@router.post("/new", name="inventory.new_post")
+async def new_post(request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
+  form = dict(await request.form())
+  inv = Inventory(
+    no=form.get("no") or f"INV{int(datetime.utcnow().timestamp())}",
+    fabrika=form.get("fabrika"),
+    departman=form.get("departman"),
+    donanim_tipi=form.get("donanim_tipi"),
+    bilgisayar_adi=form.get("bilgisayar_adi"),
+    marka=form.get("marka"),
+    model=form.get("model"),
+    seri_no=form.get("seri_no"),
+    sorumlu_personel=form.get("sorumlu_personel"),
+    bagli_envanter_no=form.get("bagli_envanter_no"),
+    ifs_no=form.get("ifs_no"),
+    not_=form.get("not") or None,
+    tarih=datetime.utcnow(),
+    islem_yapan=getattr(user, "full_name", None) or user.username,
+  )
+  db.add(inv)
+  db.commit()
+  db.refresh(inv)
+  db.add(InventoryLog(
+    inventory_id=inv.id,
+    action="create",
+    before_json=None,
+    after_json=inv.to_dict() if hasattr(inv, "to_dict") else None,
+    note="Oluşturuldu",
+    created_at=datetime.utcnow(),
+    actor=user.username,
+  ))
+  db.commit()
+  return RedirectResponse(url=request.url_for("inventory.detail", item_id=inv.id), status_code=303)
+
 @router.get("/{item_id}/detail", name="inventory.detail")
 def detail(request: Request, item_id: int, db: Session = Depends(get_db), user=Depends(current_user)):
     stmt = (

@@ -69,6 +69,8 @@ class Inventory(Base):
     bagli_envanter_no: Mapped[str | None] = mapped_column(String(150))
     kullanim_alani: Mapped[str | None] = mapped_column(String(150))
     ifs_no: Mapped[str | None] = mapped_column(String(150))
+    tarih: Mapped[datetime | None] = mapped_column(DateTime, default=datetime.utcnow)
+    islem_yapan: Mapped[str | None] = mapped_column(String(150))
     durum: Mapped[str | None] = mapped_column(String(50), default="aktif")
     not_: Mapped[str | None] = mapped_column("not", Text)
 
@@ -95,6 +97,8 @@ class Inventory(Base):
             "model": self.model,
             "kullanim_alani": self.kullanim_alani,
             "ifs_no": self.ifs_no,
+            "tarih": self.tarih,
+            "islem_yapan": self.islem_yapan,
             "durum": self.durum,
             "not": self.not_,
         }
