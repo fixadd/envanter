@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Hurdalar - Lisans{% endblock %}
+{% block content %}
+<div class="container-fluid p-2 content">
+  <h5 class="mb-3">Hurdaya Ayrılan Lisanslar</h5>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr><th>No</th><th>Lisans Adı</th><th>Key</th><th>Sorumlu</th><th>Bağlı Envanter</th><th>Durum</th></tr>
+      </thead>
+      <tbody>
+        {% for row in items %}
+        <tr>
+          <td>{{ row.id }}</td>
+          <td>{{ row.lisans_adi }}</td>
+          <td class="text-truncate" style="max-width:220px;">{{ row.lisans_key }}</td>
+          <td>{{ row.sorumlu_personel or '-' }}</td>
+          <td>{{ row.bagli_envanter_no or '-' }}</td>
+          <td><span class="badge bg-secondary">Hurda</span></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-muted">Kayıt yok.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,170 +1,92 @@
-from __future__ import annotations
-
-from datetime import date, datetime
-from typing import Optional
-
-from fastapi import APIRouter, Request, Depends, Form
+from fastapi import APIRouter, Depends, Request, Form, HTTPException
+from sqlalchemy.orm import Session
+from starlette import status
 from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session, joinedload
-
-from models import License, Inventory, LicenseLog
 from database import get_db
+from models import License, LicenseLog
+from fastapi.templating import Jinja2Templates
+from security import current_user
 
-
-router = APIRouter()
+router = APIRouter(prefix="/lisans", tags=["Lisans"])
 templates = Jinja2Templates(directory="templates")
 
 
-# ———— Liste ——————————————————————————————
-@router.get("/licenses", name="license_list")
-def license_list(request: Request, db: Session = Depends(get_db)):
-    lisanslar = (
-        db.query(License)
-        .options(joinedload(License.inventory))
-        .order_by(License.id.desc())
-        .all()
-    )
-    return templates.TemplateResponse(
-        "license_list.html", {"request": request, "lisanslar": lisanslar}
-    )
+def _logla(db: Session, lic: License, islem: str, detay: str, islem_yapan: str):
+    db.add(LicenseLog(license_id=lic.id, islem=islem, detay=detay, islem_yapan=islem_yapan))
 
 
-# ———— Yeni ——————————————————————————————
-@router.get("/licenses/new", name="license_new")
-def license_new(request: Request, db: Session = Depends(get_db)):
-    envanterler = db.query(Inventory).order_by(Inventory.no.asc()).all()
-    return templates.TemplateResponse(
-        "license_form.html",
-        {
-            "request": request,
-            "form_action": request.url_for("license_create"),
-            "license": None,
-            "envanterler": envanterler,
-        },
-    )
-
-
-@router.post("/licenses", name="license_create")
-def license_create(
-    request: Request,
+@router.post("/{lic_id}/assign")
+def assign_license(
+    lic_id: int,
+    sorumlu_personel: str = Form(...),
+    bagli_envanter_no: str = Form(""),
+    islem_yapan: str = Form("system"),
+    request: Request = None,
     db: Session = Depends(get_db),
-    adi: str = Form(...),
-    anahtar: Optional[str] = Form(None),
-    sorumlu_personel: Optional[str] = Form(None),
-    inventory_id: Optional[int] = Form(None),
-    ifs_no: Optional[str] = Form(None),
-    tarih: Optional[str] = Form(None),
-    islem_yapan: Optional[str] = Form(None),
-    mail_adresi: Optional[str] = Form(None),
 ):
-    lic = License(
-        adi=adi,
-        anahtar=anahtar,
-        sorumlu_personel=sorumlu_personel,
-        inventory_id=inventory_id or None,
-        ifs_no=ifs_no,
-        tarih=date.fromisoformat(tarih) if tarih else None,
-        islem_yapan=islem_yapan,
-        mail_adresi=mail_adresi,
-    )
-    db.add(lic)
+    lic = db.query(License).get(lic_id)
+    if not lic:
+        raise HTTPException(status_code=404, detail="Lisans bulunamadı")
+    eski_sp = lic.sorumlu_personel or ""
+    eski_bagli = lic.bagli_envanter_no or ""
+    lic.sorumlu_personel = (sorumlu_personel or "").strip() or None
+    lic.bagli_envanter_no = (bagli_envanter_no or "").strip() or None
+    _logla(db, lic, "ATAMA", f"Sorumlu: '{eski_sp}' -> '{lic.sorumlu_personel}', Bağlı Envanter: '{eski_bagli}' -> '{lic.bagli_envanter_no}'", islem_yapan)
     db.commit()
-    return RedirectResponse(request.url_for("license_list"), status_code=303)
+    return RedirectResponse(url=request.url_for("license_list"), status_code=status.HTTP_303_SEE_OTHER)
 
 
-# ———— Düzenle —————————————————————————————
-@router.get("/licenses/{id}/edit", name="license_edit")
-def license_edit(id: int, request: Request, db: Session = Depends(get_db)):
-    lic = db.get(License, id)
-    envanterler = db.query(Inventory).order_by(Inventory.no.asc()).all()
-    return templates.TemplateResponse(
-        "license_form.html",
-        {
-            "request": request,
-            "form_action": request.url_for("license_update", id=id),
-            "license": lic,
-            "envanterler": envanterler,
-        },
-    )
-
-
-@router.post("/licenses/{id}", name="license_update")
-def license_update(
-    id: int,
-    request: Request,
+@router.post("/{lic_id}/scrap")
+def scrap_license(
+    lic_id: int,
+    islem_yapan: str = Form("system"),
+    request: Request = None,
     db: Session = Depends(get_db),
-    adi: str = Form(...),
-    anahtar: Optional[str] = Form(None),
-    sorumlu_personel: Optional[str] = Form(None),
-    inventory_id: Optional[int] = Form(None),
-    ifs_no: Optional[str] = Form(None),
-    tarih: Optional[str] = Form(None),
-    islem_yapan: Optional[str] = Form(None),
-    mail_adresi: Optional[str] = Form(None),
 ):
-    lic = db.get(License, id)
-    logs: list[LicenseLog] = []
-
-    def add_log(field: str, old, new):
-        logs.append(
-            LicenseLog(
-                license_id=lic.id,
-                field=field,
-                old_value=str(old) if old is not None else None,
-                new_value=str(new) if new is not None else None,
-                changed_by=islem_yapan or "Sistem",
-                changed_at=datetime.utcnow(),
-            )
-        )
-
-    if lic.sorumlu_personel != sorumlu_personel:
-        add_log("sorumlu_personel", lic.sorumlu_personel, sorumlu_personel)
-
-    if (lic.inventory_id or None) != (inventory_id or None):
-        old_no = None
-        new_no = None
-        if lic.inventory_id:
-            inv_old = db.get(Inventory, lic.inventory_id)
-            old_no = inv_old.no if inv_old else None
-        if inventory_id:
-            inv_new = db.get(Inventory, inventory_id)
-            new_no = inv_new.no if inv_new else None
-        add_log("bagli_envanter_no", old_no, new_no)
-
-    lic.adi = adi
-    lic.anahtar = anahtar
-    lic.sorumlu_personel = sorumlu_personel
-    lic.inventory_id = inventory_id or None
-    lic.ifs_no = ifs_no
-    lic.tarih = date.fromisoformat(tarih) if tarih else None
-    lic.islem_yapan = islem_yapan
-    lic.mail_adresi = mail_adresi
-
-    for lg in logs:
-        db.add(lg)
-
+    lic = db.query(License).get(lic_id)
+    if not lic:
+        raise HTTPException(status_code=404, detail="Lisans bulunamadı")
+    lic.durum = "hurda"
+    _logla(db, lic, "HURDA", "Lisans hurdaya ayrıldı.", islem_yapan)
     db.commit()
-    return RedirectResponse(request.url_for("license_list"), status_code=303)
+    return RedirectResponse(url=request.url_for("license_scrap_list"), status_code=status.HTTP_303_SEE_OTHER)
 
 
-# ———— Detay —————————————————————————————
-@router.get("/licenses/{id}", name="license_detail")
-def license_detail(id: int, request: Request, db: Session = Depends(get_db)):
-    lic = (
-        db.query(License)
-        .options(joinedload(License.inventory))
-        .filter(License.id == id)
-        .first()
-    )
-    logs = (
-        db.query(LicenseLog)
-        .filter(LicenseLog.license_id == id)
-        .order_by(LicenseLog.changed_at.desc())
-        .all()
-    )
-    return templates.TemplateResponse(
-        "license_detail.html",
-        {"request": request, "license": lic, "logs": logs},
-    )
+@router.post("/{lic_id}/editquick")
+def edit_quick_license(
+    lic_id: int,
+    notlar: str = Form(""),
+    islem_yapan: str = Form("system"),
+    request: Request = None,
+    db: Session = Depends(get_db),
+):
+    lic = db.query(License).get(lic_id)
+    if not lic:
+        raise HTTPException(status_code=404, detail="Lisans bulunamadı")
+    eski = getattr(lic, "notlar", "")
+    setattr(lic, "notlar", notlar)
+    _logla(db, lic, "DUZENLE", f"Not: '{eski}' -> '{notlar}'", islem_yapan)
+    db.commit()
+    return RedirectResponse(url=request.url_for("license_list"), status_code=status.HTTP_303_SEE_OTHER)
 
+
+@router.get("", name="license_list")
+def license_list(request: Request, db: Session = Depends(get_db), current_user=Depends(current_user)):
+    items = db.query(License).filter(License.durum != "hurda").all()
+    users = []
+    envanterler = []
+    return templates.TemplateResponse("license_list.html", {"request": request, "items": items, "users": users, "envanterler": envanterler, "current_user": current_user})
+
+
+@router.get("/hurdalar", name="license_scrap_list")
+def license_scrap_list(request: Request, db: Session = Depends(get_db)):
+    items = db.query(License).filter(License.durum == "hurda").all()
+    return templates.TemplateResponse("license_scrap_list.html", {"request": request, "items": items})
+
+
+@router.get("/{lic_id}", name="license_detail")
+def license_detail(lic_id: int, request: Request, db: Session = Depends(get_db)):
+    lic = db.query(License).get(lic_id)
+    if not lic:
+        raise HTTPException(status_code=404, detail="Lisans bulunamadı")
+    return templates.TemplateResponse("license_detail.html", {"request": request, "item": lic})
