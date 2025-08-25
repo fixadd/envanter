@@ -71,35 +71,23 @@
   <hr class="my-3">
   <h5 class="mb-2">Lisanslar</h5>
 
-  {% if inv.licenses and inv.licenses|length > 0 %}
-  <div class="table-responsive">
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th>Lisans Adı</th>
-          <th>Vendor</th>
-          <th>Son Kullanma</th>
-          <th>Anahtar</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for lic in inv.licenses %}
-        <tr data-href="{{ url_for('license_detail', id=lic.id) }}">
-          <td>{{ lic.adi }}</td>
-          <td>{{ lic.vendor or '-' }}</td>
-          <td>{{ lic.son_kullanma.strftime('%Y-%m-%d') if lic.son_kullanma else '-' }}</td>
-          <td class="text-monospace">{{ lic.anahtar or '-' }}</td>
-          <td class="text-nowrap">
-            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('license_edit', id=lic.id) }}" onclick="event.stopPropagation()">Düzenle</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+  {% set licenses = inv.licenses or [] %}
+
+  {% if licenses|length > 0 %}
+  <ul class="list-group">
+  {% for lic in licenses %}
+    <li class="list-group-item">
+      <strong>{{ lic.lisans_adi or "-" }}</strong>
+      <div>Anahtar: {{ lic.lisans_anahtari or "-" }}</div>
+      <div>Sorumlu: {{ lic.sorumlu_personel or "-" }}</div>
+      <div>Bağlı Envanter: {{ lic.bagli_envanter_no or "-" }}</div>
+      <div>Durum: {{ lic.durum or "-" }}</div>
+      <div>Not: {{ lic.notlar or "-" }}</div>
+    </li>
+  {% endfor %}
+  </ul>
   {% else %}
-    <div class="text-muted">Bu envantere bağlı lisans bulunmuyor.</div>
+  <div class="alert alert-info">Bu envantere bağlı lisans bulunamadı.</div>
   {% endif %}
 </div>
 {% endblock %}
