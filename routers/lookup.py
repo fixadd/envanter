@@ -20,7 +20,7 @@ ENTITY_TABLE = {
 @router.get("/{entity}")
 def lookup_list(
     entity: str,
-    q: str = Query(""),
+    q: str = Query(default=""),
     limit: int = 50,
     marka_id: int | None = None,
     db: Session = Depends(get_db),
@@ -42,4 +42,8 @@ def lookup_list(
     where_sql = (" WHERE " + " AND ".join(where)) if where else ""
     sql = text(f"SELECT id, name FROM {table}{where_sql} ORDER BY name LIMIT :limit")
     rows = db.execute(sql, params).mappings().all()
-    return [{"id": r["id"], "text": r["name"]} for r in rows]
+    # API'ler genellikle {id, name} döndürür; "text" gibi farklı anahtarlar
+    # istemcilerde karışıklığa yol açıyordu. Tutarlılık için "name" alanı
+    # döndürüyoruz ve eski "text" beklentisi olan istemcilerde de sorun
+    # yaşanmaması için çağrı tarafında gerekli uyarlamayı yapıyoruz.
+    return [{"id": r["id"], "name": r["name"]} for r in rows]

@@ -15,13 +15,13 @@
 async function fillSelect(url, selectEl, placeholder = "Seçiniz") {
   const res = await fetch(url);
   if (!res.ok) return;
-  const data = await res.json(); // [{id, text}]
+  const data = await res.json(); // [{id, name}]
   selectEl.innerHTML = `<option value="">${placeholder}</option>` +
-    data.map(x => `<option value="${x.id}">${x.text}</option>`).join("");
+    data.map(x => `<option value="${x.id}">${x.name ?? x.text}</option>`).join("");
   // Choices.js kullanıyorsan:
   if (selectEl._choicesInstance) {
     selectEl._choicesInstance.setChoices(
-      data.map(x => ({ value: x.id, label: x.text })), 'value', 'label', true
+      data.map(x => ({ value: x.id, label: x.name ?? x.text })), 'value', 'label', true
     );
   }
 }
