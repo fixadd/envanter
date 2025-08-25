@@ -146,7 +146,7 @@ def scrap(item_id: int = Form(...), aciklama: str = Form(""), db: Session = Depe
   db.commit()
   return JSONResponse({"ok": True})
 
-@router.get("/scrap", name="inventory.scrap_list")
-def scrap_list(request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
-  items = db.query(ScrapItem).order_by(ScrapItem.created_at.desc()).all()
-  return templates.TemplateResponse("scrap_list.html", {"request": request, "items": items})
+@router.get("/hurdalar", name="inventory.hurdalar")
+def hurdalar_listesi(request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
+  hurdalar = db.query(Inventory).filter(Inventory.durum == "hurda").all()
+  return templates.TemplateResponse("hurdalar.html", {"request": request, "hurdalar": hurdalar})
