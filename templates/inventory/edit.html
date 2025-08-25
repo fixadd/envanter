@@ -1,5 +1,50 @@
-{% extends "base.html" %}{% block title %}Envanter – Düzenle{% endblock %}
+{% extends "base.html" %}{% block title %}Envanter Düzenle{% endblock %}
 {% block content %}
-<h2 class="h5 mb-3">Düzenle (ID: {{ item_id }})</h2>
-<form class="card p-3">Form alanları...</form>
+<div class="container-fluid p-3">
+  <h5 class="mb-3">Envanter Düzenle</h5>
+  <form method="post">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label">Fabrika</label>
+        <input name="fabrika" class="form-control" value="{{ item.fabrika or '' }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Departman</label>
+        <input name="departman" class="form-control" value="{{ item.departman or '' }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Sorumlu Personel</label>
+        <input name="sorumlu_personel" class="form-control" value="{{ item.sorumlu_personel or '' }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Bağlı Envanter No</label>
+        <input name="bagli_envanter_no" class="form-control" value="{{ item.bagli_envanter_no or '' }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Marka</label>
+        <input name="marka" class="form-control" value="{{ item.marka or '' }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Model</label>
+        <input name="model" class="form-control" value="{{ item.model or '' }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Kullanım Alanı</label>
+        <input name="kullanim_alani" class="form-control" value="{{ item.kullanim_alani or '' }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">IFS No</label>
+        <input name="ifs_no" class="form-control" value="{{ item.ifs_no or '' }}">
+      </div>
+      <div class="col-md-12">
+        <label class="form-label">Not</label>
+        <textarea name="not" class="form-control">{{ item.not_ or '' }}</textarea>
+      </div>
+    </div>
+    <div class="mt-3">
+      <button class="btn btn-primary btn-sm">Kaydet</button>
+      <a href="{{ url_for('inventory.list') }}" class="btn btn-outline-secondary btn-sm">İptal</a>
+    </div>
+  </form>
+</div>
 {% endblock %}
