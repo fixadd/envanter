@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Envanter Ekle{% endblock %}
+{% block content %}
+<div class="container-fluid p-3">
+  <h5 class="mb-3">Envanter Ekle</h5>
+  <form method="post">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label">Fabrika</label>
+        <select id="selFabrika" class="form-select"></select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Departman</label>
+        <select id="selDepartman" class="form-select"></select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Donanım Tipi</label>
+        <select id="selDonanim" class="form-select"></select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Bilgisayar Adı</label>
+        <input name="bilgisayar_adi" class="form-control">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Marka</label>
+        <select id="selMarka" class="form-select"></select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Model</label>
+        <select id="selModel" class="form-select"></select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Seri No</label>
+        <input name="seri_no" class="form-control">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Sorumlu Personel</label>
+        <select id="selSorumlu" name="sorumlu_personel" class="form-select"></select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Bağlı Envanter No</label>
+        <input name="bagli_envanter_no" class="form-control">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">IFS No</label>
+        <input name="ifs_no" class="form-control">
+      </div>
+      <div class="col-md-12">
+        <label class="form-label">Not</label>
+        <textarea name="not" class="form-control"></textarea>
+      </div>
+    </div>
+    <div class="mt-3">
+      <button class="btn btn-primary btn-sm">Kaydet</button>
+      <a href="/inventory" class="btn btn-outline-secondary btn-sm">İptal</a>
+    </div>
+  </form>
+</div>
+{% include "_catalog_select.js" %}
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  await basitSelectDoldur({selectId:'selFabrika', url:'/api/lookup/fabrika', hiddenName:'fabrika', placeholder:'Fabrika seçiniz…'});
+  await basitSelectDoldur({selectId:'selDepartman', url:'/api/lookup/kullanim-alani', hiddenName:'departman', placeholder:'Departman seçiniz…'});
+  await basitSelectDoldur({selectId:'selDonanim', url:'/api/lookup/donanim-tipi', hiddenName:'donanim_tipi', placeholder:'Donanım tipi seçiniz…'});
+  await basitSelectDoldur({selectId:'selMarka', url:'/api/lookup/marka', hiddenName:'marka', placeholder:'Marka seçiniz…'});
+  bağımlıSelectDoldur({ustSelectId:'selMarka', altSelectId:'selModel', altUrlBuilder:(id)=>`/api/lookup/model?marka_id=${id}`, altHiddenName:'model'});
+  const users = await fetch('/inventory/assign/sources?type=users').then(r=>r.json());
+  const selSorumlu = document.getElementById('selSorumlu');
+  selSorumlu.innerHTML = '<option value="">Seçiniz…</option>' + users.map(u => `<option value="${u.text}">${u.text}</option>`).join('');
+});
+</script>
+{% endblock %}
