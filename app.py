@@ -25,7 +25,6 @@ from routers import (
     home,
     inventory as inventory_router,
     license as license_router,
-    accessories,
     printers as printers_router,
     catalog as catalog_router,
     requests as reqs,
@@ -94,7 +93,6 @@ templates = Jinja2Templates(directory="templates")
 app.include_router(home.router, prefix="", dependencies=[Depends(current_user)])
 app.include_router(inventory_router.router, dependencies=[Depends(current_user)])
 app.include_router(license_router.router, dependencies=[Depends(current_user)])
-app.include_router(accessories.router, prefix="/accessories", tags=["Accessories"], dependencies=[Depends(current_user)])
 app.include_router(printers_router.router, dependencies=[Depends(current_user)])
 app.include_router(catalog_router.router, dependencies=[Depends(current_user)])
 app.include_router(reqs.router, prefix="/requests", tags=["Requests"], dependencies=[Depends(current_user)])
