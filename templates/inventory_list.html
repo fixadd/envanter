@@ -2,7 +2,12 @@
 {% block title %}Envanter Listesi{% endblock %}
 {% block content %}
 <div class="container-fluid p-2">
-  <h5 class="mb-3">Envanter</h5>
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h5 class="mb-0">Envanter</h5>
+    <a href="/inventory/new" class="btn btn-success btn-sm" title="Yeni Ekle">
+      <i class="bi bi-plus-lg"></i>
+    </a>
+  </div>
 
   <table class="table table-sm table-striped align-middle">
     <thead>
