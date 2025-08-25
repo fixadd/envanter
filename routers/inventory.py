@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request, Depends, Form, HTTPException
 from fastapi.responses import JSONResponse, RedirectResponse
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.orm import Session, selectinload
 from datetime import datetime
 from fastapi.templating import Jinja2Templates
 
@@ -19,12 +20,23 @@ def list_items(request: Request, db: Session = Depends(get_db), user=Depends(cur
 
 @router.get("/{item_id}/detail", name="inventory.detail")
 def detail(request: Request, item_id: int, db: Session = Depends(get_db), user=Depends(current_user)):
-  item = db.query(Inventory).get(item_id)
-  if not item:
-    raise HTTPException(404)
-  logs = db.query(InventoryLog).filter(InventoryLog.inventory_id==item_id)\
-         .order_by(InventoryLog.created_at.desc()).all()
-  return templates.TemplateResponse("inventory_detail.html", {"request": request, "inv": item, "logs": logs})
+    stmt = (
+        select(Inventory)
+        .options(selectinload(Inventory.licenses))
+        .where(Inventory.id == item_id)
+    )
+    item = db.execute(stmt).scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Kayıt bulunamadı")
+    logs = (
+        db.query(InventoryLog)
+        .filter(InventoryLog.inventory_id == item_id)
+        .order_by(InventoryLog.created_at.desc())
+        .all()
+    )
+    return templates.TemplateResponse(
+        "inventory_detail.html", {"request": request, "inv": item, "logs": logs}
+    )
 
 @router.get("/assign/sources", name="inventory.assign_sources")
 def assign_sources(type: str, exclude_id: int | None = None, db: Session = Depends(get_db), user=Depends(current_user)):
