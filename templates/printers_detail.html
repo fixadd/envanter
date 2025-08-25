@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Yazıcı Detay{% endblock %}
+{% block content %}
+<div class="container py-3">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0">Yazıcı #{{ p.id }} — {{ p.marka }} {{ p.model }}</h5>
+    <a class="btn btn-sm btn-outline-secondary" href="/printers">Geri</a>
+  </div>
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-header">Bilgiler</div>
+        <div class="card-body">
+          <div><strong>Seri No:</strong> {{ p.seri_no or '-' }}</div>
+          <div><strong>Fabrika:</strong> {{ p.fabrika or '-' }}</div>
+          <div><strong>Kullanım Alanı:</strong> {{ p.kullanim_alani or '-' }}</div>
+          <div><strong>Sorumlu:</strong> {{ p.sorumlu_personel or '-' }}</div>
+          <div><strong>Bağlı Env.:</strong> {{ p.bagli_envanter_no or '-' }}</div>
+          <div><strong>Durum:</strong> {{ p.durum }}</div>
+          <div><strong>Not:</strong> {{ p.notlar or '-' }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-header">Geçmiş Kayıtları</div>
+        <div class="card-body">
+          {% if logs|length == 0 %}
+            <em>Kayıt yok.</em>
+          {% else %}
+            <ul class="list-group list-group-flush">
+              {% for h in logs %}
+              <li class="list-group-item">
+                <div class="small text-muted">{{ h.created_at.strftime("%d.%m.%Y %H:%M") }} — {{ h.actor or '-' }} — {{ h.action }}</div>
+                {% if h.changes %}
+                <pre class="mt-2 mb-0 small">{{ h.changes | tojson(indent=2) }}</pre>
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

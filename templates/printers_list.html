@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Yazıcı Takip{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-3">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h5 class="mb-0">Yazıcılar</h5>
+    <form method="get" class="d-flex gap-2">
+      <input type="text" name="q" value="{{ request.query_params.get('q','') }}" class="form-control form-control-sm" placeholder="Ara...">
+      <select name="durum" class="form-select form-select-sm">
+        <option value="">Tümü</option>
+        <option value="aktif" {% if request.query_params.get('durum')=='aktif' %}selected{% endif %}>Aktif</option>
+        <option value="hurda" {% if request.query_params.get('durum')=='hurda' %}selected{% endif %}>Hurda</option>
+      </select>
+      <button class="btn btn-sm btn-primary">Filtrele</button>
+    </form>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead class="table-light">
+        <tr>
+          <th style="width:48px;">Gör</th>
+          <th>ID</th>
+          <th>Marka</th>
+          <th>Model</th>
+          <th>Seri No</th>
+          <th>Fabrika</th>
+          <th>Kullanım Alanı</th>
+          <th>Sorumlu</th>
+          <th>Bağlı Env.</th>
+          <th>Durum</th>
+          <th style="width:220px;">İşlemler</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in printers %}
+        <tr data-id="{{ p.id }}">
+          <td>
+            <a class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center" style="width:36px;height:36px;" href="/printers/{{ p.id }}" title="Görüntüle">
+              <i class="bi bi-eye"></i>
+            </a>
+          </td>
+          <td>#{{ p.id }}</td>
+          <td>{{ p.marka or '-' }}</td>
+          <td>{{ p.model or '-' }}</td>
+          <td>{{ p.seri_no or '-' }}</td>
+          <td>{{ p.fabrika or '-' }}</td>
+          <td>{{ p.kullanim_alani or '-' }}</td>
+          <td>{{ p.sorumlu_personel or '-' }}</td>
+          <td>{{ p.bagli_envanter_no or '-' }}</td>
+          <td>
+            {% if p.durum == 'hurda' %}
+              <span class="badge text-bg-secondary">Hurda</span>
+            {% else %}
+              <span class="badge text-bg-success">Aktif</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="d-flex flex-wrap gap-2">
+              <select class="form-select form-select-sm action-select" style="min-width:160px;">
+                <option value="">İşlem seçin…</option>
+                <option value="assign">Atama Yap</option>
+                <option value="edit">Düzenle</option>
+                <option value="scrap">Hurdaya Ayır</option>
+              </select>
+              <button class="btn btn-sm btn-primary action-go">Git</button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ATAMA MODAL -->
+<div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <form class="modal-content" id="assignForm">
+      <div class="modal-header">
+        <h6 class="modal-title">Atama Yap — <span id="assignPrinterLabel"></span></h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="assignPrinterId" name="printer_id">
+
+        <div class="mb-2">
+          <label class="form-label">Fabrika</label>
+          <select id="selFabrika" name="fabrika" class="form-select">
+            <option value="">Seçiniz</option>
+            {% for f in factories %}<option value="{{ f }}">{{ f }}</option>{% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Kullanım Alanı</label>
+          <select id="selKullanim" name="kullanim_alani" class="form-select">
+            <option value="">Seçiniz</option>
+            {% for a in areas %}<option value="{{ a }}">{{ a }}</option>{% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Sorumlu Personel</label>
+          <select id="selPersonel" name="sorumlu_personel" class="form-select">
+            <option value="">Seçiniz</option>
+            {% for u in users %}<option value="{{ u }}">{{ u }}</option>{% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Bağlı Olduğu Envanter</label>
+          <select id="selBagliEnv" name="bagli_envanter_no" class="form-select">
+            <option value="">Seçiniz</option>
+            {% for inv in inventory_nos %}<option value="{{ inv }}">{{ inv }}</option>{% endfor %}
+          </select>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">İptal</button>
+        <button class="btn btn-success" type="submit">Atamayı Kaydet</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script>
+(function(){
+  const assignModalEl = document.getElementById('assignModal');
+  const assignModal = new bootstrap.Modal(assignModalEl);
+  const assignForm = document.getElementById('assignForm');
+
+  document.querySelectorAll('.action-go').forEach(btn => {
+    btn.addEventListener('click', function(){
+      const tr = this.closest('tr');
+      const printerId = tr.dataset.id;
+      const sel = tr.querySelector('.action-select');
+      const val = sel.value;
+
+      if(!val){ sel.classList.add('is-invalid'); setTimeout(()=>sel.classList.remove('is-invalid'), 1200); return; }
+
+      if(val === 'edit'){
+        window.location.href = `/printers/edit/${printerId}`;
+        return;
+      }
+      if(val === 'assign'){
+        document.getElementById('assignPrinterId').value = printerId;
+        document.getElementById('assignPrinterLabel').innerText = `#${printerId}`;
+        assignModal.show();
+        return;
+      }
+      if(val === 'scrap'){
+        if(!confirm('Bu yazıcıyı hurdaya ayırmak istiyor musunuz?')) return;
+        const formData = new FormData();
+        formData.append('reason','İşlemler menüsünden hurdaya ayrıldı');
+        fetch(`/printers/scrap/${printerId}`, { method: 'POST', body: formData })
+          .then(r => r.json()).then(j => { if(j.ok){ location.reload(); } else { alert('İşlem başarısız'); } })
+          .catch(() => alert('Sunucu hatası'));
+      }
+    });
+  });
+
+  assignForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    const pid = document.getElementById('assignPrinterId').value;
+    const formData = new FormData(assignForm);
+    fetch(`/printers/assign/${pid}`, { method: 'POST', body: formData })
+      .then(r => r.json()).then(j => {
+        if(j.ok){ assignModal.hide(); location.reload(); }
+        else{ alert('Atama kaydedilemedi.'); }
+      }).catch(()=> alert('Sunucu hatası'));
+  });
+
+  ['selFabrika','selKullanim','selPersonel','selBagliEnv'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){ new Choices(el, { removeItemButton: true, searchEnabled: true, shouldSort: false }); }
+  });
+})();
+</script>
+{% endblock %}
+
