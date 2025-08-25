@@ -28,7 +28,7 @@
                   <th>Bağlı Envanter No</th>
                   <td>
                     {% if license.inventory %}
-                      <a href="{{ url_for('inventory_detail', id=license.inventory.id) }}">
+                      <a href="{{ url_for('inventory.detail', item_id=license.inventory.id) }}">
                         {{ license.inventory.no }}
                       </a>
                     {% else %}-{% endif %}
