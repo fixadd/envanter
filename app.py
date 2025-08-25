@@ -35,6 +35,7 @@ from routers import (
     integrations,
     logs,
     refdata,
+    panel as panel_router,
 )
 from routers import lookup
 from security import current_user, require_roles
@@ -88,9 +89,11 @@ app.add_middleware(
 # Statik dosyalar ve şablonlar
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+app.state.templates = templates
 
 # --- Routers (korumalı) -------------------------------------------------------
 app.include_router(home.router, prefix="", dependencies=[Depends(current_user)])
+app.include_router(panel_router.router, dependencies=[Depends(current_user)])
 app.include_router(inventory_router.router, dependencies=[Depends(current_user)])
 app.include_router(license_router.router, dependencies=[Depends(current_user)])
 app.include_router(printers_router.router, dependencies=[Depends(current_user)])
