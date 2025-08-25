@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends, Form
+from fastapi import APIRouter, Request, Depends, Form, HTTPException
 from sqlalchemy.orm import Session
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse, HTMLResponse
@@ -99,3 +99,13 @@ def license_detail(id: int, request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse(
         "license_detail.html", {"request": request, "license": lic}
     )
+
+
+@router.get("/licenses/{id}/delete", name="license_delete")
+def license_delete(id: int, request: Request, db: Session = Depends(get_db)):
+    lic = db.get(License, id)
+    if not lic:
+        raise HTTPException(404, "Kayıt bulunamadı.")
+    db.delete(lic)
+    db.commit()
+    return RedirectResponse(request.url_for("license_list"), status_code=303)
