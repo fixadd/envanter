@@ -134,11 +134,18 @@ def assign(
   return JSONResponse({"ok": True})
 
 @router.get("/{item_id}/edit", name="inventory.edit")
-def edit_page(request: Request, item_id: int, db: Session = Depends(get_db), user=Depends(current_user)):
+def edit_page(
+  request: Request,
+  item_id: int,
+  db: Session = Depends(get_db),
+  user=Depends(current_user),
+):
   item = db.query(Inventory).get(item_id)
   if not item:
     raise HTTPException(404)
-  return templates.TemplateResponse("inventory_edit.html", {"request": request, "item": item})
+  return templates.TemplateResponse(
+    "inventory/edit.html", {"request": request, "item": item, "item_id": item.id}
+  )
 
 @router.post("/{item_id}/edit", name="inventory.edit_post")
 async def edit_post(item_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
