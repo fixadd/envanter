@@ -1,144 +1,209 @@
-from fastapi import APIRouter, Depends, Request, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, Request, Form, HTTPException
+from fastapi.responses import RedirectResponse, JSONResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
-from starlette.responses import HTMLResponse, RedirectResponse
+from sqlalchemy.orm import Session
+from typing import Optional, Dict, Any
 from datetime import datetime
 
-from models import Printer, PrinterLog, Brand, Model, UsageArea, User
 from auth import get_db
+from security import current_user
+from models import Printer, PrinterHistory, ScrapPrinter
+from sqlalchemy import text
 
 templates = Jinja2Templates(directory="templates")
-router = APIRouter(prefix="/printers", tags=["Yazıcılar"])
+router = APIRouter(prefix="/printers", tags=["Printers"])
+
+USE_SCRAP_TABLE = True
+
+
+def build_changes(old: Printer, new_vals: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
+    out: Dict[str, Dict[str, Any]] = {}
+    for k, v in new_vals.items():
+        old_v = getattr(old, k, None)
+        if (old_v or "") != (v or ""):
+            out[k] = {"old": old_v, "new": v}
+    return out
+
+
+def snapshot(p: Printer) -> Dict[str, Any]:
+    return {
+        "id": p.id,
+        "inventory_id": p.inventory_id,
+        "marka": p.marka,
+        "model": p.model,
+        "seri_no": p.seri_no,
+        "fabrika": p.fabrika,
+        "kullanim_alani": p.kullanim_alani,
+        "sorumlu_personel": p.sorumlu_personel,
+        "bagli_envanter_no": p.bagli_envanter_no,
+        "durum": p.durum,
+        "notlar": p.notlar,
+    }
 
 
 @router.get("", response_class=HTMLResponse)
-def printer_list(request: Request, db: Session = Depends(get_db)):
-    rows = db.query(Printer).order_by(Printer.id.desc()).all()
-    users = db.query(User).order_by(User.full_name).all()
+def list_printers(
+    request: Request,
+    db: Session = Depends(get_db),
+    q: Optional[str] = None,
+    durum: Optional[str] = None,
+):
+    query = db.query(Printer)
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            (Printer.marka.ilike(like))
+            | (Printer.model.ilike(like))
+            | (Printer.seri_no.ilike(like))
+            | (Printer.sorumlu_personel.ilike(like))
+            | (Printer.bagli_envanter_no.ilike(like))
+        )
+    if durum:
+        query = query.filter(Printer.durum == durum)
+
+    printers = query.order_by(Printer.id.desc()).all()
+
+    users = [r[0] for r in db.execute(text("SELECT full_name FROM users ORDER BY full_name")).fetchall()]
+    invs = [r[0] for r in db.execute(text("SELECT no FROM inventories ORDER BY no")).fetchall()]
+    fabr = [r[0] for r in db.execute(text("SELECT name FROM factories ORDER BY name")).fetchall()]
+    areas = [r[0] for r in db.execute(text("SELECT name FROM usage_areas ORDER BY name")).fetchall()]
+
     return templates.TemplateResponse(
-        "printer_list.html", {"request": request, "rows": rows, "users": users}
+        "printers_list.html",
+        {
+            "request": request,
+            "printers": printers,
+            "users": users,
+            "inventory_nos": invs,
+            "factories": fabr,
+            "areas": areas,
+        },
     )
 
 
 @router.get("/{printer_id}", response_class=HTMLResponse)
 def printer_detail(printer_id: int, request: Request, db: Session = Depends(get_db)):
-    prn = db.query(Printer).filter(Printer.id == printer_id).first()
-    if not prn:
+    p = db.get(Printer, printer_id)
+    if not p:
         raise HTTPException(404, "Yazıcı bulunamadı")
-
     logs = (
-        db.query(PrinterLog)
-        .filter(PrinterLog.printer_id == prn.id)
-        .order_by(PrinterLog.changed_at.desc())
+        db.query(PrinterHistory)
+        .filter(PrinterHistory.printer_id == p.id)
+        .order_by(PrinterHistory.created_at.desc())
         .all()
     )
     return templates.TemplateResponse(
-        "printer_detail.html", {"request": request, "item": prn, "logs": logs}
+        "printers_detail.html", {"request": request, "p": p, "logs": logs}
     )
 
 
-@router.get("/create", response_class=HTMLResponse)
-def printer_create_form(request: Request):
-    return templates.TemplateResponse("printer_create.html", {"request": request})
-
-
-@router.post("")
-async def create_printer(request: Request, db: Session = Depends(get_db)):
-    form = await request.form()
-    marka_id = form.get("marka_id")
-    model_id = form.get("model_id")
-    kullanim_id = form.get("kullanim_alani_id")
-    kullanim_ad = (
-        db.query(UsageArea).get(int(kullanim_id)).name if kullanim_id else None
-    )
-    prn = Printer(
-        envanter_no=form.get("envanter_no"),
-        brand_id=int(marka_id) if marka_id else None,
-        model_id=int(model_id) if model_id else None,
-        kullanim_alani=kullanim_ad,
-        ip_adresi=form.get("ip_adresi"),
-        mac=form.get("mac"),
-        hostname=form.get("hostname"),
-        ifs_no=form.get("ifs_no"),
-        tarih=form.get("tarih"),
-        islem_yapan=form.get("islem_yapan"),
-    )
-    db.add(prn)
-    db.commit()
-    return RedirectResponse("/printers", status_code=303)
-
-
-@router.get("/{printer_id}/edit", response_class=HTMLResponse)
-def printer_edit(printer_id: int, request: Request, db: Session = Depends(get_db)):
-    prn = db.query(Printer).filter(Printer.id == printer_id).first()
-    if not prn:
+@router.post("/assign/{printer_id}")
+def assign_printer(
+    printer_id: int,
+    fabrika: str = Form(None),
+    kullanim_alani: str = Form(None),
+    sorumlu_personel: str = Form(None),
+    bagli_envanter_no: str = Form(None),
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
+):
+    p = db.get(Printer, printer_id)
+    if not p:
         raise HTTPException(404, "Yazıcı bulunamadı")
-    return templates.TemplateResponse(
-        "printer_edit.html", {"request": request, "item": prn}
+
+    new_vals = {
+        "fabrika": fabrika,
+        "kullanim_alani": kullanim_alani,
+        "sorumlu_personel": sorumlu_personel,
+        "bagli_envanter_no": bagli_envanter_no,
+    }
+    changes = build_changes(p, new_vals)
+    for k, v in new_vals.items():
+        setattr(p, k, v)
+
+    db.add(
+        PrinterHistory(
+            printer_id=p.id,
+            action="assign",
+            changes=changes,
+            actor=getattr(user, "full_name", None) or "system",
+            created_at=datetime.utcnow(),
+        )
+    )
+    db.commit()
+    return JSONResponse({"ok": True})
+
+
+@router.get("/edit/{printer_id}", response_class=HTMLResponse)
+def edit_printer(printer_id: int, request: Request, db: Session = Depends(get_db)):
+    p = db.get(Printer, printer_id)
+    if not p:
+        raise HTTPException(404, "Yazıcı bulunamadı")
+    return templates.TemplateResponse("printers_edit.html", {"request": request, "p": p})
+
+
+@router.post("/edit/{printer_id}")
+def edit_printer_post(
+    printer_id: int,
+    marka: str = Form(None),
+    model: str = Form(None),
+    seri_no: str = Form(None),
+    notlar: str = Form(None),
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
+):
+    p = db.get(Printer, printer_id)
+    if not p:
+        raise HTTPException(404, "Yazıcı bulunamadı")
+
+    new_vals = {"marka": marka, "model": model, "seri_no": seri_no, "notlar": notlar}
+    changes = build_changes(p, new_vals)
+    for k, v in new_vals.items():
+        setattr(p, k, v)
+
+    db.add(
+        PrinterHistory(
+            printer_id=p.id,
+            action="edit",
+            changes=changes,
+            actor=getattr(user, "full_name", None) or "system",
+            created_at=datetime.utcnow(),
+        )
+    )
+    db.commit()
+    return RedirectResponse(url=f"/printers/{printer_id}", status_code=303)
+
+
+@router.post("/scrap/{printer_id}")
+def scrap_printer(
+    printer_id: int,
+    reason: str = Form(None),
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
+):
+    p = db.get(Printer, printer_id)
+    if not p:
+        raise HTTPException(404, "Yazıcı bulunamadı")
+
+    before_status = p.durum
+    p.durum = "hurda"
+
+    db.add(
+        PrinterHistory(
+            printer_id=p.id,
+            action="scrap",
+            changes={
+                "durum": {"old": before_status, "new": "hurda"},
+                "reason": {"old": None, "new": reason},
+            },
+            actor=getattr(user, "full_name", None) or "system",
+            created_at=datetime.utcnow(),
+        )
     )
 
+    if USE_SCRAP_TABLE:
+        db.merge(ScrapPrinter(printer_id=p.id, snapshot=snapshot(p), reason=reason))
 
-def _pretty_change(field: str, old, new, db: Session):
-    if field == "brand_id":
-        get = lambda _id: db.query(Brand).get(_id).name if _id else None
-        return ("brand", get(old), get(new))
-    if field == "model_id":
-        get = lambda _id: db.query(Model).get(_id).name if _id else None
-        return ("model", get(old), get(new))
-    return (field, old, new)
+    db.commit()
+    return JSONResponse({"ok": True})
 
-
-@router.post("/{printer_id}/update")
-async def update_printer(printer_id: int, request: Request, db: Session = Depends(get_db)):
-    prn = db.query(Printer).filter(Printer.id == printer_id).first()
-    if not prn:
-        raise HTTPException(404, "Yazıcı yok")
-
-    form = await request.form()
-    mutable_fields = [
-        "envanter_no",
-        "kullanim_alani",
-        "ip_adresi",
-        "mac",
-        "hostname",
-        "ifs_no",
-        "tarih",
-        "islem_yapan",
-        "sorumlu_personel",
-        "brand_id",
-        "model_id",
-    ]
-
-    changer = form.get("islem_yapan") or "Sistem"
-    changed = False
-
-    for f in mutable_fields:
-        if f == "kullanim_alani":
-            raw_val = form.get("kullanim_alani_id")
-            new_val = (
-                db.query(UsageArea).get(int(raw_val)).name if raw_val else None
-            )
-        elif f == "brand_id":
-            raw_val = form.get("marka_id")
-            new_val = int(raw_val) if raw_val else None
-        else:
-            raw_val = form.get(f)
-            new_val = int(raw_val) if f.endswith("_id") and raw_val else raw_val
-        old_val = getattr(prn, f)
-        if new_val != old_val:
-            setattr(prn, f, new_val)
-            field_name, old_pretty, new_pretty = _pretty_change(f, old_val, new_val, db)
-            db.add(
-                PrinterLog(
-                    printer_id=prn.id,
-                    field=field_name,
-                    old_value=str(old_pretty) if old_pretty is not None else None,
-                    new_value=str(new_pretty) if new_pretty is not None else None,
-                    changed_by=changer,
-                )
-            )
-            changed = True
-
-    if changed:
-        db.commit()
-    return RedirectResponse(f"/printers/{printer_id}", status_code=303)
