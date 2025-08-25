@@ -5,57 +5,29 @@
 <div class="container-fluid p-3 content">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h4 class="mb-0">Lisanslar</h4>
-
-    <!-- Sağ üst: DataTables length & search yerini buraya bırakıyoruz; DT zaten ekliyor.
-         Eğer custom bir toolbar istemezsen dokunma. -->
-  </div>
-
-  <div class="d-flex align-items-center gap-2 mb-2">
-    <a href="{{ url_for('license_new') }}" class="btn btn-success btn-sm">Ekle</a>
-    <button id="btnEdit" class="btn btn-primary btn-sm" disabled>Düzenle</button>
-    <button id="btnBulkDelete" class="btn btn-danger btn-sm" disabled>Sil</button>
-
-    <div class="ms-auto d-flex align-items-center gap-2">
-      <!-- DataTables length menüsünü taklit eden seçim; DT varsa onunla senkronlanır -->
-      <select id="pageLen" class="form-select form-select-sm" style="width:auto">
-        <option>10</option><option selected>25</option><option>50</option><option>100</option>
-      </select>
-      <button class="btn btn-primary btn-sm" type="button" title="Ara">
-        <i class="bi bi-search"></i>
-      </button>
-      <input id="globalSearch" class="form-control form-control-sm" placeholder="Ara..." style="width:220px">
-    </div>
+    <a class="btn btn-success btn-sm" href="{{ url_for('license_new') }}">Ekle</a>
   </div>
 
   <div class="card shadow-sm">
     <div class="table-responsive">
-      <table id="tblLisanslar" class="table table-hover mb-0 align-middle">
+      <table class="table table-hover mb-0 align-middle">
         <thead>
           <tr>
-            <th style="width:32px">
-              <input type="checkbox" id="checkAll" onclick="event.stopPropagation()">
-            </th>
+            <th style="width:80px">ID</th>
+            <th>Bağlı Envanter No</th>
             <th>Lisans Adı</th>
-            <th>Vendor</th>
-            <th>Son Kullanma</th>
-            <th>Anahtar</th>
-            <th>Envanter</th>
+            <th>Lisans Anahtarı</th>
+            <th>Sorumlu Personel</th>
             <th class="text-end" style="width:140px">İşlemler</th>
           </tr>
         </thead>
         <tbody>
-        {% if lisanslar|length == 0 %}
-          <tr><td colspan="7" class="text-muted">Kayıt yok</td></tr>
-        {% else %}
+          {% if lisanslar|length == 0 %}
+          <tr><td colspan="6" class="text-muted">Kayıt yok</td></tr>
+          {% else %}
           {% for lic in lisanslar %}
           <tr data-href="{{ url_for('license_detail', id=lic.id) }}">
-            <td>
-              <input type="checkbox" class="row-check" value="{{ lic.id }}" onclick="event.stopPropagation()">
-            </td>
-            <td>{{ lic.adi }}</td>
-            <td>{{ lic.vendor or '-' }}</td>
-            <td>{{ lic.son_kullanma.strftime('%Y-%m-%d') if lic.son_kullanma else '-' }}</td>
-            <td class="text-monospace">{{ lic.anahtar or '-' }}</td>
+            <td>{{ lic.id }}</td>
             <td>
               {% if lic.inventory %}
                 <a href="{{ url_for('inventory_detail', id=lic.inventory.id) }}" onclick="event.stopPropagation()">
@@ -63,108 +35,25 @@
                 </a>
               {% else %}-{% endif %}
             </td>
+            <td>
+              <a href="{{ url_for('license_detail', id=lic.id) }}" onclick="event.stopPropagation()">
+                {{ lic.adi }}
+              </a>
+            </td>
+            <td class="text-monospace">{{ lic.anahtar or '-' }}</td>
+            <td>{{ lic.sorumlu_personel or '-' }}</td>
             <td class="text-end text-nowrap">
               <a class="btn btn-sm btn-outline-primary"
                  href="{{ url_for('license_edit', id=lic.id) }}"
                  onclick="event.stopPropagation()">Düzenle</a>
-              <a class="btn btn-sm btn-outline-danger"
-                 href="{{ url_for('license_delete', id=lic.id) }}"
-                 onclick="event.stopPropagation(); return confirm('Silinsin mi?')">Sil</a>
             </td>
           </tr>
           {% endfor %}
-        {% endif %}
+          {% endif %}
         </tbody>
       </table>
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-{{ super() }}
-<script>
-(function(){
-  // DataTables varsa tabloyu aynı envanter sayfası gibi başlat
-  const tbl = document.getElementById('tblLisanslar');
-  let dt = null;
-
-  function selectedIds(){
-    return Array.from(document.querySelectorAll('.row-check:checked')).map(i => i.value);
-  }
-  function refreshBulkButtons(){
-    const count = selectedIds().length;
-    document.getElementById('btnEdit').disabled = (count !== 1);
-    document.getElementById('btnBulkDelete').disabled = (count === 0);
-  }
-
-  document.addEventListener('change', (e)=>{
-    if(e.target.matches('.row-check')) refreshBulkButtons();
-    if(e.target.id === 'checkAll'){
-      const state = e.target.checked;
-      document.querySelectorAll('.row-check').forEach(c => { c.checked = state; });
-      refreshBulkButtons();
-    }
-  });
-
-  // Top butonlar
-  document.getElementById('btnEdit').addEventListener('click', ()=>{
-    const ids = selectedIds();
-    if(ids.length !== 1) return;
-    const url = "{{ url_for('license_edit', id=0) }}".replace('0', ids[0]);
-    window.location.href = url;
-  });
-
-  document.getElementById('btnBulkDelete').addEventListener('click', ()=>{
-    const ids = selectedIds();
-    if(ids.length === 0) return;
-    if(!confirm(ids.length + " kayıt silinsin mi?")) return;
-    // Burayı kendi toplu silme endpoint'ine göre uyarlayın:
-    // fetch('/licenses/bulk-delete', { method:'POST', body: JSON.stringify({ids}) })
-    //   .then(()=>location.reload());
-  });
-
-  // DT entegrasyonu (varsa)
-  if (window.$ && $.fn.DataTable) {
-    dt = $('#tblLisanslar').DataTable({
-      order: [[1,'asc']],
-      pageLength: 25,
-      columnDefs: [
-        { orderable: false, targets: [0,6] }
-      ],
-      language: {
-        url: window.DT_TR_URL || undefined, // varsa Türkçe json'un yolu
-        search: "_INPUT_",
-        searchPlaceholder: "Ara..."
-      },
-      drawCallback: function(){
-        // yeni çizimde de bulk butonları doğru kalsın
-        refreshBulkButtons();
-      }
-    });
-
-    // Sağ üstteki kontrolleri DT ile senkronla
-    const $search = $('#globalSearch');
-    $search.on('keyup change', function(){ dt.search(this.value).draw(); });
-
-    const $len = $('#pageLen');
-    $len.on('change', function(){ dt.page.len(parseInt(this.value,10)).draw(); });
-    $len.val(dt.page.len().toString());
-  } else {
-    // DataTables yoksa basit arama & sayfa boyutu alanlarını devre dışı bırakabiliriz
-    document.getElementById('pageLen').disabled = true;
-  }
-
-  // İlk durum
-  refreshBulkButtons();
-})();
-</script>
-
-<style>
-  /* Envanter sayfasındaki gibi minik dokunuşlar */
-  .text-monospace { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-  tr[data-href]{ cursor:pointer; }
-  tr[data-href]:hover{ background:#f8f9fa; }
-</style>
 {% endblock %}
 
