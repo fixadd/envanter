@@ -2,7 +2,8 @@
 const selects = {};
 
 function makeSearchableSelect(el, placeholder="Seçiniz…") {
-  return new Choices(el, {
+  if (el._choices) return el._choices;
+  const inst = new Choices(el, {
     searchEnabled: true,
     shouldSort: true,
     allowHTML: false,
@@ -13,6 +14,8 @@ function makeSearchableSelect(el, placeholder="Seçiniz…") {
     noResultsText: "Sonuç yok",
     noChoicesText: "Seçenek yok",
   });
+  el._choices = inst;
+  return inst;
 }
 
 async function fillChoices({ endpoint, selectId, params={}, placeholder="Seçiniz…", keepValue=false }) {
@@ -56,4 +59,12 @@ function enableRemoteSearch(selectId, endpoint, extraParamsFn=()=>({})) {
   }, 300));
 }
 
-window._selects = { fillChoices, bindMarkaModel, enableRemoteSearch };
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("select").forEach(el => {
+    if (el.dataset.noSearch !== undefined) return;
+    const inst = makeSearchableSelect(el);
+    if (el.id) selects[el.id] = inst;
+  });
+});
+
+window._selects = { fillChoices, bindMarkaModel, enableRemoteSearch, makeSearchableSelect };
