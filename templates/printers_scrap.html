@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Hurdalar{% endblock %}
+{% block content %}
+<div class="container-fluid p-3">
+  <h5 class="mb-3">Hurdalar</h5>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Marka/Model</th>
+          <th>Seri</th>
+          <th>Fabrika</th>
+          <th>Kullanım Alanı</th>
+          <th>Sorumlu</th>
+          <th>Bağlı Env.</th>
+          <th>Tarih</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% if mode == "table" %}
+        {% for r in rows %}
+        <tr>
+          <td>#{{ r.printer_id }}</td>
+          <td>{{ r.snapshot.marka }} {{ r.snapshot.model }}</td>
+          <td>{{ r.snapshot.seri_no }}</td>
+          <td>{{ r.snapshot.fabrika or '-' }}</td>
+          <td>{{ r.snapshot.kullanim_alani or '-' }}</td>
+          <td>{{ r.snapshot.sorumlu_personel or '-' }}</td>
+          <td>{{ r.snapshot.bagli_envanter_no or '-' }}</td>
+          <td>{{ r.created_at.strftime("%d.%m.%Y %H:%M") }}</td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        {% for p in rows %}
+        <tr>
+          <td>#{{ p.id }}</td>
+          <td>{{ p.marka }} {{ p.model }}</td>
+          <td>{{ p.seri_no }}</td>
+          <td>{{ p.fabrika or '-' }}</td>
+          <td>{{ p.kullanim_alani or '-' }}</td>
+          <td>{{ p.sorumlu_personel or '-' }}</td>
+          <td>{{ p.bagli_envanter_no or '-' }}</td>
+          <td>-</td>
+        </tr>
+        {% endfor %}
+      {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
