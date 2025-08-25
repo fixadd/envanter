@@ -352,6 +352,31 @@ def init_db():
         if "notlar" not in cols:
             conn.execute(text("ALTER TABLE licenses ADD COLUMN notlar TEXT"))
 
+    # -- License Logs ----------------------------------------------------------
+    insp = inspect(engine)
+    cols = {col["name"] for col in insp.get_columns("license_logs")}
+    with engine.begin() as conn:
+        if "islem" not in cols:
+            if "field" in cols:
+                conn.execute(text("ALTER TABLE license_logs RENAME COLUMN field TO islem"))
+            else:
+                conn.execute(text("ALTER TABLE license_logs ADD COLUMN islem VARCHAR(50)"))
+        if "detay" not in cols:
+            if "old_value" in cols:
+                conn.execute(text("ALTER TABLE license_logs RENAME COLUMN old_value TO detay"))
+            else:
+                conn.execute(text("ALTER TABLE license_logs ADD COLUMN detay TEXT"))
+        if "islem_yapan" not in cols:
+            if "changed_by" in cols:
+                conn.execute(text("ALTER TABLE license_logs RENAME COLUMN changed_by TO islem_yapan"))
+            else:
+                conn.execute(text("ALTER TABLE license_logs ADD COLUMN islem_yapan VARCHAR(120)"))
+        if "tarih" not in cols:
+            if "changed_at" in cols:
+                conn.execute(text("ALTER TABLE license_logs RENAME COLUMN changed_at TO tarih"))
+            else:
+                conn.execute(text("ALTER TABLE license_logs ADD COLUMN tarih DATETIME"))
+
     # -- Inventories -----------------------------------------------------------
     insp = inspect(engine)
     cols = {col["name"] for col in insp.get_columns("inventories")}
