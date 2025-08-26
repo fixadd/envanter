@@ -7,7 +7,7 @@ from datetime import datetime
 
 from auth import get_db
 from security import current_user
-from models import Printer, PrinterHistory, ScrapPrinter
+from models import Printer, PrinterHistory, ScrapPrinter, Brand, Model, UsageArea
 from sqlalchemy import text
 
 templates = Jinja2Templates(directory="templates")
@@ -79,6 +79,44 @@ def list_printers(
             "areas": areas,
         },
     )
+
+
+@router.get("/new", response_class=HTMLResponse)
+def new_printer_form(request: Request):
+    return templates.TemplateResponse("printer_create.html", {"request": request})
+
+
+@router.post("", response_class=HTMLResponse)
+def create_printer(
+    request: Request,
+    envanter_no: str = Form(...),
+    marka_id: int = Form(None),
+    model_id: int = Form(None),
+    kullanim_alani_id: int = Form(None),
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
+):
+    marka = db.get(Brand, marka_id) if marka_id else None
+    model = db.get(Model, model_id) if model_id else None
+    area = db.get(UsageArea, kullanim_alani_id) if kullanim_alani_id else None
+    p = Printer(
+        marka=marka.name if marka else None,
+        model=model.name if model else None,
+        bagli_envanter_no=envanter_no,
+        kullanim_alani=area.name if area else None,
+    )
+    db.add(p)
+    db.add(
+        PrinterHistory(
+            printer=p,
+            action="create",
+            changes={},
+            actor=getattr(user, "full_name", None) or "system",
+            created_at=datetime.utcnow(),
+        )
+    )
+    db.commit()
+    return RedirectResponse(url="/printers", status_code=303)
 
 
 @router.get("/{printer_id}", response_class=HTMLResponse)
