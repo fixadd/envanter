@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from fastapi.templating import Jinja2Templates
 
-from models import User, Lookup, Inventory
+from models import User
 from auth import get_db, hash_password
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
@@ -22,25 +22,11 @@ def admin_index(request: Request, q: str = "", role: str = "", db: Session = Dep
 
     users = users_q.order_by(User.full_name.asc()).all()
 
-    lookup_donanim_tipleri = (
-        db.query(Lookup)
-        .filter(Lookup.category == "donanim_tipi")
-        .all()
-    )
-    inventory_refs = (
-        db.query(Inventory)
-        .with_entities(Inventory.no, Inventory.marka, Inventory.model)
-        .limit(200)
-        .all()
-    )
-
     return templates.TemplateResponse(
         "admin.html",
         {
             "request": request,
             "users": users,
-            "lookup_donanim_tipleri": lookup_donanim_tipleri,
-            "inventory_refs": inventory_refs,
         },
     )
 
