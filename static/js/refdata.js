@@ -87,22 +87,23 @@ async function fillBrandSelect(selectEl) {
   async function refreshCard(card) {
     const entity = card.dataset.entity;
     const listEl  = card.querySelector('.ref-list');
+    if (!listEl) return;
 
-  if (entity === 'model') {
-    const brandSel = card.querySelector('.ref-brand');
-    const brandId  = brandSel && brandSel.value ? brandSel.value : '';
-    if (!brandId) {
-      renderList(listEl, []); // Marka seçilmeden model listesi gösterilmesin
+    if (entity === 'model') {
+      const brandSel = card.querySelector('.ref-brand');
+      const brandId  = brandSel && brandSel.value ? brandSel.value : '';
+      if (!brandId) {
+        renderList(listEl, []); // Marka seçilmeden model listesi gösterilmesin
+        return;
+      }
+      const rows = await fetchList('model', { marka_id: brandId });
+      renderList(listEl, rows);
       return;
     }
-    const rows = await fetchList('model', { marka_id: brandId });
-    renderList(listEl, rows);
-    return;
-  }
 
-  const rows = await fetchList(entity);
-  renderList(listEl, rows);
-}
+    const rows = await fetchList(entity);
+    renderList(listEl, rows);
+  }
 
   function bindCard(card) {
     const entity = card.dataset.entity;
@@ -110,55 +111,73 @@ async function fillBrandSelect(selectEl) {
     const addBtn = card.querySelector('.ref-add');
     const listEl = card.querySelector('.ref-list');
 
-  if (!input || !addBtn || !listEl) return;
+    if (!addBtn) return;
 
-  // Model kartı: önce Marka select’ini doldur ve değişimde listeyi yenile
-  if (entity === 'model') {
-    const brandSel = card.querySelector('.ref-brand');
-    if (brandSel) {
-      fillBrandSelect(brandSel).then(() => refreshCard(card)).catch(console.error);
-      brandSel.addEventListener('change', () => refreshCard(card));
-    }
-  }
+    if (input && listEl) {
+      // Mevcut detaylı kart yapısı
 
-  // Ekle
-    addBtn.addEventListener('click', async () => {
-    const name = (input.value || '').trim();
-    if (!name) { input.focus(); return; }
-
-    try {
+      // Model kartı: önce Marka select’ini doldur ve değişimde listeyi yenile
       if (entity === 'model') {
         const brandSel = card.querySelector('.ref-brand');
-        const brandId  = brandSel && brandSel.value ? parseInt(brandSel.value, 10) : null;
-        if (!brandId) { alert('Lütfen önce marka seçin.'); return; }
-        await addRef('model', name, brandId);
-      } else {
-        await addRef(entity, name);
+        if (brandSel) {
+          fillBrandSelect(brandSel).then(() => refreshCard(card)).catch(console.error);
+          brandSel.addEventListener('change', () => refreshCard(card));
+        }
       }
-      input.value = '';
-      await refreshCard(card);
-    } catch (e) {
-      alert('Kaydedilemedi: ' + (e?.message || e));
+
+      // Ekle
+      addBtn.addEventListener('click', async () => {
+        const name = (input.value || '').trim();
+        if (!name) { input.focus(); return; }
+
+        try {
+          if (entity === 'model') {
+            const brandSel = card.querySelector('.ref-brand');
+            const brandId  = brandSel && brandSel.value ? parseInt(brandSel.value, 10) : null;
+            if (!brandId) { alert('Lütfen önce marka seçin.'); return; }
+            await addRef('model', name, brandId);
+          } else {
+            await addRef(entity, name);
+          }
+          input.value = '';
+          await refreshCard(card);
+        } catch (e) {
+          alert('Kaydedilemedi: ' + (e?.message || e));
+        }
+      });
+
+      // Enter ile ekleme
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addBtn.click();
+      });
+
+      if (listEl) {
+        listEl.addEventListener('click', async (e) => {
+          const btn = e.target.closest('.ref-delete');
+          if (!btn) return;
+          const id = btn.dataset.id;
+          if (!id) return;
+          try {
+            await apiDelete(`/api/ref/${entity}/${id}`);
+            await refreshCard(card);
+          } catch (err) {
+            alert('Silinemedi: ' + (err?.message || err));
+          }
+        });
+      }
+    } else {
+      // Sade satır: prompt ile değer al
+      addBtn.addEventListener('click', async () => {
+        const name = prompt('Yeni değer girin');
+        if (!name) return;
+        try {
+          await addRef(entity, name);
+          alert('Kaydedildi');
+        } catch (e) {
+          alert('Kaydedilemedi: ' + (e?.message || e));
+        }
+      });
     }
-    });
-
-    // Enter ile ekleme
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') addBtn.click();
-    });
-
-    listEl.addEventListener('click', async (e) => {
-      const btn = e.target.closest('.ref-delete');
-      if (!btn) return;
-      const id = btn.dataset.id;
-      if (!id) return;
-      try {
-        await apiDelete(`/api/ref/${entity}/${id}`);
-        await refreshCard(card);
-      } catch (err) {
-        alert('Silinemedi: ' + (err?.message || err));
-      }
-    });
   }
 
 // Sayfa giriş noktası

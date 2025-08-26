@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from fastapi.templating import Jinja2Templates
 
-from models import User
+from models import User, Connection
 from auth import get_db, hash_password
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
@@ -21,12 +21,14 @@ def admin_index(request: Request, q: str = "", role: str = "", db: Session = Dep
         users_q = users_q.filter(User.role == role)
 
     users = users_q.order_by(User.full_name.asc()).all()
+    connections = db.query(Connection).order_by(Connection.id).all()
 
     return templates.TemplateResponse(
         "admin.html",
         {
             "request": request,
             "users": users,
+            "connections": connections,
         },
     )
 
