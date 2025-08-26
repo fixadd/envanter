@@ -20,7 +20,7 @@ def _logla(db: Session, lic: License, islem: str, detay: str, islem_yapan: str):
 def get_current_user_name(request: Request) -> str:
     return (
         request.session.get("full_name")
-        or getattr(getattr(request, "user", None), "full_name", None)
+        or getattr(request.scope.get("user"), "full_name", None)
         or "Bilinmeyen Kullanıcı"
     )
 
