@@ -3,10 +3,17 @@
 {% block content %}
 <div class="container-fluid p-2">
   <div class="d-flex align-items-center justify-content-between mb-3">
-    <h5 class="mb-0">Envanter</h5>
-    <a href="/inventory/new" class="btn btn-success btn-sm" title="Yeni Ekle">
-      <i class="bi bi-plus-lg"></i>
-    </a>
+    <div class="d-flex align-items-center gap-2">
+      <a href="#" id="addBtn" class="btn btn-success btn-sm" title="Yeni Ekle">
+        <i class="bi bi-plus-lg"></i>
+      </a>
+      <h5 class="mb-0">Envanter</h5>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary btn-sm" id="filterBtn">Filtre</button>
+      <button class="btn btn-outline-secondary btn-sm d-none" id="clearFilterBtn">Temizle</button>
+      <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Ara...">
+    </div>
   </div>
 
   <table class="table table-sm table-striped align-middle">
@@ -58,6 +65,59 @@
   tr.inv-row { cursor: default; }
   tr.inv-row a, tr.inv-row button, tr.inv-row select { cursor: pointer; }
 </style>
+
+<!-- Yeni Ekle Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Envanter Ekle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <iframe id="addFrame" src="" style="width:100%;height:70vh;border:0;"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Filtre Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="filterForm" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Filtrele</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <label class="form-label">Envanter No</label>
+          <input type="text" name="no" class="form-control form-control-sm">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Fabrika</label>
+          <input type="text" name="fabrika" class="form-control form-control-sm">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Departman</label>
+          <input type="text" name="departman" class="form-control form-control-sm">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Sorumlu</label>
+          <input type="text" name="sorumlu" class="form-control form-control-sm">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Marka/Model</label>
+          <input type="text" name="marka" class="form-control form-control-sm">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Kapat</button>
+        <button type="submit" class="btn btn-primary btn-sm">Uygula</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- Atama Modal -->
 <div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
@@ -122,6 +182,59 @@
 document.addEventListener('DOMContentLoaded', () => {
   const assignModal = new bootstrap.Modal(document.getElementById('assignModal'));
   const scrapModal  = new bootstrap.Modal(document.getElementById('scrapModal'));
+  const addModal    = new bootstrap.Modal(document.getElementById('addModal'));
+  const filterModal = new bootstrap.Modal(document.getElementById('filterModal'));
+
+  const searchInput = document.getElementById('searchInput');
+  const filterForm  = document.getElementById('filterForm');
+  const clearBtn    = document.getElementById('clearFilterBtn');
+  const activeFilters = {};
+
+  document.getElementById('addBtn').addEventListener('click', () => {
+    document.getElementById('addFrame').src = '/inventory/new';
+    addModal.show();
+  });
+
+  document.getElementById('filterBtn').addEventListener('click', () => {
+    filterForm.reset();
+    filterModal.show();
+  });
+
+  clearBtn.addEventListener('click', () => {
+    Object.keys(activeFilters).forEach(k => delete activeFilters[k]);
+    filterForm.reset();
+    filterRows();
+    clearBtn.classList.add('d-none');
+  });
+
+  searchInput.addEventListener('input', filterRows);
+
+  filterForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const fd = new FormData(filterForm);
+    ['no','fabrika','departman','sorumlu','marka'].forEach(k => {
+      const v = (fd.get(k) || '').trim().toLowerCase();
+      if (v) activeFilters[k] = v; else delete activeFilters[k];
+    });
+    filterModal.hide();
+    clearBtn.classList.toggle('d-none', Object.keys(activeFilters).length === 0);
+    filterRows();
+  });
+
+  function filterRows() {
+    const q = searchInput.value.toLowerCase();
+    document.querySelectorAll('tbody tr').forEach(tr => {
+      const cells = tr.querySelectorAll('td');
+      const texts = Array.from(cells).map(td => td.textContent.toLowerCase());
+      let match = texts.some(t => t.includes(q));
+      if (activeFilters.no) match = match && texts[1].includes(activeFilters.no);
+      if (activeFilters.fabrika) match = match && texts[2].includes(activeFilters.fabrika);
+      if (activeFilters.departman) match = match && texts[3].includes(activeFilters.departman);
+      if (activeFilters.sorumlu) match = match && texts[4].includes(activeFilters.sorumlu);
+      if (activeFilters.marka) match = match && texts[5].includes(activeFilters.marka);
+      tr.classList.toggle('d-none', !match);
+    });
+  }
 
   // İşlem seçimi
   document.querySelectorAll('.action-select').forEach(sel => {
