@@ -74,7 +74,9 @@ def lookup_list(
     if q:
         where.append("LOWER(name) LIKE LOWER(:q)")
         params["q"] = f"%{q}%"
-    if entity == "model" and marka_id:
+    if entity == "model":
+        if marka_id is None:
+            return []  # Model listesi marka seçimi olmadan boş dönsün
         where.append("brand_id = :brand_id")
         params["brand_id"] = marka_id
 
