@@ -46,7 +46,7 @@ def admin_panel(request: Request, q: Optional[str] = None, db: Session = Depends
                 username=u.username,
                 first_name=first_name,
                 last_name=last_name,
-                email="",
+                email=getattr(u, "email", "") or "",
                 is_admin=1 if getattr(u, "role", "") == "admin" else 0,
             )
         )
@@ -93,6 +93,7 @@ def create_user(
         username=username,
         password_hash=hash_password(password),
         full_name=full_name,
+        email=email,
         role="admin" if is_admin else "user",
     )
     db.add(user)
@@ -122,6 +123,7 @@ def update_user(
     user.username = username
     user.full_name = f"{first_name} {last_name}".strip()
     user.role = "admin" if is_admin else "user"
+    user.email = email
     if password.strip():
         user.password_hash = hash_password(password)
 
