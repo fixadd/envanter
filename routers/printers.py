@@ -16,6 +16,14 @@ router = APIRouter(prefix="/printers", tags=["Printers"])
 USE_SCRAP_TABLE = True
 
 
+def get_current_user_name(request: Request) -> str:
+    return (
+        request.session.get("full_name")
+        or getattr(getattr(request, "user", None), "full_name", None)
+        or "Bilinmeyen Kullanıcı"
+    )
+
+
 def build_changes(old: Printer, new_vals: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
     out: Dict[str, Dict[str, Any]] = {}
     for k, v in new_vals.items():
@@ -70,6 +78,9 @@ def list_printers(
     invs = [r[0] for r in db.execute(text("SELECT no FROM inventories ORDER BY no")).fetchall()]
     fabr = [r[0] for r in db.execute(text("SELECT name FROM factories ORDER BY name")).fetchall()]
     areas = [r[0] for r in db.execute(text("SELECT name FROM usage_areas ORDER BY name")).fetchall()]
+    marka_list = db.query(Brand).order_by(Brand.name).all()
+    model_list = db.query(Model).order_by(Model.name).all()
+    kullanim_alanlari = db.query(UsageArea).order_by(UsageArea.name).all()
 
     return templates.TemplateResponse(
         "printers_list.html",
@@ -80,6 +91,9 @@ def list_printers(
             "inventory_nos": invs,
             "factories": fabr,
             "areas": areas,
+            "marka_list": marka_list,
+            "model_list": model_list,
+            "kullanim_alanlari": kullanim_alanlari,
         },
     )
 
@@ -128,6 +142,36 @@ def create_printer(
             created_at=datetime.utcnow(),
         )
     )
+    db.commit()
+    return RedirectResponse(url="/printers", status_code=303)
+
+
+@router.post("/create")
+def create_printer_simple(
+    request: Request,
+    envanter_no: str = Form(...),
+    yazici_markasi: str = Form(...),
+    yazici_modeli: str = Form(...),
+    kullanim_alani: str = Form(...),
+    ip_adresi: str = Form(...),
+    mac: str = Form(...),
+    hostname: str = Form(...),
+    ifs_no: str = Form(None),
+    db: Session = Depends(get_db),
+):
+    prn = Printer(
+        envanter_no=envanter_no,
+        marka=yazici_markasi,
+        model=yazici_modeli,
+        kullanim_alani=kullanim_alani,
+        ip_adresi=ip_adresi,
+        mac=mac,
+        hostname=hostname,
+        ifs_no=ifs_no,
+        tarih=datetime.utcnow(),
+        islem_yapan=get_current_user_name(request),
+    )
+    db.add(prn)
     db.commit()
     return RedirectResponse(url="/printers", status_code=303)
 
