@@ -96,27 +96,6 @@
               <label class="form-label">IFS No</label>
               <input name="ifs_no" class="form-control">
             </div>
-            <div class="col-md-4">
-              <label class="form-label">Tarih</label>
-              <input name="tarih" class="form-control" placeholder="YYYY-MM-DD">
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">İşlem Yapan</label>
-              <input name="islem_yapan" class="form-control">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Sorumlu Personel</label>
-              <select id="selYaziciPersonel" name="sorumlu_personel" class="form-select">
-                <option value="">Seçiniz</option>
-                {% for u in users %}
-                <option value="{{ u.full_name }}">{{ u.full_name }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Bağlı Envanter No</label>
-              <select id="selYaziciBagliEnvanter" name="bagli_envanter_no" class="form-select"></select>
-            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -144,9 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
       // Marka → Model
       choicesHelper.bindBrandToModel("selYaziciMarka", "selYaziciModel");
 
-      // Personel ve Bağlı Envanter
-      choicesHelper.initPersonelChoices("selYaziciPersonel", "Personel seçiniz…");
-      await choicesHelper.initBagliEnvanterChoices("selYaziciBagliEnvanter", 'table tbody a[href^="/inventory/"]');
     } catch (e) {
       console.error(e);
     }

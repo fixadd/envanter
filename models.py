@@ -174,6 +174,10 @@ class License(Base):
     anahtar = synonym("lisans_anahtari")
     sorumlu_personel = Column(String(120), nullable=True)
     bagli_envanter_no = Column(String(120), nullable=True)
+    ifs_no = Column(String(100), nullable=True)
+    tarih = Column(Date, default=datetime.utcnow)
+    islem_yapan = Column(String(120), nullable=True)
+    mail_adresi = Column(String(200), nullable=True)
     inventory_id = Column(
         Integer,
         ForeignKey("inventories.id", ondelete="SET NULL"),
@@ -262,6 +266,13 @@ class Printer(Base):
     kullanim_alani = Column(String(150), nullable=True)
     sorumlu_personel = Column(String(150), nullable=True)
     bagli_envanter_no = Column(String(50), nullable=True)
+    envanter_no = Column(String(100), nullable=True)
+    ip_adresi = Column(String(50), nullable=True)
+    mac = Column(String(50), nullable=True)
+    hostname = Column(String(100), nullable=True)
+    ifs_no = Column(String(100), nullable=True)
+    tarih = Column(Date, default=datetime.utcnow)
+    islem_yapan = Column(String(150), nullable=True)
 
     durum = Column(String(30), default="aktif")
     notlar = Column(Text, nullable=True)
@@ -417,6 +428,14 @@ def init_db():
             )
         if "notlar" not in cols:
             conn.execute(text("ALTER TABLE licenses ADD COLUMN notlar TEXT"))
+        if "ifs_no" not in cols:
+            conn.execute(text("ALTER TABLE licenses ADD COLUMN ifs_no VARCHAR(100)"))
+        if "tarih" not in cols:
+            conn.execute(text("ALTER TABLE licenses ADD COLUMN tarih DATE"))
+        if "islem_yapan" not in cols:
+            conn.execute(text("ALTER TABLE licenses ADD COLUMN islem_yapan VARCHAR(120)"))
+        if "mail_adresi" not in cols:
+            conn.execute(text("ALTER TABLE licenses ADD COLUMN mail_adresi VARCHAR(200)"))
 
     # -- License Logs ----------------------------------------------------------
     insp = inspect(engine)
@@ -497,3 +516,17 @@ def init_db():
             conn.execute(text("ALTER TABLE printers ADD COLUMN durum VARCHAR(30) DEFAULT 'aktif'"))
         if "notlar" not in cols:
             conn.execute(text("ALTER TABLE printers ADD COLUMN notlar TEXT"))
+        if "envanter_no" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN envanter_no VARCHAR(100)"))
+        if "ip_adresi" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN ip_adresi VARCHAR(50)"))
+        if "mac" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN mac VARCHAR(50)"))
+        if "hostname" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN hostname VARCHAR(100)"))
+        if "ifs_no" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN ifs_no VARCHAR(100)"))
+        if "tarih" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN tarih DATE"))
+        if "islem_yapan" not in cols:
+            conn.execute(text("ALTER TABLE printers ADD COLUMN islem_yapan VARCHAR(150)"))
