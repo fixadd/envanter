@@ -32,13 +32,13 @@ from routers import (
     stock,
     trash,
     profile,
-    admin as admin_router,
     integrations,
     logs,
     refdata,
     panel as panel_router,
 )
-from routers import lookup
+from routes.lookup import router as lookup_router
+from routes.admin import router as admin_router
 from security import current_user, require_roles
 
 load_dotenv()
@@ -105,12 +105,12 @@ app.include_router(stock.router, dependencies=[Depends(current_user)])
 app.include_router(trash.router, prefix="/trash", tags=["Trash"], dependencies=[Depends(current_user)])
 app.include_router(profile.router, prefix="/profile", tags=["Profile"], dependencies=[Depends(current_user)])
 app.include_router(integrations.router, prefix="/integrations", tags=["Integrations"], dependencies=[Depends(current_user)])
-app.include_router(lookup.router)
+app.include_router(lookup_router)
 app.include_router(refdata.router, dependencies=[Depends(current_user)])
 
 # Sadece admin
 app.include_router(logs.router, prefix="/logs", tags=["Logs"], dependencies=[Depends(require_roles("admin"))])
-app.include_router(admin_router.router, dependencies=[Depends(require_roles("admin"))])
+app.include_router(admin_router, dependencies=[Depends(require_roles("admin"))])
 
 # --- Startup: DB init & default admin ----------------------------------------
 @app.on_event("startup")
