@@ -12,9 +12,8 @@
       <label class="form-label">Fabrika</label>
       <div class="input-group lookup-group">
         <button type="button" class="btn btn-outline-secondary lookup-btn" data-entity="fabrika">&#9776;</button>
-        <input id="fabrika_display" type="text" class="form-control bg-body-tertiary" value="Seçilmedi" readonly>
+        <input id="fabrika_display" type="text" class="form-control" value="Seçilmedi" readonly>
         <input type="hidden" id="fabrika" name="fabrika" required>
-        <div class="invalid-feedback">Fabrika zorunlu.</div>
       </div>
     </div>
 
@@ -23,9 +22,8 @@
       <label class="form-label">Departman</label>
       <div class="input-group lookup-group">
         <button type="button" class="btn btn-outline-secondary lookup-btn" data-entity="departman">&#9776;</button>
-        <input id="departman_display" type="text" class="form-control bg-body-tertiary" value="Seçilmedi" readonly>
+        <input id="departman_display" type="text" class="form-control" value="Seçilmedi" readonly>
         <input type="hidden" id="departman" name="departman" required>
-        <div class="invalid-feedback">Departman zorunlu.</div>
       </div>
     </div>
 
@@ -34,9 +32,8 @@
       <label class="form-label">Donanım Tipi</label>
       <div class="input-group lookup-group">
         <button type="button" class="btn btn-outline-secondary lookup-btn" data-entity="donanim_tipi">&#9776;</button>
-        <input id="donanim_tipi_display" type="text" class="form-control bg-body-tertiary" value="Seçilmedi" readonly>
+        <input id="donanim_tipi_display" type="text" class="form-control" value="Seçilmedi" readonly>
         <input type="hidden" id="donanim_tipi" name="donanim_tipi" required>
-        <div class="invalid-feedback">Donanım tipi zorunlu.</div>
       </div>
     </div>
 
@@ -51,9 +48,8 @@
       <label class="form-label">Marka</label>
       <div class="input-group lookup-group">
         <button type="button" class="btn btn-outline-secondary lookup-btn" data-entity="marka">&#9776;</button>
-        <input id="marka_display" type="text" class="form-control bg-body-tertiary" value="Seçilmedi" readonly>
+        <input id="marka_display" type="text" class="form-control" value="Seçilmedi" readonly>
         <input type="hidden" id="marka" name="marka" required>
-        <div class="invalid-feedback">Marka zorunlu.</div>
       </div>
     </div>
 
@@ -62,9 +58,8 @@
       <label class="form-label">Model</label>
       <div class="input-group lookup-group">
         <button type="button" class="btn btn-outline-secondary lookup-btn" data-entity="model">&#9776;</button>
-        <input id="model_display" type="text" class="form-control bg-body-tertiary" value="Seçilmedi" readonly>
+        <input id="model_display" type="text" class="form-control" value="Seçilmedi" readonly>
         <input type="hidden" id="model" name="model" required>
-        <div class="invalid-feedback">Model zorunlu.</div>
       </div>
     </div>
 
@@ -79,16 +74,15 @@
       <label class="form-label">Sorumlu Personel</label>
       <div class="input-group lookup-group">
         <button type="button" class="btn btn-outline-secondary lookup-btn" data-entity="sorumlu_personel">&#9776;</button>
-        <input id="sorumlu_personel_display" type="text" class="form-control bg-body-tertiary" value="Seçilmedi" readonly>
+        <input id="sorumlu_personel_display" type="text" class="form-control" value="Seçilmedi" readonly>
         <input type="hidden" id="sorumlu_personel" name="sorumlu_personel" required>
-        <div class="invalid-feedback">Sorumlu personel zorunlu.</div>
       </div>
     </div>
 
     <!-- Opsiyoneller -->
     <div class="col-md-6">
       <label class="form-label">Bağlı Makina No <small class="text-muted">(opsiyonel)</small></label>
-      <input name="bagli_envanter_no" type="text" class="form-control" placeholder="Makina No">
+      <input name="bagli_makina_no" type="text" class="form-control" placeholder="Makina No">
     </div>
     <div class="col-md-6">
       <label class="form-label">IFS No <small class="text-muted">(opsiyonel)</small></label>
@@ -107,54 +101,49 @@
 </form>
 
 <style>
-  /* Sadece bu modal */
-  #envanter-ekle .lookup-group .form-control[readonly]{cursor:pointer}
-  #envanter-ekle .lookup-selected{ color: var(--bs-body-color)!important; }
+  /* Yalnızca bu modalı düzenle */
+  #envanter-ekle .lookup-group .form-control[readonly]{ background-color: var(--bs-body-bg); cursor: pointer; }
+  #envanter-ekle .lookup-group .form-control[readonly].is-invalid{ border-color: var(--bs-danger); }
+  /* Eski “zorunlu.” yazılarını tamamen gizle (varsa) */
+  #envanter-ekle .invalid-feedback{ display: none !important; }
 </style>
 
 <script>window.SKIP_SELECT_ENHANCE = true;</script>
 <script>
 (function(){
-  // Şimdilik seçim penceresini prompt ile simüle ediyoruz.
+  // Burayı kendi seçim modalına bağla; şimdilik prompt ile seçim simülasyonu
   function openPicker(entity, current){
     const v = prompt(entity.toUpperCase() + " seçin:", current || "");
     return (v && v.trim()) ? { id:v.trim(), text:v.trim() } : null;
   }
 
-  // ≡ butonu ve yanındaki display input tıklanınca aynı davranış
-  document.querySelectorAll('#envanter-ekle .lookup-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=> handlePick(btn.dataset.entity));
-  });
-  document.querySelectorAll('#envanter-ekle .lookup-group .form-control[readonly]').forEach(view=>{
-    const entity = view.id.replace('_display','');
-    view.addEventListener('click', ()=> handlePick(entity));
-  });
-
   function handlePick(entity){
-    const hidden  = document.getElementById(entity);
-    const display = document.getElementById(entity + '_display');
-    const picked  = openPicker(entity, hidden?.value);
-    if(!picked) return;
-
-    hidden.value = picked.id;
-    if(display){
-      display.value = picked.text;
-      display.classList.add('lookup-selected');
-    }
-    // Validasyon için (hidden boşsa invalid yap)
-    hidden.setCustomValidity('');
+    const hid = document.getElementById(entity);
+    const disp = document.getElementById(entity + '_display');
+    const pick = openPicker(entity, hid.value);
+    if(!pick) return;
+    hid.value = pick.id;
+    disp.value = pick.text;
+    disp.classList.remove('is-invalid');
   }
 
-  // Submit öncesi: required hidden alanları kontrol et
-  document.querySelector('form').addEventListener('submit', function(e){
+  // ≡ butonları ve readonly inputlar tıklanabilir
+  document.querySelectorAll('#envanter-ekle .lookup-btn').forEach(b=>{
+    b.addEventListener('click', ()=>handlePick(b.dataset.entity));
+  });
+  document.querySelectorAll('#envanter-ekle .lookup-group .form-control[readonly]').forEach(v=>{
+    const entity = v.id.replace('_display','');
+    v.addEventListener('click', ()=>handlePick(entity));
+  });
+
+  // Submit’te: required hidden’ları kontrol et; eksikse yanındaki display alanını kırmızı yap
+  document.querySelector('#envanter-ekle').closest('form').addEventListener('submit', function(e){
     let ok = true;
     document.querySelectorAll('#envanter-ekle input[type="hidden"][required]').forEach(h=>{
-      const display = document.getElementById(h.id + '_display');
+      const disp = document.getElementById(h.id + '_display');
       if(!h.value){
         ok = false;
-        if(display){ display.classList.add('is-invalid'); }
-      }else{
-        if(display){ display.classList.remove('is-invalid'); }
+        if(disp){ disp.classList.add('is-invalid'); }
       }
     });
     if(!ok){ e.preventDefault(); e.stopPropagation(); }
