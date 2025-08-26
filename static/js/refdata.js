@@ -84,7 +84,11 @@ async function refreshCard(card) {
   if (entity === 'model') {
     const brandSel = card.querySelector('.ref-brand');
     const brandId  = brandSel && brandSel.value ? brandSel.value : '';
-    const rows = await fetchList('model', brandId ? { marka_id: brandId } : {});
+    if (!brandId) {
+      renderList(listEl, []); // Marka seçilmeden model listesi gösterilmesin
+      return;
+    }
+    const rows = await fetchList('model', { marka_id: brandId });
     renderList(listEl, rows);
     return;
   }
