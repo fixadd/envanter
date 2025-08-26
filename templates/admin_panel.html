@@ -4,29 +4,20 @@
 {% block content %}
 <div class="container-fluid p-2">
 
-  <!-- ÜST (tek sekme) -->
-  <ul class="nav nav-tabs">
-    <li class="nav-item">
-      <a class="nav-link active" href="/admin?sub={{ sub }}">Admin</a>
-    </li>
-  </ul>
-
-  <!-- ALT SEKMELER -->
-  <div class="bg-light border-bottom px-3 py-2">
-    <ul class="nav nav-pills small">
-      <li class="nav-item me-2">
-        <a class="nav-link {% if sub=='urun' %}active{% endif %}" href="/admin?sub=urun">Ürün Ekle</a>
-      </li>
-      <li class="nav-item me-2">
-        <a class="nav-link {% if sub=='kullanicilar' %}active{% endif %}" href="/admin?sub=kullanicilar">Kullanıcılar</a>
-      </li>
-    </ul>
-  </div>
+<ul class='nav nav-tabs' id='adminTab' role='tablist'>
+  <li class='nav-item' role='presentation'>
+    <button class='nav-link active' id='urun-tab' data-bs-toggle='tab' data-bs-target='#tab-urun' type='button' role='tab'>Ürün Ekle</button>
+  </li>
+  <li class='nav-item' role='presentation'>
+    <button class='nav-link' id='kullanici-tab' data-bs-toggle='tab' data-bs-target='#tab-kullanicilar' type='button' role='tab'>Kullanıcılar</button>
+  </li>
+</ul>
+<div class='tab-content'>
+  <div class='tab-pane fade show active' id='tab-urun' role='tabpanel' aria-labelledby='urun-tab'>
 
   
 
   <!-- İÇERİK: ÜRÜN EKLE -->
-  {% if sub=='urun' %}
   <nav class="small text-muted mt-3 mb-2">Admin » Ürün Ekle</nav>
 
   <!-- ÜRÜN EKLE KUTUSU (REFERANS TABLOLARI) -->
@@ -139,10 +130,10 @@
 
     </div>
   </div>
-  {% endif %}
 
+  </div>
+  <div class='tab-pane fade' id='tab-kullanicilar' role='tabpanel' aria-labelledby='kullanici-tab'>
   <!-- İÇERİK: KULLANICILAR -->
-  {% if sub=='kullanicilar' %}
   <nav class="small text-muted mt-3 mb-2">Admin » Kullanıcılar</nav>
 
   <!-- KULLANICI KUTUSU -->
@@ -280,8 +271,8 @@
 
 </div>
 
-{% endif %}
 
+</div>
 <style>
   .nav-tabs .nav-link.active { font-weight:600; }
   .nav-pills .nav-link { padding:.25rem .75rem; }
