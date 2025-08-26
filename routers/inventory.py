@@ -197,7 +197,7 @@ async def new_post(request: Request, db: Session = Depends(get_db), user=Depends
   db.commit()
   return RedirectResponse(url=request.url_for("inventory.detail", item_id=inv.id), status_code=303)
 
-@router.get("/{item_id}/detail", name="inventory.detail")
+@router.get("/{item_id:int}/detail", name="inventory.detail")
 def detail(request: Request, item_id: int, db: Session = Depends(get_db), user=Depends(current_user)):
     stmt = (
         select(Inventory)
@@ -217,7 +217,7 @@ def detail(request: Request, item_id: int, db: Session = Depends(get_db), user=D
         "inventory_detail.html", {"request": request, "inv": item, "logs": logs}
     )
 
-@router.get("/{item_id}", name="inventory.detail_short", include_in_schema=False)
+@router.get("/{item_id:int}", name="inventory.detail_short", include_in_schema=False)
 def detail_short(request: Request, item_id: int, db: Session = Depends(get_db), user=Depends(current_user)):
   return detail(request, item_id, db, user)
 
@@ -294,7 +294,7 @@ def assign(
   db.commit()
   return JSONResponse({"ok": True})
 
-@router.get("/{item_id}/edit", name="inventory.edit")
+@router.get("/{item_id:int}/edit", name="inventory.edit")
 def edit_page(
   request: Request,
   item_id: int,
@@ -308,7 +308,7 @@ def edit_page(
     "inventory/edit.html", {"request": request, "item": item, "item_id": item.id}
   )
 
-@router.post("/{item_id}/edit", name="inventory.edit_post")
+@router.post("/{item_id:int}/edit", name="inventory.edit_post")
 async def edit_post(item_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
   form = dict(await request.form())
   item = db.query(Inventory).get(item_id)
