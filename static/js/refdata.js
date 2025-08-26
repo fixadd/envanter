@@ -7,15 +7,21 @@ async function apiGet(url) {
   return r.json();
 }
 
-async function apiPost(url, body) {
-  const r = await fetch(url, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(body)
-  });
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
-}
+  async function apiPost(url, body) {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  }
+
+  async function apiDelete(url) {
+    const r = await fetch(url, { method: 'DELETE' });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  }
 
 // /api/ref/{entity} —> kendi tablosuna yaz
 async function addRef(entity, name, brandId = null) {
@@ -35,16 +41,17 @@ async function fetchList(entity, extraParams = {}) {
 }
 
 // Liste render
-function renderList(containerEl, rows) {
-  containerEl.innerHTML =
-    (rows && rows.length)
-      ? rows.map(r =>
-          `<li class="list-group-item d-flex justify-content-between align-items-center">
-             <span>${r.name ?? r.ad ?? r.text ?? ''}</span>
-           </li>`
-        ).join('')
-      : `<li class="list-group-item text-muted">Kayıt yok</li>`;
-}
+  function renderList(containerEl, rows) {
+    containerEl.innerHTML =
+      (rows && rows.length)
+        ? rows.map(r =>
+            `<li class="list-group-item d-flex justify-content-between align-items-center">
+               <span>${r.name ?? r.ad ?? r.text ?? ''}</span>
+               <button class="btn btn-sm btn-danger ref-delete" data-id="${r.id}">Sil</button>
+             </li>`
+          ).join('')
+        : `<li class="list-group-item text-muted">Kayıt yok</li>`;
+  }
 
 // Marka select'ini doldur (model kartı için)
 async function fillBrandSelect(selectEl) {
@@ -77,9 +84,9 @@ async function fillBrandSelect(selectEl) {
   }
 }
 
-async function refreshCard(card) {
-  const entity = card.dataset.entity;
-  const listEl  = card.querySelector('.ref-list');
+  async function refreshCard(card) {
+    const entity = card.dataset.entity;
+    const listEl  = card.querySelector('.ref-list');
 
   if (entity === 'model') {
     const brandSel = card.querySelector('.ref-brand');
@@ -97,11 +104,11 @@ async function refreshCard(card) {
   renderList(listEl, rows);
 }
 
-function bindCard(card) {
-  const entity = card.dataset.entity;
-  const input  = card.querySelector('.ref-input');
-  const addBtn = card.querySelector('.ref-add');
-  const listEl = card.querySelector('.ref-list');
+  function bindCard(card) {
+    const entity = card.dataset.entity;
+    const input  = card.querySelector('.ref-input');
+    const addBtn = card.querySelector('.ref-add');
+    const listEl = card.querySelector('.ref-list');
 
   if (!input || !addBtn || !listEl) return;
 
@@ -115,7 +122,7 @@ function bindCard(card) {
   }
 
   // Ekle
-  addBtn.addEventListener('click', async () => {
+    addBtn.addEventListener('click', async () => {
     const name = (input.value || '').trim();
     if (!name) { input.focus(); return; }
 
@@ -133,20 +140,42 @@ function bindCard(card) {
     } catch (e) {
       alert('Kaydedilemedi: ' + (e?.message || e));
     }
-  });
+    });
 
-  // Enter ile ekleme
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') addBtn.click();
-  });
-}
+    // Enter ile ekleme
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addBtn.click();
+    });
+
+    listEl.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.ref-delete');
+      if (!btn) return;
+      const id = btn.dataset.id;
+      if (!id) return;
+      try {
+        await apiDelete(`/api/ref/${entity}/${id}`);
+        await refreshCard(card);
+      } catch (err) {
+        alert('Silinemedi: ' + (err?.message || err));
+      }
+    });
+  }
 
 // Sayfa giriş noktası
-function initRefAdmin() {
-  document.querySelectorAll('.ref-card[data-entity]').forEach(card => {
-    bindCard(card);
-    refreshCard(card).catch(console.error);
-  });
-}
+  function initRefAdmin() {
+    document.querySelectorAll('.ref-card[data-entity]').forEach(card => {
+      bindCard(card);
+      refreshCard(card).catch(console.error);
+    });
+
+    const toggleBtn = document.getElementById('toggleRefLists');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        document.querySelectorAll('.ref-list').forEach(list => {
+          list.classList.toggle('d-none');
+        });
+      });
+    }
+  }
 
 window.initRefAdmin = initRefAdmin;
