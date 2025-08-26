@@ -17,6 +17,45 @@ ENTITY_TABLE = {
     "lisans-adi": "license_names",
 }
 
+# Liste sayfalarındaki filtrelerde kullanılabilecek distinct kolon bilgileri
+FILTER_MAP = {
+    "inventory": {
+        "table": "inventories",
+        "columns": [
+            "no",
+            "fabrika",
+            "departman",
+            "sorumlu_personel",
+            "marka",
+            "model",
+        ],
+    },
+    "printer": {
+        "table": "printers",
+        "columns": [
+            "id",
+            "marka",
+            "model",
+            "seri_no",
+            "fabrika",
+            "kullanim_alani",
+            "sorumlu_personel",
+            "bagli_envanter_no",
+        ],
+    },
+    "license": {
+        "table": "licenses",
+        "columns": [
+            "no",
+            "lisans_adi",
+            "lisans_anahtari",
+            "sorumlu_personel",
+            "bagli_envanter_no",
+            "durum",
+        ],
+    },
+}
+
 @router.get("/{entity}")
 def lookup_list(
     entity: str,
@@ -47,3 +86,16 @@ def lookup_list(
     # döndürüyoruz ve eski "text" beklentisi olan istemcilerde de sorun
     # yaşanmaması için çağrı tarafında gerekli uyarlamayı yapıyoruz.
     return [{"id": r["id"], "name": r["name"]} for r in rows]
+
+
+@router.get("/distinct/{entity}/{column}", name="lookup.distinct")
+def distinct_values(entity: str, column: str, db: Session = Depends(get_db)):
+    cfg = FILTER_MAP.get(entity)
+    if not cfg or column not in cfg["columns"]:
+        raise HTTPException(404, "Geçersiz entity/kolon")
+    sql = text(
+        f"SELECT DISTINCT {column} AS value FROM {cfg['table']} "
+        f"WHERE {column} IS NOT NULL ORDER BY {column}"
+    )
+    rows = db.execute(sql).mappings().all()
+    return [r["value"] for r in rows if (r["value"] or "").strip()]

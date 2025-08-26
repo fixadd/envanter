@@ -20,12 +20,11 @@
     <thead>
       <tr>
         <th style="width:42px;"></th> <!-- göz ikonu -->
-        <!-- Örnek kolon başlıkları -->
-        <th>Envanter No</th>
-        <th>Fabrika</th>
-        <th>Departman</th>
-        <th>Sorumlu</th>
-        <th>Marka/Model</th>
+        <th data-field="no">Envanter No</th>
+        <th data-field="fabrika">Fabrika</th>
+        <th data-field="departman">Departman</th>
+        <th data-field="sorumlu_personel">Sorumlu</th>
+        <th data-field="marka">Marka/Model</th>
         <th style="width:180px;">İşlemler</th>
       </tr>
     </thead>
@@ -166,14 +165,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const addModal    = new bootstrap.Modal(document.getElementById('addModal'));
   const filterModal = new bootstrap.Modal(document.getElementById('filterModal'));
 
-  const searchInput = document.getElementById('searchInput');
-  const filterForm  = document.getElementById('filterForm');
-  const clearBtn    = document.getElementById('clearFilterBtn');
+  const searchInput   = document.getElementById('searchInput');
+  const filterForm    = document.getElementById('filterForm');
+  const clearBtn      = document.getElementById('clearFilterBtn');
   const filterRowsDiv = document.getElementById('filterRows');
+  const distinctUrl   = "{{ url_for('lookup.distinct', entity='inventory', column='__COL__') }}";
   let activeFilters = [];
   const columns = Array.from(document.querySelectorAll('table thead th'))
-    .map((th, idx) => ({ idx, name: th.textContent.trim() }))
-    .filter(c => c.name && c.name !== 'İşlemler');
+    .map((th, idx) => ({ idx, name: th.textContent.trim(), field: th.dataset.field }))
+    .filter(c => c.field);
 
   document.getElementById('addBtn').addEventListener('click', () => {
     document.getElementById('addFrame').src = '/inventory/new';
@@ -205,14 +205,26 @@ document.addEventListener('DOMContentLoaded', () => {
         </select>
       </div>
       <div class="col-5">
-        <input type="text" class="form-control form-control-sm value-input">
+        <select class="form-select form-select-sm value-select"></select>
       </div>
       <div class="col-2 d-flex gap-1">
         <button type="button" class="btn btn-success btn-sm add-row">+</button>
         <button type="button" class="btn btn-danger btn-sm remove-row">-</button>
       </div>`;
     filterRowsDiv.appendChild(row);
+    const colSel = row.querySelector('.column-select');
+    const valSel = row.querySelector('.value-select');
+    loadValues(colSel, valSel);
+    colSel.addEventListener('change', () => loadValues(colSel, valSel));
     updateRemoveButtons();
+  }
+
+  async function loadValues(colSelect, valSelect) {
+    const col = columns.find(c => c.idx == colSelect.value);
+    const res = await fetch(distinctUrl.replace('__COL__', col.field));
+    const data = await res.json();
+    valSelect.innerHTML = '<option value="">Seçiniz</option>' +
+      data.map(v => `<option value="${v}">${v}</option>`).join('');
   }
 
   function updateRemoveButtons() {
@@ -234,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
     activeFilters = [];
     filterRowsDiv.querySelectorAll('.filter-row').forEach(row => {
       const col = parseInt(row.querySelector('.column-select').value, 10);
-      const val = row.querySelector('.value-input').value.trim().toLowerCase();
+      const val = row.querySelector('.value-select').value.trim().toLowerCase();
       if (val) activeFilters.push({ col, val });
     });
     filterModal.hide();

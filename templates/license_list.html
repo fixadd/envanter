@@ -20,12 +20,12 @@
       <thead>
         <tr>
           <th style="width:42px;">Detay</th>
-          <th>No</th>
-          <th>Lisans Adı</th>
-          <th>Key</th>
-          <th>Sorumlu</th>
-          <th>Bağlı Envanter</th>
-          <th>Durum</th>
+          <th data-field="no">No</th>
+          <th data-field="lisans_adi">Lisans Adı</th>
+          <th data-field="lisans_anahtari">Key</th>
+          <th data-field="sorumlu_personel">Sorumlu</th>
+          <th data-field="bagli_envanter_no">Bağlı Envanter</th>
+          <th data-field="durum">Durum</th>
           <th style="width:170px;">İşlemler</th>
         </tr>
       </thead>
@@ -134,10 +134,11 @@
     const filterForm = document.getElementById('filterForm');
     const clearBtn = document.getElementById('clearFilterBtn');
     const filterRowsDiv = document.getElementById('filterRows');
+    const distinctUrl = "{{ url_for('lookup.distinct', entity='license', column='__COL__') }}";
     let activeFilters = [];
     const columns = Array.from(document.querySelectorAll('table thead th'))
-      .map((th, idx) => ({ idx, name: th.textContent.trim() }))
-      .filter(c => c.name && !['Detay', 'İşlemler'].includes(c.name));
+      .map((th, idx) => ({ idx, name: th.textContent.trim(), field: th.dataset.field }))
+      .filter(c => c.field);
 
     document.getElementById('filterBtn').addEventListener('click', () => {
       filterForm.reset();
@@ -164,14 +165,26 @@
           </select>
         </div>
         <div class="col-5">
-          <input type="text" class="form-control form-control-sm value-input">
+          <select class="form-select form-select-sm value-select"></select>
         </div>
         <div class="col-2 d-flex gap-1">
           <button type="button" class="btn btn-success btn-sm add-row">+</button>
           <button type="button" class="btn btn-danger btn-sm remove-row">-</button>
         </div>`;
       filterRowsDiv.appendChild(row);
+      const colSel = row.querySelector('.column-select');
+      const valSel = row.querySelector('.value-select');
+      loadValues(colSel, valSel);
+      colSel.addEventListener('change', () => loadValues(colSel, valSel));
       updateRemoveButtons();
+    }
+
+    async function loadValues(colSelect, valSelect) {
+      const col = columns.find(c => c.idx == colSelect.value);
+      const res = await fetch(distinctUrl.replace('__COL__', col.field));
+      const data = await res.json();
+      valSelect.innerHTML = '<option value="">Seçiniz</option>' +
+        data.map(v => `<option value="${v}">${v}</option>`).join('');
     }
 
     function updateRemoveButtons() {
@@ -193,7 +206,7 @@
       activeFilters = [];
       filterRowsDiv.querySelectorAll('.filter-row').forEach(row => {
         const col = parseInt(row.querySelector('.column-select').value, 10);
-        const val = row.querySelector('.value-input').value.trim().toLowerCase();
+        const val = row.querySelector('.value-select').value.trim().toLowerCase();
         if (val) activeFilters.push({ col, val });
       });
       filterModal.hide();
