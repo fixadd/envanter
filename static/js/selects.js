@@ -60,6 +60,7 @@ function enableRemoteSearch(selectId, endpoint, extraParamsFn=()=>({})) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  if (window.SKIP_SELECT_ENHANCE) return;
   document.querySelectorAll("select").forEach(el => {
     if (el.dataset.noSearch !== undefined) return;
     const inst = makeSearchableSelect(el);

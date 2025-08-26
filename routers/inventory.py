@@ -25,7 +25,7 @@ def list_items(request: Request, db: Session = Depends(get_db), user=Depends(cur
 
 @router.get("/new", name="inventory.new")
 def new_page(request: Request, user=Depends(current_user)):
-  return templates.TemplateResponse("inventory_new.html", {"request": request})
+  return templates.TemplateResponse("inventory_add.html", {"request": request})
 
 @router.post("/new", name="inventory.new_post")
 async def new_post(request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
