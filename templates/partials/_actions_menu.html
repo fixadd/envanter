@@ -1,0 +1,18 @@
+<div class="d-flex align-items-center gap-2">
+  <!-- Göz (detay) -->
+  <button type="button"
+          class="btn btn-outline-secondary btn-sm js-view"
+          data-entity="{{ entity }}" data-id="{{ row_id }}"
+          title="Detay">
+    <i class="bi bi-eye"></i>
+  </button>
+
+  <!-- İşlemler -->
+  <select class="form-select form-select-sm w-auto js-actions"
+          data-entity="{{ entity }}" data-id="{{ row_id }}">
+    <option value="">İşlem Seçin</option>
+    <option value="assign">Atama Yap</option>
+    <option value="edit">Düzenle</option>
+    <option value="scrap">Hurdaya Ayır</option>
+  </select>
+</div>
