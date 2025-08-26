@@ -308,12 +308,12 @@ class Lookup(Base):
     __tablename__ = "lookups"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    category: Mapped[str] = mapped_column(String(50), index=True, nullable=False)
+    type: Mapped[str] = mapped_column(String(50), index=True, nullable=False)
     value: Mapped[str] = mapped_column(String(200), nullable=False)
     created_by: Mapped[str | None] = mapped_column(String(150))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 
-    __table_args__ = (UniqueConstraint("category", "value", name="uq_lookup_category_value"),)
+    __table_args__ = (UniqueConstraint("type", "value", name="uq_lookup_type_value"),)
 
 
 def init_db():
@@ -348,6 +348,13 @@ def init_db():
                     "ALTER TABLE users ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
                 )
             )
+
+    # -- Lookups -------------------------------------------------------------
+    insp = inspect(engine)
+    cols = {col["name"] for col in insp.get_columns("lookups")}
+    with engine.begin() as conn:
+        if "type" not in cols and "category" in cols:
+            conn.execute(text("ALTER TABLE lookups RENAME COLUMN category TO type"))
 
     # -- Licenses --------------------------------------------------------------
     insp = inspect(engine)
