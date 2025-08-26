@@ -143,6 +143,10 @@ def detail(request: Request, item_id: int, db: Session = Depends(get_db), user=D
         "inventory_detail.html", {"request": request, "inv": item, "logs": logs}
     )
 
+@router.get("/{item_id}", name="inventory.detail_short", include_in_schema=False)
+def detail_short(request: Request, item_id: int, db: Session = Depends(get_db), user=Depends(current_user)):
+  return detail(request, item_id, db, user)
+
 @router.get("/assign/sources", name="inventory.assign_sources")
 def assign_sources(type: str, exclude_id: int | None = None, db: Session = Depends(get_db)):
     if type == "users":
