@@ -45,17 +45,6 @@
             <input name="ifs_no" class="form-control" value="{{ license.ifs_no if license else '' }}">
           </div>
 
-          <div class="col-md-4">
-            <label class="form-label">Tarih</label>
-            <input type="date" name="tarih" class="form-control"
-                   value="{{ license.tarih.isoformat() if license and license.tarih }}">
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">İşlem Yapan</label>
-            <input name="islem_yapan" class="form-control" value="{{ license.islem_yapan if license else '' }}">
-          </div>
-
           <div class="col-md-6">
             <label class="form-label">Mail Adresi</label>
             <input type="email" name="mail_adresi" class="form-control" value="{{ license.mail_adresi if license else '' }}">

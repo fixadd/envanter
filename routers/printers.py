@@ -57,6 +57,9 @@ def list_printers(
             | (Printer.seri_no.ilike(like))
             | (Printer.sorumlu_personel.ilike(like))
             | (Printer.bagli_envanter_no.ilike(like))
+            | (Printer.envanter_no.ilike(like))
+            | (Printer.ip_adresi.ilike(like))
+            | (Printer.hostname.ilike(like))
         )
     if durum:
         query = query.filter(Printer.durum == durum)
@@ -93,6 +96,10 @@ def create_printer(
     marka_id: int = Form(None),
     model_id: int = Form(None),
     kullanim_alani_id: int = Form(None),
+    ip_adresi: str = Form(""),
+    mac: str = Form(""),
+    hostname: str = Form(""),
+    ifs_no: str = Form(""),
     db: Session = Depends(get_db),
     user=Depends(current_user),
 ):
@@ -102,8 +109,14 @@ def create_printer(
     p = Printer(
         marka=marka.name if marka else None,
         model=model.name if model else None,
-        bagli_envanter_no=envanter_no,
+        envanter_no=envanter_no,
+        ip_adresi=ip_adresi or None,
+        mac=mac or None,
+        hostname=hostname or None,
+        ifs_no=ifs_no or None,
         kullanim_alani=area.name if area else None,
+        tarih=datetime.utcnow(),
+        islem_yapan=getattr(user, "full_name", None) or "system",
     )
     db.add(p)
     db.add(
