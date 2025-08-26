@@ -106,6 +106,14 @@ app.include_router(profile.router, prefix="/profile", tags=["Profile"], dependen
 app.include_router(lookup_router)
 app.include_router(refdata.router, dependencies=[Depends(current_user)])
 
+@app.get("/licenses", include_in_schema=False)
+def licenses_list_alias(request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
+    return license_router.license_list(request, db, user)
+
+@app.get("/licenses/{lic_id}", include_in_schema=False)
+def licenses_detail_alias(lic_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
+    return license_router.license_detail(lic_id, request, db)
+
 # Sadece admin
 app.include_router(logs.router, prefix="/logs", tags=["Logs"], dependencies=[Depends(require_roles("admin"))])
 app.include_router(admin_router, dependencies=[Depends(require_roles("admin"))])
