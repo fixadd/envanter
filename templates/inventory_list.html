@@ -11,11 +11,20 @@
       <h5 class="mb-0">Envanter</h5>
     </div>
     <div class="d-flex align-items-center gap-2">
-      <a href="/inventory/export" class="btn btn-outline-success btn-sm">Excel Çıkar</a>
-      <form action="/inventory/import" method="post" enctype="multipart/form-data" class="d-inline">
-        <input type="file" name="file" id="invExcel" class="d-none" onchange="this.form.submit()">
-        <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('invExcel').click()">Excel İçeri Al</button>
-      </form>
+      <div class="dropdown">
+        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Excel
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="/inventory/export">Dışa Aktar</a></li>
+          <li>
+            <form action="/inventory/import" method="post" enctype="multipart/form-data">
+              <input type="file" name="file" id="invExcel" class="d-none" onchange="this.form.submit()">
+              <label for="invExcel" class="dropdown-item mb-0">İçe Aktar</label>
+            </form>
+          </li>
+        </ul>
+      </div>
       <button class="btn btn-outline-secondary btn-sm" id="filterBtn">Filtre</button>
       <button class="btn btn-outline-secondary btn-sm d-none" id="clearFilterBtn">Temizle</button>
       <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Ara...">
