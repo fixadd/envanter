@@ -14,55 +14,37 @@
     <!-- Fabrika / Departman -->
     <div class="col-md-6">
       <label class="form-label">Fabrika</label>
-      <div class="input-group">
-        <button type="button" class="btn btn-outline-secondary lookup-btn" data-entity="fabrika">&#9776;</button>
-        <input id="fabrika_display" type="text" class="form-control lookup-display" placeholder="Seçiniz..." readonly>
-        <input type="hidden" id="fabrika" name="fabrika" required>
-      </div>
+      <input id="fabrika_display" type="text" class="form-control lookup-display" placeholder="Seçiniz..." readonly>
+      <input type="hidden" id="fabrika" name="fabrika" required>
     </div>
     <div class="col-md-6">
       <label class="form-label">Departman</label>
-      <div class="input-group">
-        <button type="button" class="btn btn-outline-secondary lookup-btn" data-entity="departman">&#9776;</button>
-        <input id="departman_display" type="text" class="form-control lookup-display" placeholder="Seçiniz..." readonly>
-        <input type="hidden" id="departman" name="departman" required>
-      </div>
+      <input id="departman_display" type="text" class="form-control lookup-display" placeholder="Seçiniz..." readonly>
+      <input type="hidden" id="departman" name="departman" required>
     </div>
 
     <!-- Donanım Tipi / Sorumlu Personel -->
     <div class="col-md-6">
       <label class="form-label">Donanım Tipi</label>
-      <div class="input-group">
-        <button type="button" class="btn btn-outline-secondary lookup-btn" data-entity="donanim_tipi">&#9776;</button>
-        <input id="donanim_tipi_display" type="text" class="form-control lookup-display" placeholder="Seçiniz..." readonly>
-        <input type="hidden" id="donanim_tipi" name="donanim_tipi" required>
-      </div>
+      <input id="donanim_tipi_display" type="text" class="form-control lookup-display" placeholder="Seçiniz..." readonly>
+      <input type="hidden" id="donanim_tipi" name="donanim_tipi" required>
     </div>
     <div class="col-md-6">
       <label class="form-label">Sorumlu Personel</label>
-      <div class="input-group">
-        <button type="button" class="btn btn-outline-secondary lookup-btn" data-entity="sorumlu_personel">&#9776;</button>
-        <input id="sorumlu_personel_display" type="text" class="form-control lookup-display" placeholder="Seçiniz..." readonly>
-        <input type="hidden" id="sorumlu_personel" name="sorumlu_personel" required>
-      </div>
+      <input id="sorumlu_personel_display" type="text" class="form-control lookup-display" placeholder="Seçiniz..." readonly>
+      <input type="hidden" id="sorumlu_personel" name="sorumlu_personel" required>
     </div>
 
     <!-- Marka / Model -->
     <div class="col-md-6">
       <label class="form-label">Marka</label>
-      <div class="input-group">
-        <button type="button" class="btn btn-outline-secondary lookup-btn" data-entity="marka">&#9776;</button>
-        <input id="marka_display" type="text" class="form-control lookup-display" placeholder="Seçiniz..." readonly>
-        <input type="hidden" id="marka" name="marka" required>
-      </div>
+      <input id="marka_display" type="text" class="form-control lookup-display" placeholder="Seçiniz..." readonly>
+      <input type="hidden" id="marka" name="marka" required>
     </div>
     <div class="col-md-6">
       <label class="form-label">Model</label>
-      <div class="input-group">
-        <button type="button" class="btn btn-outline-secondary lookup-btn" data-entity="model">&#9776;</button>
-        <input id="model_display" type="text" class="form-control lookup-display" placeholder="Seçiniz..." readonly>
-        <input type="hidden" id="model" name="model" required>
-      </div>
+      <input id="model_display" type="text" class="form-control lookup-display" placeholder="Seçiniz..." readonly>
+      <input type="hidden" id="model" name="model" required>
     </div>
 
     <!-- Seri No / IFS No -->
@@ -95,42 +77,37 @@
 </form>
 
 <style>
-  #envanter-ekle .input-group > .lookup-btn { border-top-right-radius: 0; border-bottom-right-radius: 0; }
-  #envanter-ekle .input-group > .lookup-display { border-top-left-radius: 0; border-bottom-left-radius: 0; }
-  #envanter-ekle .lookup-display::placeholder { color: var(--bs-secondary-color); opacity: 1; }
+  #envanter-ekle .lookup-display{ cursor:pointer; }
+  #envanter-ekle .lookup-display.is-invalid{ border-color: var(--bs-danger); }
+  #envanter-ekle .lookup-display::placeholder{ color: var(--bs-secondary-color); opacity: 1; }
 </style>
 
 <script>window.SKIP_SELECT_ENHANCE = true;</script>
 <script>
 (function(){
-  // Burayı kendi seçim modalına bağla; şimdilik prompt ile seçim simüle
+  // Burayı kendi seçim modalına bağla. Şimdilik prompt ile simüle:
   function openPicker(entity, current){
     const v = prompt(entity.toUpperCase() + " seçin:", current || "");
     return (v && v.trim()) ? { id:v.trim(), text:v.trim() } : null;
   }
-  function pickAndFill(entity){
+  function bind(entity){
     const hid = document.getElementById(entity);
     const dsp = document.getElementById(entity + '_display');
-    const p = openPicker(entity, hid.value);
-    if(!p) return;
-    hid.value = p.id; dsp.value = p.text;
-    dsp.classList.remove('is-invalid');
+    dsp.addEventListener('click', ()=>{
+      const p = openPicker(entity, hid.value);
+      if(!p) return;
+      hid.value = p.id; dsp.value = p.text; dsp.classList.remove('is-invalid');
+    });
   }
-  document.querySelectorAll('#envanter-ekle .lookup-btn').forEach(b=>{
-    b.addEventListener('click', ()=>pickAndFill(b.dataset.entity));
-  });
-  document.querySelectorAll('#envanter-ekle .lookup-display').forEach(d=>{
-    const entity = d.id.replace('_display','');
-    d.addEventListener('click', ()=>pickAndFill(entity));
-  });
+  ["fabrika","departman","donanim_tipi","sorumlu_personel","marka","model"].forEach(bind);
 
-  // submit’te required hidden’ları kontrol et
-  const form = document.querySelector('#envanter-ekle').closest('form');
-  form.addEventListener('submit', (e)=>{
+  // submit öncesi required hidden kontrolü
+  document.querySelector('#envanter-ekle').closest('form').addEventListener('submit', (e)=>{
     let ok = true;
-    document.querySelectorAll('#envanter-ekle input[type="hidden"][required]').forEach(h=>{
-      const d = document.getElementById(h.id + '_display');
-      if(!h.value){ ok = false; d.classList.add('is-invalid'); }
+    ["fabrika","departman","donanim_tipi","sorumlu_personel","marka","model"].forEach(id=>{
+      const hid = document.getElementById(id);
+      const dsp = document.getElementById(id + "_display");
+      if(!hid.value){ ok = false; dsp.classList.add('is-invalid'); }
     });
     if(!ok){ e.preventDefault(); e.stopPropagation(); }
   });
