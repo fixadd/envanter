@@ -41,14 +41,23 @@
             {% if row.durum == 'hurda' %}<span class="badge bg-secondary">Hurda</span>
             {% else %}<span class="badge bg-success">Aktif</span>{% endif %}
           </td>
-          <td>
-            <select class="form-select form-select-sm action-select" data-id="{{ row.id }}">
-              <option value="">İşlem seçin…</option>
-              <option value="assign" {% if row.durum == 'hurda' %}disabled{% endif %}>Atama Yap</option>
-              <option value="edit">Düzenle</option>
-              <option value="scrap" {% if row.durum == 'hurda' %}disabled{% endif %}>Hurdaya Ayır</option>
-            </select>
-          </td>
+            <td class="text-end">
+              <div class="dropdown position-static">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        data-bs-display="static"
+                        aria-expanded="false">
+                  İşlemler
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                  <li><a class="dropdown-item{% if row.durum == 'hurda' %} disabled{% endif %}" href="#" data-action="assign" data-id="{{ row.id }}">Atama Yap</a></li>
+                  <li><a class="dropdown-item" href="/lisans/{{ row.id }}">Düzenle</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item text-danger{% if row.durum == 'hurda' %} disabled{% endif %}" href="#" data-action="scrap" data-id="{{ row.id }}">Hurdaya Ayır</a></li>
+                </ul>
+              </div>
+            </td>
         </tr>
         {% endfor %}
       </tbody>
@@ -93,41 +102,40 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-  const selects = document.querySelectorAll(".action-select");
-  const assignModal = new bootstrap.Modal(document.getElementById('assignModal'));
-  const assignForm  = document.getElementById('assignForm');
+  document.addEventListener("DOMContentLoaded", function() {
+    const assignModal = new bootstrap.Modal(document.getElementById('assignModal'));
+    const assignForm  = document.getElementById('assignForm');
 
-  selects.forEach(sel => {
-    sel.addEventListener("change", () => {
-      const id = sel.dataset.id;
-      const v = sel.value;
-      if (!v) return;
+    document.querySelectorAll('.dropdown-menu [data-action]').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (item.classList.contains('disabled')) return;
 
-      if (v === "assign") {
-        assignForm.action = `/lisans/${id}/assign`;
-        assignModal.show();
-      } else if (v === "edit") {
-        window.location.href = `/lisans/${id}`; // license_detail sayfası
-      } else if (v === "scrap") {
-        const f = document.createElement("form");
-        f.method = "post";
-        f.action = `/lisans/${id}/scrap`;
-        const who = document.createElement("input");
-        who.name = "islem_yapan";
-        who.value = "{{ current_user.full_name if current_user else 'system' }}";
-        f.appendChild(who);
-        document.body.appendChild(f);
-        f.submit();
-      }
-      sel.value = "";
+        const id = item.dataset.id;
+        const action = item.dataset.action;
+
+        if (action === 'assign') {
+          assignForm.action = `/lisans/${id}/assign`;
+          assignModal.show();
+        } else if (action === 'scrap') {
+          const f = document.createElement('form');
+          f.method = 'post';
+          f.action = `/lisans/${id}/scrap`;
+          const who = document.createElement('input');
+          who.name = 'islem_yapan';
+          who.value = "{{ current_user.full_name if current_user else 'system' }}";
+          f.appendChild(who);
+          document.body.appendChild(f);
+          f.submit();
+        }
+      });
     });
-  });
 
-  if (window.Choices) {
-    new Choices("#selPersonel", { searchEnabled: true, shouldSort: false });
-    new Choices("#selBagli", { searchEnabled: true, shouldSort: false });
-  }
-});
+    if (window.Choices) {
+      new Choices("#selPersonel", { searchEnabled: true, shouldSort: false });
+      new Choices("#selBagli", { searchEnabled: true, shouldSort: false });
+    }
+  });
 </script>
 {% endblock %}
