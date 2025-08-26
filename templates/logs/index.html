@@ -11,10 +11,65 @@
 </ul>
 <div class="tab-content pt-3">
   <div class="tab-pane fade show active" id="userlogs" role="tabpanel" aria-labelledby="userlogs-tab">
-    <div class="card p-3">Kullanıcı kayıtları listesi...</div>
+    <div class="card p-0">
+      <div class="table-responsive">
+        <table class="table table-sm table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Kullanıcı</th>
+              <th>İşlem</th>
+              <th>Envanter No</th>
+              <th>Tarih</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for log, inv_no in user_logs %}
+            <tr>
+              <td>{{ log.actor }}</td>
+              <td>{{ log.action }}</td>
+              <td>{{ inv_no }}</td>
+              <td>{{ log.created_at }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="4" class="text-muted">Kayıt yok</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
   <div class="tab-pane fade" id="inventorylogs" role="tabpanel" aria-labelledby="inventorylogs-tab">
-    <div class="card p-3">Envanter kayıtları listesi...</div>
+    <div class="card p-0">
+      <div class="table-responsive">
+        <table class="table table-sm table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Envanter No</th>
+              <th>İşlem</th>
+              <th>Önce</th>
+              <th>Sonra</th>
+              <th>Kullanıcı</th>
+              <th>Tarih</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for log, inv_no in inventory_logs %}
+            <tr>
+              <td>{{ inv_no }}</td>
+              <td>{{ log.action }}</td>
+              <td class="text-muted"><pre class="mb-0">{{ log.before_json }}</pre></td>
+              <td><pre class="mb-0">{{ log.after_json }}</pre></td>
+              <td>{{ log.actor }}</td>
+              <td>{{ log.created_at }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="6" class="text-muted">Kayıt yok</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
+
