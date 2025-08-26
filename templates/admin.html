@@ -84,20 +84,15 @@
       <form method="post" action="/admin/products/create" class="row g-3">
         <div class="col-md-4">
           <label class="form-label">Donanım Tipi</label>
-          <select class="form-select" name="donanim_tipi" required>
-            <option value="">Seçiniz</option>
-            {% for t in lookup_donanim_tipleri or [] %}
-              <option value="{{ t.value }}">{{ t.value }}</option>
-            {% endfor %}
-          </select>
+          <select class="form-select" name="donanim_tipi" id="selDonanimTipi" required></select>
         </div>
         <div class="col-md-4">
           <label class="form-label">Marka</label>
-          <input class="form-control" name="marka">
+          <select class="form-select" name="marka" id="selMarka"></select>
         </div>
         <div class="col-md-4">
           <label class="form-label">Model</label>
-          <input class="form-control" name="model">
+          <select class="form-select" name="model" id="selModel"></select>
         </div>
 
         <div class="col-md-4">
@@ -115,12 +110,7 @@
         </div>
         <div class="col-md-4">
           <label class="form-label">Bağlı Envanter No</label>
-          <select class="form-select" name="bagli_envanter_no" id="selBagliEnvanter">
-            <option value="">Seçiniz</option>
-            {% for inv in inventory_refs or [] %}
-              <option value="{{ inv.no }}">{{ inv.no }} — {{ inv.marka }} {{ inv.model }}</option>
-            {% endfor %}
-          </select>
+          <select class="form-select" name="bagli_envanter_no" id="selBagliEnvanter"></select>
         </div>
 
         <div class="col-12">
@@ -175,18 +165,28 @@
 
 {% block scripts %}
   {{ super() }}
-  <!-- URL hash ile sekme açma (örn: /admin#products) -->
+  <script src="/static/js/choices_helpers.js"></script>
   <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        await choicesHelper.fillChoices({ endpoint: "/api/lookup/donanim-tipi", selectId: "selDonanimTipi", placeholder: "Donanım tipi seçiniz…" });
+        await choicesHelper.fillChoices({ endpoint: "/api/lookup/marka", selectId: "selMarka", placeholder: "Marka seçiniz…" });
+        choicesHelper.bindBrandToModel("selMarka", "selModel");
+        choicesHelper.initPersonelChoices("selPersonel", "Personel seçiniz…");
+        await choicesHelper.initBagliEnvanterChoices("selBagliEnvanter");
+      } catch (e) { console.error(e); }
+    });
+
+    // URL hash ile sekme açma (örn: /admin#products)
     (function() {
       const triggerTabList = [].slice.call(document.querySelectorAll('#adminTabs button'))
       triggerTabList.forEach(function (triggerEl) {
         triggerEl.addEventListener('shown.bs.tab', function (event) {
-          const target = event.target.getAttribute('data-bs-target'); // "#pane-products"
+          const target = event.target.getAttribute('data-bs-target');
           history.replaceState(null, '', '#' + target.replace('#pane-',''));
         });
       });
 
-      // İlk yüklemede hash’e göre sekme aç
       const hash = location.hash.replace('#','');
       if (hash) {
         const btn = document.querySelector(`[data-bs-target="#pane-${hash}"]`);
