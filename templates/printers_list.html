@@ -21,7 +21,6 @@
     <table class="table table-sm align-middle">
       <thead class="table-light">
         <tr>
-          <th style="width:48px;">Gör</th>
           <th data-field="id">ID</th>
           <th data-field="marka">Marka</th>
           <th data-field="model">Model</th>
@@ -37,11 +36,6 @@
       <tbody>
         {% for p in printers %}
         <tr data-id="{{ p.id }}">
-          <td>
-            <a class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center" style="width:36px;height:36px;" href="/printers/{{ p.id }}" title="Görüntüle">
-              <i class="bi bi-eye"></i>
-            </a>
-          </td>
           <td>#{{ p.id }}</td>
           <td>{{ p.marka or '-' }}</td>
           <td>{{ p.model or '-' }}</td>
@@ -57,16 +51,10 @@
               <span class="badge text-bg-success">Aktif</span>
             {% endif %}
           </td>
-          <td>
-            <div class="d-flex flex-wrap gap-2">
-              <select class="form-select form-select-sm action-select" style="min-width:160px;">
-                <option value="">İşlem seçin…</option>
-                <option value="assign">Atama Yap</option>
-                <option value="edit">Düzenle</option>
-                <option value="scrap">Hurdaya Ayır</option>
-              </select>
-              <button class="btn btn-sm btn-primary action-go">Git</button>
-            </div>
+          <td class="text-nowrap">
+            {% set entity = 'printers' %}
+            {% set row_id = p.id %}
+            {% include 'partials/_actions_menu.html' %}
           </td>
         </tr>
         {% endfor %}
