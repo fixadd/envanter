@@ -6,6 +6,7 @@ from database import get_db
 from models import License, LicenseLog, Inventory
 from fastapi.templating import Jinja2Templates
 from security import current_user
+from datetime import datetime
 
 router = APIRouter(prefix="/lisans", tags=["Lisans"])
 templates = Jinja2Templates(directory="templates")
@@ -36,8 +37,10 @@ def new_license_post(
     anahtar: str = Form(""),
     sorumlu_personel: str = Form(""),
     inventory_id: int = Form(None),
-    islem_yapan: str = Form("system"),
+    ifs_no: str = Form(""),
+    mail_adresi: str = Form(""),
     db: Session = Depends(get_db),
+    user = Depends(current_user),
 ):
     inv = db.query(Inventory).get(inventory_id) if inventory_id else None
     lic = License(
@@ -46,10 +49,14 @@ def new_license_post(
         sorumlu_personel=sorumlu_personel or None,
         inventory_id=inv.id if inv else None,
         bagli_envanter_no=getattr(inv, "no", None),
+        ifs_no=ifs_no or None,
+        mail_adresi=mail_adresi or None,
+        tarih=datetime.utcnow(),
+        islem_yapan=getattr(user, "full_name", None) or "system",
     )
     db.add(lic)
     db.commit()
-    _logla(db, lic, "EKLE", "Lisans oluşturuldu", islem_yapan)
+    _logla(db, lic, "EKLE", "Lisans oluşturuldu", getattr(user, "full_name", None) or "system")
     db.commit()
     return RedirectResponse(url=request.url_for("license_list"), status_code=status.HTTP_303_SEE_OTHER)
 
