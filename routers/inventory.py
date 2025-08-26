@@ -23,6 +23,14 @@ templates = Jinja2Templates(directory="templates")
 
 router = APIRouter(prefix="/inventory", tags=["inventory"])
 
+
+def current_full_name(request: Request) -> str:
+    return (
+        request.session.get("full_name")
+        or getattr(getattr(request, "user", None), "full_name", None)
+        or "Bilinmeyen Kullanıcı"
+    )
+
 @router.get("", name="inventory.list")
 def list_items(request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
   items = (
@@ -36,6 +44,44 @@ def list_items(request: Request, db: Session = Depends(get_db), user=Depends(cur
 @router.get("/new", name="inventory.new")
 def new_page(request: Request, user=Depends(current_user)):
   return templates.TemplateResponse("inventory_add.html", {"request": request})
+
+
+@router.post("/create")
+def create_inventory(
+    request: Request,
+    envanter_no: str = Form(...),
+    fabrika: str = Form(...),
+    departman: str = Form(...),
+    donanim_tipi: str = Form(...),
+    bilgisayar_adi: str = Form(...),
+    marka: str = Form(...),
+    model: str = Form(...),
+    seri_no: str = Form(...),
+    sorumlu_personel: str = Form(...),
+    bagli_envanter_no: str = Form(None),
+    notlar: str = Form(None),
+    ifs_no: str = Form(None),
+    db: Session = Depends(get_db),
+):
+    rec = Inventory(
+        no=envanter_no,
+        fabrika=fabrika,
+        departman=departman,
+        donanim_tipi=donanim_tipi,
+        bilgisayar_adi=bilgisayar_adi,
+        marka=marka,
+        model=model,
+        seri_no=seri_no,
+        sorumlu_personel=sorumlu_personel,
+        bagli_envanter_no=bagli_envanter_no,
+        not_=notlar,
+        ifs_no=ifs_no,
+        tarih=datetime.now(),
+        islem_yapan=current_full_name(request),
+    )
+    db.add(rec)
+    db.commit()
+    return RedirectResponse(url="/inventory", status_code=303)
 
 @router.post("/new", name="inventory.new_post")
 async def new_post(request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
