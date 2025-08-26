@@ -6,7 +6,17 @@ from datetime import datetime
 from fastapi.templating import Jinja2Templates
 
 from database import get_db
-from models import Inventory, InventoryLog, ScrapItem, User, Factory
+from models import (
+    Inventory,
+    InventoryLog,
+    ScrapItem,
+    User,
+    Factory,
+    Brand,
+    Model,
+    UsageArea,
+    HardwareType,
+)
 from security import current_user
 
 templates = Jinja2Templates(directory="templates")
@@ -30,15 +40,23 @@ def new_page(request: Request, user=Depends(current_user)):
 @router.post("/new", name="inventory.new_post")
 async def new_post(request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
   form = dict(await request.form())
+
+  brand = db.get(Brand, int(form.get("marka"))) if form.get("marka") else None
+  model_obj = db.get(Model, int(form.get("model"))) if form.get("model") else None
+  usage = db.get(UsageArea, int(form.get("kullanim_alani"))) if form.get("kullanim_alani") else None
+  hw = db.get(HardwareType, int(form.get("donanim_tipi"))) if form.get("donanim_tipi") else None
+  factory = db.get(Factory, int(form.get("fabrika"))) if form.get("fabrika") else None
+
   inv = Inventory(
     no=form.get("no") or f"INV{int(datetime.utcnow().timestamp())}",
-    fabrika=form.get("fabrika"),
+    fabrika=factory.name if factory else None,
     departman=form.get("departman"),
-    donanim_tipi=form.get("donanim_tipi"),
+    donanim_tipi=hw.name if hw else None,
     bilgisayar_adi=form.get("bilgisayar_adi"),
-    marka=form.get("marka"),
-    model=form.get("model"),
+    marka=brand.name if brand else None,
+    model=model_obj.name if model_obj else None,
     seri_no=form.get("seri_no"),
+    kullanim_alani=usage.name if usage else None,
     ifs_no=form.get("ifs_no"),
     not_=form.get("not") or None,
     tarih=datetime.utcnow(),
