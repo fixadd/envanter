@@ -34,3 +34,20 @@
   font-weight: 600;
   font-size: .75rem;
 }
+
+/* Dropdown hep üstte kalsın */
+.dropdown-menu {
+  z-index: 2000 !important;
+}
+
+/* Tablo ve kart içinde kesilmesin */
+.table-responsive,
+.card-body,
+.collapse {
+  overflow: visible !important;
+}
+
+/* Popper hesaplaması için bazen transform alan ebeveynler sorun çıkarır */
+.card, .container-fluid, .content-wrapper {
+  transform: none !important; /* varsa */
+}
