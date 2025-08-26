@@ -123,7 +123,7 @@
           <select class="form-select js-choices" name="bagli_envanter_no" id="selBagliEnvanter">
             <option value="">Seçiniz…</option>
             {% for inv in inventory_refs or [] %}
-              <option value="{{ inv.envanter_no }}">{{ inv.envanter_no }} — {{ inv.marka }} {{ inv.model }}</option>
+              <option value="{{ inv.no }}">{{ inv.no }} — {{ inv.marka }} {{ inv.model }}</option>
             {% endfor %}
           </select>
         </div>

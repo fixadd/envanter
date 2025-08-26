@@ -30,7 +30,7 @@ def admin_index(request: Request, db: Session = Depends(get_db)):
         "lookup_markalar": get("marka"),
         "lookup_modeller": get("model"),
         "inventory_refs": db.query(Inventory).with_entities(
-            Inventory.envanter_no, Inventory.marka, Inventory.model
+            Inventory.no, Inventory.marka, Inventory.model
         ).limit(300).all(),
     }
     return templates.TemplateResponse("admin.html", ctx)
