@@ -1,6 +1,13 @@
 {% extends "base.html" %}{% block title %}Talepler – Liste{% endblock %}
 {% block content %}
 <h2 class="h5 mb-3">Talepler</h2>
+<div class="mb-3">
+  <a href="/requests/export" class="btn btn-outline-success btn-sm me-2">Excel Çıkar</a>
+  <form action="/requests/import" method="post" enctype="multipart/form-data" class="d-inline">
+    <input type="file" name="file" id="reqExcel" class="d-none" onchange="this.form.submit()">
+    <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('reqExcel').click()">Excel İçeri Al</button>
+  </form>
+</div>
 <ul class="nav nav-tabs" id="requestTab" role="tablist">
   <li class="nav-item" role="presentation">
     <button class="nav-link active" id="aktif-tab" data-bs-toggle="tab" data-bs-target="#aktif" type="button" role="tab">Aktif Talepler</button>

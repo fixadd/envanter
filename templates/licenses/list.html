@@ -1,5 +1,12 @@
 {% extends "base.html" %}{% block title %}Lisans – Liste{% endblock %}
 {% block content %}
 <h2 class="h5 mb-3">Lisans Listesi</h2>
+<div class="mb-3">
+  <a href="/licenses/export" class="btn btn-outline-success btn-sm me-2">Excel Çıkar</a>
+  <form action="/licenses/import" method="post" enctype="multipart/form-data" class="d-inline">
+    <input type="file" name="file" id="licensesExcel" class="d-none" onchange="this.form.submit()">
+    <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('licensesExcel').click()">Excel İçeri Al</button>
+  </form>
+</div>
 <div class="card p-3">Liste/filtre...</div>
 {% endblock %}

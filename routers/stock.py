@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi import APIRouter, Depends, Form, HTTPException, Request, UploadFile, File
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, PlainTextResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -13,6 +13,14 @@ from models import StockAssignment, StockLog
 
 router = APIRouter(prefix="/stock", tags=["Stock"])
 templates = Jinja2Templates(directory="templates")
+
+@router.get("/export", response_class=PlainTextResponse)
+async def export_stock():
+    return "Excel export is not implemented yet."
+
+@router.post("/import", response_class=PlainTextResponse)
+async def import_stock(file: UploadFile = File(...)):
+    return f"Received {file.filename}, but import is not implemented."
 
 
 def current_stock(db: Session):
