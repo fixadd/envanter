@@ -1,7 +1,13 @@
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, UploadFile, File
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, PlainTextResponse
+from fastapi.responses import (
+    HTMLResponse,
+    JSONResponse,
+    RedirectResponse,
+    PlainTextResponse,
+    StreamingResponse,
+)
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -14,9 +20,40 @@ from models import StockAssignment, StockLog
 router = APIRouter(prefix="/stock", tags=["Stock"])
 templates = Jinja2Templates(directory="templates")
 
-@router.get("/export", response_class=PlainTextResponse)
-async def export_stock():
-    return "Excel export is not implemented yet."
+@router.get("/export")
+async def export_stock(db: Session = Depends(get_db)):
+    """Export stock logs as an Excel file."""
+    from openpyxl import Workbook
+    from io import BytesIO
+
+    wb = Workbook()
+    ws = wb.active
+    ws.append(["ID", "Donanım Tipi", "Miktar", "IFS No", "Tarih", "İşlem", "İşlem Yapan"])
+
+    logs = db.query(StockLog).order_by(StockLog.id.asc()).all()
+    for l in logs:
+        ws.append(
+            [
+                l.id,
+                l.donanim_tipi,
+                l.miktar,
+                l.ifs_no,
+                l.tarih,
+                l.islem,
+                l.actor,
+            ]
+        )
+
+    stream = BytesIO()
+    wb.save(stream)
+    stream.seek(0)
+
+    headers = {"Content-Disposition": "attachment; filename=stock_logs.xlsx"}
+    return StreamingResponse(
+        stream,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers=headers,
+    )
 
 @router.post("/import", response_class=PlainTextResponse)
 async def import_stock(file: UploadFile = File(...)):

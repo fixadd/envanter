@@ -1,15 +1,36 @@
 # routers/requests.py
-from fastapi import APIRouter, Request, UploadFile, File
-from fastapi.responses import HTMLResponse, PlainTextResponse
+from fastapi import APIRouter, Request, UploadFile, File, Depends
+from fastapi.responses import HTMLResponse, PlainTextResponse, StreamingResponse
+from sqlalchemy.orm import Session
+from database import get_db
 from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
-@router.get("/export", response_class=PlainTextResponse)
-async def export_requests():
-    return "Excel export is not implemented yet."
+@router.get("/export")
+async def export_requests(db: Session = Depends(get_db)):
+    """Export request records as an Excel file."""
+    from openpyxl import Workbook
+    from io import BytesIO
+
+    wb = Workbook()
+    ws = wb.active
+    ws.append(["ID", "Açıklama", "Durum", "Tarih"])
+
+    # No Request model is defined yet, so this export will return only headers.
+
+    stream = BytesIO()
+    wb.save(stream)
+    stream.seek(0)
+
+    headers = {"Content-Disposition": "attachment; filename=requests.xlsx"}
+    return StreamingResponse(
+        stream,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers=headers,
+    )
 
 
 @router.post("/import", response_class=PlainTextResponse)

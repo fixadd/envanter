@@ -1,5 +1,11 @@
 from fastapi import APIRouter, Depends, Request, Form, HTTPException, UploadFile, File
-from fastapi.responses import RedirectResponse, JSONResponse, HTMLResponse, PlainTextResponse
+from fastapi.responses import (
+    RedirectResponse,
+    JSONResponse,
+    HTMLResponse,
+    PlainTextResponse,
+    StreamingResponse,
+)
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from typing import Optional, Dict, Any
@@ -16,9 +22,69 @@ router = APIRouter(prefix="/printers", tags=["Printers"])
 USE_SCRAP_TABLE = True
 
 
-@router.get("/export", response_class=PlainTextResponse)
-async def export_printers():
-    return "Excel export is not implemented yet."
+@router.get("/export")
+async def export_printers(db: Session = Depends(get_db)):
+    """Export printer records as an Excel file."""
+    from openpyxl import Workbook
+    from io import BytesIO
+
+    wb = Workbook()
+    ws = wb.active
+    headers = [
+        "ID",
+        "Envanter No",
+        "Marka",
+        "Model",
+        "Seri No",
+        "Fabrika",
+        "Kullanım Alanı",
+        "Sorumlu Personel",
+        "Bağlı Envanter No",
+        "IP Adresi",
+        "MAC",
+        "Hostname",
+        "IFS No",
+        "Tarih",
+        "İşlem Yapan",
+        "Durum",
+        "Notlar",
+    ]
+    ws.append(headers)
+
+    rows = db.query(Printer).order_by(Printer.id.asc()).all()
+    for r in rows:
+        ws.append(
+            [
+                r.id,
+                r.envanter_no,
+                r.marka,
+                r.model,
+                r.seri_no,
+                r.fabrika,
+                r.kullanim_alani,
+                r.sorumlu_personel,
+                r.bagli_envanter_no,
+                r.ip_adresi,
+                r.mac,
+                r.hostname,
+                r.ifs_no,
+                r.tarih,
+                r.islem_yapan,
+                r.durum,
+                r.notlar,
+            ]
+        )
+
+    stream = BytesIO()
+    wb.save(stream)
+    stream.seek(0)
+
+    headers = {"Content-Disposition": "attachment; filename=printers.xlsx"}
+    return StreamingResponse(
+        stream,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers=headers,
+    )
 
 
 @router.post("/import", response_class=PlainTextResponse)
