@@ -6,8 +6,9 @@
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h5 class="mb-0">Stok Logları (En Güncel)</h5>
     <div class="d-flex gap-2">
-      <a href="/stock/new" class="btn btn-success btn-sm" title="Yeni Ekle">
+      <a href="#" id="addBtn" class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle">
         <i class="bi bi-plus-lg"></i>
+        <span>Ekle</span>
       </a>
       <button id="btnDurum" class="btn btn-outline-primary btn-sm">Stock Durumu</button>
       <button id="btnAtama" class="btn btn-primary btn-sm">Atama</button>
@@ -71,6 +72,21 @@
         {% endfor %}
       </tbody>
     </table>
+  </div>
+</div>
+
+<!-- Yeni Ekle Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Stok Ekle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <iframe id="addFrame" src="" style="width:100%;height:70vh;border:0;"></iframe>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -157,6 +173,12 @@
 (function(){
   const durumModal = new bootstrap.Modal(document.getElementById('durumModal'));
   const atamaModal = new bootstrap.Modal(document.getElementById('atamaModal'));
+  const addModal   = new bootstrap.Modal(document.getElementById('addModal'));
+
+  document.getElementById('addBtn').addEventListener('click', () => {
+    document.getElementById('addFrame').src = '/stock/new';
+    addModal.show();
+  });
 
   // Stock Durumu
   document.getElementById('btnDurum').addEventListener('click', async ()=>{
