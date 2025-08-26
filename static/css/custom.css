@@ -51,3 +51,9 @@
 .card, .container-fluid, .content-wrapper {
   transform: none !important; /* varsa */
 }
+/* + ve - butonlarında focus çizgisini kaldır */
+.add-row:focus,
+.remove-row:focus {
+  box-shadow: none;
+  outline: none;
+}
