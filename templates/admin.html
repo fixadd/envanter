@@ -55,7 +55,7 @@
     <div class="tab-pane fade" id="pane-products" role="tabpanel" aria-labelledby="tab-products">
       <h5 class="mb-3">Ürün / Envanter Ekle</h5>
 
-      <form method="post" action="/admin/products/create" class="row g-3">
+      <form id="urun-ekle" method="post" action="/admin/products/create" class="row g-3">
 
         {# 1. satır: Kullanım Alanı, Lisans Adı, Fabrika #}
         {% set fields1 = [
@@ -65,20 +65,16 @@
         ] %}
         {% for f in fields1 %}
         <div class="col-md-4">
-          <label class="form-label d-flex justify-content-between align-items-center">
-            <span>{{ f.title }}</span>
-            <button type="button" class="btn btn-sm btn-outline-secondary lm-open"
-                    data-lm-type="{{ f.type }}" data-lm-title="{{ f.title }}"
-                    data-lm-select="[name='{{ f.name }}']" title="{{ f.title }} değerlerini yönet">
-              <i class="bi bi-list"></i>
-            </button>
-          </label>
-          <select class="form-select js-choices" name="{{ f.name }}">
-            <option value="">Seçiniz…</option>
-            {% for r in f.data or [] %}
-              <option value="{{ r.value }}">{{ r.value }}</option>
-            {% endfor %}
-          </select>
+          <label class="form-label">{{ f.title }}</label>
+          <div class="input-group">
+            <select class="form-select" name="{{ f.name }}">
+              <option value="">Seçiniz…</option>
+              {% for r in f.data or [] %}
+                <option value="{{ r.value }}">{{ r.value }}</option>
+              {% endfor %}
+            </select>
+            <button type="button" class="btn btn-outline-secondary lookup-btn" data-entity="{{ f.type }}" aria-label="{{ f.title }}">&#9776;</button>
+          </div>
         </div>
         {% endfor %}
 
@@ -90,24 +86,70 @@
         ] %}
         {% for f in fields2 %}
         <div class="col-md-4">
-          <label class="form-label d-flex justify-content-between align-items-center">
-            <span>{{ f.title }}</span>
-            <button type="button" class="btn btn-sm btn-outline-secondary lm-open"
-                    data-lm-type="{{ f.type }}" data-lm-title="{{ f.title }}"
-                    data-lm-select="[name='{{ f.name }}']" title="{{ f.title }} değerlerini yönet">
-              <i class="bi bi-list"></i>
-            </button>
-          </label>
-          <select class="form-select js-choices" name="{{ f.name }}" {% if f.name=='donanim_tipi' %}required{% endif %}>
-            <option value="">Seçiniz…</option>
-            {% for r in f.data or [] %}
-              <option value="{{ r.value }}">{{ r.value }}</option>
-            {% endfor %}
-          </select>
+          <label class="form-label">{{ f.title }}</label>
+          <div class="input-group">
+            <select class="form-select" name="{{ f.name }}" {% if f.name=='donanim_tipi' %}required{% endif %}>
+              <option value="">Seçiniz…</option>
+              {% for r in f.data or [] %}
+                <option value="{{ r.value }}">{{ r.value }}</option>
+              {% endfor %}
+            </select>
+            <button type="button" class="btn btn-outline-secondary lookup-btn" data-entity="{{ f.type }}" aria-label="{{ f.title }}">&#9776;</button>
+          </div>
         </div>
         {% endfor %}
 
       </form>
+
+      <!-- ÜRÜN EKLE: select'leri kaldır, ≡ butonları bırak -->
+      <style>
+        /* Sadece Ürün/Envanter Ekle alanına uygula */
+        #urun-ekle .input-group { align-items: center; gap: 8px; }
+        #urun-ekle .input-group > select.form-select { display: none !important; } /* selectleri gizle */
+        #urun-ekle .lookup-btn { width:38px;height:38px;line-height:1;padding:0 }
+        #urun-ekle .selected-text{ font-size:.9rem }
+      </style>
+
+      <script>
+        // Ürün/Envanter Ekle kutusundaki her alanı dön:
+        (function(){
+          const root = document.getElementById('urun-ekle');      // bu id o karta verilmeli
+          if(!root) return;
+
+          root.querySelectorAll('.input-group').forEach(group=>{
+            const btn = group.querySelector('.lookup-btn');       // ≡ butonu
+            const sel = group.querySelector('select.form-select'); // mevcut select
+            if(!btn || !sel) return;
+
+            // Aynı isimle gizli input oluştur (backend kırılmasın)
+            const hidden = document.createElement('input');
+            hidden.type  = 'hidden';
+            hidden.name  = sel.name;
+            hidden.id    = sel.id || sel.name;
+            group.appendChild(hidden);
+
+            // Seçilen değeri göstermek istersen (başta boş, "Seçiniz" YOK)
+            const label = document.createElement('span');
+            label.className = 'selected-text text-muted d-none';
+            group.appendChild(label);
+
+            // Select'i tamamen kaldır (DOM'dan sök + zaten CSS ile gizli)
+            sel.remove();
+
+            // ≡ butonuna seçim davranışı bağla (şimdilik prompt; kendi modalını çağır)
+            btn.addEventListener('click', ()=>{
+              const entity = btn.dataset.entity || hidden.name;
+              // TODO: burada kendi seçim modalını aç
+              const v = prompt((entity.toUpperCase()+' seçin:'));
+              if(v && v.trim()){
+                hidden.value = v.trim();
+                label.textContent = v.trim();
+                label.classList.remove('d-none','text-muted');
+              }
+            });
+          });
+        })();
+      </script>
     </div>
 
     <div class="tab-pane fade" id="pane-connections" role="tabpanel" aria-labelledby="tab-connections">
