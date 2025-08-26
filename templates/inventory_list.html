@@ -90,26 +90,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <div class="mb-2">
-          <label class="form-label">Envanter No</label>
-          <input type="text" name="no" class="form-control form-control-sm">
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Fabrika</label>
-          <input type="text" name="fabrika" class="form-control form-control-sm">
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Departman</label>
-          <input type="text" name="departman" class="form-control form-control-sm">
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Sorumlu</label>
-          <input type="text" name="sorumlu" class="form-control form-control-sm">
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Marka/Model</label>
-          <input type="text" name="marka" class="form-control form-control-sm">
-        </div>
+        <div id="filterRows"></div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Kapat</button>
@@ -188,7 +169,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('searchInput');
   const filterForm  = document.getElementById('filterForm');
   const clearBtn    = document.getElementById('clearFilterBtn');
-  const activeFilters = {};
+  const filterRowsDiv = document.getElementById('filterRows');
+  let activeFilters = [];
+  const columns = Array.from(document.querySelectorAll('table thead th'))
+    .map((th, idx) => ({ idx, name: th.textContent.trim() }))
+    .filter(c => c.name && c.name !== 'İşlemler');
 
   document.getElementById('addBtn').addEventListener('click', () => {
     document.getElementById('addFrame').src = '/inventory/new';
@@ -197,27 +182,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('filterBtn').addEventListener('click', () => {
     filterForm.reset();
+    filterRowsDiv.innerHTML = '';
+    createFilterRow();
     filterModal.show();
   });
 
   clearBtn.addEventListener('click', () => {
-    Object.keys(activeFilters).forEach(k => delete activeFilters[k]);
-    filterForm.reset();
+    activeFilters = [];
     filterRows();
     clearBtn.classList.add('d-none');
   });
 
   searchInput.addEventListener('input', filterRows);
 
+  function createFilterRow() {
+    const row = document.createElement('div');
+    row.className = 'row g-2 align-items-center mb-2 filter-row';
+    row.innerHTML = `
+      <div class="col-5">
+        <select class="form-select form-select-sm column-select">
+          ${columns.map(c => `<option value="${c.idx}">${c.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="col-5">
+        <input type="text" class="form-control form-control-sm value-input">
+      </div>
+      <div class="col-2 d-flex gap-1">
+        <button type="button" class="btn btn-success btn-sm add-row">+</button>
+        <button type="button" class="btn btn-danger btn-sm remove-row">-</button>
+      </div>`;
+    filterRowsDiv.appendChild(row);
+    updateRemoveButtons();
+  }
+
+  function updateRemoveButtons() {
+    const rows = filterRowsDiv.querySelectorAll('.filter-row');
+    rows.forEach(r => r.querySelector('.remove-row').classList.toggle('d-none', rows.length === 1));
+  }
+
+  filterForm.addEventListener('click', (e) => {
+    if (e.target.classList.contains('add-row')) {
+      createFilterRow();
+    } else if (e.target.classList.contains('remove-row')) {
+      e.target.closest('.filter-row').remove();
+      updateRemoveButtons();
+    }
+  });
+
   filterForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const fd = new FormData(filterForm);
-    ['no','fabrika','departman','sorumlu','marka'].forEach(k => {
-      const v = (fd.get(k) || '').trim().toLowerCase();
-      if (v) activeFilters[k] = v; else delete activeFilters[k];
+    activeFilters = [];
+    filterRowsDiv.querySelectorAll('.filter-row').forEach(row => {
+      const col = parseInt(row.querySelector('.column-select').value, 10);
+      const val = row.querySelector('.value-input').value.trim().toLowerCase();
+      if (val) activeFilters.push({ col, val });
     });
     filterModal.hide();
-    clearBtn.classList.toggle('d-none', Object.keys(activeFilters).length === 0);
+    clearBtn.classList.toggle('d-none', activeFilters.length === 0);
     filterRows();
   });
 
@@ -227,11 +248,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const cells = tr.querySelectorAll('td');
       const texts = Array.from(cells).map(td => td.textContent.toLowerCase());
       let match = texts.some(t => t.includes(q));
-      if (activeFilters.no) match = match && texts[1].includes(activeFilters.no);
-      if (activeFilters.fabrika) match = match && texts[2].includes(activeFilters.fabrika);
-      if (activeFilters.departman) match = match && texts[3].includes(activeFilters.departman);
-      if (activeFilters.sorumlu) match = match && texts[4].includes(activeFilters.sorumlu);
-      if (activeFilters.marka) match = match && texts[5].includes(activeFilters.marka);
+      if (activeFilters.length) {
+        match = match && activeFilters.every(f => texts[f.col] && texts[f.col].includes(f.val));
+      }
       tr.classList.toggle('d-none', !match);
     });
   }
