@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Lisans Takip{% endblock %}
 {% block content %}
-<div class="container-fluid p-2 content">
+<div id="licenses-list" class="container-fluid p-2 content">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <div class="d-flex align-items-center gap-2">
         <a href="#" class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#addModal">
@@ -17,7 +17,7 @@
     </div>
   </div>
   <div class="table-responsive">
-    <table class="table table-sm align-middle">
+    <table id="licensesTable" class="table table-hover align-middle">
       <thead>
         <tr>
           <th data-field="no">No</th>
@@ -26,7 +26,7 @@
           <th data-field="sorumlu_personel">Sorumlu</th>
           <th data-field="bagli_envanter_no">Bağlı Envanter</th>
           <th data-field="durum">Durum</th>
-          <th style="width:170px;">İşlemler</th>
+          <th class="actions text-start">İşlemler</th>
         </tr>
       </thead>
       <tbody>
@@ -41,7 +41,7 @@
             {% if row.durum == 'hurda' %}<span class="badge bg-secondary">Hurda</span>
             {% else %}<span class="badge bg-success">Aktif</span>{% endif %}
           </td>
-          <td class="text-nowrap">
+          <td class="actions">
             {% set entity = 'licenses' %}
             {% set row_id = row.id %}
             {% include 'partials/_actions_menu.html' %}
@@ -300,5 +300,47 @@
       new Choices('#selBagli', { searchEnabled: true, shouldSort: false });
     }
   });
+
+  // Sadece lisans tablosundaki işlem select'lerini enhance et
+  (function () {
+    const selects = document.querySelectorAll('#licensesTable .action-select');
+    if (!selects.length || !window.Choices) return;
+
+    selects.forEach(function (el) {
+      const ch = new Choices(el, {
+        searchEnabled: true,
+        shouldSort: false,
+        itemSelectText: '',
+        removeItemButton: false,
+        allowHTML: true,
+        placeholderValue: 'Seçiniz...'
+      });
+
+      // Seçim yapıldıktan sonra global handler'ın çalışmasına izin verip UI'yı sıfırla
+      el.addEventListener('change', function () {
+        setTimeout(() => {
+          ch.setChoiceByValue('');
+          ch.clearInput();
+        });
+      });
+    });
+  })();
 </script>
+
+<style>
+#licenses-list .table-responsive { overflow: visible; }
+#licensesTable th.actions,
+#licensesTable td.actions {
+  white-space: nowrap;
+  width: 220px;
+}
+
+#licensesTable td.actions .action-select { min-width: 160px; display: inline-block; }
+#licensesTable td.actions .choices { min-width: 160px; }
+#licensesTable td.actions .choices__inner { min-height: 32px; padding: 2px 30px 2px 8px; }
+#licensesTable td.actions .choices__list--dropdown.is-active {
+  z-index: 1080;
+  min-width: 180px;
+}
+</style>
 {% endblock %}

@@ -1,16 +1,16 @@
-<div class="d-flex align-items-center gap-2">
+<div class="d-flex align-items-center">
   <!-- Göz (detay) -->
   <button type="button"
-          class="btn btn-outline-secondary btn-sm js-view"
+          class="btn btn-outline-secondary btn-sm me-2 js-view"
           data-entity="{{ entity }}" data-id="{{ row_id }}"
           title="Detay">
     <i class="bi bi-eye"></i>
   </button>
 
   <!-- İşlemler -->
-  <select class="form-select form-select-sm w-auto js-actions"
+  <select class="form-select form-select-sm action-select js-actions"
           data-entity="{{ entity }}" data-id="{{ row_id }}">
-    <option value="">İşlem Seçin</option>
+    <option value="">Seçiniz...</option>
     <option value="assign">Atama Yap</option>
     <option value="edit">Düzenle</option>
     <option value="scrap">Hurdaya Ayır</option>
