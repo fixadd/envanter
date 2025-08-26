@@ -49,11 +49,9 @@ def create_product(
     donanim_tipi: str = Form(...),
     marka: str = Form(""),
     model: str = Form(""),
-    seri_no: str = Form(""),
     kullanim_alani: str = Form(""),
     lisans_adi: str = Form(""),
     fabrika: str = Form(""),
-    notlar: str = Form(""),
     db: Session = Depends(get_db),
 ):
     # TODO: Kendi Inventory/Product modeline göre kaydı yap
