@@ -1,53 +1,126 @@
-{% extends "base.html" %}
-{% block title %}Envanter Ekle{% endblock %}
-{% block content %}
-<form method="post">
-  <section class="container-fluid p-3">
-    <h5 class="mb-3">Ürün / Envanter Ekle</h5>
+<form method="post" action="/inventory/create" class="needs-validation" novalidate>
+  <div class="row g-3" id="envanter-ekle">
 
-    <div id="urun-ekle" class="row g-4">
-      {% include "partials/lookup_button.html" with label="Kullanım Alanı" name="kullanim_alani" entity="kullanim_alani" %}
-      {% include "partials/lookup_button.html" with label="Lisans Adı"    name="lisans_adi"      entity="lisans_adi" %}
-      {% include "partials/lookup_button.html" with label="Fabrika"       name="fabrika"         entity="fabrika" %}
-      {% include "partials/lookup_button.html" with label="Donanım Tipi"  name="donanim_tipi"    entity="donanim_tipi" %}
-      {% include "partials/lookup_button.html" with label="Marka"         name="marka"           entity="marka" %}
-      {% include "partials/lookup_button.html" with label="Model"         name="model"           entity="model" %}
+    <!-- Envanter No -->
+    <div class="col-md-6">
+      <label class="form-label">Envanter No</label>
+      <input name="envanter_no" type="text" class="form-control" required placeholder="ENV-000123">
     </div>
 
-    <div class="mt-3">
-      <button class="btn btn-primary btn-sm">Kaydet</button>
-      <a href="/inventory" class="btn btn-outline-secondary btn-sm">İptal</a>
+    <!-- Fabrika -->
+    <div class="col-md-6">
+      <label class="form-label d-block">Fabrika</label>
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm lookup-btn" data-entity="fabrika">&#9776;</button>
+        <span class="selected-text text-muted" data-for="fabrika">Seçilmedi</span>
+        <input type="hidden" name="fabrika" id="fabrika" required>
+      </div>
     </div>
-  </section>
+
+    <!-- Departman -->
+    <div class="col-md-6">
+      <label class="form-label d-block">Departman</label>
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm lookup-btn" data-entity="departman">&#9776;</button>
+        <span class="selected-text text-muted" data-for="departman">Seçilmedi</span>
+        <input type="hidden" name="departman" id="departman" required>
+      </div>
+    </div>
+
+    <!-- Donanım Tipi -->
+    <div class="col-md-6">
+      <label class="form-label d-block">Donanım Tipi</label>
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm lookup-btn" data-entity="donanim_tipi">&#9776;</button>
+        <span class="selected-text text-muted" data-for="donanim_tipi">Seçilmedi</span>
+        <input type="hidden" name="donanim_tipi" id="donanim_tipi" required>
+      </div>
+    </div>
+
+    <!-- Bilgisayar Adı -->
+    <div class="col-md-6">
+      <label class="form-label">Bilgisayar Adı</label>
+      <input name="bilgisayar_adi" type="text" class="form-control" required placeholder="PC-OFIS-01">
+    </div>
+
+    <!-- Marka -->
+    <div class="col-md-6">
+      <label class="form-label d-block">Marka</label>
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm lookup-btn" data-entity="marka">&#9776;</button>
+        <span class="selected-text text-muted" data-for="marka">Seçilmedi</span>
+        <input type="hidden" name="marka" id="marka" required>
+      </div>
+    </div>
+
+    <!-- Model -->
+    <div class="col-md-6">
+      <label class="form-label d-block">Model</label>
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm lookup-btn" data-entity="model">&#9776;</button>
+        <span class="selected-text text-muted" data-for="model">Seçilmedi</span>
+        <input type="hidden" name="model" id="model" required>
+      </div>
+    </div>
+
+    <!-- Seri No -->
+    <div class="col-md-6">
+      <label class="form-label">Seri No</label>
+      <input name="seri_no" type="text" class="form-control" required placeholder="SN123456789">
+    </div>
+
+    <!-- Sorumlu Personel -->
+    <div class="col-md-6">
+      <label class="form-label d-block">Sorumlu Personel</label>
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm lookup-btn" data-entity="sorumlu_personel">&#9776;</button>
+        <span class="selected-text text-muted" data-for="sorumlu_personel">Seçilmedi</span>
+        <input type="hidden" name="sorumlu_personel" id="sorumlu_personel" required>
+      </div>
+    </div>
+
+    <!-- Opsiyoneller -->
+    <div class="col-md-6">
+      <label class="form-label">Bağlı Makina No <small class="text-muted">(opsiyonel)</small></label>
+      <input name="bagli_envanter_no" type="text" class="form-control" placeholder="Makina No">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">IFS No <small class="text-muted">(opsiyonel)</small></label>
+      <input name="ifs_no" type="text" class="form-control" placeholder="IFS-...">
+    </div>
+
+    <div class="col-12">
+      <label class="form-label">Not <small class="text-muted">(opsiyonel)</small></label>
+      <textarea name="notlar" class="form-control" rows="2" placeholder="Açıklama / notlar"></textarea>
+    </div>
+  </div>
+
+  <div class="mt-3 d-flex gap-2">
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+  </div>
 </form>
 
 <style>
-  #urun-ekle .lookup-btn{width:38px;height:38px;line-height:1;padding:0}
-  #urun-ekle .selected-text{font-size:.9rem}
+  #envanter-ekle .lookup-btn{width:38px;height:38px;line-height:1;padding:0}
+  #envanter-ekle .selected-text{font-size:.9rem}
 </style>
 <script>window.SKIP_SELECT_ENHANCE = true;</script>
 <script>
-  // Butonlar için minimal kanca: kendi modalını burada çağır
-  (function(){
-    function openPicker(entity, current){
-      // TODO: kendi modal/Offcanvas
-      const v = prompt(entity.toUpperCase()+' seçin:', current||'');
-      return (v && v.trim()) ? {id:v.trim(), text:v.trim()} : null;
-    }
-    document.querySelectorAll('#urun-ekle .lookup-btn').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        const entity = btn.dataset.entity;
-        const hid = document.getElementById(entity) || document.getElementById(btn.getAttribute('data-entity')) || document.getElementById(entity);
-        const hidden = document.getElementById(entity) || document.getElementById(entity.replace(/[^a-z0-9_]/gi,''));
-        const input = document.getElementById(entity) || document.querySelector(`input[name="${entity}"]`);
-        const current = (input && input.value) || '';
-        const pick = openPicker(entity, current);
-        if(!pick) return;
-        if(input) input.value = pick.id;
-        const span = document.querySelector(`#urun-ekle .selected-text[data-for="${entity}"]`) || document.querySelector(`#urun-ekle .selected-text[data-for="${input?.name}"]`);
-        if(span){ span.textContent = pick.text; span.classList.remove('text-muted'); }
-      });
+(function(){
+  // TODO: Burayı kendi seçim modalına bağla; şimdilik prompt ile seçim simüle.
+  function openPicker(entity, current){ const v = prompt(entity.toUpperCase()+' seçin:', current||''); return (v&&v.trim())?{id:v.trim(),text:v.trim()}:null; }
+  document.querySelectorAll('#envanter-ekle .lookup-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const entity = btn.dataset.entity;
+      const hidden = document.getElementById(entity);
+      const picked = openPicker(entity, hidden?.value);
+      if(!picked) return;
+      hidden.value = picked.id;
+      const span = document.querySelector(`#envanter-ekle .selected-text[data-for="${entity}"]`);
+      if(span){ span.textContent = picked.text; span.classList.remove('text-muted'); }
     });
-  })();
+  });
+})();
 </script>
-{% endblock %}
