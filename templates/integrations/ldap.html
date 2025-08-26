@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% block title %}LDAP{% endblock %}
+{% block content %}
+<h2 class="h5 mb-3">LDAP Kullanıcıları</h2>
+<div class="card p-3">
+  {% if error %}
+  <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+  <ul class="mb-0">
+    {% for u in users %}
+    <li>{{ u.cn }}{% if u.mail %} ({{ u.mail }}){% endif %}</li>
+    {% else %}
+    <li>Hiç kullanıcı bulunamadı.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
