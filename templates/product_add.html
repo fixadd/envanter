@@ -1,45 +1,120 @@
 {% extends "base.html" %}
 {% block title %}Ürün Ekle{% endblock %}
 {% block content %}
-<div class="container-fluid p-3">
-  <h5 class="mb-3">Ürün Ekle</h5>
-  <form>
-    <label class="form-label">Marka</label>
-    <select id="selMarka" name="brand_id" class="form-select"></select>
+<!-- ÜRÜN EKLE KUTUSU (REFERANS TABLOLARI) -->
+<div class="collapse show" id="productBox">
+  <div class="row g-3">
 
-    <label class="form-label mt-3">Model</label>
-    <select id="selModel" name="model_id" class="form-select"></select>
-  </form>
+    <!-- Kullanım Alanı -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card ref-card h-100" data-entity="kullanim-alani">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Kullanım Alanı</span>
+        </div>
+        <div class="card-body d-flex flex-column">
+          <div class="input-group mb-2">
+            <input class="form-control ref-input" placeholder="Yeni kullanım alanı..." />
+            <button class="btn btn-success ref-add" type="button">Ekle</button>
+          </div>
+          <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lisans Adı -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card ref-card h-100" data-entity="lisans-adi">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Lisans Adı</span>
+        </div>
+        <div class="card-body d-flex flex-column">
+          <div class="input-group mb-2">
+            <input class="form-control ref-input" placeholder="Yeni lisans adı..." />
+            <button class="btn btn-success ref-add" type="button">Ekle</button>
+          </div>
+          <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fabrika -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card ref-card h-100" data-entity="fabrika">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Fabrika</span>
+        </div>
+        <div class="card-body d-flex flex-column">
+          <div class="input-group mb-2">
+            <input class="form-control ref-input" placeholder="Yeni fabrika..." />
+            <button class="btn btn-success ref-add" type="button">Ekle</button>
+          </div>
+          <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Donanım Tipi -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card ref-card h-100" data-entity="donanim-tipi">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Donanım Tipi</span>
+        </div>
+        <div class="card-body d-flex flex-column">
+          <div class="input-group mb-2">
+            <input class="form-control ref-input" placeholder="Yeni donanım tipi..." />
+            <button class="btn btn-success ref-add" type="button">Ekle</button>
+          </div>
+          <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Marka -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card ref-card h-100" data-entity="marka">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Marka</span>
+        </div>
+        <div class="card-body d-flex flex-column">
+          <div class="input-group mb-2">
+            <input class="form-control ref-input" placeholder="Yeni marka..." />
+            <button class="btn btn-success ref-add" type="button">Ekle</button>
+          </div>
+          <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Model (Marka'ya bağlı) -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card ref-card h-100" data-entity="model">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Model</span>
+        </div>
+        <div class="card-body d-flex flex-column">
+          <div class="row g-2 mb-2">
+            <div class="col-12">
+              <select class="form-select ref-brand" aria-label="Marka seçin"></select>
+            </div>
+            <div class="col-12">
+              <div class="input-group">
+                <input class="form-control ref-input" placeholder="Yeni model adı..." />
+                <button class="btn btn-success ref-add" type="button">Ekle</button>
+              </div>
+            </div>
+          </div>
+          <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
+
+<script defer src="/static/js/refdata.js"></script>
 <script>
-async function fillSelect(url, selectEl, placeholder = "Seçiniz") {
-  const res = await fetch(url);
-  if (!res.ok) return;
-  const data = await res.json(); // [{id, name}]
-  selectEl.innerHTML = `<option value="">${placeholder}</option>` +
-    data.map(x => `<option value="${x.id}">${x.name ?? x.text}</option>`).join("");
-  // Choices.js kullanıyorsan:
-  if (selectEl._choicesInstance) {
-    selectEl._choicesInstance.setChoices(
-      data.map(x => ({ value: x.id, label: x.name ?? x.text })), 'value', 'label', true
-    );
-  }
-}
-
-document.addEventListener("DOMContentLoaded", async () => {
-  const selMarka = document.getElementById("selMarka");
-  const selModel = document.getElementById("selModel");
-
-  await fillSelect("/api/lookup/marka", selMarka, "Marka Seçiniz");
-
-  selMarka.addEventListener("change", async () => {
-    const markaId = selMarka.value;
-    if (!markaId) {
-      selModel.innerHTML = `<option value="">Önce marka seçin</option>`;
-      return;
-    }
-    await fillSelect(`/api/lookup/model?marka_id=${markaId}`, selModel, "Model Seçiniz");
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.initRefAdmin) window.initRefAdmin();
   });
-});
 </script>
 {% endblock %}
