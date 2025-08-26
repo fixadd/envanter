@@ -65,3 +65,17 @@ def create_ref(entity: str, body: RefCreate, db: Session = Depends(get_db)):
     db.add(obj)
     db.commit(); db.refresh(obj)
     return {"id": obj.id, "name": getattr(obj, cfg["name_col"]), "created": True}
+
+
+@router.delete("/{entity}/{item_id}")
+def delete_ref(entity: str, item_id: int, db: Session = Depends(get_db)):
+    cfg = ENTITY.get(entity)
+    if not cfg:
+        raise HTTPException(404, "Geçersiz entity")
+    ModelCls = cfg["model"]
+    obj = db.get(ModelCls, item_id)
+    if not obj:
+        raise HTTPException(404, "Kayıt bulunamadı")
+    db.delete(obj)
+    db.commit()
+    return {"ok": True}
