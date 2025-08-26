@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, Request, Form, HTTPException
+from fastapi import APIRouter, Depends, Request, Form, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 from starlette import status
-from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.responses import RedirectResponse, HTMLResponse, PlainTextResponse
 from database import get_db
 from models import License, LicenseLog, Inventory
 from fastapi.templating import Jinja2Templates
@@ -11,6 +11,16 @@ from sqlalchemy import text
 
 router = APIRouter(prefix="/lisans", tags=["Lisans"])
 templates = Jinja2Templates(directory="templates")
+
+
+@router.get("/export", response_class=PlainTextResponse)
+async def export_licenses():
+    return "Excel export is not implemented yet."
+
+
+@router.post("/import", response_class=PlainTextResponse)
+async def import_licenses(file: UploadFile = File(...)):
+    return f"Received {file.filename}, but import is not implemented."
 
 
 def _logla(db: Session, lic: License, islem: str, detay: str, islem_yapan: str):

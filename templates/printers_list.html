@@ -12,6 +12,11 @@
       <h5 class="mb-0">Yazıcılar</h5>
     </div>
     <div class="d-flex align-items-center gap-2">
+      <a href="/printers/export" class="btn btn-outline-success btn-sm">Excel Çıkar</a>
+      <form action="/printers/import" method="post" enctype="multipart/form-data" class="d-inline">
+        <input type="file" name="file" id="printerExcel" class="d-none" onchange="this.form.submit()">
+        <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('printerExcel').click()">Excel İçeri Al</button>
+      </form>
       <button class="btn btn-outline-secondary btn-sm" id="filterBtn">Filtre</button>
       <button class="btn btn-outline-secondary btn-sm d-none" id="clearFilterBtn">Temizle</button>
       <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Ara...">

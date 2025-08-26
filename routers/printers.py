@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, Request, Form, HTTPException
-from fastapi.responses import RedirectResponse, JSONResponse, HTMLResponse
+from fastapi import APIRouter, Depends, Request, Form, HTTPException, UploadFile, File
+from fastapi.responses import RedirectResponse, JSONResponse, HTMLResponse, PlainTextResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from typing import Optional, Dict, Any
@@ -14,6 +14,16 @@ templates = Jinja2Templates(directory="templates")
 router = APIRouter(prefix="/printers", tags=["Printers"])
 
 USE_SCRAP_TABLE = True
+
+
+@router.get("/export", response_class=PlainTextResponse)
+async def export_printers():
+    return "Excel export is not implemented yet."
+
+
+@router.post("/import", response_class=PlainTextResponse)
+async def import_printers(file: UploadFile = File(...)):
+    return f"Received {file.filename}, but import is not implemented."
 
 
 def get_current_user_name(request: Request) -> str:
