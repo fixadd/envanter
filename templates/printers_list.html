@@ -5,20 +5,16 @@
 <div class="container-fluid p-3">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <div class="d-flex align-items-center gap-2">
-      <h5 class="mb-0">Yazıcılar</h5>
       <a href="/printers/new" class="btn btn-success btn-sm" title="Yeni Ekle">
         <i class="bi bi-plus-lg"></i>
       </a>
+      <h5 class="mb-0">Yazıcılar</h5>
     </div>
-    <form method="get" class="d-flex gap-2">
-      <input type="text" name="q" value="{{ request.query_params.get('q','') }}" class="form-control form-control-sm" placeholder="Ara...">
-      <select name="durum" class="form-select form-select-sm">
-        <option value="">Tümü</option>
-        <option value="aktif" {% if request.query_params.get('durum')=='aktif' %}selected{% endif %}>Aktif</option>
-        <option value="hurda" {% if request.query_params.get('durum')=='hurda' %}selected{% endif %}>Hurda</option>
-      </select>
-      <button class="btn btn-sm btn-primary">Filtrele</button>
-    </form>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary btn-sm" id="filterBtn">Filtre</button>
+      <button class="btn btn-outline-secondary btn-sm d-none" id="clearFilterBtn">Temizle</button>
+      <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Ara...">
+    </div>
   </div>
 
   <div class="table-responsive">
@@ -79,6 +75,25 @@
   </div>
 </div>
 
+<!-- Filtre Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="filterForm" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Filtrele</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="filterRows"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Kapat</button>
+        <button type="submit" class="btn btn-primary btn-sm">Uygula</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- ATAMA MODAL -->
 <div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable">
@@ -136,7 +151,93 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
-(function(){
+document.addEventListener('DOMContentLoaded', () => {
+  const filterModal = new bootstrap.Modal(document.getElementById('filterModal'));
+  const searchInput = document.getElementById('searchInput');
+  const filterForm = document.getElementById('filterForm');
+  const clearBtn = document.getElementById('clearFilterBtn');
+  const filterRowsDiv = document.getElementById('filterRows');
+  let activeFilters = [];
+  const columns = Array.from(document.querySelectorAll('table thead th'))
+    .map((th, idx) => ({ idx, name: th.textContent.trim() }))
+    .filter(c => c.name && !['Gör', 'İşlemler'].includes(c.name));
+
+  document.getElementById('filterBtn').addEventListener('click', () => {
+    filterForm.reset();
+    filterRowsDiv.innerHTML = '';
+    createFilterRow();
+    filterModal.show();
+  });
+
+  clearBtn.addEventListener('click', () => {
+    activeFilters = [];
+    filterRows();
+    clearBtn.classList.add('d-none');
+  });
+
+  searchInput.addEventListener('input', filterRows);
+
+  function createFilterRow() {
+    const row = document.createElement('div');
+    row.className = 'row g-2 align-items-center mb-2 filter-row';
+    row.innerHTML = `
+      <div class="col-5">
+        <select class="form-select form-select-sm column-select">
+          ${columns.map(c => `<option value="${c.idx}">${c.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="col-5">
+        <input type="text" class="form-control form-control-sm value-input">
+      </div>
+      <div class="col-2 d-flex gap-1">
+        <button type="button" class="btn btn-success btn-sm add-row">+</button>
+        <button type="button" class="btn btn-danger btn-sm remove-row">-</button>
+      </div>`;
+    filterRowsDiv.appendChild(row);
+    updateRemoveButtons();
+  }
+
+  function updateRemoveButtons() {
+    const rows = filterRowsDiv.querySelectorAll('.filter-row');
+    rows.forEach(r => r.querySelector('.remove-row').classList.toggle('d-none', rows.length === 1));
+  }
+
+  filterForm.addEventListener('click', (e) => {
+    if (e.target.classList.contains('add-row')) {
+      createFilterRow();
+    } else if (e.target.classList.contains('remove-row')) {
+      e.target.closest('.filter-row').remove();
+      updateRemoveButtons();
+    }
+  });
+
+  filterForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    activeFilters = [];
+    filterRowsDiv.querySelectorAll('.filter-row').forEach(row => {
+      const col = parseInt(row.querySelector('.column-select').value, 10);
+      const val = row.querySelector('.value-input').value.trim().toLowerCase();
+      if (val) activeFilters.push({ col, val });
+    });
+    filterModal.hide();
+    clearBtn.classList.toggle('d-none', activeFilters.length === 0);
+    filterRows();
+  });
+
+  function filterRows() {
+    const q = searchInput.value.toLowerCase();
+    document.querySelectorAll('tbody tr').forEach(tr => {
+      const cells = tr.querySelectorAll('td');
+      const texts = Array.from(cells).map(td => td.textContent.toLowerCase());
+      let match = texts.some(t => t.includes(q));
+      if (activeFilters.length) {
+        match = match && activeFilters.every(f => texts[f.col] && texts[f.col].includes(f.val));
+      }
+      tr.classList.toggle('d-none', !match);
+    });
+  }
+
+  // Atama/Hurda işlemleri
   const assignModalEl = document.getElementById('assignModal');
   const assignModal = new bootstrap.Modal(assignModalEl);
   const assignForm = document.getElementById('assignForm');
@@ -186,7 +287,7 @@
     const el = document.getElementById(id);
     if(el){ new Choices(el, { removeItemButton: true, searchEnabled: true, shouldSort: false }); }
   });
-})();
+});
 </script>
 {% endblock %}
 
