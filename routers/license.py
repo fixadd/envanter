@@ -1,7 +1,12 @@
 from fastapi import APIRouter, Depends, Request, Form, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 from starlette import status
-from fastapi.responses import RedirectResponse, HTMLResponse, PlainTextResponse
+from fastapi.responses import (
+    RedirectResponse,
+    HTMLResponse,
+    PlainTextResponse,
+    StreamingResponse,
+)
 from database import get_db
 from models import License, LicenseLog, Inventory
 from fastapi.templating import Jinja2Templates
@@ -13,9 +18,57 @@ router = APIRouter(prefix="/lisans", tags=["Lisans"])
 templates = Jinja2Templates(directory="templates")
 
 
-@router.get("/export", response_class=PlainTextResponse)
-async def export_licenses():
-    return "Excel export is not implemented yet."
+@router.get("/export")
+async def export_licenses(db: Session = Depends(get_db)):
+    """Export all license records as an Excel file."""
+    from openpyxl import Workbook
+    from io import BytesIO
+
+    wb = Workbook()
+    ws = wb.active
+    headers = [
+        "ID",
+        "Lisans Adı",
+        "Lisans Anahtarı",
+        "Sorumlu Personel",
+        "Bağlı Envanter No",
+        "IFS No",
+        "Mail Adresi",
+        "Tarih",
+        "İşlem Yapan",
+        "Durum",
+        "Notlar",
+    ]
+    ws.append(headers)
+
+    rows = db.query(License).order_by(License.id.asc()).all()
+    for r in rows:
+        ws.append(
+            [
+                r.id,
+                r.lisans_adi,
+                r.lisans_anahtari,
+                r.sorumlu_personel,
+                r.bagli_envanter_no,
+                r.ifs_no,
+                r.mail_adresi,
+                r.tarih,
+                r.islem_yapan,
+                r.durum,
+                r.notlar,
+            ]
+        )
+
+    stream = BytesIO()
+    wb.save(stream)
+    stream.seek(0)
+
+    headers = {"Content-Disposition": "attachment; filename=licenses.xlsx"}
+    return StreamingResponse(
+        stream,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers=headers,
+    )
 
 
 @router.post("/import", response_class=PlainTextResponse)
