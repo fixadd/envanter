@@ -12,6 +12,9 @@
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="tab-products" data-bs-toggle="tab" data-bs-target="#pane-products" type="button" role="tab">Ürün Ekle</button>
     </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-connections" data-bs-toggle="tab" data-bs-target="#pane-connections" type="button" role="tab">Bağlantılar</button>
+    </li>
   </ul>
 
   <div class="tab-content border border-top-0 rounded-bottom p-3 bg-white" id="adminTabsContent">
@@ -105,6 +108,30 @@
         {% endfor %}
 
       </form>
+    </div>
+
+    <div class="tab-pane fade" id="pane-connections" role="tabpanel" aria-labelledby="tab-connections">
+      <h5 class="mb-3">LDAP Bağlantıları</h5>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead class="table-light">
+            <tr><th>Ad</th><th>Sunucu</th><th>Port</th><th>Base DN</th><th>Kullanıcı</th></tr>
+          </thead>
+          <tbody>
+            {% for c in connections or [] %}
+            <tr>
+              <td>{{ c.name }}</td>
+              <td>{{ c.host }}</td>
+              <td>{{ c.port }}</td>
+              <td>{{ c.base_dn }}</td>
+              <td>{{ c.user_dn }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center text-muted">Kayıt yok.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
 
   </div>
