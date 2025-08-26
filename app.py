@@ -32,7 +32,6 @@ from routers import (
     stock,
     trash,
     profile,
-    integrations,
     logs,
     refdata,
     panel as panel_router,
@@ -104,7 +103,6 @@ app.include_router(reqs.router, prefix="/requests", tags=["Requests"], dependenc
 app.include_router(stock.router, dependencies=[Depends(current_user)])
 app.include_router(trash.router, prefix="/trash", tags=["Trash"], dependencies=[Depends(current_user)])
 app.include_router(profile.router, prefix="/profile", tags=["Profile"], dependencies=[Depends(current_user)])
-app.include_router(integrations.router, prefix="/integrations", tags=["Integrations"], dependencies=[Depends(current_user)])
 app.include_router(lookup_router)
 app.include_router(refdata.router, dependencies=[Depends(current_user)])
 
