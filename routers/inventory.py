@@ -1,9 +1,15 @@
 from fastapi import APIRouter, Request, Depends, Form, HTTPException, UploadFile, File
-from fastapi.responses import JSONResponse, RedirectResponse, PlainTextResponse
+from fastapi.responses import (
+    JSONResponse,
+    RedirectResponse,
+    PlainTextResponse,
+    StreamingResponse,
+)
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 from datetime import datetime
 from fastapi.templating import Jinja2Templates
+from io import BytesIO
 
 from database import get_db
 from models import (
@@ -24,9 +30,67 @@ templates = Jinja2Templates(directory="templates")
 router = APIRouter(prefix="/inventory", tags=["inventory"])
 
 
-@router.get("/export", response_class=PlainTextResponse)
-async def export_inventory():
-    return "Excel export is not implemented yet."
+@router.get("/export")
+async def export_inventory(db: Session = Depends(get_db)):
+    from openpyxl import Workbook
+
+    wb = Workbook()
+    ws = wb.active
+    headers = [
+        "ID",
+        "No",
+        "Fabrika",
+        "Departman",
+        "Donanim Tipi",
+        "Bilgisayar Adı",
+        "Marka",
+        "Model",
+        "Seri No",
+        "Sorumlu Personel",
+        "Bağlı Envanter No",
+        "Kullanım Alanı",
+        "IFS No",
+        "Tarih",
+        "İşlem Yapan",
+        "Durum",
+        "Not",
+    ]
+    ws.append(headers)
+
+    items = db.query(Inventory).order_by(Inventory.id.asc()).all()
+    for i in items:
+        ws.append([
+            i.id,
+            i.no,
+            i.fabrika,
+            i.departman,
+            i.donanim_tipi,
+            i.bilgisayar_adi,
+            i.marka,
+            i.model,
+            i.seri_no,
+            i.sorumlu_personel,
+            i.bagli_envanter_no,
+            i.kullanim_alani,
+            i.ifs_no,
+            i.tarih,
+            i.islem_yapan,
+            i.durum,
+            i.not_,
+        ])
+
+    stream = BytesIO()
+    wb.save(stream)
+    stream.seek(0)
+
+    headers = {
+        "Content-Disposition": "attachment; filename=inventory.xlsx"
+    }
+    return StreamingResponse(
+        stream,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers=headers,
+    )
 
 
 @router.post("/import", response_class=PlainTextResponse)
