@@ -1,6 +1,7 @@
 {% extends "base.html" %}{% block title %}LDAP{% endblock %}
 {% block content %}
 <h2 class="h5 mb-3">LDAP Kullanıcıları</h2>
+<div class="mb-3"><a class="btn btn-sm btn-outline-primary" href="/integrations/ldap/settings">Ayarlar</a></div>
 <div class="card p-3">
   {% if error %}
   <div class="alert alert-danger">{{ error }}</div>
