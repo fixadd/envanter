@@ -37,7 +37,7 @@ from routers import (
     refdata,
     panel as panel_router,
 )
-from routes.lookup import router as lookup_router
+from routers.lookup import router as lookup_router
 from routes.admin import router as admin_router
 from security import current_user, require_roles
 
