@@ -7,6 +7,7 @@ from models import License, LicenseLog, Inventory
 from fastapi.templating import Jinja2Templates
 from security import current_user
 from datetime import datetime
+from sqlalchemy import text
 
 router = APIRouter(prefix="/lisans", tags=["Lisans"])
 templates = Jinja2Templates(directory="templates")
@@ -14,6 +15,14 @@ templates = Jinja2Templates(directory="templates")
 
 def _logla(db: Session, lic: License, islem: str, detay: str, islem_yapan: str):
     db.add(LicenseLog(license_id=lic.id, islem=islem, detay=detay, islem_yapan=islem_yapan))
+
+
+def get_current_user_name(request: Request) -> str:
+    return (
+        request.session.get("full_name")
+        or getattr(getattr(request, "user", None), "full_name", None)
+        or "Bilinmeyen Kullanıcı"
+    )
 
 
 @router.get("/new", response_class=HTMLResponse, name="license.new")
@@ -59,6 +68,32 @@ def new_license_post(
     _logla(db, lic, "EKLE", "Lisans oluşturuldu", getattr(user, "full_name", None) or "system")
     db.commit()
     return RedirectResponse(url=request.url_for("license_list"), status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/create")
+def create_license(
+    request: Request,
+    lisans_adi: str = Form(...),
+    lisans_anahtari: str = Form(...),
+    sorumlu_personel: str = Form(...),
+    bagli_envanter_no: str = Form(...),
+    mail_adresi: str = Form(...),
+    ifs_no: str = Form(None),
+    db: Session = Depends(get_db),
+):
+    lic = License(
+        lisans_adi=lisans_adi,
+        lisans_anahtari=lisans_anahtari,
+        sorumlu_personel=sorumlu_personel,
+        bagli_envanter_no=bagli_envanter_no,
+        mail_adresi=mail_adresi,
+        ifs_no=ifs_no,
+        tarih=datetime.utcnow(),
+        islem_yapan=get_current_user_name(request),
+    )
+    db.add(lic)
+    db.commit()
+    return RedirectResponse(url="/lisans", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/{lic_id}/assign")
 def assign_license(
@@ -118,9 +153,12 @@ def edit_quick_license(
 @router.get("", name="license_list")
 def license_list(request: Request, db: Session = Depends(get_db), current_user=Depends(current_user)):
     items = db.query(License).filter(License.durum != "hurda").all()
-    users = []
-    envanterler = []
-    return templates.TemplateResponse("license_list.html", {"request": request, "items": items, "users": users, "envanterler": envanterler, "current_user": current_user})
+    users = [r[0] for r in db.execute(text("SELECT full_name FROM users ORDER BY full_name")).fetchall()]
+    envanterler = db.query(Inventory).order_by(Inventory.no).all()
+    return templates.TemplateResponse(
+        "license_list.html",
+        {"request": request, "items": items, "users": users, "envanterler": envanterler, "current_user": current_user},
+    )
 
 
 @router.get("/hurdalar", name="license_scrap_list")

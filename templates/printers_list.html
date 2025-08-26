@@ -5,10 +5,10 @@
 <div class="container-fluid p-3">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <div class="d-flex align-items-center gap-2">
-      <a href="#" id="addBtn" class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle">
-        <i class="bi bi-plus-lg"></i>
-        <span>Ekle</span>
-      </a>
+        <a href="#" class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#addModal">
+          <i class="bi bi-plus-lg"></i>
+          <span>Ekle</span>
+        </a>
       <h5 class="mb-0">Yazıcılar</h5>
     </div>
     <div class="d-flex align-items-center gap-2">
@@ -72,8 +72,69 @@
         <h5 class="modal-title">Yazıcı Ekle</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body p-0">
-        <iframe id="addFrame" src="" style="width:100%;height:70vh;border:0;"></iframe>
+      <div class="modal-body">
+        <form method="post" action="/printers/create" class="needs-validation" novalidate>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Envanter No</label>
+              <input name="envanter_no" type="text" class="form-control" required placeholder="ENV-000123">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Yazıcı Markası</label>
+              <select name="yazici_markasi" class="form-select" required id="selYaziciMarka">
+                <option value="">Seçiniz...</option>
+                {% for m in marka_list %}
+                <option value="{{ m.name }}">{{ m.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Yazıcı Modeli</label>
+              <select name="yazici_modeli" class="form-select" required id="selYaziciModel">
+                <option value="">Seçiniz...</option>
+                {% for mdl in model_list %}
+                <option value="{{ mdl.name }}" data-marka="{{ mdl.brand.name }}">{{ mdl.name }}</option>
+                {% endfor %}
+              </select>
+              <small class="text-muted">Not: Model listesi seçilen markaya göre filtrelenir.</small>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Kullanım Alanı</label>
+              <select name="kullanim_alani" class="form-select" required>
+                <option value="">Seçiniz...</option>
+                {% for k in kullanim_alanlari %}
+                <option value="{{ k.name }}">{{ k.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">IP Adresi</label>
+              <input name="ip_adresi" type="text" class="form-control" required placeholder="10.0.0.10">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">MAC</label>
+              <input name="mac" type="text" class="form-control" required placeholder="AA:BB:CC:DD:EE:FF">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Hostname</label>
+              <input name="hostname" type="text" class="form-control" required placeholder="PRN-OFIS-01">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">IFS No <small class="text-muted">(zorunlu değil)</small></label>
+              <input name="ifs_no" type="text" class="form-control" placeholder="IFS numarası">
+            </div>
+          </div>
+
+          <div class="mt-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -157,7 +218,6 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const filterModal = new bootstrap.Modal(document.getElementById('filterModal'));
-  const addModal    = new bootstrap.Modal(document.getElementById('addModal'));
   const searchInput = document.getElementById('searchInput');
   const filterForm = document.getElementById('filterForm');
   const clearBtn = document.getElementById('clearFilterBtn');
@@ -168,10 +228,21 @@ document.addEventListener('DOMContentLoaded', () => {
     .map((th, idx) => ({ idx, name: th.textContent.trim(), field: th.dataset.field }))
     .filter(c => c.field);
 
-  document.getElementById('addBtn').addEventListener('click', () => {
-    document.getElementById('addFrame').src = '/printers/new';
-    addModal.show();
-  });
+  const markaSel = document.getElementById('selYaziciMarka');
+  const modelSel = document.getElementById('selYaziciModel');
+  if (markaSel && modelSel) {
+    const filterModels = () => {
+      const marka = markaSel.value;
+      Array.from(modelSel.options).forEach(opt => {
+        opt.hidden = marka && opt.dataset.marka !== marka;
+      });
+      modelSel.value = '';
+    };
+    markaSel.addEventListener('change', filterModels);
+    filterModels();
+  }
+
+  // Modal tetikleyici attribute ile handle ediliyor; ek JS gerekmez.
 
   document.getElementById('filterBtn').addEventListener('click', () => {
     filterForm.reset();
