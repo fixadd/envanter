@@ -60,12 +60,13 @@ function enableRemoteSearch(selectId, endpoint, extraParamsFn=()=>({})) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  if (window.SKIP_SELECT_ENHANCE) return;
-  document.querySelectorAll("select").forEach(el => {
-    if (el.dataset.noSearch !== undefined) return;
-    const inst = makeSearchableSelect(el);
-    if (el.id) selects[el.id] = inst;
-  });
+  if (!window.SKIP_SELECT_ENHANCE) {
+    document.querySelectorAll("select.form-select").forEach(el => {
+      if (el.dataset.noSearch !== undefined) return;
+      const inst = makeSearchableSelect(el);
+      if (el.id) selects[el.id] = inst;
+    });
+  }
 });
 
 window._selects = { fillChoices, bindMarkaModel, enableRemoteSearch, makeSearchableSelect };
