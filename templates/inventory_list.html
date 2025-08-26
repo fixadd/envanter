@@ -19,7 +19,6 @@
   <table class="table table-sm table-striped align-middle">
     <thead>
       <tr>
-        <th style="width:42px;"></th> <!-- göz ikonu -->
         <th data-field="no">Envanter No</th>
         <th data-field="fabrika">Fabrika</th>
         <th data-field="departman">Departman</th>
@@ -31,27 +30,15 @@
     <tbody>
       {% for row in items %}
       <tr data-id="{{ row.id }}" class="inv-row">
-        <td class="text-center">
-          <a class="btn btn-sm btn-outline-secondary"
-             href="{{ url_for('inventory.detail', item_id=row.id) }}"
-             title="Görüntüle">
-            <i class="bi bi-eye"></i>
-          </a>
-        </td>
-
         <td>{{ row.no }}</td>
         <td>{{ row.fabrika }}</td>
         <td>{{ row.departman }}</td>
         <td>{{ row.sorumlu_personel }}</td>
         <td>{{ row.marka }} {{ row.model }}</td>
-
-        <td>
-          <select class="form-select form-select-sm action-select" data-id="{{ row.id }}">
-            <option value="" selected>İşlem Seç...</option>
-            <option value="assign">Atama Yap</option>
-            <option value="edit">Düzenle</option>
-            <option value="scrap">Hurdaya Ayır</option>
-          </select>
+        <td class="text-nowrap">
+          {% set entity = 'inventory' %}
+          {% set row_id = row.id %}
+          {% include 'partials/_actions_menu.html' %}
         </td>
       </tr>
       {% endfor %}

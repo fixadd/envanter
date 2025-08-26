@@ -19,7 +19,6 @@
     <table class="table table-sm align-middle">
       <thead>
         <tr>
-          <th style="width:42px;">Detay</th>
           <th data-field="no">No</th>
           <th data-field="lisans_adi">Lisans Adı</th>
           <th data-field="lisans_anahtari">Key</th>
@@ -32,13 +31,6 @@
       <tbody>
         {% for row in items %}
         <tr>
-          <td>
-            <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('license_detail', lic_id=row.id) }}" title="Detay">
-              <span style="display:inline-flex;width:24px;height:24px;align-items:center;justify-content:center;border:1px solid #ccc;border-radius:4px;">
-                <i class="bi bi-eye"></i>
-              </span>
-            </a>
-          </td>
           <td>{{ row.id }}</td>
           <td>{{ row.lisans_adi }}</td>
           <td class="text-truncate" style="max-width:180px;">{{ row.lisans_key }}</td>
@@ -48,23 +40,11 @@
             {% if row.durum == 'hurda' %}<span class="badge bg-secondary">Hurda</span>
             {% else %}<span class="badge bg-success">Aktif</span>{% endif %}
           </td>
-            <td class="text-end">
-              <div class="dropdown position-static">
-                <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                        type="button"
-                        data-bs-toggle="dropdown"
-                        data-bs-display="static"
-                        aria-expanded="false">
-                  İşlemler
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow">
-                  <li><a class="dropdown-item{% if row.durum == 'hurda' %} disabled{% endif %}" href="#" data-action="assign" data-id="{{ row.id }}">Atama Yap</a></li>
-                  <li><a class="dropdown-item" href="/lisans/{{ row.id }}">Düzenle</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item text-danger{% if row.durum == 'hurda' %} disabled{% endif %}" href="#" data-action="scrap" data-id="{{ row.id }}">Hurdaya Ayır</a></li>
-                </ul>
-              </div>
-            </td>
+          <td class="text-nowrap">
+            {% set entity = 'licenses' %}
+            {% set row_id = row.id %}
+            {% include 'partials/_actions_menu.html' %}
+          </td>
         </tr>
         {% endfor %}
       </tbody>
