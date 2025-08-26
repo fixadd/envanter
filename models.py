@@ -326,6 +326,29 @@ def init_db():
     # Missing fields trigger "no such column" errors when the ORM attempts to
     # access them. We inspect the schema and add or rename columns as needed.
 
+    # -- Users ---------------------------------------------------------------
+    insp = inspect(engine)
+    cols = {col["name"] for col in insp.get_columns("users")}
+    with engine.begin() as conn:
+        if "full_name" not in cols:
+            conn.execute(
+                text("ALTER TABLE users ADD COLUMN full_name VARCHAR(120) DEFAULT ''")
+            )
+        if "email" not in cols:
+            conn.execute(
+                text("ALTER TABLE users ADD COLUMN email VARCHAR(255)")
+            )
+        if "role" not in cols:
+            conn.execute(
+                text("ALTER TABLE users ADD COLUMN role VARCHAR(16) DEFAULT 'admin'")
+            )
+        if "created_at" not in cols:
+            conn.execute(
+                text(
+                    "ALTER TABLE users ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
+                )
+            )
+
     # -- Licenses --------------------------------------------------------------
     insp = inspect(engine)
     cols = {col["name"] for col in insp.get_columns("licenses")}
