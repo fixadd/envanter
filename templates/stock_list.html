@@ -6,6 +6,11 @@
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h5 class="mb-0">Stok Logları (En Güncel)</h5>
     <div class="d-flex gap-2">
+      <a href="/stock/export" class="btn btn-outline-success btn-sm">Excel Çıkar</a>
+      <form action="/stock/import" method="post" enctype="multipart/form-data" class="d-inline">
+        <input type="file" name="file" id="stockExcel" class="d-none" onchange="this.form.submit()">
+        <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('stockExcel').click()">Excel İçeri Al</button>
+      </form>
       <a href="#" id="addBtn" class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle">
         <i class="bi bi-plus-lg"></i>
         <span>Ekle</span>

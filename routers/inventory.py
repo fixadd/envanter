@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Request, Depends, Form, HTTPException
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi import APIRouter, Request, Depends, Form, HTTPException, UploadFile, File
+from fastapi.responses import JSONResponse, RedirectResponse, PlainTextResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 from datetime import datetime
@@ -22,6 +22,16 @@ from security import current_user
 templates = Jinja2Templates(directory="templates")
 
 router = APIRouter(prefix="/inventory", tags=["inventory"])
+
+
+@router.get("/export", response_class=PlainTextResponse)
+async def export_inventory():
+    return "Excel export is not implemented yet."
+
+
+@router.post("/import", response_class=PlainTextResponse)
+async def import_inventory(file: UploadFile = File(...)):
+    return f"Received {file.filename}, but import is not implemented."
 
 
 def current_full_name(request: Request) -> str:
