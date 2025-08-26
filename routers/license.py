@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, Request, Form, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, HTMLResponse
 from database import get_db
-from models import License, LicenseLog
+from models import License, LicenseLog, Inventory
 from fastapi.templating import Jinja2Templates
 from security import current_user
 
@@ -14,6 +14,44 @@ templates = Jinja2Templates(directory="templates")
 def _logla(db: Session, lic: License, islem: str, detay: str, islem_yapan: str):
     db.add(LicenseLog(license_id=lic.id, islem=islem, detay=detay, islem_yapan=islem_yapan))
 
+
+@router.get("/new", response_class=HTMLResponse, name="license.new")
+def new_license_form(request: Request, db: Session = Depends(get_db)):
+    envanterler = db.query(Inventory).order_by(Inventory.no).all()
+    return templates.TemplateResponse(
+        "license_form.html",
+        {
+            "request": request,
+            "license": None,
+            "envanterler": envanterler,
+            "form_action": "/lisans/new",
+        },
+    )
+
+
+@router.post("/new", name="license.new_post")
+def new_license_post(
+    request: Request,
+    adi: str = Form(...),
+    anahtar: str = Form(""),
+    sorumlu_personel: str = Form(""),
+    inventory_id: int = Form(None),
+    islem_yapan: str = Form("system"),
+    db: Session = Depends(get_db),
+):
+    inv = db.query(Inventory).get(inventory_id) if inventory_id else None
+    lic = License(
+        lisans_adi=adi,
+        lisans_anahtari=anahtar or None,
+        sorumlu_personel=sorumlu_personel or None,
+        inventory_id=inv.id if inv else None,
+        bagli_envanter_no=getattr(inv, "no", None),
+    )
+    db.add(lic)
+    db.commit()
+    _logla(db, lic, "EKLE", "Lisans oluşturuldu", islem_yapan)
+    db.commit()
+    return RedirectResponse(url=request.url_for("license_list"), status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/{lic_id}/assign")
 def assign_license(
