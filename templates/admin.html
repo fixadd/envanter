@@ -1,338 +1,184 @@
 {% extends "base.html" %}
 {% block title %}Admin Paneli{% endblock %}
+
 {% block content %}
 <div class="container-fluid p-3">
 
-  <!-- Üst Kutu Başlıkları -->
-  <div class="d-flex align-items-center gap-2 mb-3">
-    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#userBox" aria-expanded="true">
-      Kullanıcı
-    </button>
-    <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#productBox" aria-expanded="false">
-      Ürün Ekle
-    </button>
-  </div>
+  <!-- SEKME BAŞLIKLARI -->
+  <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="tab-users" data-bs-toggle="tab" data-bs-target="#pane-users" type="button" role="tab" aria-controls="pane-users" aria-selected="true">
+        Kullanıcı
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-products" data-bs-toggle="tab" data-bs-target="#pane-products" type="button" role="tab" aria-controls="pane-products" aria-selected="false">
+        Ürün Ekle
+      </button>
+    </li>
+  </ul>
 
-  <!-- KULLANICI KUTUSU -->
-  <div class="collapse show" id="userBox">
-    <div class="card mb-4">
-      <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
-        <div class="d-flex align-items-center gap-2">
-          <!-- Kullanıcı Ekle: formu aç/kapa -->
-          <button class="btn btn-success btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#userCreateForm">
-            Kullanıcı Ekle
-          </button>
-          <!-- Düzenle: seçili kullanıcıyı formda aç -->
-          <button class="btn btn-warning btn-sm" type="button" id="btnEditUser">Düzenle</button>
-          <!-- Sil: seçili kullanıcıyı sil -->
-          <form id="deleteForm" method="post" class="d-inline">
-            <button class="btn btn-danger btn-sm" type="submit" id="btnDeleteUser">Sil</button>
-          </form>
-        </div>
+  <!-- SEKME İÇERİKLERİ -->
+  <div class="tab-content border border-top-0 rounded-bottom p-3 bg-white" id="adminTabsContent">
 
-        <!-- Liste içinde arama (client-side) -->
-        <div class="d-flex align-items-center gap-2">
-          <input type="text" id="tblSearch" class="form-control form-control-sm" placeholder="Listede ara...">
-        </div>
+    <!-- KULLANICI -->
+    <div class="tab-pane fade show active" id="pane-users" role="tabpanel" aria-labelledby="tab-users" tabindex="0">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="mb-0">Kullanıcı Yönetimi</h5>
+        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalUserCreate">+ Yeni Kullanıcı</button>
       </div>
 
-      <div class="card-body">
-
-        <!-- Kullanıcı Ekle Formu -->
-        <div class="collapse" id="userCreateForm">
-          <form method="post" action="/admin/users/create" class="border rounded p-3 mb-3">
-            <div class="row g-2">
-              <div class="col-md-3">
-                <label class="form-label">Kullanıcı Adı</label>
-                <input name="username" class="form-control form-control-sm" required>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Şifre</label>
-                <input type="password" name="password" class="form-control form-control-sm" required>
-              </div>
-              <div class="col-md-2">
-                <label class="form-label">Adı</label>
-                <input name="first_name" class="form-control form-control-sm">
-              </div>
-              <div class="col-md-2">
-                <label class="form-label">Soyadı</label>
-                <input name="last_name" class="form-control form-control-sm">
-              </div>
-              <div class="col-md-2">
-                <label class="form-label">Mail</label>
-                <input type="email" name="email" class="form-control form-control-sm" placeholder="(opsiyonel)">
-              </div>
-              <div class="col-12 d-flex align-items-center gap-2 mt-2">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="is_admin" name="is_admin">
-                  <label class="form-check-label" for="is_admin">Admin</label>
-                </div>
-                <button class="btn btn-success btn-sm ms-auto" type="submit">Ekle</button>
-              </div>
-            </div>
-          </form>
+      <!-- Arama / Filtre -->
+      <form class="row g-2 mb-3" method="get" action="/admin">
+        <div class="col-md-4">
+          <input class="form-control" name="q" placeholder="İsim, e-posta, rol..." value="{{ request.query_params.get('q', '') }}">
         </div>
-
-        <!-- Kullanıcı Düzenle Formu (seçili kullanıcıyla doldurulur) -->
-        <form method="post" id="userEditForm" class="border rounded p-3 mb-3 d-none">
-          <input type="hidden" id="editAction" value="">
-          <div class="row g-2">
-            <div class="col-md-3">
-              <label class="form-label">Kullanıcı Adı</label>
-              <input name="username" id="edit_username" class="form-control form-control-sm" required>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Yeni Şifre (isteğe bağlı)</label>
-              <input type="password" name="password" id="edit_password" class="form-control form-control-sm" placeholder="Boş bırakılırsa değişmez">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">Adı</label>
-              <input name="first_name" id="edit_first_name" class="form-control form-control-sm">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">Soyadı</label>
-              <input name="last_name" id="edit_last_name" class="form-control form-control-sm">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">Mail</label>
-              <input type="email" name="email" id="edit_email" class="form-control form-control-sm" placeholder="(opsiyonel)">
-            </div>
-            <div class="col-12 d-flex align-items-center gap-2 mt-2">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="edit_is_admin" name="is_admin">
-                <label class="form-check-label" for="edit_is_admin">Admin</label>
-              </div>
-              <button class="btn btn-warning btn-sm ms-auto" type="submit">Kaydet</button>
-            </div>
-          </div>
-        </form>
-
-        <!-- Kullanıcı Listesi -->
-        <div class="table-responsive">
-          <table class="table table-sm table-hover align-middle" id="userTable">
-            <thead>
-              <tr>
-                <th style="width:36px;"></th>
-                <th>ID</th>
-                <th>Kullanıcı Adı</th>
-                <th>Adı</th>
-                <th>Soyadı</th>
-                <th>Mail</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for u in users %}
-              <tr data-id="{{ u.id }}"
-                  data-username="{{ u.username }}"
-                  data-first_name="{{ u.first_name or '' }}"
-                  data-last_name="{{ u.last_name or '' }}"
-                  data-email="{{ u.email or '' }}"
-                  data-is_admin="{{ 1 if u.is_admin else 0 }}">
-                <td><input type="radio" name="selUser" value="{{ u.id }}"></td>
-                <td>{{ u.id }}</td>
-                <td>{{ u.username }}</td>
-                <td>{{ u.first_name or '' }}</td>
-                <td>{{ u.last_name or '' }}</td>
-                <td>{{ u.email or '' }}</td>
-              </tr>
-              {% else %}
-              <tr><td colspan="6" class="text-muted">Kullanıcı yok</td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
+        <div class="col-md-3">
+          <select class="form-select" name="role">
+            <option value="">Tümü</option>
+            <option value="admin" {{ 'selected' if request.query_params.get('role')=='admin' else '' }}>Admin</option>
+            <option value="user"  {{ 'selected' if request.query_params.get('role')=='user'  else '' }}>Kullanıcı</option>
+          </select>
         </div>
+        <div class="col-md-2">
+          <button class="btn btn-primary w-100" type="submit">Ara</button>
+        </div>
+      </form>
 
+      <!-- Liste -->
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Ad Soyad</th>
+              <th>E-posta</th>
+              <th>Rol</th>
+              <th class="text-end">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users or [] %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ u.full_name }}</td>
+              <td>{{ u.email }}</td>
+              <td><span class="badge bg-{{ 'primary' if u.role=='admin' else 'secondary' }}">{{ u.role or 'user' }}</span></td>
+              <td class="text-end">
+                <button class="btn btn-outline-primary btn-sm" data-user-id="{{ u.id }}" data-action="edit">Düzenle</button>
+                <button class="btn btn-outline-danger btn-sm" data-user-id="{{ u.id }}" data-action="delete">Sil</button>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center text-muted">Kayıt bulunamadı.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
-  </div>
 
-  <!-- ÜRÜN EKLE KUTUSU (REFERANS TABLOLARI) -->
-  <div class="collapse" id="productBox">
-    <div class="row g-3">
+    <!-- ÜRÜN EKLE -->
+    <div class="tab-pane fade" id="pane-products" role="tabpanel" aria-labelledby="tab-products" tabindex="0">
+      <h5 class="mb-3">Ürün Ekle</h5>
 
-      <!-- Kullanım Alanı -->
-      <div class="col-lg-4 col-md-6">
-        <div class="card ref-card h-100" data-entity="kullanim-alani">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <span>Kullanım Alanı</span>
-          </div>
-          <div class="card-body d-flex flex-column">
-            <div class="input-group mb-2">
-              <input class="form-control ref-input" placeholder="Yeni kullanım alanı..." />
-              <button class="btn btn-success ref-add" type="button">Ekle</button>
-            </div>
-            <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
-          </div>
-        </div>
-      </div>
+      <form>
+        <label class="form-label">Marka</label>
+        <select id="selMarka" name="brand_id" class="form-select"></select>
 
-      <!-- Lisans Adı -->
-      <div class="col-lg-4 col-md-6">
-        <div class="card ref-card h-100" data-entity="lisans-adi">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <span>Lisans Adı</span>
-          </div>
-          <div class="card-body d-flex flex-column">
-            <div class="input-group mb-2">
-              <input class="form-control ref-input" placeholder="Yeni lisans adı..." />
-              <button class="btn btn-success ref-add" type="button">Ekle</button>
-            </div>
-            <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- Fabrika -->
-      <div class="col-lg-4 col-md-6">
-        <div class="card ref-card h-100" data-entity="fabrika">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <span>Fabrika</span>
-          </div>
-          <div class="card-body d-flex flex-column">
-            <div class="input-group mb-2">
-              <input class="form-control ref-input" placeholder="Yeni fabrika..." />
-              <button class="btn btn-success ref-add" type="button">Ekle</button>
-            </div>
-            <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- Donanım Tipi -->
-      <div class="col-lg-4 col-md-6">
-        <div class="card ref-card h-100" data-entity="donanim-tipi">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <span>Donanım Tipi</span>
-          </div>
-          <div class="card-body d-flex flex-column">
-            <div class="input-group mb-2">
-              <input class="form-control ref-input" placeholder="Yeni donanım tipi..." />
-              <button class="btn btn-success ref-add" type="button">Ekle</button>
-            </div>
-            <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- Marka -->
-      <div class="col-lg-4 col-md-6">
-        <div class="card ref-card h-100" data-entity="marka">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <span>Marka</span>
-          </div>
-          <div class="card-body d-flex flex-column">
-            <div class="input-group mb-2">
-              <input class="form-control ref-input" placeholder="Yeni marka..." />
-              <button class="btn btn-success ref-add" type="button">Ekle</button>
-            </div>
-            <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- Model (Marka'ya bağlı) -->
-      <div class="col-lg-4 col-md-6">
-        <div class="card ref-card h-100" data-entity="model">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <span>Model</span>
-          </div>
-          <div class="card-body d-flex flex-column">
-            <div class="row g-2 mb-2">
-              <div class="col-12">
-                <!-- Marka seçimi; Choices.js ile aramalı yapılır -->
-                <select class="form-select ref-brand" aria-label="Marka seçin"></select>
-              </div>
-              <div class="col-12">
-                <div class="input-group">
-                  <input class="form-control ref-input" placeholder="Yeni model adı..." />
-                  <button class="btn btn-success ref-add" type="button">Ekle</button>
-                </div>
-              </div>
-            </div>
-            <ul class="list-group ref-list flex-grow-1 overflow-auto"></ul>
-          </div>
-        </div>
-      </div>
-
+        <label class="form-label mt-3">Model</label>
+        <select id="selModel" name="model_id" class="form-select"></select>
+      </form>
     </div>
-  </div>
 
+  </div>
 </div>
 
-<!-- Basit JS: tablo arama + düzenleme formunu doldurma + silme -->
-<script>
-  // Liste içi arama (client-side)
-  const search = document.getElementById('tblSearch');
-  const table = document.getElementById('userTable');
-  if (search && table) {
-    search.addEventListener('input', () => {
-      const q = search.value.toLowerCase();
-      table.querySelectorAll('tbody tr').forEach(tr => {
-        tr.style.display = tr.innerText.toLowerCase().includes(q) ? '' : 'none';
+<!-- Kullanıcı Oluştur Modal (örnek) -->
+<div class="modal fade" id="modalUserCreate" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" method="post" action="/admin/users/create">
+      <div class="modal-header">
+        <h5 class="modal-title">Yeni Kullanıcı</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body row g-3">
+        <div class="col-12">
+          <label class="form-label">Ad Soyad</label>
+          <input class="form-control" name="full_name" required>
+        </div>
+        <div class="col-12">
+          <label class="form-label">E-posta</label>
+          <input class="form-control" type="email" name="email" required>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Rol</label>
+          <select class="form-select" name="role">
+            <option value="user">Kullanıcı</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">İptal</button>
+        <button class="btn btn-primary" type="submit">Oluştur</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <!-- URL hash ile sekme açma (örn: /admin#products) ve ürün ekleme select doldurma -->
+  <script>
+    (function() {
+      const triggerTabList = [].slice.call(document.querySelectorAll('#adminTabs button'))
+      triggerTabList.forEach(function (triggerEl) {
+        triggerEl.addEventListener('shown.bs.tab', function (event) {
+          const target = event.target.getAttribute('data-bs-target'); // "#pane-products"
+          history.replaceState(null, '', '#' + target.replace('#pane-',''));
+        });
       });
-    });
-  }
 
-  // Seçili kullanıcıyı bul
-  function getSelectedRow() {
-    const checked = table?.querySelector('input[name="selUser"]:checked');
-    if (!checked) return null;
-    return checked.closest('tr');
-  }
-
-  // Düzenle
-  const btnEdit = document.getElementById('btnEditUser');
-  const editForm = document.getElementById('userEditForm');
-  const editAction = document.getElementById('editAction');
-  if (btnEdit && editForm) {
-    btnEdit.addEventListener('click', () => {
-      const row = getSelectedRow();
-      if (!row) { alert('Lütfen bir kullanıcı seçin.'); return; }
-      // Form action
-      const id = row.dataset.id;
-      editAction.value = `/admin/users/${id}/update`;
-      editForm.setAttribute('action', editAction.value);
-      // Doldur
-      document.getElementById('edit_username').value = row.dataset.username || '';
-      document.getElementById('edit_first_name').value = row.dataset.first_name || '';
-      document.getElementById('edit_last_name').value = row.dataset.last_name || '';
-      document.getElementById('edit_email').value = row.dataset.email || '';
-      document.getElementById('edit_is_admin').checked = row.dataset.is_admin === '1';
-      document.getElementById('edit_password').value = '';
-      // Göster
-      editForm.classList.remove('d-none');
-      editForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
-  }
-
-  // Sil
-  const btnDelete = document.getElementById('btnDeleteUser');
-  const deleteForm = document.getElementById('deleteForm');
-  if (btnDelete && deleteForm) {
-    btnDelete.addEventListener('click', (ev) => {
-      ev.preventDefault();
-      const row = getSelectedRow();
-      if (!row) { alert('Lütfen bir kullanıcı seçin.'); return; }
-      const username = row.dataset.username;
-      if (username && username.toLowerCase() === 'admin') {
-        alert('Admin hesabı silinemez.');
-        return;
+      // İlk yüklemede hash’e göre sekme aç
+      const hash = location.hash.replace('#','');
+      if (hash) {
+        const btn = document.querySelector(`[data-bs-target="#pane-${hash}"]`);
+        if (btn) new bootstrap.Tab(btn).show();
       }
-      if (!confirm(`'${username}' kullanıcısını silmek istediğinize emin misiniz?`)) return;
-      const id = row.dataset.id;
-      deleteForm.setAttribute('action', `/admin/users/${id}/delete`);
-      deleteForm.submit();
-    });
-  }
-</script>
+    })();
 
-<!-- Referans kartları için gerekli scriptler -->
-<link href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-<script defer src="/static/js/refdata.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    if (window.initRefAdmin) window.initRefAdmin(); // /api/lookup ve /api/ref ile çalışır
-  });
-</script>
+    async function fillSelect(url, selectEl, placeholder = "Seçiniz") {
+      const res = await fetch(url);
+      if (!res.ok) return;
+      const data = await res.json(); // [{id, name}]
+      selectEl.innerHTML =
+        `<option value="">${placeholder}</option>` +
+        data.map(x => `<option value="${x.id}">${x.name ?? x.text}</option>`).join("");
+      if (selectEl._choicesInstance) {
+        selectEl._choicesInstance.setChoices(
+          data.map(x => ({ value: x.id, label: x.name ?? x.text })), 'value', 'label', true
+        );
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const selMarka = document.getElementById("selMarka");
+      const selModel = document.getElementById("selModel");
+
+      if (selMarka && selModel) {
+        await fillSelect("/api/lookup/marka", selMarka, "Marka Seçiniz");
+
+        selMarka.addEventListener("change", async () => {
+          const markaId = selMarka.value;
+          if (!markaId) {
+            selModel.innerHTML = `<option value="">Önce marka seçin</option>`;
+            return;
+          }
+          await fillSelect(`/api/lookup/model?marka_id=${markaId}`, selModel, "Model Seçiniz");
+        });
+      }
+    });
+  </script>
 {% endblock %}
