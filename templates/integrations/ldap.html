@@ -5,13 +5,39 @@
 <div class="card p-3">
   {% if error %}
   <div class="alert alert-danger">{{ error }}</div>
+  {% else %}
+  <div class="table-responsive">
+    <table id="ldapTable"
+           class="table table-sm table-striped"
+           data-toggle="table"
+           data-search="true"
+           data-pagination="true">
+      <thead>
+        <tr>
+          <th data-field="cn">Kullanıcı</th>
+          <th data-field="mail">E-posta</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.cn }}</td>
+          <td>{{ u.mail or '-' }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="2" class="text-muted">Hiç kullanıcı bulunamadı.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   {% endif %}
-  <ul class="mb-0">
-    {% for u in users %}
-    <li>{{ u.cn }}{% if u.mail %} ({{ u.mail }}){% endif %}</li>
-    {% else %}
-    <li>Hiç kullanıcı bulunamadı.</li>
-    {% endfor %}
-  </ul>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.21.3/dist/bootstrap-table.min.css">
+<script src="https://unpkg.com/bootstrap-table@1.21.3/dist/bootstrap-table.min.js"></script>
 {% endblock %}

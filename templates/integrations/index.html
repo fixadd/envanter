@@ -2,9 +2,33 @@
 {% block content %}
 <h2 class="h5 mb-3">Entegrasyonlar</h2>
 <div class="card p-3">
-  <div class="list-group">
-    <a href="/integrations/ldap" class="list-group-item list-group-item-action">LDAP Kullanıcıları</a>
-    <a href="/integrations/ldap/settings" class="list-group-item list-group-item-action">LDAP Ayarları</a>
+  <div class="table-responsive">
+    <table id="integrationsTable"
+           class="table table-sm"
+           data-toggle="table">
+      <thead>
+        <tr>
+          <th data-field="name">Bağlantı</th>
+          <th data-field="action" data-sortable="false"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>LDAP Kullanıcıları</td>
+          <td class="text-end"><a href="/integrations/ldap" class="btn btn-primary btn-sm">Git</a></td>
+        </tr>
+        <tr>
+          <td>LDAP Ayarları</td>
+          <td class="text-end"><a href="/integrations/ldap/settings" class="btn btn-primary btn-sm">Git</a></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.21.3/dist/bootstrap-table.min.css">
+<script src="https://unpkg.com/bootstrap-table@1.21.3/dist/bootstrap-table.min.js"></script>
 {% endblock %}
