@@ -56,8 +56,8 @@
 
         {# 1. satır: Kullanım Alanı, Lisans Adı, Fabrika #}
         {% set fields1 = [
-          {"title":"Kullanım Alanı","type":"kullanim_alani","name":"kullanim_alani","data":lookup_kullanim_alanlari},
-          {"title":"Lisans Adı","type":"lisans_adi","name":"lisans_adi","data":lookup_lisans_adlari},
+          {"title":"Kullanım Alanı","type":"kullanim-alani","name":"kullanim_alani","data":lookup_kullanim_alanlari},
+          {"title":"Lisans Adı","type":"lisans-adi","name":"lisans_adi","data":lookup_lisans_adlari},
           {"title":"Fabrika","type":"fabrika","name":"fabrika","data":lookup_fabrikalar}
         ] %}
         {% for f in fields1 %}
@@ -81,7 +81,7 @@
 
         {# 2. satır: Donanım Tipi, Marka, Model #}
         {% set fields2 = [
-          {"title":"Donanım Tipi","type":"donanim_tipi","name":"donanim_tipi","data":lookup_donanim_tipleri},
+          {"title":"Donanım Tipi","type":"donanim-tipi","name":"donanim_tipi","data":lookup_donanim_tipleri},
           {"title":"Marka","type":"marka","name":"marka","data":lookup_markalar},
           {"title":"Model","type":"model","name":"model","data":lookup_modeller}
         ] %}
@@ -104,28 +104,10 @@
         </div>
         {% endfor %}
 
-        {# 3. satır: Seri No, Sorumlu Personel, Bağlı Envanter No #}
+        {# 3. satır: Seri No #}
         <div class="col-md-4">
           <label class="form-label">Seri No</label>
           <input class="form-control" name="seri_no">
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Sorumlu Personel</label>
-          <select class="form-select js-choices" name="sorumlu_personel" id="selPersonel">
-            <option value="">Seçiniz…</option>
-            {% for u in users or [] %}
-              <option value="{{ u.full_name }}">{{ u.full_name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Bağlı Envanter No</label>
-          <select class="form-select js-choices" name="bagli_envanter_no" id="selBagliEnvanter">
-            <option value="">Seçiniz…</option>
-            {% for inv in inventory_refs or [] %}
-              <option value="{{ inv.no }}">{{ inv.no }} — {{ inv.marka }} {{ inv.model }}</option>
-            {% endfor %}
-          </select>
         </div>
 
         <div class="col-12">
@@ -245,7 +227,7 @@
       chipsEl.innerHTML='<div class="text-muted">Yükleniyor…</div>';
       try{
         const r=await fetch(`/api/lookup/${encodeURIComponent(current.type)}`);
-        const data=await r.json(); // [{id,value}]
+        const data=await r.json(); // [{id,name}]
         renderChips(data);
       }catch{ chipsEl.innerHTML='<div class="text-danger">Liste alınamadı.</div>'; }
     }
@@ -255,9 +237,9 @@
       items.forEach(it=>{
         const chip=document.createElement('span');
         chip.className='chip'; chip.dataset.id=it.id;
-        chip.innerHTML=`<span class="chip-text">${it.value}</span>
+        chip.innerHTML=`<span class="chip-text">${it.name}</span>
                         <button type="button" class="btn btn-sm btn-outline-danger px-2 py-0">✕</button>`;
-        chip.querySelector('button').addEventListener('click',()=>delItem(it.id,it.value));
+        chip.querySelector('button').addEventListener('click',()=>delItem(it.id,it.name));
         chipsEl.appendChild(chip);
       });
     }
@@ -266,16 +248,16 @@
       const val=(inputEl.value||'').trim(); if(!val) return;
       addBtn.disabled=true;
       try{
-        const r=await fetch(`/api/lookup/${encodeURIComponent(current.type)}`,{
+        const r=await fetch(`/api/ref/${encodeURIComponent(current.type)}`,{
           method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({value:val})
+          body:JSON.stringify({name:val})
         });
         if(!r.ok) throw 0;
-        const created=await r.json(); // {id,value}
+        const created=await r.json(); // {id,name}
         // chips’i yenile
         loadItems();
         // select’e ekle + seç
-        upsertSelectOption(current.select, created.value, true);
+        upsertSelectOption(current.select, created.name, true);
         inputEl.value='';
       }catch{ alert('Eklenemedi'); } finally{ addBtn.disabled=false; }
     });
@@ -283,7 +265,7 @@
     async function delItem(id,value){
       if(!confirm(`Silinsin mi?\n${value}`)) return;
       try{
-        const r=await fetch(`/api/lookup/${encodeURIComponent(current.type)}/${id}`,{method:'DELETE'});
+        const r=await fetch(`/api/ref/${encodeURIComponent(current.type)}/${id}`,{method:'DELETE'});
         if(!r.ok) throw 0;
         // Chips’ten/Select’ten kaldır
         const c=chipsEl.querySelector(`.chip[data-id="${id}"]`); if(c) c.remove();

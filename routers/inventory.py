@@ -39,8 +39,6 @@ async def new_post(request: Request, db: Session = Depends(get_db), user=Depends
     marka=form.get("marka"),
     model=form.get("model"),
     seri_no=form.get("seri_no"),
-    sorumlu_personel=form.get("sorumlu_personel"),
-    bagli_envanter_no=form.get("bagli_envanter_no"),
     ifs_no=form.get("ifs_no"),
     not_=form.get("not") or None,
     tarih=datetime.utcnow(),
