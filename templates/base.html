@@ -86,9 +86,16 @@
     <script src="{{ url_for('static', path='js/picker.js') }}"></script>
     <script defer src="/static/js/selects.js"></script>
     <script src="{{ url_for('static', path='/js/actions.js') }}"></script>
-    {% block scripts %}
-    <script>
+  {% block scripts %}
+  <script>
 document.addEventListener("DOMContentLoaded", () => {
+  if (window.self !== window.top) {
+    const aside = document.querySelector("aside");
+    const main = document.querySelector("main");
+    if (aside) aside.remove();
+    if (main) main.classList.remove("col-lg-10");
+  }
+
   // Event delegation: works for dynamically added rows
   document.body.addEventListener("click", (e) => {
     const row = e.target.closest("tr[data-href]");
