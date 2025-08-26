@@ -4,11 +4,19 @@ from sqlalchemy.orm import Session
 from auth import get_db, get_user_by_id
 
 class SessionUser:
-    def __init__(self, id: int, username: str, role: str, full_name: str | None = None):
+    def __init__(
+        self,
+        id: int,
+        username: str,
+        role: str,
+        full_name: str | None = None,
+        email: str | None = None,
+    ):
         self.id = id
         self.username = username
         self.role = role
         self.full_name = full_name or username
+        self.email = email
 
 def current_user(request: Request, db: Session = Depends(get_db)) -> SessionUser:
     user_id = request.session.get("user_id")
@@ -18,7 +26,13 @@ def current_user(request: Request, db: Session = Depends(get_db)) -> SessionUser
     u = get_user_by_id(db, int(user_id))
     if not u:
         raise HTTPException(status_code=status.HTTP_303_SEE_OTHER, detail="redirect:/login")
-    return SessionUser(u.id, u.username, getattr(u, "role", "admin"), u.full_name)
+    return SessionUser(
+        u.id,
+        u.username,
+        getattr(u, "role", "admin"),
+        u.full_name,
+        getattr(u, "email", None),
+    )
 
 def require_roles(*roles: str):
     def dep(user: SessionUser = Depends(current_user)) -> SessionUser:

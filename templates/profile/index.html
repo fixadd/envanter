@@ -1,5 +1,10 @@
 {% extends "base.html" %}{% block title %}Profil{% endblock %}
 {% block content %}
 <h2 class="h5 mb-3">Profil</h2>
-<form class="card p-3">Ad, parola değiştir vb...</form>
+<div class="card p-3">
+  <div class="mb-2"><strong>Kullanıcı Adı:</strong> {{ user.username }}</div>
+  <div class="mb-2"><strong>Ad:</strong> {{ first_name }}</div>
+  <div class="mb-2"><strong>Soyad:</strong> {{ last_name }}</div>
+  <div class="mb-2"><strong>E-posta:</strong> {{ user.email or '' }}</div>
+</div>
 {% endblock %}
