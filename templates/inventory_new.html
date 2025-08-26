@@ -34,14 +34,6 @@
         <input name="seri_no" class="form-control">
       </div>
       <div class="col-md-3">
-        <label class="form-label">Sorumlu Personel</label>
-        <select id="selSorumlu" name="sorumlu_personel" class="form-select"></select>
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">Bağlı Envanter No</label>
-        <input name="bagli_envanter_no" class="form-control">
-      </div>
-      <div class="col-md-3">
         <label class="form-label">IFS No</label>
         <input name="ifs_no" class="form-control">
       </div>
@@ -64,9 +56,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   await basitSelectDoldur({selectId:'selDonanim', url:'/api/lookup/donanim-tipi', hiddenName:'donanim_tipi', placeholder:'Donanım tipi seçiniz…'});
   await basitSelectDoldur({selectId:'selMarka', url:'/api/lookup/marka', hiddenName:'marka', placeholder:'Marka seçiniz…'});
   bağımlıSelectDoldur({ustSelectId:'selMarka', altSelectId:'selModel', altUrlBuilder:(id)=>`/api/lookup/model?marka_id=${id}`, altHiddenName:'model'});
-  const users = await fetch('/inventory/assign/sources?type=users').then(r=>r.json());
-  const selSorumlu = document.getElementById('selSorumlu');
-  selSorumlu.innerHTML = '<option value="">Seçiniz…</option>' + users.map(u => `<option value="${u.text}">${u.text}</option>`).join('');
 });
 </script>
 {% endblock %}

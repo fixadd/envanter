@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Depends, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
-from models import User, Lookup, Inventory
+from models import User, Lookup
 from auth import get_db
 from fastapi.templating import Jinja2Templates
 
@@ -29,9 +29,6 @@ def admin_index(request: Request, db: Session = Depends(get_db)):
         "lookup_donanim_tipleri": get("donanim_tipi"),
         "lookup_markalar": get("marka"),
         "lookup_modeller": get("model"),
-        "inventory_refs": db.query(Inventory).with_entities(
-            Inventory.no, Inventory.marka, Inventory.model
-        ).limit(300).all(),
     }
     return templates.TemplateResponse("admin.html", ctx)
 
@@ -56,8 +53,6 @@ def create_product(
     kullanim_alani: str = Form(""),
     lisans_adi: str = Form(""),
     fabrika: str = Form(""),
-    sorumlu_personel: str = Form(""),
-    bagli_envanter_no: str = Form(""),
     notlar: str = Form(""),
     db: Session = Depends(get_db),
 ):
