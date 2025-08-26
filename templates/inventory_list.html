@@ -67,20 +67,153 @@
   tr.inv-row a, tr.inv-row button, tr.inv-row select { cursor: pointer; }
 </style>
 
-<!-- Yeni Ekle Modal -->
-<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+<!-- Envanter Ekle Modal -->
+<div class="modal fade" id="inventoryCreateModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Envanter Ekle</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
       </div>
-      <div class="modal-body p-0">
-        <iframe id="addFrame" src="" style="width:100%;height:70vh;border:0;"></iframe>
+
+      <div class="modal-body">
+        <form method="post" action="/inventory/create" id="envanter-form" novalidate>
+          <div class="env-grid" id="envanter-ekle">
+            <!-- Envanter No -->
+            <div class="field">
+              <label>Envanter No</label>
+              <input name="envanter_no" type="text" class="ctrl" required placeholder="ENV-000123">
+            </div>
+
+            <!-- Bilgisayar Adı -->
+            <div class="field">
+              <label>Bilgisayar Adı</label>
+              <input name="bilgisayar_adi" type="text" class="ctrl" required placeholder="PC-OFIS-01">
+            </div>
+
+            <!-- Fabrika -->
+            <div class="field">
+              <label>Fabrika</label>
+              <input id="fabrika_display" class="ctrl picker" placeholder="Seçiniz..." readonly>
+              <input type="hidden" id="fabrika" name="fabrika" required>
+            </div>
+
+            <!-- Departman -->
+            <div class="field">
+              <label>Departman</label>
+              <input id="departman_display" class="ctrl picker" placeholder="Seçiniz..." readonly>
+              <input type="hidden" id="departman" name="departman" required>
+            </div>
+
+            <!-- Donanım Tipi -->
+            <div class="field">
+              <label>Donanım Tipi</label>
+              <input id="donanim_tipi_display" class="ctrl picker" placeholder="Seçiniz..." readonly>
+              <input type="hidden" id="donanim_tipi" name="donanim_tipi" required>
+            </div>
+
+            <!-- Sorumlu Personel -->
+            <div class="field">
+              <label>Sorumlu Personel</label>
+              <input id="sorumlu_personel_display" class="ctrl picker" placeholder="Seçiniz..." readonly>
+              <input type="hidden" id="sorumlu_personel" name="sorumlu_personel" required>
+            </div>
+
+            <!-- Marka -->
+            <div class="field">
+              <label>Marka</label>
+              <input id="marka_display" class="ctrl picker" placeholder="Seçiniz..." readonly>
+              <input type="hidden" id="marka" name="marka" required>
+            </div>
+
+            <!-- Model -->
+            <div class="field">
+              <label>Model</label>
+              <input id="model_display" class="ctrl picker" placeholder="Seçiniz..." readonly>
+              <input type="hidden" id="model" name="model" required>
+            </div>
+
+            <!-- Seri No -->
+            <div class="field">
+              <label>Seri No</label>
+              <input name="seri_no" type="text" class="ctrl" required placeholder="SN123456789">
+            </div>
+
+            <!-- IFS No (opsiyonel) -->
+            <div class="field">
+              <label>IFS No <span class="muted">(zorunlu değil)</span></label>
+              <input name="ifs_no" type="text" class="ctrl" placeholder="IFS-...">
+            </div>
+
+            <!-- Bağlı Makina No (opsiyonel) -->
+            <div class="field">
+              <label>Bağlı Makina No <span class="muted">(zorunlu değil)</span></label>
+              <input name="bagli_makina_no" type="text" class="ctrl" placeholder="Makina No">
+            </div>
+
+            <!-- Not (opsiyonel) -->
+            <div class="field span-2">
+              <label>Not <span class="muted">(zorunlu değil)</span></label>
+              <textarea name="notlar" class="ctrl" rows="2" placeholder="Açıklama / notlar"></textarea>
+            </div>
+          </div>
+
+          <div class="mt-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  /* Yalnız bu modalı düzenler */
+  .env-grid{ display:grid; grid-template-columns:1fr; gap:12px 16px; }
+  @media (min-width:768px){ .env-grid{ grid-template-columns:1fr 1fr; } .env-grid .span-2{ grid-column:1 / -1; } }
+  .field label{ display:block; margin-bottom:6px; font-weight:600; }
+  .ctrl{ width:100%; padding:10px 12px; border:1px solid #ced4da; border-radius:.5rem; background:var(--bs-body-bg,#fff); }
+  .ctrl::placeholder{ color:var(--bs-secondary-color,#6c757d); opacity:1; }
+  .picker{ cursor:pointer; }
+  .is-invalid{ border-color:#dc3545 !important; }
+  .muted{ color:var(--bs-secondary-color,#6c757d); font-weight:400; }
+</style>
+
+<script>window.SKIP_SELECT_ENHANCE = true;</script>
+<script>
+  // Kutulara tıklayınca seçim aç; sonucu hidden'a yaz.
+  (function(){
+    function openPicker(entity, current){
+      // TODO: kendi modal/offsayfa seçicini çağır.
+      const v = prompt(entity.toUpperCase()+" seçin:", current || "");
+      return (v && v.trim()) ? { id:v.trim(), text:v.trim() } : null;
+    }
+    const ids = ["fabrika","departman","donanim_tipi","sorumlu_personel","marka","model"];
+    ids.forEach(id=>{
+      const dsp = document.getElementById(id+"_display");
+      const hid = document.getElementById(id);
+      dsp.addEventListener('click', ()=>{
+        const pick = openPicker(id, hid.value);
+        if(!pick) return;
+        hid.value = pick.id;
+        dsp.value = pick.text;
+        dsp.classList.remove('is-invalid');
+      });
+    });
+
+    // Submit’te required hidden kontrolü
+    document.getElementById('envanter-form').addEventListener('submit', (e)=>{
+      let ok = true;
+      ["fabrika","departman","donanim_tipi","sorumlu_personel","marka","model"].forEach(id=>{
+        const hid = document.getElementById(id);
+        const dsp = document.getElementById(id+"_display");
+        if(!hid.value){ ok = false; dsp.classList.add('is-invalid'); }
+      });
+      if(!ok){ e.preventDefault(); e.stopPropagation(); }
+    });
+  })();
+</script>
 
 <!-- Filtre Modal -->
 <div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
@@ -164,7 +297,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const assignModal = new bootstrap.Modal(document.getElementById('assignModal'));
   const scrapModal  = new bootstrap.Modal(document.getElementById('scrapModal'));
-  const addModal    = new bootstrap.Modal(document.getElementById('addModal'));
+  const addModal    = new bootstrap.Modal(document.getElementById('inventoryCreateModal'));
   const filterModal = new bootstrap.Modal(document.getElementById('filterModal'));
 
   const searchInput   = document.getElementById('searchInput');
@@ -178,7 +311,6 @@ document.addEventListener('DOMContentLoaded', () => {
     .filter(c => c.field);
 
   document.getElementById('addBtn').addEventListener('click', () => {
-    document.getElementById('addFrame').src = '/inventory/new';
     addModal.show();
   });
 
