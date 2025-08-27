@@ -78,27 +78,23 @@
       <div class="modal-body">
         <form method="post" action="/lisans/create" class="needs-validation" novalidate>
           <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Lisans Adı</label>
-              <select name="lisans_adi" class="form-select" required>
-                <option value="">Seçiniz...</option>
-                {% for ln in license_names %}
-                <option value="{{ ln.name }}">{{ ln.name }}</option>
-                {% endfor %}
-              </select>
-            </div>
+              <div class="col-md-6">
+                <label class="form-label">Lisans Adı</label>
+                <select id="selLisansAdi" name="lisans_adi" class="form-select" required>
+                  <option value="">Seçiniz</option>
+                </select>
+              </div>
             <div class="col-md-6">
               <label class="form-label">Lisans Anahtarı</label>
               <input name="lisans_anahtari" type="text" class="form-control" required placeholder="XXXX-XXXX-XXXX-XXXX">
             </div>
 
-            <div class="col-md-6">
-              <label class="form-label">Sorumlu Personel</label>
-              <select name="sorumlu_personel" class="form-select" required>
-                <option value="">Seçiniz...</option>
-                {% for u in users %}<option value="{{ u }}">{{ u }}</option>{% endfor %}
-              </select>
-            </div>
+              <div class="col-md-6">
+                <label class="form-label">Sorumlu Personel</label>
+                <select id="selPersonel" name="sorumlu_personel" class="form-select">
+                  <option value="">Seçiniz</option>
+                </select>
+              </div>
 
             <div class="col-md-6">
               <label class="form-label">Bağlı Olduğu Envanter No</label>
@@ -115,10 +111,10 @@
               <input name="ifs_no" type="text" class="form-control" placeholder="IFS numarası">
             </div>
 
-            <div class="col-md-6">
-              <label class="form-label">Mail Adresi</label>
-              <input name="mail_adresi" type="email" class="form-control" placeholder="ornek@firma.com">
-            </div>
+              <div class="col-md-6">
+                <label class="form-label">E-posta (opsiyonel)</label>
+                <input name="mail_adresi" type="email" class="form-control" placeholder="ornek@firma.com">
+              </div>
           </div>
 
           <div class="mt-3 d-flex gap-2">
@@ -126,14 +122,27 @@
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
           </div>
         </form>
-      </div>
-    </div>
   </div>
-</div>
+  </div>
+  </div>
+  </div>
 
-<!-- Filtre Modal -->
-<div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
+  <script>
+    fetch('/api/licenses/names').then(r=>r.json()).then(list=>{
+      const sel = document.getElementById('selLisansAdi');
+      sel.innerHTML = '<option value="">Seçiniz</option>';
+      list.forEach(x=>{const o=document.createElement('option');o.value=o.textContent=x;sel.appendChild(o);});
+    });
+    fetch('/api/users/names').then(r=>r.json()).then(list=>{
+      const sel = document.getElementById('selPersonel');
+      sel.innerHTML = '<option value="">Seçiniz</option>';
+      list.forEach(x=>{const o=document.createElement('option');o.value=o.textContent=x;sel.appendChild(o);});
+    });
+  </script>
+
+  <!-- Filtre Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
     <form id="filterForm" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Filtrele</h5>
