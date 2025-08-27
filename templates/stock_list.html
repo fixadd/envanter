@@ -33,7 +33,12 @@
   <form class="row g-2 mb-3" method="post" action="/stock/log">
     <div class="col-md-3">
       <label class="form-label mb-1">Donanım Tipi</label>
-      <input name="donanim_tipi" class="form-control form-control-sm" required>
+      <select name="donanim_tipi" class="form-select form-select-sm" required>
+        <option value="">Seçiniz...</option>
+        {% for ht in hardware_types %}
+        <option value="{{ ht.name }}">{{ ht.name }}</option>
+        {% endfor %}
+      </select>
     </div>
     <div class="col-md-2">
       <label class="form-label mb-1">Miktar</label>
@@ -48,6 +53,7 @@
       <select name="islem" class="form-select form-select-sm" required>
         <option value="girdi">Girdi</option>
         <option value="cikti">Çıktı</option>
+        <option value="hurda">Hurda</option>
       </select>
     </div>
     <div class="col-md-2 d-flex align-items-end">
@@ -144,11 +150,13 @@
       <div class="modal-body">
         <div class="mb-2">
           <label class="form-label">Donanım Tipi (Seç ya da yaz)</label>
-          <input name="donanim_tipi" id="a_donanim" class="form-control form-control-sm" required>
+          <input name="donanim_tipi" id="a_donanim" class="form-control form-control-sm" list="a_donanim_list" required>
+          <datalist id="a_donanim_list"></datalist>
         </div>
         <div class="mb-2">
           <label class="form-label">IFS No</label>
-          <input name="ifs_no" id="a_ifs" class="form-control form-control-sm">
+          <input name="ifs_no" id="a_ifs" class="form-control form-control-sm" list="a_ifs_list">
+          <datalist id="a_ifs_list"></datalist>
         </div>
         <div class="row g-2">
           <div class="col-6">
@@ -166,11 +174,17 @@
         </div>
         <div class="mb-2">
           <label class="form-label">Sorumlu Personel</label>
-          <input name="sorumlu_personel" class="form-control form-control-sm">
+          <select name="sorumlu_personel" class="form-select form-select-sm">
+            <option value="">Seçiniz...</option>
+            {% for u in users %}<option value="{{ u }}">{{ u }}</option>{% endfor %}
+          </select>
         </div>
         <div class="mb-2">
           <label class="form-label">Kullanım Alanı</label>
-          <input name="kullanim_alani" class="form-control form-control-sm">
+          <select name="kullanim_alani" class="form-select form-select-sm">
+            <option value="">Seçiniz...</option>
+            {% for ua in usage_areas %}<option value="{{ ua.name }}">{{ ua.name }}</option>{% endfor %}
+          </select>
         </div>
       </div>
       <div class="modal-footer">
@@ -188,6 +202,7 @@
   const durumModal = new bootstrap.Modal(document.getElementById('durumModal'));
   const atamaModal = new bootstrap.Modal(document.getElementById('atamaModal'));
   const addModal   = new bootstrap.Modal(document.getElementById('addModal'));
+  let atamaData = [];
 
   document.getElementById('addBtn').addEventListener('click', () => {
     document.getElementById('addFrame').src = '/stock/new';
@@ -214,19 +229,51 @@
 
   // Atama akışı
   const frmAtama = document.getElementById('frmAtama');
-  document.getElementById('btnAtama').addEventListener('click', ()=>{
+  document.getElementById('btnAtama').addEventListener('click', async ()=>{
     document.getElementById('a_mevcut').textContent = 'Mevcut: -';
+    const res = await fetch('/stock/durum');
+    const j = await res.json();
+    atamaData = j.rows || [];
+    const donList = document.getElementById('a_donanim_list');
+    donList.innerHTML = '';
+    const seen = new Set();
+    atamaData.forEach(r=>{
+      if(r.donanim_tipi && !seen.has(r.donanim_tipi)){
+        seen.add(r.donanim_tipi);
+        const opt = document.createElement('option');
+        opt.value = r.donanim_tipi;
+        donList.appendChild(opt);
+      }
+    });
+    document.getElementById('a_donanim').value = '';
+    document.getElementById('a_ifs').value = '';
+    document.getElementById('a_ifs_list').innerHTML = '';
     atamaModal.show();
   });
 
   // Mevcut stok gösterimi (donanim_tipi + ifs değişince)
-  async function refreshMevcut(){
+  function refreshMevcut(){
     const don = document.getElementById('a_donanim').value.trim();
-    const ifs = document.getElementById('a_ifs').value.trim() || null;
-    if(!don){ document.getElementById('a_mevcut').textContent = 'Mevcut: -'; return; }
-    const res = await fetch('/stock/durum'); const j = await res.json();
-    const m = (j.rows || []).find(x => x.donanim_tipi === don && (x.ifs_no||null) === ifs);
+    const ifsInput = document.getElementById('a_ifs');
+    const ifs = ifsInput.value.trim() || null;
+    const ifsList = document.getElementById('a_ifs_list');
+    ifsList.innerHTML = '';
+    if(!don){
+      document.getElementById('a_mevcut').textContent = 'Mevcut: -';
+      document.querySelector('#frmAtama [name="miktar"]').max = '';
+      return;
+    }
+    atamaData.filter(x => x.donanim_tipi === don).forEach(r=>{
+      if(r.ifs_no){
+        const opt = document.createElement('option');
+        opt.value = r.ifs_no;
+        ifsList.appendChild(opt);
+      }
+    });
+    const m = atamaData.find(x => x.donanim_tipi === don && (x.ifs_no||null) === ifs);
     document.getElementById('a_mevcut').textContent = 'Mevcut: ' + (m ? m.stok : 0);
+    document.querySelector('#frmAtama [name="miktar"]').max = m ? m.stok : '';
+    if(m && m.ifs_no && !ifs) ifsInput.value = m.ifs_no;
   }
   document.getElementById('a_donanim').addEventListener('input', refreshMevcut);
   document.getElementById('a_ifs').addEventListener('input', refreshMevcut);
