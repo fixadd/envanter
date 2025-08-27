@@ -118,6 +118,16 @@ def licenses_list_alias(request: Request, db: Session = Depends(get_db), user=De
 def licenses_detail_alias(lic_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
     return license_router.license_detail(lic_id, request, db)
 
+
+@app.get("/licenses/{lic_id}/edit", include_in_schema=False)
+def licenses_edit_alias(lic_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
+    return license_router.edit_license_form(lic_id, request, db)
+
+
+@app.get("/licenses/{lic_id}/assign", include_in_schema=False)
+def licenses_assign_alias(lic_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
+    return license_router.assign_license_form(lic_id, request, db, user)
+
 # Sadece admin
 app.include_router(logs.router, prefix="/logs", tags=["Logs"], dependencies=[Depends(require_roles("admin"))])
 app.include_router(admin_router, dependencies=[Depends(require_roles("admin"))])
