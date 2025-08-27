@@ -165,6 +165,80 @@ def create_license(
     db.commit()
     return RedirectResponse(url="/lisans", status_code=status.HTTP_303_SEE_OTHER)
 
+
+@router.get("/{lic_id}/edit", response_class=HTMLResponse, name="license.edit_form")
+def edit_license_form(lic_id: int, request: Request, db: Session = Depends(get_db)):
+    lic = db.query(License).get(lic_id)
+    if not lic:
+        raise HTTPException(status_code=404, detail="Lisans bulunamadı")
+    envanterler = db.query(Inventory).order_by(Inventory.no).all()
+    users = [r[0] for r in db.execute(text("SELECT full_name FROM users ORDER BY full_name")).fetchall()]
+    license_names = db.query(LicenseName).order_by(LicenseName.name).all()
+    return templates.TemplateResponse(
+        "license_form.html",
+        {
+            "request": request,
+            "license": lic,
+            "envanterler": envanterler,
+            "users": users,
+            "license_names": license_names,
+            "form_action": f"/lisans/{lic_id}/edit",
+        },
+    )
+
+
+@router.post("/{lic_id}/edit", name="license.edit_post")
+def edit_license_post(
+    lic_id: int,
+    request: Request,
+    adi: str = Form(...),
+    anahtar: str = Form(""),
+    sorumlu_personel: str = Form(""),
+    inventory_id: int = Form(None),
+    ifs_no: str = Form(""),
+    mail_adresi: str = Form(""),
+    db: Session = Depends(get_db),
+    user = Depends(current_user),
+):
+    lic = db.query(License).get(lic_id)
+    if not lic:
+        raise HTTPException(status_code=404, detail="Lisans bulunamadı")
+    inv = db.query(Inventory).get(inventory_id) if inventory_id else None
+    lic.lisans_adi = adi
+    lic.lisans_anahtari = anahtar or None
+    lic.sorumlu_personel = sorumlu_personel or None
+    lic.inventory_id = inv.id if inv else None
+    lic.bagli_envanter_no = getattr(inv, "no", None)
+    lic.ifs_no = ifs_no or None
+    lic.mail_adresi = mail_adresi or None
+    _logla(db, lic, "DUZENLE", "Lisans düzenlendi", getattr(user, "full_name", None) or "system")
+    db.commit()
+    return RedirectResponse(url=request.url_for("license_list"), status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/{lic_id}/assign", response_class=HTMLResponse, name="license.assign_form")
+def assign_license_form(
+    lic_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
+):
+    lic = db.query(License).get(lic_id)
+    if not lic:
+        raise HTTPException(status_code=404, detail="Lisans bulunamadı")
+    envanterler = db.query(Inventory).order_by(Inventory.no).all()
+    users = [r[0] for r in db.execute(text("SELECT full_name FROM users ORDER BY full_name")).fetchall()]
+    return templates.TemplateResponse(
+        "license_assign.html",
+        {
+            "request": request,
+            "license": lic,
+            "envanterler": envanterler,
+            "users": users,
+            "current_user": user,
+        },
+    )
+
 @router.post("/{lic_id}/assign")
 def assign_license(
     lic_id: int,
