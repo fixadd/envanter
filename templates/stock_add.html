@@ -1,0 +1,31 @@
+<div class="row g-2">
+  <div class="col-md-6">
+    <label class="form-label">Donanım Tipi</label>
+    <select id="selDonanim" name="donanim_tipi" class="form-select" required>
+      <option value="">Seçiniz</option>
+    </select>
+  </div>
+  <div class="col-md-6">
+    <label class="form-label">Miktar</label>
+    <input type="number" min="1" name="miktar" class="form-control" required>
+  </div>
+  <div class="col-md-6">
+    <label class="form-label">IFS No (opsiyonel)</label>
+    <input type="text" name="ifs_no" class="form-control">
+  </div>
+  <div class="col-md-6">
+    <label class="form-label">İşlem</label>
+    <select name="islem" class="form-select" required>
+      <option value="girdi">Girdi</option>
+      <option value="cikti">Çıktı</option>
+      <option value="hurda">Hurda</option>
+    </select>
+  </div>
+</div>
+<script>
+  // donanım tipleri lookup
+  fetch('/api/lookup/donanim_tipi').then(r=>r.json()).then(list=>{
+    const sel = document.getElementById('selDonanim');
+    list.forEach(n=>{ const o=document.createElement('option'); o.value=o.textContent=n; sel.appendChild(o); });
+  });
+</script>
