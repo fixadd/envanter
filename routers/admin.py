@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 from fastapi.templating import Jinja2Templates
 
 from models import User, Connection
-from auth import get_db, hash_password
+from auth import hash_password
+from database import get_db
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 templates = Jinja2Templates(directory="templates")

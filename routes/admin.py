@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from models import User, Lookup
-from auth import get_db
+from database import get_db
 from fastapi.templating import Jinja2Templates
 
 router = APIRouter(prefix="/admin", tags=["Admin"])

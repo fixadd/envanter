@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from typing import Optional, Dict, Any
 from datetime import datetime
 
-from auth import get_db
+from database import get_db
 from security import current_user
 from models import Printer, PrinterHistory, ScrapPrinter, Brand, Model, UsageArea
 from sqlalchemy import text
