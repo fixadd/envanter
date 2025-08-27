@@ -176,6 +176,9 @@
     $search.focus();
   }
 
+  // Dışarıdan çağırılabilsin
+  window.__openPickerModal = openModal;
+
   function updateAddState(){ $add.disabled = !current.allowAdd || ($search.value.trim().length===0); }
 
   async function load(q){
