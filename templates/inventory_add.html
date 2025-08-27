@@ -83,30 +83,187 @@
 </style>
 
 <script>window.SKIP_SELECT_ENHANCE = true;</script>
+
+<!-- === MINI PICKER (küçük seçim penceresi) === -->
+<div id="picker-modal" class="picker-modal" hidden>
+  <div class="picker-card">
+    <div class="picker-head">
+      <strong id="picker-title">Seçim</strong>
+      <button type="button" class="picker-close" aria-label="Kapat">×</button>
+    </div>
+    <div class="picker-search">
+      <input id="picker-search" type="text" placeholder="Ara / yeni değer yaz..." />
+      <button type="button" class="picker-add" id="picker-add">Ekle</button>
+    </div>
+    <div id="picker-list" class="picker-list"></div>
+    <div class="picker-foot">
+      <button type="button" class="btn btn-light" id="picker-cancel">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .picker-modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.4);z-index:1085}
+  .picker-card{width:420px;max-width:92vw;background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.18);overflow:hidden}
+  .picker-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #eef2f7}
+  .picker-close{border:0;background:transparent;font-size:22px;line-height:1;cursor:pointer;padding:2px 6px}
+  .picker-search{display:flex;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid #eef2f7}
+  .picker-search input{flex:1 1 auto;padding:10px 12px;border:1px solid #dbe2ea;border-radius:10px}
+  .picker-add{flex:0 0 auto;padding:9px 14px;border:1px solid #16a34a;background:#16a34a;color:#fff;border-radius:10px;cursor:pointer}
+  .picker-add:disabled{opacity:.5;cursor:not-allowed}
+  .picker-list{max-height:320px;overflow:auto}
+  .picker-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px dashed #eef2f7}
+  .picker-row:nth-child(even){background:#fafbff}
+  .picker-name{margin:0;font-size:14px}
+  .picker-actions{display:flex;gap:8px;align-items:center}
+  .picker-select{border:1px solid #d1d5db;background:#f9fafb;border-radius:8px;padding:6px 10px;cursor:pointer}
+  .picker-del{border:1px solid #ef4444;background:#fff;color:#ef4444;border-radius:999px;width:28px;height:28px;line-height:1;font-weight:700}
+  .picker-del:hover{background:#fee2e2}
+  .picker-empty{padding:14px;color:#6b7280;font-size:14px}
+  .picker-foot{padding:10px 14px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid #eef2f7}
+</style>
+
 <script>
 (function(){
-  // Burayı kendi seçim modalına bağla. Şimdilik prompt ile simüle:
-  function openPicker(entity, current){
-    const v = prompt(entity.toUpperCase() + " seçin:", current || "");
-    return (v && v.trim()) ? { id:v.trim(), text:v.trim() } : null;
+  // Envanter Ekle alanlarını Ürün Ekle kaynaklarına bağlama
+  const MAP = {
+    fabrika:           { title:"FABRİKA",          endpoint:"/api/picker/fabrika" },
+    departman:         { title:"DEPARTMAN",        endpoint:"/api/picker/kullanim_alani" }, // ürün ekle: kullanım alanı
+    donanim_tipi:      { title:"DONANIM TİPİ",     endpoint:"/api/picker/donanim_tipi" },
+    sorumlu_personel:  { title:"SORUMLU PERSONEL", endpoint:"/api/picker/kullanici", allowAdd:false, allowDelete:false },
+    marka:             { title:"MARKA",            endpoint:"/api/picker/marka" },
+    // Model marka'ya bağlı; GET: ?marka_id=.. , POST: body.parent_id
+    model:             { title:"MODEL",            endpoint:"/api/picker/model", dependsOn:{ hiddenId:"marka", param:"marka_id" } },
+  };
+
+  const $m=document.getElementById('picker-modal');
+  const $title=document.getElementById('picker-title');
+  const $search=document.getElementById('picker-search');
+  const $add=document.getElementById('picker-add');
+  const $list=document.getElementById('picker-list');
+  const $close=document.querySelector('.picker-close');
+  const $cancel=document.getElementById('picker-cancel');
+
+  let current={ entity:null, endpoint:null, hidden:null, display:null, chip:null, extra:{}, parentId:null, allowAdd:true, allowDelete:true };
+
+  function depParams(entity){
+    const meta=MAP[entity];
+    if(!meta||!meta.dependsOn) return {extra:{}, parentId:null};
+    const h=document.getElementById(meta.dependsOn.hiddenId);
+    if(!h||!h.value) return {extra:null, parentId:null}; // bağlı alan seçilmemiş
+    return {extra:{[meta.dependsOn.param]:h.value}, parentId:h.value};
   }
-  function bind(entity){
-    const hid = document.getElementById(entity);
-    const dsp = document.getElementById(entity + '_display');
-    dsp.addEventListener('click', ()=>{
-      const p = openPicker(entity, hid.value);
-      if(!p) return;
-      hid.value = p.id; dsp.value = p.text; dsp.classList.remove('is-invalid');
-    });
+
+  function openModal(entity){
+    const meta = MAP[entity] || {title:entity.toUpperCase(), endpoint:`/api/picker/${entity}`};
+    const dep  = depParams(entity);
+    if(dep.extra===null){ alert("Önce bağlı alanı seçin (örn. önce MARKA)."); return; }
+
+    const hidden  = document.getElementById(entity);
+    const display = document.getElementById(entity + "_display"); // readonly input kullananlar için
+    const chip    = document.querySelector(`.pick-chip[data-for="${entity}"]`); // kart kullanıyorsan
+
+    current = {
+      entity, endpoint:meta.endpoint, hidden, display, chip,
+      extra:dep.extra||{}, parentId:dep.parentId||null,
+      allowAdd: meta.allowAdd!==false, allowDelete: meta.allowDelete!==false
+    };
+
+    $title.textContent = `${meta.title} seçin`;
+    $search.value=''; $list.innerHTML='';
+    $m.hidden=false; $m.style.display='flex';
+    updateAddState(); load('');
+    $search.focus();
   }
-  ["fabrika","departman","donanim_tipi","sorumlu_personel","marka","model"].forEach(bind);
+
+  function updateAddState(){ $add.disabled = !current.allowAdd || ($search.value.trim().length===0); }
+
+  async function load(q){
+    const url=new URL(current.endpoint, location.origin);
+    if(q) url.searchParams.set('q', q);
+    Object.entries(current.extra).forEach(([k,v])=>url.searchParams.set(k,v));
+    const res=await fetch(url,{headers:{Accept:'application/json'}});
+    const data=(await res.json())||[];
+    render(data);
+  }
+
+  function render(items){
+    if(!items.length){ $list.innerHTML=`<div class="picker-empty">Kayıt bulunamadı.</div>`; return; }
+    $list.innerHTML = items.map(r=>`
+      <div class="picker-row" data-id="${r.id}" data-text="${r.text}">
+        <p class="picker-name">${r.text}</p>
+        <div class="picker-actions">
+          <button type="button" class="picker-select">Seç</button>
+          ${current.allowDelete ? `<button type="button" class="picker-del" title="Sil">–</button>` : ``}
+        </div>
+      </div>`).join('');
+  }
+
+  function applySelection(id, text){
+    if(current.hidden)  current.hidden.value = id;
+    if(current.display) current.display.value = text, current.display.classList.remove('is-invalid');
+    if(current.chip){ current.chip.textContent = text; current.chip.classList.remove('d-none'); }
+    // Marka değişirse seçili modeli sıfırla
+    if(current.entity==='marka'){
+      const mHidden=document.getElementById('model');
+      const mDisp=document.getElementById('model_display');
+      if(mHidden){ mHidden.value=''; }
+      if(mDisp){ mDisp.value=''; mDisp.classList.remove('is-invalid'); }
+      const mChip=document.querySelector('.pick-chip[data-for="model"]'); if(mChip){ mChip.classList.add('d-none'); mChip.textContent=''; }
+    }
+  }
+
+  async function addItem(){
+    const txt=$search.value.trim(); if(!txt || !current.allowAdd) return;
+    const body={ text:txt };
+    if(current.parentId) body.parent_id = current.parentId;
+    const res=await fetch(current.endpoint,{ method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body:JSON.stringify(body) });
+    if(res.ok){
+      const created=await res.json(); applySelection(created.id, created.text); closeModal();
+    }else if(res.status===409){ alert('Bu kayıt zaten var.'); }
+    else{ alert('Ekleme başarısız!'); }
+  }
+
+  function closeModal(){ $m.style.display='none'; $m.hidden=true; $list.innerHTML=''; $search.value=''; }
+
+  // Olaylar
+  $search.addEventListener('input', e=>{ updateAddState(); load(e.target.value.trim()); });
+  $search.addEventListener('keydown', e=>{ if(e.key==='Enter' && !$add.disabled){ e.preventDefault(); addItem(); }});
+  $add.addEventListener('click', addItem);
+
+  $list.addEventListener('click', async e=>{
+    const row=e.target.closest('.picker-row'); if(!row) return;
+    if(e.target.classList.contains('picker-select')){
+      applySelection(row.dataset.id, row.dataset.text); closeModal();
+    }else if(e.target.classList.contains('picker-del')){
+      if(!current.allowDelete) return;
+      if(!confirm('Silinsin mi?')) return;
+      const del=await fetch(`${current.endpoint}/${encodeURIComponent(row.dataset.id)}`, {method:'DELETE'});
+      if(del.ok){ row.remove(); if(!$list.children.length){ $list.innerHTML=`<div class="picker-empty">Kayıt bulunamadı.</div>`; } }
+      else{ alert('Silme başarısız!'); }
+    }
+  });
+
+  document.querySelector('.picker-close').onclick = closeModal;
+  document.getElementById('picker-cancel').onclick = closeModal;
+  $m.addEventListener('click', e=>{ if(e.target===$m) closeModal(); });
+
+  // === Envanter Ekle alanlarını bağla (readonly inputlara tıklama) ===
+  ['fabrika','departman','donanim_tipi','sorumlu_personel','marka','model'].forEach(id=>{
+    const disp=document.getElementById(id+'_display');
+    if(disp){ disp.addEventListener('click', ()=>openModal(id)); }
+  });
+  // (kart tasarımında ≡ buton varsa)
+  document.querySelectorAll('#envanter-ekle .pick-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>openModal(btn.dataset.entity));
+  });
 
   // submit öncesi required hidden kontrolü
   document.querySelector('#envanter-ekle').closest('form').addEventListener('submit', (e)=>{
     let ok = true;
-    ["fabrika","departman","donanim_tipi","sorumlu_personel","marka","model"].forEach(id=>{
+    ['fabrika','departman','donanim_tipi','sorumlu_personel','marka','model'].forEach(id=>{
       const hid = document.getElementById(id);
-      const dsp = document.getElementById(id + "_display");
+      const dsp = document.getElementById(id + '_display');
       if(!hid.value){ ok = false; dsp.classList.add('is-invalid'); }
     });
     if(!ok){ e.preventDefault(); e.stopPropagation(); }
