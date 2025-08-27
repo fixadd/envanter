@@ -270,3 +270,50 @@
   });
 })();
 </script>
+<script>
+/* --- Envanter Ekle: eski prompt tabanlı seçiciyi devre dışı bırakıp mini-picker'ı zorla --- */
+(function () {
+  const ENTITIES = ['fabrika','departman','donanim_tipi','sorumlu_personel','marka','model'];
+
+  function openNewPicker(entity) {
+    // hidden ve display alanlarını bul
+    const hidden  = document.getElementById(entity);
+    const display = document.getElementById(entity + '_display');
+    // bizim modalı çağır (daha önce eklediğimiz fonksiyon)
+    if (window.__openPickerModal) {
+      // __openPickerModal(entity, hiddenId, chipSelector?)
+      window.__openPickerModal(entity, entity);
+      return;
+    }
+    // Yedek: modal fonksiyonu farklı isimdeyse buraya ekleyebilirsin
+    console.error('Mini picker modal yüklenmemiş: __openPickerModal bulunamadı.');
+  }
+
+  // 1) _display inputlarına capture aşamasında dinleyici ekle -> eski click'leri iptal et
+  ENTITIES.forEach(id => {
+    const el = document.getElementById(id + '_display');
+    if (!el) return;
+    el.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      ev.stopImmediatePropagation(); // eski handler'ı çalıştırma (prompt engellenir)
+      openNewPicker(id);
+    }, { capture: true }); // capture önemli: eski dinleyiciden önce yakalar
+  });
+
+  // 2) Eğer ≡ butonlar varsa onları da bağla
+  document.querySelectorAll('#envanter-ekle .pick-btn').forEach(btn => {
+    btn.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+      openNewPicker(btn.dataset.entity);
+    }, { capture: true });
+  });
+
+  // 3) Eski global fonksiyon (prompt kullanan) varsa üzerine yaz ve modalı aç
+  if (typeof window.openPicker === 'function') {
+    window.openPicker = function (entity /*, current */) {
+      openNewPicker(entity);
+    };
+  }
+})();
+</script>
