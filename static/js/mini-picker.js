@@ -7,6 +7,8 @@
     fabrika:        { title: "FABRİKA",        endpoint: "/api/picker/fabrika"        },
     donanim_tipi:   { title: "DONANIM TİPİ",   endpoint: "/api/picker/donanim_tipi"   },
     marka:          { title: "MARKA",          endpoint: "/api/picker/marka"          },
+    departman:      { title: "DEPARTMAN",      endpoint: "/api/picker/kullanim_alani" }, // ürün ekledeki kullanım alanı
+    sorumlu_personel:{ title: "SORUMLU PERSONEL", endpoint: "/api/picker/kullanici", allowAdd:false, allowDelete:false },
 
     // MODEL marka'ya bağlı: GET'te ?marka_id=.. gönder, POST'ta parent_id olarak geç
     model:          { title: "MODEL",          endpoint: "/api/picker/model",
@@ -22,7 +24,7 @@
   const $cancel = document.getElementById('picker-cancel');
 
   // Aktif seçim bağlamı
-  let current = { entity:null, endpoint:null, hidden:null, display:null, chip:null, extra:{} };
+  let current = { entity:null, endpoint:null, hidden:null, display:null, chip:null, extra:{}, parentId:null, allowAdd:true, allowDelete:true };
 
   function getDependencyParams(entity){
     const meta = MAP[entity];
@@ -50,19 +52,22 @@
       chip: chipEl || null,
       extra: dep.extra || {},
       parentId: dep.parentId || null,
+      allowAdd: meta.allowAdd !== false,
+      allowDelete: meta.allowDelete !== false,
     };
 
     $title.textContent = `${meta.title} seçin`;
     $search.value = ''; $list.innerHTML = '';
     $m.hidden = false; $m.style.display = 'flex';
 
+    $add.style.display = current.allowAdd ? '' : 'none';
     updateAddState();
     load('');
     $search.focus();
   }
 
   function updateAddState(){
-    $add.disabled = ($search.value.trim().length === 0);
+    $add.disabled = (!current.allowAdd) || ($search.value.trim().length === 0);
   }
 
   async function load(q){
@@ -81,7 +86,7 @@
         <p class="picker-name">${r.text}</p>
         <div class="picker-actions">
           <button type="button" class="picker-select">Seç</button>
-          <button type="button" class="picker-del" title="Sil">–</button>
+          ${current.allowDelete ? `<button type="button" class="picker-del" title="Sil">–</button>` : ``}
         </div>
       </div>`).join('');
   }
@@ -89,7 +94,7 @@
   function closeModal(){
     $m.style.display='none'; $m.hidden=true;
     $list.innerHTML=''; $search.value='';
-    current = { entity:null, endpoint:null, hidden:null, display:null, chip:null, extra:{} };
+    current = { entity:null, endpoint:null, hidden:null, display:null, chip:null, extra:{}, parentId:null, allowAdd:true, allowDelete:true };
   }
 
   // Arama + Ekle
@@ -99,6 +104,7 @@
   $add.addEventListener('click', addItem);
 
   async function addItem(){
+    if(!current.allowAdd) return;
     const text = $search.value.trim();
     if(!text) return;
 
@@ -136,6 +142,7 @@
       if(current.chip){ current.chip.textContent = row.dataset.text; current.chip.classList.remove('d-none'); }
       closeModal();
     }else if(e.target.classList.contains('picker-del')){
+      if(!current.allowDelete) return;
       if(!confirm('Silinsin mi?')) return;
       const url = `${current.endpoint}/${encodeURIComponent(row.dataset.id)}`;
       const delRes = await fetch(url, { method:'DELETE' });
