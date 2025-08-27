@@ -155,7 +155,6 @@ def list_printers(
     fabr = [r[0] for r in db.execute(text("SELECT name FROM factories ORDER BY name")).fetchall()]
     areas = [r[0] for r in db.execute(text("SELECT name FROM usage_areas ORDER BY name")).fetchall()]
     marka_list = db.query(Brand).order_by(Brand.name).all()
-    model_list = db.query(Model).order_by(Model.name).all()
     kullanim_alanlari = db.query(UsageArea).order_by(UsageArea.name).all()
 
     return templates.TemplateResponse(
@@ -168,7 +167,6 @@ def list_printers(
             "factories": fabr,
             "areas": areas,
             "marka_list": marka_list,
-            "model_list": model_list,
             "kullanim_alanlari": kullanim_alanlari,
         },
     )

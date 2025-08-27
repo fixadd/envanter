@@ -106,11 +106,8 @@
 
             <div class="col-md-6">
               <label class="form-label">Yazıcı Modeli</label>
-              <select name="yazici_modeli" class="form-select" required id="selYaziciModel">
-                <option value="">Seçiniz...</option>
-                {% for mdl in model_list %}
-                <option value="{{ mdl.name }}" data-marka="{{ mdl.brand.name }}">{{ mdl.name }}</option>
-                {% endfor %}
+              <select name="yazici_modeli" class="form-select" required id="selYaziciModel" disabled>
+                <option value="">Önce marka seçiniz...</option>
               </select>
               <small class="text-muted">Not: Model listesi seçilen markaya göre filtrelenir.</small>
             </div>
@@ -245,16 +242,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const markaSel = document.getElementById('selYaziciMarka');
   const modelSel = document.getElementById('selYaziciModel');
   if (markaSel && modelSel) {
-    const filterModels = () => {
+    const loadModels = async () => {
       const marka = markaSel.value;
-      Array.from(modelSel.options).forEach(opt => {
-        if (!opt.value) return;
-        opt.hidden = !marka || opt.dataset.marka !== marka;
-      });
-      modelSel.value = '';
+      modelSel.innerHTML = '<option value="">Seçiniz...</option>';
+      modelSel.disabled = !marka;
+      if (!marka) return;
+      try {
+        const resp = await fetch(`/api/printers/models?brand=${encodeURIComponent(marka)}`);
+        if (resp.ok) {
+          const data = await resp.json();
+          data.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m;
+            opt.textContent = m;
+            modelSel.appendChild(opt);
+          });
+        }
+      } catch (e) {
+        console.error(e);
+      }
     };
-    markaSel.addEventListener('change', filterModels);
-    filterModels();
+    markaSel.addEventListener('change', loadModels);
+    loadModels();
   }
 
   // Modal tetikleyici attribute ile handle ediliyor; ek JS gerekmez.
