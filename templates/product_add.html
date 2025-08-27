@@ -76,7 +76,8 @@
     </div>
 
     <div class="picker-search">
-      <input id="picker-search" type="text" placeholder="Ara..." />
+      <input id="picker-search" type="text" placeholder="Ara / yeni değer yaz..." />
+      <button type="button" class="picker-add" id="picker-add">Ekle</button>
     </div>
 
     <div id="picker-list" class="picker-list"><!-- JS doldurur --></div>
@@ -104,8 +105,10 @@
   .picker-card{width:420px;max-width:92vw;background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.18);overflow:hidden}
   .picker-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #eef2f7}
   .picker-close{border:0;background:transparent;font-size:22px;line-height:1;cursor:pointer;padding:2px 6px}
-  .picker-search{padding:10px 14px;border-bottom:1px solid #eef2f7}
-  .picker-search input{width:100%;padding:10px 12px;border:1px solid #dbe2ea;border-radius:10px}
+  .picker-search{display:flex;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid #eef2f7}
+  .picker-search input{flex:1 1 auto;padding:10px 12px;border:1px solid #dbe2ea;border-radius:10px}
+  .picker-add{flex:0 0 auto;padding:9px 14px;border:1px solid #16a34a;background:#16a34a;color:#fff;border-radius:10px;cursor:pointer}
+  .picker-add:disabled{opacity:.5;cursor:not-allowed}
   .picker-list{max-height:320px;overflow:auto}
   .picker-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px dashed #eef2f7}
   .picker-row:nth-child(even){background:#fafbff}
@@ -119,7 +122,4 @@
 </style>
 
 <script src="{{ url_for('static', path='js/mini-picker.js') }}"></script>
-<script>
-  bindPickButtons('#urun-ekle');
-</script>
 {% endblock %}
