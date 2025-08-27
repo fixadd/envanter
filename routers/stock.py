@@ -12,7 +12,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 
-from auth import get_db
+from database import get_db
 from security import SessionUser, current_user
 from models import StockAssignment, StockLog, HardwareType, UsageArea
 

@@ -1,7 +1,8 @@
 # security.py
 from fastapi import Request, HTTPException, status, Depends
 from sqlalchemy.orm import Session
-from auth import get_db, get_user_by_id
+from database import get_db
+from auth import get_user_by_id
 
 class SessionUser:
     def __init__(

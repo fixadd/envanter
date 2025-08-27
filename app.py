@@ -14,8 +14,8 @@ from sqlalchemy.orm import Session
 
 from models import init_db
 from db_bootstrap import bootstrap_schema
+from database import get_db
 from auth import (
-    get_db,
     get_user_by_username,
     verify_password,
     hash_password,
