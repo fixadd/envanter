@@ -1,5 +1,5 @@
 <script>
-  // Bu sayfada (modal açıkken) mini-picker kullanılacak.
+  // Bu sayfada mini picker kullanılacak; liste tarafındaki eski prompt bağlayıcısını kapatır.
   window.USE_MINI_PICKER = true;
 </script>
 <form method="post" action="/inventory/create" class="needs-validation" novalidate>
@@ -180,8 +180,8 @@
     $search.focus();
   }
 
-  // Dışarıdan çağırılabilsin
-  window.__openPickerModal = openModal;
+  // openModal fonksiyonunu globalde erişilebilir yap
+  window.openModal = openModal;
 
   function updateAddState(){ $add.disabled = !current.allowAdd || ($search.value.trim().length===0); }
 
@@ -277,73 +277,28 @@
   });
 })();
 </script>
-<script>
-/* --- Envanter Ekle: eski prompt tabanlı seçiciyi devre dışı bırakıp mini-picker'ı zorla --- */
-(function () {
-  const ENTITIES = ['fabrika','departman','donanim_tipi','sorumlu_personel','marka','model'];
-
-  function openNewPicker(entity) {
-    // hidden ve display alanlarını bul
-    const hidden  = document.getElementById(entity);
-    const display = document.getElementById(entity + '_display');
-    // bizim modalı çağır (daha önce eklediğimiz fonksiyon)
-    if (window.__openPickerModal) {
-      // __openPickerModal(entity, hiddenId, chipSelector?)
-      window.__openPickerModal(entity, entity);
-      return;
-    }
-    // Yedek: modal fonksiyonu farklı isimdeyse buraya ekleyebilirsin
-    console.error('Mini picker modal yüklenmemiş: __openPickerModal bulunamadı.');
-  }
-
-  // 1) _display inputlarına capture aşamasında dinleyici ekle -> eski click'leri iptal et
-  ENTITIES.forEach(id => {
-    const el = document.getElementById(id + '_display');
-    if (!el) return;
-    el.addEventListener('click', function (ev) {
-      ev.preventDefault();
-      ev.stopImmediatePropagation(); // eski handler'ı çalıştırma (prompt engellenir)
-      openNewPicker(id);
-    }, { capture: true }); // capture önemli: eski dinleyiciden önce yakalar
-  });
-
-  // 2) Eğer ≡ butonlar varsa onları da bağla
-  document.querySelectorAll('#envanter-ekle .pick-btn').forEach(btn => {
-    btn.addEventListener('click', function (ev) {
-      ev.preventDefault();
-      ev.stopImmediatePropagation();
-      openNewPicker(btn.dataset.entity);
-    }, { capture: true });
-  });
-
-  // 3) Eski global fonksiyon (prompt kullanan) varsa üzerine yaz ve modalı aç
-  if (typeof window.openPicker === 'function') {
-    window.openPicker = function (entity /*, current */) {
-      openNewPicker(entity);
-    };
-  }
-})();
-</script>
 
 <script>
 (function(){
   const ENTITIES = ['fabrika','departman','donanim_tipi','sorumlu_personel','marka','model'];
 
   function openNew(entity){
-    // inventory_add.html içinde tanımlı openModal’ı çağırıyoruz
     if (window.openModal) { window.openModal(entity); return; }
     console.error('openModal bulunamadı (mini picker yüklenmemiş).');
   }
 
-  // 1) Eski global fonksiyon varsa ez
+  // 1) Eski global openPicker’ı ez: inline çağrılar da bize gelsin
   try {
-    Object.defineProperty(window,'openPicker',{ value:(ent)=>{ openNew(ent); return false; }, writable:false });
-  } catch(e){ window.openPicker = (ent)=>{ openNew(ent); return false; }; }
+    Object.defineProperty(window,'openPicker',{
+      value: (ent)=>{ openNew(ent); return false; },
+      writable:false, configurable:false
+    });
+  } catch(e) { window.openPicker = (ent)=>{ openNew(ent); return false; }; }
 
-  // 2) prompt çağrılırsa yakala ve modale çevir
+  // 2) prompt çağrısını yakala → mini-picker’a çevir
   (function(){
     const orig = window.prompt;
-    window.prompt = function(msg, deflt){
+    window.prompt = function(msg, def){
       const m = String(msg||'').toLowerCase();
       if (/(fabrika|departman|donanım|donanim|sorumlu|marka|model).*seçin/.test(m)) {
         const ent = m.includes('donan') ? 'donanim_tipi'
@@ -352,16 +307,16 @@
                   : m.includes('sorumlu') ? 'sorumlu_personel'
                   : m.includes('marka') ? 'marka' : 'model';
         openNew(ent);
-        return null; // iptal dön
+        return null; // eski akışı iptal et
       }
-      return orig.call(window, msg, deflt);
+      return orig.call(window, msg, def);
     };
   })();
 
-  // 3) _display inputlarında eski click handler’ını capture fazında iptal et
+  // 3) *_display inputları için: capture fazında eski click handler’larını engelle
   ENTITIES.forEach(id=>{
-    const dsp = document.getElementById(id + '_display');
-    if (!dsp) return;
+    const dsp = document.getElementById(id+'_display');
+    if(!dsp) return;
     dsp.addEventListener('click', (ev)=>{
       ev.preventDefault();
       ev.stopImmediatePropagation();
@@ -369,20 +324,20 @@
     }, { capture:true });
   });
 
-  // 4) Marka değişirse modeli temizle
+  // 4) Marka değişince model temizlensin (bağımlılık)
   const markaH = document.getElementById('marka');
   const markaD = document.getElementById('marka_display');
   const clearModel = ()=>{
-    const mH = document.getElementById('model');
-    const mD = document.getElementById('model_display');
-    if (mH) mH.value = '';
-    if (mD) mD.value = '';
-    const chip = document.querySelector('.pick-chip[data-for="model"]');
-    if (chip){ chip.classList.add('d-none'); chip.textContent=''; }
+    const mH=document.getElementById('model');
+    const mD=document.getElementById('model_display');
+    if(mH) mH.value='';
+    if(mD) mD.value='';
+    const chip=document.querySelector('.pick-chip[data-for="model"]');
+    if(chip){ chip.classList.add('d-none'); chip.textContent=''; }
   };
-  ['change','input'].forEach(e=>{
-    if (markaH) markaH.addEventListener(e, clearModel);
-    if (markaD) markaD.addEventListener(e, clearModel);
+  ['change','input'].forEach(evt=>{
+    if(markaH) markaH.addEventListener(evt, clearModel);
+    if(markaD) markaD.addEventListener(evt, clearModel);
   });
 })();
 </script>
