@@ -182,31 +182,40 @@
 
 <script>window.SKIP_SELECT_ENHANCE = true;</script>
 <script>
-// Mini picker modu açıksa (envanter ekleme modali) bu bağlayıcıyı hiç kurma
-if (!window.USE_MINI_PICKER) {
+// Eski prompt seçici – sadece modal DIŞINDA ve mini-picker KAPALIYKEN çalışsın
+(function(){
   function oldOpenPicker(entity, current){
     const v = prompt(entity.toUpperCase()+" seçin:", current || "");
     return (v && v.trim()) ? { id:v.trim(), text:v.trim() } : null;
   }
 
-  const ids = ["fabrika","departman","donanim_tipi","sorumlu_personel","marka","model"];
-  ids.forEach(id=>{
-    // Sadece liste sayfasındaki alanlara bağlan (modalı etkilemesin diye kök kapsamı daralt)
-    const root = document.getElementById('inventory-list-root') || document;
-    const dsp  = root.querySelector('#'+id+'_display');
-    const hid  = root.querySelector('#'+id);
-    if (!dsp || !hid) return;
+  // Tek bir delegeli dinleyici: lookup-display'e tıklanırsa çalışır
+  document.addEventListener('click', function(e){
+    const dsp = e.target.closest('.lookup-display');
+    if (!dsp) return;
 
-    dsp.addEventListener('click', ()=>{
-      const pick = oldOpenPicker(id, hid.value);
-      if(!pick) return;
-      hid.value = pick.id;
-      dsp.value = pick.text;
-      dsp.classList.remove('is-invalid');
-    });
-  });
-}
+    // Mini picker modu aktifse hiç çalıştırma
+    if (window.USE_MINI_PICKER) return;
 
+    // Envanter ekleme modalının içindeyse çalıştırma
+    if (dsp.closest('#envanter-ekle')) return;
+
+    // Normal liste alanları için eski prompt'u kullan
+    const id  = dsp.id?.replace('_display','');
+    const hid = id ? document.getElementById(id) : null;
+    if (!id || !hid) return;
+
+    const pick = oldOpenPicker(id, hid.value);
+    if (!pick) return;
+
+    hid.value   = pick.id;
+    dsp.value   = pick.text;
+    dsp.classList.remove('is-invalid');
+  }, true); // capture: başka handler'lardan önce yakala
+})();
+</script>
+
+<script>
 // Submit’te required hidden kontrolü
 document.getElementById('envanter-form').addEventListener('submit', (e)=>{
   let ok = true;
