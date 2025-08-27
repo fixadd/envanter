@@ -1,3 +1,7 @@
+<script>
+  // Bu sayfada mini-picker kullanılacak; liste sayfasındaki prompt bağlayıcısını kapat.
+  window.USE_MINI_PICKER = true;
+</script>
 <form method="post" action="/inventory/create" class="needs-validation" novalidate>
   <div class="row g-3" id="envanter-ekle">
 
@@ -318,5 +322,67 @@
       openNewPicker(entity);
     };
   }
+})();
+</script>
+
+<script>
+(function(){
+  const ENTITIES = ['fabrika','departman','donanim_tipi','sorumlu_personel','marka','model'];
+
+  function openNew(entity){
+    // inventory_add.html içinde tanımlı openModal’ı çağırıyoruz
+    if (window.openModal) { window.openModal(entity); return; }
+    console.error('openModal bulunamadı (mini picker yüklenmemiş).');
+  }
+
+  // 1) Eski global fonksiyon varsa ez
+  try {
+    Object.defineProperty(window,'openPicker',{ value:(ent)=>{ openNew(ent); return false; }, writable:false });
+  } catch(e){ window.openPicker = (ent)=>{ openNew(ent); return false; }; }
+
+  // 2) prompt çağrılırsa yakala ve modale çevir
+  (function(){
+    const orig = window.prompt;
+    window.prompt = function(msg, deflt){
+      const m = String(msg||'').toLowerCase();
+      if (/(fabrika|departman|donanım|donanim|sorumlu|marka|model).*seçin/.test(m)) {
+        const ent = m.includes('donan') ? 'donanim_tipi'
+                  : m.includes('fabrika') ? 'fabrika'
+                  : m.includes('departman') ? 'departman'
+                  : m.includes('sorumlu') ? 'sorumlu_personel'
+                  : m.includes('marka') ? 'marka' : 'model';
+        openNew(ent);
+        return null; // iptal dön
+      }
+      return orig.call(window, msg, deflt);
+    };
+  })();
+
+  // 3) _display inputlarında eski click handler’ını capture fazında iptal et
+  ENTITIES.forEach(id=>{
+    const dsp = document.getElementById(id + '_display');
+    if (!dsp) return;
+    dsp.addEventListener('click', (ev)=>{
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+      openNew(id);
+    }, { capture:true });
+  });
+
+  // 4) Marka değişirse modeli temizle
+  const markaH = document.getElementById('marka');
+  const markaD = document.getElementById('marka_display');
+  const clearModel = ()=>{
+    const mH = document.getElementById('model');
+    const mD = document.getElementById('model_display');
+    if (mH) mH.value = '';
+    if (mD) mD.value = '';
+    const chip = document.querySelector('.pick-chip[data-for="model"]');
+    if (chip){ chip.classList.add('d-none'); chip.textContent=''; }
+  };
+  ['change','input'].forEach(e=>{
+    if (markaH) markaH.addEventListener(e, clearModel);
+    if (markaD) markaD.addEventListener(e, clearModel);
+  });
 })();
 </script>
