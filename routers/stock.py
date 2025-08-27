@@ -9,12 +9,12 @@ from fastapi.responses import (
     StreamingResponse,
 )
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import func
+from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 
 from auth import get_db
 from security import SessionUser, current_user
-from models import StockAssignment, StockLog
+from models import StockAssignment, StockLog, HardwareType, UsageArea
 
 
 router = APIRouter(prefix="/stock", tags=["Stock"])
@@ -78,7 +78,7 @@ def current_stock(db: Session):
             StockLog.ifs_no,
             func.sum(StockLog.miktar).label("sum_minus"),
         )
-        .filter(StockLog.islem.in_(["cikti", "atama"]))
+        .filter(StockLog.islem.in_(["cikti", "atama", "hurda"]))
         .group_by(StockLog.donanim_tipi, StockLog.ifs_no)
         .subquery()
     )
@@ -123,8 +123,18 @@ def current_stock(db: Session):
 @router.get("", response_class=HTMLResponse)
 def stock_list(request: Request, db: Session = Depends(get_db)):
     logs = db.query(StockLog).order_by(StockLog.tarih.desc(), StockLog.id.desc()).all()
+    hardware_types = db.query(HardwareType).order_by(HardwareType.name).all()
+    users = [r[0] for r in db.execute(text("SELECT full_name FROM users ORDER BY full_name")).fetchall()]
+    usage_areas = db.query(UsageArea).order_by(UsageArea.name).all()
     return templates.TemplateResponse(
-        "stock_list.html", {"request": request, "logs": logs}
+        "stock_list.html",
+        {
+            "request": request,
+            "logs": logs,
+            "hardware_types": hardware_types,
+            "users": users,
+            "usage_areas": usage_areas,
+        },
     )
 
 
@@ -137,8 +147,8 @@ def add_log(
     db: Session = Depends(get_db),
     user: SessionUser = Depends(current_user),
 ):
-    if islem not in ("girdi", "cikti"):
-        raise HTTPException(status_code=400, detail="islem sadece girdi|cikti olabilir")
+    if islem not in ("girdi", "cikti", "hurda"):
+        raise HTTPException(status_code=400, detail="islem sadece girdi|cikti|hurda olabilir")
     if miktar <= 0:
         raise HTTPException(status_code=400, detail="miktar > 0 olmalı")
 

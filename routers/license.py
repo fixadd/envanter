@@ -8,7 +8,7 @@ from fastapi.responses import (
     StreamingResponse,
 )
 from database import get_db
-from models import License, LicenseLog, Inventory
+from models import License, LicenseLog, Inventory, LicenseName
 from fastapi.templating import Jinja2Templates
 from security import current_user
 from datetime import datetime
@@ -91,12 +91,19 @@ def get_current_user_name(request: Request) -> str:
 @router.get("/new", response_class=HTMLResponse, name="license.new")
 def new_license_form(request: Request, db: Session = Depends(get_db)):
     envanterler = db.query(Inventory).order_by(Inventory.no).all()
+    users = [
+        r[0]
+        for r in db.execute(text("SELECT full_name FROM users ORDER BY full_name")).fetchall()
+    ]
+    license_names = db.query(LicenseName).order_by(LicenseName.name).all()
     return templates.TemplateResponse(
         "license_form.html",
         {
             "request": request,
             "license": None,
             "envanterler": envanterler,
+            "users": users,
+            "license_names": license_names,
             "form_action": "/lisans/new",
         },
     )
@@ -140,7 +147,7 @@ def create_license(
     lisans_anahtari: str = Form(...),
     sorumlu_personel: str = Form(...),
     bagli_envanter_no: str = Form(...),
-    mail_adresi: str = Form(...),
+    mail_adresi: str | None = Form(None),
     ifs_no: str = Form(None),
     db: Session = Depends(get_db),
 ):
@@ -218,9 +225,17 @@ def license_list(request: Request, db: Session = Depends(get_db), current_user=D
     items = db.query(License).filter(License.durum != "hurda").all()
     users = [r[0] for r in db.execute(text("SELECT full_name FROM users ORDER BY full_name")).fetchall()]
     envanterler = db.query(Inventory).order_by(Inventory.no).all()
+    license_names = db.query(LicenseName).order_by(LicenseName.name).all()
     return templates.TemplateResponse(
         "license_list.html",
-        {"request": request, "items": items, "users": users, "envanterler": envanterler, "current_user": current_user},
+        {
+            "request": request,
+            "items": items,
+            "users": users,
+            "envanterler": envanterler,
+            "license_names": license_names,
+            "current_user": current_user,
+        },
     )
 
 
