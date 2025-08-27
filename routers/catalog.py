@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from auth import get_db
+from database import get_db
 from models import Brand, Model, UsageArea, Factory, LicenseName, HardwareType
 
 router = APIRouter(prefix="/catalog", tags=["Katalog"])

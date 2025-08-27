@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
-from auth import get_db
+from database import get_db
 import models
 from sqlalchemy import func, case, and_
 

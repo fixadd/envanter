@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from models import Lookup
-from auth import get_db
+from database import get_db
 
 router = APIRouter(prefix="/api/lookup", tags=["Lookup"])
 

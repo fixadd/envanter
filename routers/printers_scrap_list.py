@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from auth import get_db
+from database import get_db
 from models import Printer, ScrapPrinter
 
 templates = Jinja2Templates(directory="templates")
