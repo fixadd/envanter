@@ -21,7 +21,8 @@
   const $close  = document.querySelector('.picker-close');
   const $cancel = document.getElementById('picker-cancel');
 
-  let current = { entity:null, endpoint:null, hidden:null, chip:null, extra:{} };
+  // Aktif seçim bağlamı
+  let current = { entity:null, endpoint:null, hidden:null, display:null, chip:null, extra:{} };
 
   function getDependencyParams(entity){
     const meta = MAP[entity];
@@ -32,7 +33,7 @@
     return { extra: { [dep.param]: depHidden.value }, parentId: depHidden.value };
   }
 
-  function openModal(entity, hiddenEl, chipEl){
+  function openModal(entity, hiddenEl, displayEl, chipEl){
     const meta = MAP[entity] || { title: entity.toUpperCase(), endpoint: `/api/picker/${entity}` };
 
     const dep = getDependencyParams(entity);
@@ -44,7 +45,8 @@
     current = {
       entity,
       endpoint: meta.endpoint,
-      hidden: hiddenEl,
+      hidden: hiddenEl || null,
+      display: displayEl || null,
       chip: chipEl || null,
       extra: dep.extra || {},
       parentId: dep.parentId || null,
@@ -87,7 +89,7 @@
   function closeModal(){
     $m.style.display='none'; $m.hidden=true;
     $list.innerHTML=''; $search.value='';
-    current = { entity:null, endpoint:null, hidden:null, chip:null, extra:{} };
+    current = { entity:null, endpoint:null, hidden:null, display:null, chip:null, extra:{} };
   }
 
   // Arama + Ekle
@@ -114,6 +116,7 @@
       const created = await res.json(); // {id, text}
       // otomatik seç
       if(current.hidden) current.hidden.value = created.id;
+      if(current.display) current.display.value = created.text;
       if(current.chip){ current.chip.textContent = created.text; current.chip.classList.remove('d-none'); }
       closeModal();
     }else if(res.status === 409){
@@ -128,7 +131,8 @@
     const row = e.target.closest('.picker-row'); if(!row) return;
 
     if(e.target.classList.contains('picker-select')){
-      if(current.hidden) current.hidden.value = row.dataset.id;
+      if(current.hidden)  current.hidden.value  = row.dataset.id;
+      if(current.display) current.display.value = row.dataset.text;
       if(current.chip){ current.chip.textContent = row.dataset.text; current.chip.classList.remove('d-none'); }
       closeModal();
     }else if(e.target.classList.contains('picker-del')){
@@ -153,8 +157,11 @@
       const entity = btn.dataset.entity;
       const hidden = document.getElementById(entity);
       const chip   = document.querySelector(`.pick-chip[data-for="${entity}"]`);
-      openModal(entity, hidden, chip);
+      openModal(entity, hidden, null, chip);
     });
   });
+
+  // Dışarıdan çağrılabilsin
+  window.__openPickerModal = openModal;
 
 })();

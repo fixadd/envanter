@@ -228,6 +228,30 @@ document.getElementById('envanter-form').addEventListener('submit', (e)=>{
 });
 </script>
 
+<script src="{{ url_for('static', path='js/mini-picker.js') }}"></script>
+<script>
+// Envanter ekle modalındaki picker alanlarını mini-picker'a bağla
+document.querySelectorAll('#envanter-ekle .picker').forEach(inp=>{
+  inp.addEventListener('click', ()=>{
+    const entity = inp.id.replace('_display','');
+    const hidden = document.getElementById(entity);
+    if(window.__openPickerModal){ window.__openPickerModal(entity, hidden, inp); }
+  });
+});
+
+// Marka değişirse model alanını temizle
+function clearModel(){
+  const mH=document.getElementById('model');
+  const mD=document.getElementById('model_display');
+  if(mH) mH.value='';
+  if(mD) mD.value='';
+}
+['marka','marka_display'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('change', clearModel);
+});
+</script>
+
 <!-- Filtre Modal -->
 <div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
