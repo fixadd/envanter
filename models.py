@@ -18,6 +18,7 @@ from sqlalchemy import (
     text,
     JSON,
     Column,
+    Enum,
 )
 from sqlalchemy.dialects.sqlite import JSON as SQLITE_JSON
 from sqlalchemy.orm import (
@@ -49,7 +50,8 @@ class User(Base):
     username: Mapped[str] = mapped_column(String(64), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(255))
     full_name: Mapped[str] = mapped_column(String(120), default="")
-    email: Mapped[str | None] = mapped_column(String(255), default="")
+    # E-posta artık opsiyonel ve benzersiz
+    email: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)
     role: Mapped[str] = mapped_column(String(16), default="admin")  # admin/staff/user
     created_at: Mapped[str] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
@@ -310,7 +312,7 @@ class StockLog(Base):
     miktar = Column(Integer, nullable=False)
     ifs_no = Column(String(100), index=True, nullable=True)
     tarih = Column(DateTime, default=datetime.utcnow)
-    islem = Column(String(20), nullable=False)
+    islem = Column(Enum("girdi", "cikti", "hurda", "atama", name="stock_islem"), nullable=False)
     actor = Column(String(150), nullable=True)
 
 
@@ -325,6 +327,12 @@ class StockAssignment(Base):
     kullanim_alani = Column(String(150), nullable=True)
     tarih = Column(DateTime, default=datetime.utcnow)
     actor = Column(String(150), nullable=True)
+
+
+class StockTotal(Base):
+    __tablename__ = "stock_totals"
+    donanim_tipi = Column(String(150), primary_key=True)
+    toplam = Column(Integer, nullable=False, default=0)
 
 
 class Lookup(Base):

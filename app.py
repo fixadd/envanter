@@ -38,6 +38,7 @@ from routers import (
 )
 from routers.lookup import router as lookup_router
 from routers.picker import router as picker_router
+from routers.api import router as api_router
 from routes.admin import router as admin_router
 from security import current_user, require_roles
 
@@ -104,8 +105,9 @@ app.include_router(reqs.router, prefix="/requests", tags=["Requests"], dependenc
 app.include_router(stock.router, dependencies=[Depends(current_user)])
 app.include_router(trash.router, prefix="/trash", tags=["Trash"], dependencies=[Depends(current_user)])
 app.include_router(profile.router, prefix="/profile", tags=["Profile"], dependencies=[Depends(current_user)])
-app.include_router(lookup_router)
+app.include_router(api_router)
 app.include_router(picker_router)
+app.include_router(lookup_router)
 app.include_router(refdata.router, dependencies=[Depends(current_user)])
 
 @app.get("/licenses", include_in_schema=False)
