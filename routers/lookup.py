@@ -100,4 +100,14 @@ def distinct_values(entity: str, column: str, db: Session = Depends(get_db)):
         f"WHERE {column} IS NOT NULL ORDER BY {column}"
     )
     rows = db.execute(sql).mappings().all()
-    return [r["value"] for r in rows if (r["value"] or "").strip()]
+    values = []
+    for r in rows:
+        value = r["value"]
+        if value is None:
+            continue
+        if isinstance(value, str):
+            value = value.strip()
+            if not value:
+                continue
+        values.append(value)
+    return values
