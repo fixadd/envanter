@@ -14,7 +14,12 @@
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label">Lisans Adı</label>
-            <input name="adi" class="form-control" value="{{ license.adi if license else '' }}" required>
+            <select name="adi" class="form-select" required>
+              <option value="">Seçiniz...</option>
+              {% for ln in license_names %}
+                <option value="{{ ln.name }}" {% if license and license.lisans_adi == ln.name %}selected{% endif %}>{{ ln.name }}</option>
+              {% endfor %}
+            </select>
           </div>
 
           <div class="col-md-6">
@@ -24,7 +29,12 @@
 
           <div class="col-md-6">
             <label class="form-label">Sorumlu Personel</label>
-            <input name="sorumlu_personel" class="form-control" value="{{ license.sorumlu_personel if license else '' }}">
+            <select name="sorumlu_personel" class="form-select">
+              <option value="">(Seçiniz)</option>
+              {% for u in users %}
+                <option value="{{ u }}" {% if license and license.sorumlu_personel == u %}selected{% endif %}>{{ u }}</option>
+              {% endfor %}
+            </select>
           </div>
 
           <div class="col-md-6">
