@@ -17,7 +17,6 @@ from db_bootstrap import bootstrap_schema
 from auth import (
     get_db,
     get_user_by_username,
-    get_user_by_id,
     verify_password,
     hash_password,
 )
