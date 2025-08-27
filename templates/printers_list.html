@@ -248,7 +248,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterModels = () => {
       const marka = markaSel.value;
       Array.from(modelSel.options).forEach(opt => {
-        opt.hidden = marka && opt.dataset.marka !== marka;
+        if (!opt.value) return;
+        opt.hidden = !marka || opt.dataset.marka !== marka;
       });
       modelSel.value = '';
     };
