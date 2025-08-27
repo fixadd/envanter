@@ -182,25 +182,23 @@
 
 <script>window.SKIP_SELECT_ENHANCE = true;</script>
 <script>
-// Eski prompt seçici – sadece modal DIŞINDA ve mini-picker KAPALIYKEN çalışsın
+// Eski prompt seçici – SADECE modal dışı ve mini-picker KAPALIYKEN
 (function(){
   function oldOpenPicker(entity, current){
     const v = prompt(entity.toUpperCase()+" seçin:", current || "");
     return (v && v.trim()) ? { id:v.trim(), text:v.trim() } : null;
   }
 
-  // Tek bir delegeli dinleyici: lookup-display'e tıklanırsa çalışır
   document.addEventListener('click', function(e){
+    // mini picker modu aktifse hiç çalıştırma
+    if (window.USE_MINI_PICKER) return;
+
     const dsp = e.target.closest('.lookup-display');
     if (!dsp) return;
 
-    // Mini picker modu aktifse hiç çalıştırma
-    if (window.USE_MINI_PICKER) return;
-
-    // Envanter ekleme modalının içindeyse çalıştırma
+    // Envanter Ekle modalının içindeyse çalıştırma
     if (dsp.closest('#envanter-ekle')) return;
 
-    // Normal liste alanları için eski prompt'u kullan
     const id  = dsp.id?.replace('_display','');
     const hid = id ? document.getElementById(id) : null;
     if (!id || !hid) return;
@@ -208,10 +206,10 @@
     const pick = oldOpenPicker(id, hid.value);
     if (!pick) return;
 
-    hid.value   = pick.id;
-    dsp.value   = pick.text;
+    hid.value = pick.id;
+    dsp.value = pick.text;
     dsp.classList.remove('is-invalid');
-  }, true); // capture: başka handler'lardan önce yakala
+  }, true);
 })();
 </script>
 
