@@ -82,6 +82,9 @@
                 <label class="form-label">Lisans Adı</label>
                 <select id="selLisansAdi" name="lisans_adi" class="form-select" required>
                   <option value="">Seçiniz</option>
+                  {% for ln in license_names %}
+                    <option value="{{ ln.name }}">{{ ln.name }}</option>
+                  {% endfor %}
                 </select>
               </div>
             <div class="col-md-6">
@@ -91,8 +94,11 @@
 
               <div class="col-md-6">
                 <label class="form-label">Sorumlu Personel</label>
-                <select id="selPersonel" name="sorumlu_personel" class="form-select">
+                <select id="selPersonelAdd" name="sorumlu_personel" class="form-select">
                   <option value="">Seçiniz</option>
+                  {% for u in users %}
+                    <option value="{{ u }}">{{ u }}</option>
+                  {% endfor %}
                 </select>
               </div>
 
@@ -127,18 +133,7 @@
   </div>
   </div>
 
-  <script>
-    fetch('/api/licenses/names').then(r=>r.json()).then(list=>{
-      const sel = document.getElementById('selLisansAdi');
-      sel.innerHTML = '<option value="">Seçiniz</option>';
-      list.forEach(x=>{const o=document.createElement('option');o.value=o.textContent=x;sel.appendChild(o);});
-    });
-    fetch('/api/users/names').then(r=>r.json()).then(list=>{
-      const sel = document.getElementById('selPersonel');
-      sel.innerHTML = '<option value="">Seçiniz</option>';
-      list.forEach(x=>{const o=document.createElement('option');o.value=o.textContent=x;sel.appendChild(o);});
-    });
-  </script>
+  
 
   <!-- Filtre Modal -->
   <div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
@@ -174,7 +169,7 @@
             <label class="form-label">Sorumlu Personel</label>
             <select name="sorumlu_personel" class="form-select" id="selPersonel">
               <option value="">Seçiniz</option>
-              {% for u in users %}<option value="{{ u.full_name }}">{{ u.full_name }}</option>{% endfor %}
+              {% for u in users %}<option value="{{ u }}">{{ u }}</option>{% endfor %}
             </select>
           </div>
           <div class="mb-2">
