@@ -413,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('assign_item_id').value = id;
         assignModal.show();
       } else if (val === 'edit') {
-        window.location.href = `{{ url_for('inventory.edit', item_id='__ID__') }}`.replace('__ID__', id);
+        window.location.href = "{{ url_for('inventory.edit', item_id=0)|replace('/0', '/__ID__') }}".replace('__ID__', id);
       } else if (val === 'scrap') {
         document.getElementById('scrap_item_id').value = id;
         scrapModal.show();
