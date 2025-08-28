@@ -304,11 +304,11 @@ def assign_printer(
 
 
 @router.get("/edit/{printer_id}", response_class=HTMLResponse)
-def edit_printer(printer_id: int, request: Request, db: Session = Depends(get_db)):
+def edit_printer(printer_id: int, request: Request, modal: bool = False, db: Session = Depends(get_db)):
     p = db.get(Printer, printer_id)
     if not p:
         raise HTTPException(404, "Yazıcı bulunamadı")
-    return templates.TemplateResponse("printers_edit.html", {"request": request, "p": p})
+    return templates.TemplateResponse("printers_edit.html", {"request": request, "p": p, "modal": modal})
 
 
 @router.post("/edit/{printer_id}")
@@ -318,6 +318,7 @@ def edit_printer_post(
     model: str = Form(None),
     seri_no: str = Form(None),
     notlar: str = Form(None),
+    modal: bool = False,
     db: Session = Depends(get_db),
     user=Depends(current_user),
 ):
@@ -340,6 +341,8 @@ def edit_printer_post(
         )
     )
     db.commit()
+    if modal:
+        return HTMLResponse("<script>window.parent.postMessage('modal-close','*');</script>")
     return RedirectResponse(url=f"/printers/{printer_id}", status_code=303)
 
 
