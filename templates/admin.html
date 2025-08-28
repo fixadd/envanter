@@ -29,22 +29,27 @@
       <div class="table-responsive">
         <table class="table table-sm align-middle">
           <thead class="table-light">
-            <tr><th>#</th><th>Ad Soyad</th><th>E-posta</th><th>Rol</th><th class="text-end">İşlemler</th></tr>
+            <tr><th>#</th><th>Kullanıcı Adı</th><th>Ad</th><th>Soyad</th><th>E-posta</th><th>Rol</th><th class="text-end">İşlemler</th></tr>
           </thead>
           <tbody>
             {% for u in users or [] %}
             <tr>
               <td>{{ loop.index }}</td>
-              <td>{{ u.full_name }}</td>
-              <td>{{ u.email }}</td>
+              <td>{{ u.username }}</td>
+              <td>{{ u.first_name or '' }}</td>
+              <td>{{ u.last_name or '' }}</td>
+              <td>{{ u.email or '' }}</td>
               <td><span class="badge bg-{{ 'primary' if u.role=='admin' else 'secondary' }}">{{ u.role or 'user' }}</span></td>
               <td class="text-end">
-                <a class="btn btn-sm btn-outline-primary" href="/admin/users/{{ u.id }}/edit">Düzenle</a>
+                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalUserEdit"
+                        data-id="{{ u.id }}" data-username="{{ u.username }}" data-first_name="{{ u.first_name or '' }}"
+                        data-last_name="{{ u.last_name or '' }}" data-email="{{ u.email or '' }}"
+                        data-is_admin="{{ 1 if u.is_admin else 0 }}">Düzenle</button>
                 <button class="btn btn-outline-danger btn-sm">Sil</button>
               </td>
             </tr>
             {% else %}
-            <tr><td colspan="5" class="text-center text-muted">Kayıt yok.</td></tr>
+            <tr><td colspan="7" class="text-center text-muted">Kayıt yok.</td></tr>
             {% endfor %}
           </tbody>
         </table>
@@ -193,7 +198,7 @@
   </div>
 </div>
 
-<!-- ===== Kullanıcı Oluştur Modal (örnek) ===== -->
+<!-- ===== Kullanıcı Oluştur Modal ===== -->
 <div class="modal fade" id="modalUserCreate" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <form class="modal-content" method="post" action="/admin/users/create">
@@ -202,18 +207,50 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body row g-3">
-        <div class="col-12"><label class="form-label">Ad Soyad</label><input class="form-control" name="full_name" required></div>
-        <div class="col-12"><label class="form-label">E-posta</label><input class="form-control" type="email" name="email" required></div>
+        <div class="col-md-6"><label class="form-label">Kullanıcı Adı</label><input class="form-control" name="username" required></div>
+        <div class="col-md-6"><label class="form-label">Şifre</label><input class="form-control" type="password" name="password" required></div>
+        <div class="col-md-6"><label class="form-label">Adı</label><input class="form-control" name="first_name"></div>
+        <div class="col-md-6"><label class="form-label">Soyadı</label><input class="form-control" name="last_name"></div>
+        <div class="col-12"><label class="form-label">E-posta</label><input class="form-control" type="email" name="email"></div>
         <div class="col-12">
-          <label class="form-label">Rol</label>
-          <select class="form-select" name="role">
-            <option value="user">Kullanıcı</option><option value="admin">Admin</option>
-          </select>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="is_admin" id="create_is_admin">
+            <label class="form-check-label" for="create_is_admin">Admin</label>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">İptal</button>
         <button class="btn btn-primary" type="submit">Oluştur</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== Kullanıcı Düzenle Modal ===== -->
+<div class="modal fade" id="modalUserEdit" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" method="post" id="formUserEdit" action="">
+      <div class="modal-header">
+        <h5 class="modal-title">Kullanıcı Düzenle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body row g-3">
+        <div class="col-md-6"><label class="form-label">Kullanıcı Adı</label><input class="form-control" id="edit_username" name="username" required></div>
+        <div class="col-md-6"><label class="form-label">Şifre (isteğe bağlı)</label><input class="form-control" type="password" id="edit_password" name="password" placeholder="Boş bırakılırsa değişmez"></div>
+        <div class="col-md-6"><label class="form-label">Adı</label><input class="form-control" id="edit_first_name" name="first_name"></div>
+        <div class="col-md-6"><label class="form-label">Soyadı</label><input class="form-control" id="edit_last_name" name="last_name"></div>
+        <div class="col-12"><label class="form-label">E-posta</label><input class="form-control" type="email" id="edit_email" name="email"></div>
+        <div class="col-12">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="edit_is_admin" name="is_admin">
+            <label class="form-check-label" for="edit_is_admin">Admin</label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">İptal</button>
+        <button class="btn btn-primary" type="submit">Kaydet</button>
       </div>
     </form>
   </div>
@@ -267,6 +304,23 @@
       });
     });
   })();
+
+  // Kullanıcı düzenleme modalini doldur
+  const modalUserEditEl=document.getElementById('modalUserEdit');
+  if(modalUserEditEl){
+    modalUserEditEl.addEventListener('show.bs.modal',event=>{
+      const btn=event.relatedTarget;
+      const id=btn.getAttribute('data-id');
+      const form=modalUserEditEl.querySelector('form');
+      form.setAttribute('action', `/admin/users/${id}/edit`);
+      modalUserEditEl.querySelector('#edit_username').value=btn.getAttribute('data-username')||'';
+      modalUserEditEl.querySelector('#edit_first_name').value=btn.getAttribute('data-first_name')||'';
+      modalUserEditEl.querySelector('#edit_last_name').value=btn.getAttribute('data-last_name')||'';
+      modalUserEditEl.querySelector('#edit_email').value=btn.getAttribute('data-email')||'';
+      modalUserEditEl.querySelector('#edit_password').value='';
+      modalUserEditEl.querySelector('#edit_is_admin').checked=btn.getAttribute('data-is_admin')==='1';
+    });
+  }
 
   // ===== Lookup Modal logic =====
   (function(){
