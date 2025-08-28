@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('assign_item_id').value = id;
         assignModal.show();
       } else if (val === 'edit') {
-        window.location.href = "{{ url_for('inventory.edit', item_id=0)|replace('/0', '/__ID__') }}".replace('__ID__', id);
+        if(window.openModal){ openModal(`/inventory/${id}/edit?modal=1`); }
       } else if (val === 'scrap') {
         document.getElementById('scrap_item_id').value = id;
         scrapModal.show();

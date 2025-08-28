@@ -4,6 +4,7 @@ from fastapi.responses import (
     RedirectResponse,
     PlainTextResponse,
     StreamingResponse,
+    HTMLResponse,
 )
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
@@ -336,6 +337,7 @@ def assign(
 def edit_page(
   request: Request,
   item_id: int,
+  modal: bool = False,
   db: Session = Depends(get_db),
   user=Depends(current_user),
 ):
@@ -343,11 +345,11 @@ def edit_page(
   if not item:
     raise HTTPException(404)
   return templates.TemplateResponse(
-    "inventory/edit.html", {"request": request, "item": item, "item_id": item.id}
+    "inventory/edit.html", {"request": request, "item": item, "item_id": item.id, "modal": modal}
   )
 
 @router.post("/{item_id:int}/edit", name="inventory.edit_post")
-async def edit_post(item_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
+async def edit_post(item_id: int, request: Request, modal: bool = False, db: Session = Depends(get_db), user=Depends(current_user)):
   form = dict(await request.form())
   item = db.query(Inventory).get(item_id)
   if not item:
@@ -369,6 +371,8 @@ async def edit_post(item_id: int, request: Request, db: Session = Depends(get_db
     actor=user.username
   ))
   db.commit()
+  if modal:
+    return HTMLResponse("<script>window.parent.postMessage('modal-close','*');</script>")
   return RedirectResponse(url=request.url_for("inventory.detail", item_id=item.id), status_code=303)
 
 @router.get("/{item_id:int}/stock", name="inventory.stock")

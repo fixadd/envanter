@@ -381,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if(!val) return;
 
       if(val === 'edit'){
-        window.location.href = `/printers/edit/${printerId}`;
+        if(window.openModal){ openModal(`/printers/edit/${printerId}?modal=1`); }
       } else if(val === 'assign'){
         document.getElementById('assignPrinterId').value = printerId;
         document.getElementById('assignPrinterLabel').innerText = `#${printerId}`;

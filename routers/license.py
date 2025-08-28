@@ -167,7 +167,7 @@ def create_license(
 
 
 @router.get("/{lic_id}/edit", response_class=HTMLResponse, name="license.edit_form")
-def edit_license_form(lic_id: int, request: Request, db: Session = Depends(get_db)):
+def edit_license_form(lic_id: int, request: Request, modal: bool = False, db: Session = Depends(get_db)):
     lic = db.query(License).get(lic_id)
     if not lic:
         raise HTTPException(status_code=404, detail="Lisans bulunamadı")
@@ -183,6 +183,7 @@ def edit_license_form(lic_id: int, request: Request, db: Session = Depends(get_d
             "users": users,
             "license_names": license_names,
             "form_action": f"/lisans/{lic_id}/edit",
+            "modal": modal,
         },
     )
 
@@ -197,6 +198,7 @@ def edit_license_post(
     inventory_id: int = Form(None),
     ifs_no: str = Form(""),
     mail_adresi: str = Form(""),
+    modal: bool = False,
     db: Session = Depends(get_db),
     user = Depends(current_user),
 ):
@@ -213,6 +215,8 @@ def edit_license_post(
     lic.mail_adresi = mail_adresi or None
     _logla(db, lic, "DUZENLE", "Lisans düzenlendi", getattr(user, "full_name", None) or "system")
     db.commit()
+    if modal:
+        return HTMLResponse("<script>window.parent.postMessage('modal-close','*');</script>")
     return RedirectResponse(url=request.url_for("license_list"), status_code=status.HTTP_303_SEE_OTHER)
 
 

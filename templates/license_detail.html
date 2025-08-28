@@ -4,7 +4,10 @@
 <div class="container-fluid p-2 content">
   <div class="d-flex align-items-center justify-content-between mb-2">
     <h5>Lisans: {{ item.lisans_adi }}</h5>
-    <a href="/lisans" class="btn btn-sm btn-outline-secondary">← Listeye dön</a>
+    <div class="d-flex gap-2">
+      <a href="#" class="btn btn-sm btn-primary" data-modal-url="/lisans/{{ item.id }}/edit?modal=1">Düzenle</a>
+      <a href="/lisans" class="btn btn-sm btn-outline-secondary">← Listeye dön</a>
+    </div>
   </div>
   <div class="table-responsive">
     <table class="table table-sm">

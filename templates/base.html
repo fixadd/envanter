@@ -81,6 +81,21 @@
       </div>
     </div>
 
+    <!-- iframe modal -->
+    <div class="modal fade" id="iframeModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="iframeModalTitle"></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-0">
+            <iframe id="iframeModalFrame" style="width:100%;height:70vh;border:0;"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="{{ url_for('static', path='js/picker.js') }}"></script>
@@ -137,6 +152,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Use this for interactive elements inside rows
 function stopRowClick(e) { e.stopPropagation(); }
+
+function openModal(url, title="") {
+  const frame = document.getElementById("iframeModalFrame");
+  frame.src = url;
+  document.getElementById("iframeModalTitle").textContent = title;
+  const modal = new bootstrap.Modal(document.getElementById("iframeModal"));
+  modal.show();
+}
+window.openModal = openModal;
+
+document.addEventListener("click", (e) => {
+  const link = e.target.closest("[data-modal-url]");
+  if (!link) return;
+  e.preventDefault();
+  openModal(link.dataset.modalUrl, link.dataset.modalTitle || "");
+});
+
+window.addEventListener("message", (e) => {
+  if (e.data === "modal-close") {
+    const modalEl = document.getElementById("iframeModal");
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
+    window.location.reload();
+  }
+});
     </script>
 
     <style>
