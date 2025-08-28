@@ -12,33 +12,33 @@
   </form>
 </div>
 
-<div class="row g-3 mb-3">
+  <div class="row g-3 mb-3">
   <div class="col-12 col-md-6 col-xl-3">
     <div class="soft-card p-3 stat-card">
       <div class="stat-title">Toplam Cihaz</div>
-      <div class="stat-value">1.284</div>
-      <div class="stat-sub">Aktif: 1.102 / Arızalı: 44</div>
+      <div class="stat-value">{{ stats.toplam_cihaz }}</div>
+      <div class="stat-sub">Envanter: {{ stats.envanter_sayisi }} / Yazıcı: {{ stats.yazici_sayisi }}</div>
     </div>
   </div>
   <div class="col-12 col-md-6 col-xl-3">
     <div class="soft-card p-3 stat-card">
       <div class="stat-title">Lisans (aktif)</div>
-      <div class="stat-value">362</div>
-      <div class="stat-sub">30 gün içinde bitecek: 12</div>
+      <div class="stat-value">{{ stats.lisans_sayisi }}</div>
+      <div class="stat-sub">Boş Lisans: {{ stats.bos_lisans_sayisi }}</div>
     </div>
   </div>
   <div class="col-12 col-md-6 col-xl-3">
     <div class="soft-card p-3 stat-card">
-      <div class="stat-title">Aksesuar Stok</div>
-      <div class="stat-value">3.412</div>
-      <div class="stat-sub">Eşik altı: 5</div>
+      <div class="stat-title">Arızalı Cihaz</div>
+      <div class="stat-value">{{ stats.arizali_cihaz_sayisi }}</div>
+      <div class="stat-sub"></div>
     </div>
   </div>
   <div class="col-12 col-md-6 col-xl-3">
     <div class="soft-card p-3 stat-card">
       <div class="stat-title">Açık Talep</div>
-      <div class="stat-value">19</div>
-      <div class="stat-sub">Ortalama SLA: 2.1 gün</div>
+      <div class="stat-value">{{ stats.bekleyen_talep }}</div>
+      <div class="stat-sub"></div>
     </div>
   </div>
 </div>
@@ -57,13 +57,17 @@
         </tr>
       </thead>
       <tbody>
-        {% for i in range(6) %}
+        {% for row in stats.son_islemler %}
         <tr>
-          <td>2025-08-20 10:2{{ i }}</td>
-          <td>kadir.can</td>
-          <td>Atama</td>
-          <td>Cihaz #12{{ i }}0</td>
+          <td>{{ row.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>{{ row.actor or '-' }}</td>
+          <td>{{ row.action }}</td>
+          <td>{{ row.no }}</td>
           <td><span class="badge badge-soft-success">Başarılı</span></td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" class="text-center">Kayıt bulunamadı.</td>
         </tr>
         {% endfor %}
       </tbody>
