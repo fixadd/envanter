@@ -378,6 +378,14 @@ def init_db():
     insp = inspect(engine)
     cols = {col["name"] for col in insp.get_columns("users")}
     with engine.begin() as conn:
+        if "first_name" not in cols:
+            conn.execute(
+                text("ALTER TABLE users ADD COLUMN first_name VARCHAR(60) DEFAULT ''")
+            )
+        if "last_name" not in cols:
+            conn.execute(
+                text("ALTER TABLE users ADD COLUMN last_name VARCHAR(60) DEFAULT ''")
+            )
         if "full_name" not in cols:
             conn.execute(
                 text("ALTER TABLE users ADD COLUMN full_name VARCHAR(120) DEFAULT ''")
