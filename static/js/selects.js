@@ -18,7 +18,7 @@ function makeSearchableSelect(el, placeholder="Seçiniz…") {
   return inst;
 }
 
-async function fillChoices({ endpoint, selectId, params={}, placeholder="Seçiniz…", keepValue=false }) {
+async function fillChoices({ endpoint, selectId, params={}, placeholder="Seçiniz…", keepValue=false, mapFn }) {
   const el = document.getElementById(selectId);
   if (!el) return;
   let inst = selects[selectId];
@@ -28,7 +28,8 @@ async function fillChoices({ endpoint, selectId, params={}, placeholder="Seçini
   const data = res.ok ? await res.json() : [];
   const current = keepValue ? el.value : null;
   inst.clearStore();
-  inst.setChoices(data.map(r => ({ value: r.id, label: r.text ?? r.ad ?? r.name })), 'value', 'label', true);
+  const map = mapFn || (r => ({ value: r.id, label: r.text ?? r.ad ?? r.name }));
+  inst.setChoices(data.map(map), 'value', 'label', true);
   if (keepValue && current) inst.setChoiceByValue(current);
 }
 
@@ -50,12 +51,12 @@ async function bindMarkaModel(markaSelectId, modelSelectId) {
 }
 
 function debounce(fn, d=300){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), d); }; }
-function enableRemoteSearch(selectId, endpoint, extraParamsFn=()=>({})) {
+function enableRemoteSearch(selectId, endpoint, extraParamsFn=()=>({}), mapFn) {
   const inst = selects[selectId]; if (!inst) return;
   const input = inst.input?.element; if (!input) return;
   input.addEventListener("input", debounce(async ()=>{
     const q = input.value.trim();
-    await fillChoices({ endpoint, selectId, params: { q, ...extraParamsFn() }, keepValue: false });
+    await fillChoices({ endpoint, selectId, params: { q, ...extraParamsFn() }, keepValue: false, mapFn });
   }, 300));
 }
 
