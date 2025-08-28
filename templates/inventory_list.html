@@ -94,43 +94,39 @@
             <!-- Fabrika -->
             <div class="field">
               <label>Fabrika</label>
-              <input id="fabrika_display" class="ctrl picker" placeholder="Seçiniz..." readonly>
-              <input type="hidden" id="fabrika" name="fabrika" required>
+              <select name="fabrika" id="fabrika" class="ctrl" required></select>
             </div>
 
             <!-- Departman -->
             <div class="field">
               <label>Departman</label>
-              <input id="departman_display" class="ctrl picker" placeholder="Seçiniz..." readonly>
-              <input type="hidden" id="departman" name="departman" required>
+              <select name="departman" id="departman" class="ctrl" required></select>
             </div>
 
             <!-- Donanım Tipi -->
             <div class="field">
               <label>Donanım Tipi</label>
-              <input id="donanim_tipi_display" class="ctrl picker" placeholder="Seçiniz..." readonly>
-              <input type="hidden" id="donanim_tipi" name="donanim_tipi" required>
+              <select name="donanim_tipi" id="donanim_tipi" class="ctrl" required></select>
             </div>
 
             <!-- Sorumlu Personel -->
             <div class="field">
               <label>Sorumlu Personel</label>
-              <input id="sorumlu_personel_display" class="ctrl picker" placeholder="Seçiniz..." readonly>
-              <input type="hidden" id="sorumlu_personel" name="sorumlu_personel" required>
+              <select name="sorumlu_personel" id="sorumlu_personel" class="ctrl" required></select>
             </div>
 
             <!-- Marka -->
             <div class="field">
               <label>Marka</label>
-              <input id="marka_display" class="ctrl picker" placeholder="Seçiniz..." readonly>
-              <input type="hidden" id="marka" name="marka" required>
+              <select name="marka" id="marka" class="ctrl" required></select>
             </div>
 
             <!-- Model -->
             <div class="field">
               <label>Model</label>
-              <input id="model_display" class="ctrl picker" placeholder="Seçiniz..." readonly>
-              <input type="hidden" id="model" name="model" required>
+              <select name="model" id="model" class="ctrl" required disabled>
+                <option value="">Önce marka seçiniz...</option>
+              </select>
             </div>
 
             <!-- Seri No -->
@@ -168,45 +164,6 @@
   </div>
   </div>
 
-  <!-- Mini Picker modal -->
-  <div id="picker-modal" class="picker-modal" hidden>
-    <div class="picker-card">
-      <div class="picker-head">
-        <strong id="picker-title">Seçim</strong>
-        <button type="button" class="picker-close" aria-label="Kapat">×</button>
-      </div>
-      <div class="picker-search">
-        <input id="picker-search" type="text" placeholder="Ara / yeni değer yaz..." />
-        <button type="button" class="picker-add" id="picker-add">Ekle</button>
-      </div>
-      <div id="picker-list" class="picker-list"></div>
-      <div class="picker-foot">
-        <button type="button" class="btn btn-light" id="picker-cancel">Kapat</button>
-      </div>
-    </div>
-  </div>
-
-  <style>
-    .picker-modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.4);z-index:1085}
-    .picker-card{width:420px;max-width:92vw;background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.18);overflow:hidden}
-    .picker-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #eef2f7}
-    .picker-close{border:0;background:transparent;font-size:22px;line-height:1;cursor:pointer;padding:2px 6px}
-    .picker-search{display:flex;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid #eef2f7}
-    .picker-search input{flex:1 1 auto;padding:10px 12px;border:1px solid #dbe2ea;border-radius:10px}
-    .picker-add{flex:0 0 auto;padding:9px 14px;border:1px solid #16a34a;background:#16a34a;color:#fff;border-radius:10px;cursor:pointer}
-    .picker-add:disabled{opacity:.5;cursor:not-allowed}
-    .picker-list{max-height:320px;overflow:auto}
-    .picker-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px dashed #eef2f7}
-    .picker-row:nth-child(even){background:#fafbff}
-    .picker-name{margin:0;font-size:14px}
-    .picker-actions{display:flex;gap:8px;align-items:center}
-    .picker-select{border:1px solid #d1d5db;background:#f9fafb;border-radius:8px;padding:6px 10px;cursor:pointer}
-    .picker-del{border:1px solid #ef4444;background:#fff;color:#ef4444;border-radius:999px;width:28px;height:28px;line-height:1;font-weight:700}
-    .picker-del:hover{background:#fee2e2}
-    .picker-empty{padding:14px;color:#6b7280;font-size:14px}
-    .picker-foot{padding:10px 14px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid #eef2f7}
-  </style>
-
   <style>
     /* Yalnız bu modalı düzenler */
     .env-grid{ display:grid; grid-template-columns:1fr; gap:12px 16px; }
@@ -214,80 +171,11 @@
   .field label{ display:block; margin-bottom:6px; font-weight:600; }
   .ctrl{ width:100%; padding:10px 12px; border:1px solid #ced4da; border-radius:.5rem; background:var(--bs-body-bg,#fff); }
   .ctrl::placeholder{ color:var(--bs-secondary-color,#6c757d); opacity:1; }
-  .picker{ cursor:pointer; }
   .is-invalid{ border-color:#dc3545 !important; }
   .muted{ color:var(--bs-secondary-color,#6c757d); font-weight:400; }
 </style>
 
 <script>window.SKIP_SELECT_ENHANCE = true;</script>
-<script>
-// Eski prompt seçici – SADECE modal dışı ve mini-picker KAPALIYKEN
-(function(){
-  function oldOpenPicker(entity, current){
-    const v = prompt(entity.toUpperCase()+" seçin:", current || "");
-    return (v && v.trim()) ? { id:v.trim(), text:v.trim() } : null;
-  }
-
-  document.addEventListener('click', function(e){
-    // mini picker modu aktifse hiç çalıştırma
-    if (window.USE_MINI_PICKER) return;
-
-    const dsp = e.target.closest('.lookup-display');
-    if (!dsp) return;
-
-    // Envanter Ekle modalının içindeyse çalıştırma
-    if (dsp.closest('#envanter-ekle')) return;
-
-    const id  = dsp.id?.replace('_display','');
-    const hid = id ? document.getElementById(id) : null;
-    if (!id || !hid) return;
-
-    const pick = oldOpenPicker(id, hid.value);
-    if (!pick) return;
-
-    hid.value = pick.id;
-    dsp.value = pick.text;
-    dsp.classList.remove('is-invalid');
-  }, true);
-})();
-</script>
-
-<script>
-// Submit’te required hidden kontrolü
-document.getElementById('envanter-form').addEventListener('submit', (e)=>{
-  let ok = true;
-  ["fabrika","departman","donanim_tipi","sorumlu_personel","marka","model"].forEach(id=>{
-    const hid = document.getElementById(id);
-    const dsp = document.getElementById(id+"_display");
-    if(!hid.value){ ok = false; dsp.classList.add('is-invalid'); }
-  });
-  if(!ok){ e.preventDefault(); e.stopPropagation(); }
-});
-</script>
-
-<script src="{{ url_for('static', path='js/mini-picker.js') }}"></script>
-<script>
-// Envanter ekle modalındaki picker alanlarını mini-picker'a bağla
-document.querySelectorAll('#envanter-ekle .picker').forEach(inp=>{
-  inp.addEventListener('click', ()=>{
-    const entity = inp.id.replace('_display','');
-    const hidden = document.getElementById(entity);
-    if(window.__openPickerModal){ window.__openPickerModal(entity, hidden, inp); }
-  });
-});
-
-// Marka değişirse model alanını temizle
-function clearModel(){
-  const mH=document.getElementById('model');
-  const mD=document.getElementById('model_display');
-  if(mH) mH.value='';
-  if(mD) mD.value='';
-}
-['marka','marka_display'].forEach(id=>{
-  const el=document.getElementById(id);
-  if(el) el.addEventListener('change', clearModel);
-});
-</script>
 
 <!-- Filtre Modal -->
 <div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
@@ -383,6 +271,44 @@ document.addEventListener('DOMContentLoaded', () => {
   const columns = Array.from(document.querySelectorAll('table thead th'))
     .map((th, idx) => ({ idx, name: th.textContent.trim(), field: th.dataset.field }))
     .filter(c => c.field);
+
+  // Envanter ekleme formundaki dropdown'ları doldur
+  (async function(){
+    async function loadOptions(sel, url){
+      const res = await fetch(url);
+      const data = await res.json();
+      sel.innerHTML = '<option value="">Seçiniz...</option>' +
+        data.map(o=>`<option value="${o.text}" data-id="${o.id}">${o.text}</option>`).join('');
+    }
+
+    const fabrikaSel = document.getElementById('fabrika');
+    const departmanSel = document.getElementById('departman');
+    const donanimSel = document.getElementById('donanim_tipi');
+    const personelSel = document.getElementById('sorumlu_personel');
+    const markaSel = document.getElementById('marka');
+    const modelSel = document.getElementById('model');
+
+    await loadOptions(fabrikaSel, '/api/picker/fabrika');
+    await loadOptions(departmanSel, '/api/picker/kullanim_alani');
+    await loadOptions(donanimSel, '/api/picker/donanim_tipi');
+    await loadOptions(personelSel, '/api/picker/kullanici');
+
+    const brandRes = await fetch('/api/picker/marka');
+    const brands = await brandRes.json();
+    markaSel.innerHTML = '<option value="">Seçiniz...</option>' +
+      brands.map(b=>`<option value="${b.text}" data-id="${b.id}">${b.text}</option>`).join('');
+
+    markaSel.addEventListener('change', async () => {
+      const opt = markaSel.options[markaSel.selectedIndex];
+      const brandId = opt && opt.dataset.id;
+      modelSel.innerHTML = '<option value="">Seçiniz...</option>';
+      modelSel.disabled = !brandId;
+      if(!brandId) return;
+      const res = await fetch(`/api/picker/model?marka_id=${brandId}`);
+      const models = await res.json();
+      modelSel.innerHTML += models.map(m=>`<option value="${m.text}">${m.text}</option>`).join('');
+    });
+  })();
 
   document.getElementById('addBtn').addEventListener('click', () => {
     addModal.show();
