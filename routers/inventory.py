@@ -229,7 +229,36 @@ def detail_short(request: Request, item_id: int, db: Session = Depends(get_db), 
   return detail(request, item_id, db, user)
 
 @router.get("/assign/sources", name="inventory.assign_sources")
-def assign_sources(type: str, exclude_id: int | None = None, db: Session = Depends(get_db)):
+def assign_sources(
+    type: str | None = None,
+    exclude_id: int | None = None,
+    db: Session = Depends(get_db),
+):
+    if not type:
+        users = db.query(User).order_by(User.full_name.asc()).all()
+        inv_q = db.query(Inventory)
+        if exclude_id:
+            inv_q = inv_q.filter(Inventory.id != exclude_id)
+        inventories = inv_q.order_by(Inventory.id.desc()).all()
+        return {
+            "users": [
+                {
+                    "id": u.full_name or u.username,
+                    "text": u.full_name or u.username,
+                }
+                for u in users
+                if (u.full_name or u.username or "").strip()
+            ],
+            "inventories": [
+                {
+                    "id": r.id,
+                    "envanter_no": r.no,
+                    "marka": r.marka,
+                    "model": r.model,
+                }
+                for r in inventories
+            ],
+        }
     if type == "users":
         users = db.query(User).order_by(User.full_name.asc()).all()
         return [
