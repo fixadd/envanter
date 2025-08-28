@@ -132,6 +132,10 @@ def licenses_edit_alias(lic_id: int, request: Request, db: Session = Depends(get
 def licenses_assign_alias(lic_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
     return license_router.assign_license_form(lic_id, request, db, user)
 
+@app.get("/licenses/{lic_id}/stock", include_in_schema=False)
+def licenses_stock_alias(lic_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
+    return license_router.stock_license(lic_id, db, user)
+
 # Sadece admin
 app.include_router(logs.router, prefix="/logs", tags=["Logs"], dependencies=[Depends(require_roles("admin"))])
 app.include_router(admin_router, dependencies=[Depends(require_roles("admin"))])

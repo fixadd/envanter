@@ -25,6 +25,7 @@ from models import (
     HardwareType,
     License,
     ScrapPrinter,
+    StockLog,
 )
 from security import current_user
 templates = register_filters(Jinja2Templates(directory="templates"))
@@ -369,6 +370,33 @@ async def edit_post(item_id: int, request: Request, db: Session = Depends(get_db
   ))
   db.commit()
   return RedirectResponse(url=request.url_for("inventory.detail", item_id=item.id), status_code=303)
+
+@router.get("/{item_id:int}/stock", name="inventory.stock")
+def stock_entry(item_id: int, db: Session = Depends(get_db), user=Depends(current_user)):
+  item = db.query(Inventory).get(item_id)
+  if not item:
+    raise HTTPException(404)
+  actor = getattr(user, "full_name", None) or user.username
+  db.add(StockLog(
+    donanim_tipi=item.donanim_tipi or "Envanter",
+    miktar=1,
+    ifs_no=item.ifs_no,
+    marka=item.marka,
+    model=item.model,
+    islem="girdi",
+    actor=actor,
+  ))
+  db.add(InventoryLog(
+    inventory_id=item.id,
+    action="stock",
+    before_json=None,
+    after_json=item.to_dict() if hasattr(item, "to_dict") else None,
+    note="Stok girişi yapıldı",
+    created_at=datetime.utcnow(),
+    actor=actor,
+  ))
+  db.commit()
+  return RedirectResponse(url="/stock", status_code=303)
 
 @router.post("/scrap", name="inventory.scrap")
 def scrap(item_id: int = Form(...), aciklama: str = Form(""), db: Session = Depends(get_db), user=Depends(current_user)):
