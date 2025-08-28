@@ -1,5 +1,5 @@
 from __future__ import annotations
-import os, secrets
+import os, secrets, json
 from typing import Optional
 
 from dotenv import load_dotenv
@@ -43,6 +43,22 @@ from routes.stock import router as stock_extra_router
 from routes.scrap import router as scrap_router
 from utils.i18n import humanize_log
 from security import current_user, require_roles
+
+
+def format_json(value):
+    """Pretty-print JSON for templates.
+
+    Accepts either a JSON string or a Python object and returns a nicely
+    indented JSON representation. Falls back to ``str(value)`` if parsing
+    fails so templates can render whatever was provided without breaking.
+    """
+    if value in (None, ""):
+        return ""
+    try:
+        data = json.loads(value) if isinstance(value, str) else value
+        return json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True)
+    except Exception:
+        return str(value)
 
 load_dotenv()
 bootstrap_schema()
@@ -95,6 +111,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 app.state.templates = templates
 templates.env.filters["humanize_log"] = humanize_log
+templates.env.filters["format_json"] = format_json
 
 # --- Routers (korumalı) -------------------------------------------------------
 app.include_router(home.router, prefix="", dependencies=[Depends(current_user)])

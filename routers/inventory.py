@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Request, Depends, Form, HTTPException, UploadFile, File
+from fastapi import APIRouter, Request, Depends, Form, HTTPException, UploadFile, File
 from fastapi.responses import (
     JSONResponse,
     RedirectResponse,
@@ -26,10 +27,8 @@ from models import (
     ScrapPrinter,
 )
 from security import current_user
-from utils.i18n import humanize_log
-
 templates = Jinja2Templates(directory="templates")
-templates.env.filters["humanize_log"] = humanize_log
+
 
 router = APIRouter(prefix="/inventory", tags=["inventory"])
 
@@ -223,7 +222,6 @@ def detail(request: Request, item_id: int, db: Session = Depends(get_db), user=D
             "inv": item,
             "logs": logs,
             "lisanslar": lisanslar,
-            "loglar": logs,
         },
     )
 
