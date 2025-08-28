@@ -166,12 +166,51 @@
       </div>
     </div>
   </div>
-</div>
+  </div>
 
-<style>
-  /* Yalnız bu modalı düzenler */
-  .env-grid{ display:grid; grid-template-columns:1fr; gap:12px 16px; }
-  @media (min-width:768px){ .env-grid{ grid-template-columns:1fr 1fr; } .env-grid .span-2{ grid-column:1 / -1; } }
+  <!-- Mini Picker modal -->
+  <div id="picker-modal" class="picker-modal" hidden>
+    <div class="picker-card">
+      <div class="picker-head">
+        <strong id="picker-title">Seçim</strong>
+        <button type="button" class="picker-close" aria-label="Kapat">×</button>
+      </div>
+      <div class="picker-search">
+        <input id="picker-search" type="text" placeholder="Ara / yeni değer yaz..." />
+        <button type="button" class="picker-add" id="picker-add">Ekle</button>
+      </div>
+      <div id="picker-list" class="picker-list"></div>
+      <div class="picker-foot">
+        <button type="button" class="btn btn-light" id="picker-cancel">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .picker-modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.4);z-index:1085}
+    .picker-card{width:420px;max-width:92vw;background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.18);overflow:hidden}
+    .picker-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #eef2f7}
+    .picker-close{border:0;background:transparent;font-size:22px;line-height:1;cursor:pointer;padding:2px 6px}
+    .picker-search{display:flex;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid #eef2f7}
+    .picker-search input{flex:1 1 auto;padding:10px 12px;border:1px solid #dbe2ea;border-radius:10px}
+    .picker-add{flex:0 0 auto;padding:9px 14px;border:1px solid #16a34a;background:#16a34a;color:#fff;border-radius:10px;cursor:pointer}
+    .picker-add:disabled{opacity:.5;cursor:not-allowed}
+    .picker-list{max-height:320px;overflow:auto}
+    .picker-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px dashed #eef2f7}
+    .picker-row:nth-child(even){background:#fafbff}
+    .picker-name{margin:0;font-size:14px}
+    .picker-actions{display:flex;gap:8px;align-items:center}
+    .picker-select{border:1px solid #d1d5db;background:#f9fafb;border-radius:8px;padding:6px 10px;cursor:pointer}
+    .picker-del{border:1px solid #ef4444;background:#fff;color:#ef4444;border-radius:999px;width:28px;height:28px;line-height:1;font-weight:700}
+    .picker-del:hover{background:#fee2e2}
+    .picker-empty{padding:14px;color:#6b7280;font-size:14px}
+    .picker-foot{padding:10px 14px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid #eef2f7}
+  </style>
+
+  <style>
+    /* Yalnız bu modalı düzenler */
+    .env-grid{ display:grid; grid-template-columns:1fr; gap:12px 16px; }
+    @media (min-width:768px){ .env-grid{ grid-template-columns:1fr 1fr; } .env-grid .span-2{ grid-column:1 / -1; } }
   .field label{ display:block; margin-bottom:6px; font-weight:600; }
   .ctrl{ width:100%; padding:10px 12px; border:1px solid #ced4da; border-radius:.5rem; background:var(--bs-body-bg,#fff); }
   .ctrl::placeholder{ color:var(--bs-secondary-color,#6c757d); opacity:1; }
