@@ -253,7 +253,7 @@ def create_printer_simple(
 @router.get("/{printer_id}", response_class=HTMLResponse)
 def printer_detail(printer_id: int, request: Request, db: Session = Depends(get_db)):
     p = db.get(Printer, printer_id)
-    if not p:
+    if not p or p.durum == "hurda":
         raise HTTPException(404, "Yazıcı bulunamadı")
     logs = (
         db.query(PrinterHistory)
