@@ -8,7 +8,7 @@ from fastapi.responses import (
     StreamingResponse,
 )
 from database import get_db
-from models import License, LicenseLog, Inventory, LicenseName
+from models import License, LicenseLog, Inventory, LicenseName, StockLog
 from fastapi.templating import Jinja2Templates
 from security import current_user
 from datetime import datetime
@@ -258,6 +258,28 @@ def assign_license(
     _logla(db, lic, "ATAMA", f"Sorumlu: '{eski_sp}' -> '{lic.sorumlu_personel}', Bağlı Envanter: '{eski_bagli}' -> '{lic.bagli_envanter_no}'", islem_yapan)
     db.commit()
     return RedirectResponse(url=request.url_for("license_list"), status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/{lic_id}/stock")
+def stock_license(lic_id: int, db: Session = Depends(get_db), user=Depends(current_user)):
+    lic = db.query(License).get(lic_id)
+    if not lic:
+        raise HTTPException(status_code=404, detail="Lisans bulunamadı")
+    actor = getattr(user, "full_name", None) or user.username
+    db.add(
+        StockLog(
+            donanim_tipi=lic.lisans_adi,
+            miktar=1,
+            ifs_no=lic.ifs_no,
+            lisans_anahtari=lic.lisans_anahtari,
+            mail_adresi=lic.mail_adresi,
+            islem="girdi",
+            actor=actor,
+        )
+    )
+    _logla(db, lic, "STOK", "Stok girişi yapıldı", actor)
+    db.commit()
+    return RedirectResponse(url="/stock", status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/{lic_id}/scrap")
