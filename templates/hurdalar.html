@@ -37,7 +37,7 @@
             <td>
               <ul class="mb-0 small">
                 {% for log in logs_map[item.id] %}
-                <li>{{ log.created_at }} – {{ log.action }} – {{ log.note }}</li>
+                <li>{{ log|humanize_log }}</li>
                 {% else %}
                 <li class="text-muted">Log yok</li>
                 {% endfor %}

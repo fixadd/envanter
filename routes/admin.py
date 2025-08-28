@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Request, Depends, Form
+from fastapi import APIRouter, Request, Depends, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
-from models import User, Lookup
+from models import User, Lookup, Setting
 from database import get_db
 from fastapi.templating import Jinja2Templates
 
@@ -58,3 +58,47 @@ def create_product(
     # item = Inventory(...); db.add(item)
     db.commit()
     return RedirectResponse(url="/admin#products", status_code=303)
+
+
+@router.get("/users/{uid}/edit", response_class=HTMLResponse)
+def user_edit(uid:int, request:Request, db:Session=Depends(get_db)):
+    u = db.query(User).get(uid)
+    if not u: raise HTTPException(404, "Kullanıcı bulunamadı")
+    return templates.TemplateResponse("admin_user_edit.html", {"request":request, "u":u})
+
+@router.post("/users/{uid}/edit")
+def user_edit_post(uid:int, full_name:str=Form(...), email:str=Form(...), db:Session=Depends(get_db)):
+    u = db.query(User).get(uid)
+    if not u: raise HTTPException(404, "Kullanıcı bulunamadı")
+    u.full_name = full_name
+    u.email     = email
+    db.add(u); db.commit()
+    return RedirectResponse(url="/admin", status_code=303)
+
+
+@router.get("/connections/ldap", response_class=HTMLResponse)
+def ldap_get(request:Request, db:Session=Depends(get_db)):
+    def g(k):
+        s = db.query(Setting).filter_by(key=k).first()
+        return s.value if s else ""
+    ctx = {
+        "request":request,
+        "host": g("ldap.host"),
+        "base_dn": g("ldap.base_dn"),
+        "bind_dn": g("ldap.bind_dn"),
+        "bind_password": g("ldap.bind_password"),
+        "use_ssl": g("ldap.use_ssl"),
+    }
+    return templates.TemplateResponse("admin_ldap.html", ctx)
+
+@router.post("/connections/ldap")
+def ldap_post(host:str=Form(""), base_dn:str=Form(""), bind_dn:str=Form(""), bind_password:str=Form(""), use_ssl:str=Form("0"), db:Session=Depends(get_db)):
+    for k,v in [
+        ("ldap.host",host), ("ldap.base_dn",base_dn), ("ldap.bind_dn",bind_dn),
+        ("ldap.bind_password",bind_password), ("ldap.use_ssl",use_ssl)
+    ]:
+        s = db.query(Setting).filter_by(key=k).first()
+        if not s: s = Setting(key=k, value=v); db.add(s)
+        else: s.value = v
+    db.commit()
+    return RedirectResponse(url="/admin/connections/ldap", status_code=303)

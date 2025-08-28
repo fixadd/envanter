@@ -68,6 +68,13 @@ class Connection(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
 
+class Setting(Base):
+    __tablename__ = "settings"
+    id = Column(Integer, primary_key=True)
+    key = Column(String, unique=True, index=True)
+    value = Column(String)
+
+
 class Inventory(Base):
     __tablename__ = "inventories"
 

@@ -22,6 +22,7 @@ from models import (
     Model,
     UsageArea,
     HardwareType,
+    License,
 )
 from security import current_user
 
@@ -199,11 +200,7 @@ async def new_post(request: Request, db: Session = Depends(get_db), user=Depends
 
 @router.get("/{item_id:int}/detail", name="inventory.detail")
 def detail(request: Request, item_id: int, db: Session = Depends(get_db), user=Depends(current_user)):
-    stmt = (
-        select(Inventory)
-        .options(selectinload(Inventory.licenses))
-        .where(Inventory.id == item_id)
-    )
+    stmt = select(Inventory).where(Inventory.id == item_id)
     item = db.execute(stmt).scalar_one_or_none()
     if not item:
         raise HTTPException(status_code=404, detail="Kayıt bulunamadı")
@@ -213,8 +210,18 @@ def detail(request: Request, item_id: int, db: Session = Depends(get_db), user=D
         .order_by(InventoryLog.created_at.desc())
         .all()
     )
+    lisanslar = db.query(License).filter(
+        (License.inventory_id == item_id) | (License.bagli_envanter_no == item.no)
+    ).all()
     return templates.TemplateResponse(
-        "inventory_detail.html", {"request": request, "inv": item, "logs": logs}
+        "inventory_detail.html",
+        {
+            "request": request,
+            "inv": item,
+            "logs": logs,
+            "lisanslar": lisanslar,
+            "loglar": logs,
+        },
     )
 
 @router.get("/{item_id:int}", name="inventory.detail_short", include_in_schema=False)
