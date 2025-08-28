@@ -26,6 +26,7 @@
             <th>Departman</th>
             <th>Tarih</th>
             <th>Loglar</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -46,6 +47,11 @@
                 {% endfor %}
               </ul>
             </td>
+            <td class="text-nowrap">
+              <a href="/inventory/{{ item.id }}" class="btn btn-outline-secondary btn-sm" title="Detayı Göster">
+                <i class="bi bi-eye"></i>
+              </a>
+            </td>
           </tr>
           {% endfor %}
         </tbody>
@@ -54,7 +60,7 @@
     <div class="tab-pane fade" id="lisans" role="tabpanel" aria-labelledby="lisans-tab">
       <table class="table table-sm align-middle">
         <thead>
-          <tr><th>No</th><th>Lisans Adı</th><th>Key</th><th>Sorumlu</th><th>Bağlı Envanter</th><th>Not</th></tr>
+          <tr><th>No</th><th>Lisans Adı</th><th>Key</th><th>Sorumlu</th><th>Bağlı Envanter</th><th>Not</th><th></th></tr>
         </thead>
         <tbody>
           {% for row in license_scraps %}
@@ -65,9 +71,14 @@
             <td>{{ row.sorumlu_personel or '-' }}</td>
             <td>{{ row.bagli_envanter_no or '-' }}</td>
             <td>{{ row.notlar or '-' }}</td>
+            <td class="text-nowrap">
+              <a href="/lisans/{{ row.id }}" class="btn btn-outline-secondary btn-sm" title="Detayı Göster">
+                <i class="bi bi-eye"></i>
+              </a>
+            </td>
           </tr>
           {% else %}
-          <tr><td colspan="6" class="text-muted">Kayıt yok.</td></tr>
+          <tr><td colspan="7" class="text-muted">Kayıt yok.</td></tr>
           {% endfor %}
         </tbody>
       </table>
