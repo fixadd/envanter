@@ -36,3 +36,16 @@
     }
   });
 })();
+
+// Arama kapalı sadece seçmeli (Choices kullanıyorsan searchEnabled:false)
+(function(){
+  const initNoSearch = (selId) => {
+    const el = document.getElementById(selId);
+    if(!el) return;
+    if (window.Choices) {
+      new Choices(el, { searchEnabled:false, shouldSort:false, itemSelectText:'' });
+    }
+  };
+  initNoSearch('licIslemSelect');
+  initNoSearch('prnIslemSelect');
+})();
