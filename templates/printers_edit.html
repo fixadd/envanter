@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container-fluid p-3">
   <h5 class="mb-3">Yazıcı Düzenle</h5>
-  <form method="post">
+  <form method="post" action="{{ '?modal=1' if modal else '' }}">
     <div class="mb-2">
       <label class="form-label">Marka</label>
       <input type="text" name="marka" value="{{ p.marka or '' }}" class="form-control">

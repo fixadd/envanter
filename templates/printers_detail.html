@@ -4,7 +4,10 @@
 <div class="container py-3">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0">Yazıcı #{{ p.id }} — {{ p.marka }} {{ p.model }}</h5>
-    <a class="btn btn-sm btn-outline-secondary" href="/printers">Geri</a>
+    <div class="d-flex gap-2">
+      <a class="btn btn-sm btn-primary" href="#" data-modal-url="/printers/edit/{{ p.id }}?modal=1">Düzenle</a>
+      <a class="btn btn-sm btn-outline-secondary" href="/printers">Geri</a>
+    </div>
   </div>
   <div class="row g-3">
     <div class="col-lg-6">
@@ -33,7 +36,11 @@
               <li class="list-group-item">
                 <div class="small text-muted">{{ h.created_at.strftime("%d.%m.%Y %H:%M") }} — {{ h.actor or '-' }} — {{ h.action }}</div>
                 {% if h.changes %}
-                <pre class="mt-2 mb-0 small">{{ h.changes | tojson(indent=2) }}</pre>
+                <ul class="mt-2 mb-0 small">
+                  {% for field, vals in h.changes.items() %}
+                  <li><code>{{ field }}</code>: {{ vals.old or '-' }} → {{ vals.new or '-' }}</li>
+                  {% endfor %}
+                </ul>
                 {% endif %}
               </li>
               {% endfor %}

@@ -24,7 +24,14 @@
     // stock  -> /{entity}/{id}/stock
     // scrap  -> /{entity}/{id}/scrap
     const map = { assign: 'assign', edit: 'edit', stock: 'stock', scrap: 'scrap' };
-    if (map[val]) go(`/${entity}/${id}/${map[val]}`);
+    if (map[val]) {
+      const url = `/${entity}/${id}/${map[val]}`;
+      if (val === 'edit' && window.openModal) {
+        openModal(url + '?modal=1');
+      } else {
+        go(url);
+      }
+    }
     sel.value = '';
   });
 
