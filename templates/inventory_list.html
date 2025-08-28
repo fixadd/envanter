@@ -291,7 +291,12 @@ document.addEventListener('DOMContentLoaded', () => {
     await loadOptions(fabrikaSel, '/api/picker/fabrika');
     await loadOptions(departmanSel, '/api/picker/kullanim_alani');
     await loadOptions(donanimSel, '/api/picker/donanim_tipi');
-    await loadOptions(personelSel, '/api/picker/kullanici');
+    await _selects.fillChoices({
+      endpoint: '/api/picker/kullanici',
+      selectId: 'sorumlu_personel',
+      mapFn: r => ({ value: r.text, label: r.text })
+    });
+    _selects.enableRemoteSearch('sorumlu_personel', '/api/picker/kullanici', () => ({}), r => ({ value: r.text, label: r.text }));
 
     const brandRes = await fetch('/api/picker/marka');
     const brands = await brandRes.json();
