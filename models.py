@@ -49,11 +49,17 @@ class User(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     username: Mapped[str] = mapped_column(String(64), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(255))
+    first_name: Mapped[str] = mapped_column(String(60), default="")
+    last_name: Mapped[str] = mapped_column(String(60), default="")
     full_name: Mapped[str] = mapped_column(String(120), default="")
     # E-posta artık opsiyonel ve benzersiz
     email: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)
     role: Mapped[str] = mapped_column(String(16), default="admin")  # admin/staff/user
     created_at: Mapped[str] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    @property
+    def is_admin(self) -> bool:
+        return self.role == "admin"
 
 
 class Connection(Base):
