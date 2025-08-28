@@ -86,6 +86,7 @@
               <th>Bağlı Env.</th>
               <th>Not</th>
               <th>Tarih</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -100,6 +101,11 @@
               <td>{{ r.snapshot.bagli_envanter_no or '-' }}</td>
               <td>{{ r.reason or '-' }}</td>
               <td>{{ r.created_at.strftime("%d.%m.%Y %H:%M") }}</td>
+              <td>
+                <button class="btn btn-outline-secondary btn-sm view-btn" data-id="{{ r.printer_id }}" title="Detayı Göster">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </td>
             </tr>
             {% else %}
             <tr><td colspan="9" class="text-muted">Kayıt yok.</td></tr>
@@ -110,4 +116,28 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="hurdaDetayModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Hurda Detayı</h5>
+        <button class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body" id="hurdaDetayBody">Yükleniyor...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('#yazici .view-btn').forEach(b=>{
+  b.addEventListener('click', async ()=>{
+    const id = b.dataset.id;
+    const r = await fetch('/scrap/printer/'+id);
+    const h = await r.text();
+    document.getElementById('hurdaDetayBody').innerHTML = h;
+    new bootstrap.Modal(document.getElementById('hurdaDetayModal')).show();
+  });
+});
+</script>
+
 {% endblock %}
