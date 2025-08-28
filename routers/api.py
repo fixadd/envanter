@@ -52,6 +52,47 @@ def printer_models(brand: str = Query(..., min_length=1), db: Session = Depends(
     return [r[0] for r in rows if r[0]]
 
 
+@router.get("/licenses/list")
+def licenses_list(db: Session = Depends(get_db)):
+    rows = (
+        db.query(models.License)
+        .filter(models.License.durum != "hurda")
+        .order_by(models.License.id.asc())
+        .all()
+    )
+    return {
+        "items": [
+            {
+                "id": r.id,
+                "lisans_adi": r.lisans_adi,
+                "lisans_anahtari": r.lisans_anahtari,
+            }
+            for r in rows
+        ]
+    }
+
+
+@router.get("/printers/list")
+def printers_list(db: Session = Depends(get_db)):
+    rows = (
+        db.query(models.Printer)
+        .filter(models.Printer.durum != "hurda")
+        .order_by(models.Printer.id.asc())
+        .all()
+    )
+    return {
+        "items": [
+            {
+                "id": r.id,
+                "marka": r.marka,
+                "model": r.model,
+                "seri_no": r.seri_no,
+            }
+            for r in rows
+        ]
+    }
+
+
 # === STOCK API ===
 @router.get("/stock/status")
 def stock_status(db: Session = Depends(get_db)):
