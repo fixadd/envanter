@@ -563,3 +563,26 @@ def init_db():
             conn.execute(text("ALTER TABLE printers ADD COLUMN tarih DATE"))
         if "islem_yapan" not in cols:
             conn.execute(text("ALTER TABLE printers ADD COLUMN islem_yapan VARCHAR(150)"))
+
+    # -- Stock Logs --------------------------------------------------------------
+    insp = inspect(engine)
+    cols = {col["name"] for col in insp.get_columns("stock_logs")}
+    with engine.begin() as conn:
+        if "ifs_no" not in cols:
+            conn.execute(text("ALTER TABLE stock_logs ADD COLUMN ifs_no VARCHAR(100)"))
+        if "marka" not in cols:
+            conn.execute(text("ALTER TABLE stock_logs ADD COLUMN marka VARCHAR(150)"))
+        if "model" not in cols:
+            conn.execute(text("ALTER TABLE stock_logs ADD COLUMN model VARCHAR(150)"))
+        if "lisans_anahtari" not in cols:
+            conn.execute(
+                text(
+                    "ALTER TABLE stock_logs ADD COLUMN lisans_anahtari VARCHAR(500)"
+                )
+            )
+        if "mail_adresi" not in cols:
+            conn.execute(
+                text("ALTER TABLE stock_logs ADD COLUMN mail_adresi VARCHAR(200)")
+            )
+        if "actor" not in cols:
+            conn.execute(text("ALTER TABLE stock_logs ADD COLUMN actor VARCHAR(150)"))
