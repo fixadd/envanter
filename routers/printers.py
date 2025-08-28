@@ -13,7 +13,7 @@ from datetime import datetime
 
 from database import get_db
 from security import current_user
-from models import Printer, PrinterHistory, ScrapPrinter, Brand, Model, UsageArea
+from models import Printer, PrinterHistory, ScrapPrinter, Brand, Model, UsageArea, StockLog
 from sqlalchemy import text
 
 templates = Jinja2Templates(directory="templates")
@@ -341,6 +341,36 @@ def edit_printer_post(
     )
     db.commit()
     return RedirectResponse(url=f"/printers/{printer_id}", status_code=303)
+
+
+@router.get("/{printer_id}/stock")
+def stock_printer(printer_id: int, db: Session = Depends(get_db), user=Depends(current_user)):
+    p = db.query(Printer).get(printer_id)
+    if not p:
+        raise HTTPException(404, "Yazıcı bulunamadı")
+    actor = getattr(user, "full_name", None) or user.username
+    db.add(
+        StockLog(
+            donanim_tipi="Yazıcı",
+            miktar=1,
+            ifs_no=p.ifs_no,
+            marka=p.marka,
+            model=p.model,
+            islem="girdi",
+            actor=actor,
+        )
+    )
+    db.add(
+        PrinterHistory(
+            printer_id=p.id,
+            action="stock",
+            changes=None,
+            actor=actor,
+            created_at=datetime.utcnow(),
+        )
+    )
+    db.commit()
+    return RedirectResponse(url="/stock", status_code=303)
 
 
 @router.post("/scrap/{printer_id}")

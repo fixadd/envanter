@@ -21,8 +21,9 @@
     // Tek tip URL şeması:
     // assign -> /{entity}/{id}/assign
     // edit   -> /{entity}/{id}/edit
+    // stock  -> /{entity}/{id}/stock
     // scrap  -> /{entity}/{id}/scrap
-    const map = { assign: 'assign', edit: 'edit', scrap: 'scrap' };
+    const map = { assign: 'assign', edit: 'edit', stock: 'stock', scrap: 'scrap' };
     if (map[val]) go(`/${entity}/${id}/${map[val]}`);
     sel.value = '';
   });
