@@ -168,6 +168,17 @@
     });
   });
 
+  // Sayfaya sonradan eklenen lookup-display inputları için tıklama delegasyonu
+  document.addEventListener('click', (e)=>{
+    const input = e.target.closest('input.lookup-display');
+    if(!input) return;
+    const entity = input.id ? input.id.replace('_display','') : null;
+    if(!entity) return;
+    const hidden = document.getElementById(entity);
+    const chip   = document.querySelector(`.pick-chip[data-for="${entity}"]`);
+    openModal(entity, hidden, input, chip);
+  });
+
   // Dışarıdan çağrılabilsin
   window.__openPickerModal = openModal;
 
