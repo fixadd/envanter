@@ -36,6 +36,11 @@
         <div class="card-header">Değişiklik Geçmişi</div>
         <div class="card-body p-0">
           <div class="table-responsive">
+            {% set islem_map = {
+              "assign": "Atama",
+              "edit": "Düzenleme",
+              "scrap": "Hurdaya Ayır"
+            } %}
             <table class="table table-sm table-striped mb-0">
               <thead>
                 <tr>
@@ -50,12 +55,37 @@
               <tbody>
                 {% for log in logs %}
                 <tr>
-                  <td>{{ log.action }}</td>
-                  <td class="text-muted"><pre class="mb-0">{{ log.before_json | format_json }}</pre></td>
-                  <td><pre class="mb-0">{{ log.after_json | format_json }}</pre></td>
-                  <td>{{ log.note }}</td>
+                  <!-- İşlem Türkçeleştirme -->
+                  <td>{{ islem_map.get(log.action, log.action) }}</td>
+
+                  <!-- Önce -->
+                  <td>
+                    {% if log.before_json %}
+                      {% for k, v in log.before_json.items() %}
+                        <div><strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v }}</div>
+                      {% endfor %}
+                    {% else %}
+                      Yok
+                    {% endif %}
+                  </td>
+
+                  <!-- Sonra -->
+                  <td>
+                    {% if log.after_json %}
+                      {% for k, v in log.after_json.items() %}
+                        <div><strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v }}</div>
+                      {% endfor %}
+                    {% else %}
+                      Yok
+                    {% endif %}
+                  </td>
+
+                  <!-- Not / Kullanıcı -->
+                  <td>{{ log.note or '' }}</td>
                   <td>{{ log.actor }}</td>
-                  <td>{{ log.created_at }}</td>
+
+                  <!-- Tarih (saliseyi atıyoruz) -->
+                  <td>{{ log.created_at.strftime("%d.%m.%Y %H:%M:%S") }}</td>
                 </tr>
                 {% else %}
                 <tr><td colspan="6" class="text-muted">Henüz değişiklik yok</td></tr>
