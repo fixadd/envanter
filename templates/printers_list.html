@@ -157,6 +157,8 @@
   </div>
 </div>
 
+<script>window.SKIP_SELECT_ENHANCE = true;</script>
+
 <!-- Filtre Modal -->
 <div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
@@ -249,6 +251,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const markaSel = document.getElementById('selYaziciMarka');
     const modelSel = document.getElementById('selYaziciModel');
     if (markaSel && modelSel) {
+      if (window.Choices) {
+        new Choices(markaSel, { searchEnabled: true, shouldSort: false });
+        new Choices(modelSel, { searchEnabled: true, shouldSort: false });
+      }
       const loadModels = async () => {
         const marka = markaSel.value;
         modelSel.innerHTML = '<option value="">Seçiniz...</option>';

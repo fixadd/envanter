@@ -73,6 +73,8 @@
   </div>
 </div>
 
+<script>window.SKIP_SELECT_ENHANCE = true;</script>
+
 <!-- Yeni Ekle Modal -->
 <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
@@ -329,35 +331,12 @@
     });
 
     if (window.Choices) {
-      new Choices('#selPersonel', { searchEnabled: true, shouldSort: false });
-      new Choices('#selBagli', { searchEnabled: true, shouldSort: false });
+      new Choices('#selLisansAdi',   { searchEnabled: true, shouldSort: false });
+      new Choices('#selPersonelAdd', { searchEnabled: true, shouldSort: false });
+      new Choices('#selPersonel',    { searchEnabled: true, shouldSort: false });
+      new Choices('#selBagli',       { searchEnabled: true, shouldSort: false });
     }
   });
-
-  // Sadece lisans tablosundaki işlem select'lerini enhance et
-  (function () {
-    const selects = document.querySelectorAll('#licensesTable .action-select');
-    if (!selects.length || !window.Choices) return;
-
-    selects.forEach(function (el) {
-      const ch = new Choices(el, {
-        searchEnabled: true,
-        shouldSort: false,
-        itemSelectText: '',
-        removeItemButton: false,
-        allowHTML: true,
-        placeholderValue: 'Seçiniz...'
-      });
-
-      // Seçim yapıldıktan sonra global handler'ın çalışmasına izin verip UI'yı sıfırla
-      el.addEventListener('change', function () {
-        setTimeout(() => {
-          ch.setChoiceByValue('');
-          ch.clearInput();
-        });
-      });
-    });
-  })();
 </script>
 
 <style>
