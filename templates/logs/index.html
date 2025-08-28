@@ -1,5 +1,10 @@
 {% extends "base.html" %}{% block title %}Kayıtlar{% endblock %}
 {% block content %}
+{% set islem_map = {
+  "assign": "Atama",
+  "edit": "Düzenleme",
+  "scrap": "Hurdaya Ayır"
+} %}
 <h2 class="h5 mb-3">Sistem Kayıtları</h2>
 <ul class="nav nav-tabs" id="logsTab" role="tablist">
   <li class="nav-item" role="presentation">
@@ -26,9 +31,9 @@
           {% for log, inv_no in user_logs %}
             <tr>
               <td>{{ log.actor }}</td>
-              <td>{{ log.action }}</td>
+              <td>{{ islem_map.get(log.action, log.action) }}</td>
               <td>{{ inv_no }}</td>
-              <td>{{ log.created_at }}</td>
+              <td>{{ log.created_at.strftime("%d.%m.%Y %H:%M:%S") }}</td>
             </tr>
           {% else %}
             <tr><td colspan="4" class="text-muted">Kayıt yok</td></tr>
@@ -56,11 +61,36 @@
           {% for log, inv_no in inventory_logs %}
             <tr>
               <td>{{ inv_no }}</td>
-              <td>{{ log.action }}</td>
-              <td class="text-muted"><pre class="mb-0">{{ log.before_json }}</pre></td>
-              <td><pre class="mb-0">{{ log.after_json }}</pre></td>
+              <!-- İşlem Türkçeleştirme -->
+              <td>{{ islem_map.get(log.action, log.action) }}</td>
+
+              <!-- Önce -->
+              <td>
+                {% if log.before_json %}
+                  {% for k, v in log.before_json.items() %}
+                    <div><strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v }}</div>
+                  {% endfor %}
+                {% else %}
+                  Yok
+                {% endif %}
+              </td>
+
+              <!-- Sonra -->
+              <td>
+                {% if log.after_json %}
+                  {% for k, v in log.after_json.items() %}
+                    <div><strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v }}</div>
+                  {% endfor %}
+                {% else %}
+                  Yok
+                {% endif %}
+              </td>
+
+              <!-- Kullanıcı -->
               <td>{{ log.actor }}</td>
-              <td>{{ log.created_at }}</td>
+
+              <!-- Tarih (saliseyi atıyoruz) -->
+              <td>{{ log.created_at.strftime("%d.%m.%Y %H:%M:%S") }}</td>
             </tr>
           {% else %}
             <tr><td colspan="6" class="text-muted">Kayıt yok</td></tr>
