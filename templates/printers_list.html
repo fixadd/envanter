@@ -360,33 +360,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const assignModal = new bootstrap.Modal(assignModalEl);
   const assignForm = document.getElementById('assignForm');
 
-  document.querySelectorAll('.action-go').forEach(btn => {
-    btn.addEventListener('click', function(){
-      const tr = this.closest('tr');
+  document.querySelectorAll('.action-select').forEach(sel => {
+    sel.addEventListener('change', (e) => {
+      const tr = e.target.closest('tr');
       const printerId = tr.dataset.id;
-      const sel = tr.querySelector('.action-select');
-      const val = sel.value;
-
-      if(!val){ sel.classList.add('is-invalid'); setTimeout(()=>sel.classList.remove('is-invalid'), 1200); return; }
+      const val = e.target.value;
+      if(!val) return;
 
       if(val === 'edit'){
         window.location.href = `/printers/edit/${printerId}`;
-        return;
-      }
-      if(val === 'assign'){
+      } else if(val === 'assign'){
         document.getElementById('assignPrinterId').value = printerId;
         document.getElementById('assignPrinterLabel').innerText = `#${printerId}`;
         assignModal.show();
-        return;
-      }
-      if(val === 'scrap'){
-        if(!confirm('Bu yazıcıyı hurdaya ayırmak istiyor musunuz?')) return;
+      } else if(val === 'scrap'){
+        if(!confirm('Bu yazıcıyı hurdaya ayırmak istiyor musunuz?')) { e.target.value=''; return; }
         const formData = new FormData();
         formData.append('reason','İşlemler menüsünden hurdaya ayrıldı');
         fetch(`/printers/scrap/${printerId}`, { method: 'POST', body: formData })
           .then(r => r.json()).then(j => { if(j.ok){ location.reload(); } else { alert('İşlem başarısız'); } })
           .catch(() => alert('Sunucu hatası'));
       }
+
+      e.target.value = '';
     });
   });
 
