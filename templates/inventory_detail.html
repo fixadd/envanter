@@ -51,8 +51,8 @@
                 {% for log in logs %}
                 <tr>
                   <td>{{ log.action }}</td>
-                  <td class="text-muted"><pre class="mb-0">{{ log.before_json }}</pre></td>
-                  <td><pre class="mb-0">{{ log.after_json }}</pre></td>
+                  <td class="text-muted"><pre class="mb-0">{{ log.before_json | format_json }}</pre></td>
+                  <td><pre class="mb-0">{{ log.after_json | format_json }}</pre></td>
                   <td>{{ log.note }}</td>
                   <td>{{ log.actor }}</td>
                   <td>{{ log.created_at }}</td>
@@ -111,14 +111,6 @@
   });
   </script>
 
-  <h6 class="mt-4">Geçmiş Kayıtlar</h6>
-  <ul class="list-group">
-    {% for log in loglar %}
-      <li class="list-group-item">{{ log|humanize_log }}</li>
-    {% else %}
-      <li class="list-group-item text-muted">Kayıt yok.</li>
-    {% endfor %}
-  </ul>
 </div>
 {% endblock %}
 
