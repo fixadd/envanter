@@ -4,13 +4,14 @@ from sqlalchemy.orm import Session
 from models import User, Lookup, Setting
 from database import get_db
 from fastapi.templating import Jinja2Templates
+from auth import hash_password
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 templates = Jinja2Templates(directory="templates")
 
 @router.get("", response_class=HTMLResponse)
 def admin_index(request: Request, db: Session = Depends(get_db)):
-    users = db.query(User).order_by(User.full_name.asc()).all()
+    users = db.query(User).order_by(User.username.asc()).all()
 
     def get(type_):
         return (
@@ -34,12 +35,23 @@ def admin_index(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/users/create")
 def create_user(
-    full_name: str = Form(...),
-    email: str = Form(...),
-    role: str = Form("user"),
+    username: str = Form(...),
+    password: str = Form(...),
+    first_name: str = Form(""),
+    last_name: str = Form(""),
+    email: str = Form(""),
+    is_admin: bool = Form(False),
     db: Session = Depends(get_db),
 ):
-    u = User(full_name=full_name, email=email, role=role)
+    u = User(
+        username=username,
+        password_hash=hash_password(password),
+        first_name=first_name,
+        last_name=last_name,
+        full_name=f"{first_name} {last_name}".strip(),
+        email=email or None,
+        role="admin" if is_admin else "user",
+    )
     db.add(u)
     db.commit()
     return RedirectResponse(url="/admin#users", status_code=303)
@@ -59,21 +71,31 @@ def create_product(
     db.commit()
     return RedirectResponse(url="/admin#products", status_code=303)
 
-
-@router.get("/users/{uid}/edit", response_class=HTMLResponse)
-def user_edit(uid:int, request:Request, db:Session=Depends(get_db)):
-    u = db.query(User).get(uid)
-    if not u: raise HTTPException(404, "Kullanıcı bulunamadı")
-    return templates.TemplateResponse("admin_user_edit.html", {"request":request, "u":u})
-
 @router.post("/users/{uid}/edit")
-def user_edit_post(uid:int, full_name:str=Form(...), email:str=Form(...), db:Session=Depends(get_db)):
+def user_edit_post(
+    uid: int,
+    username: str = Form(...),
+    first_name: str = Form(""),
+    last_name: str = Form(""),
+    email: str = Form(""),
+    password: str = Form(""),
+    is_admin: bool = Form(False),
+    db: Session = Depends(get_db),
+):
     u = db.query(User).get(uid)
-    if not u: raise HTTPException(404, "Kullanıcı bulunamadı")
-    u.full_name = full_name
-    u.email     = email
-    db.add(u); db.commit()
-    return RedirectResponse(url="/admin", status_code=303)
+    if not u:
+        raise HTTPException(404, "Kullanıcı bulunamadı")
+    u.username = username
+    u.first_name = first_name
+    u.last_name = last_name
+    u.full_name = f"{first_name} {last_name}".strip()
+    u.email = email or None
+    u.role = "admin" if is_admin else "user"
+    if password:
+        u.password_hash = hash_password(password)
+    db.add(u)
+    db.commit()
+    return RedirectResponse(url="/admin#users", status_code=303)
 
 
 @router.get("/connections/ldap", response_class=HTMLResponse)
