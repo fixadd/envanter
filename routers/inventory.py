@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Request, Depends, Form, HTTPException, UploadFile, File
-from fastapi import APIRouter, Request, Depends, Form, HTTPException, UploadFile, File
 from fastapi.responses import (
     JSONResponse,
     RedirectResponse,
@@ -11,6 +10,7 @@ from sqlalchemy.orm import Session, selectinload
 from datetime import datetime
 from fastapi.templating import Jinja2Templates
 from io import BytesIO
+from utils.template_filters import register_filters
 
 from database import get_db
 from models import (
@@ -27,7 +27,7 @@ from models import (
     ScrapPrinter,
 )
 from security import current_user
-templates = Jinja2Templates(directory="templates")
+templates = register_filters(Jinja2Templates(directory="templates"))
 
 
 router = APIRouter(prefix="/inventory", tags=["inventory"])
