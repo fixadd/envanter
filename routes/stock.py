@@ -8,13 +8,18 @@ router = APIRouter(prefix="/stock", tags=["Stock"])
 
 @router.post("/add")
 def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):
+    is_license = payload.get("is_license")
     log = StockLog(
-        donanim_tipi = payload.get("donanim_tipi"),
-        miktar       = int(payload.get("miktar") or 0),
-        ifs_no       = payload.get("ifs_no") or None,
-        islem        = payload.get("islem") or "girdi",
-        tarih        = datetime.utcnow(),
-        actor        = payload.get("islem_yapan") or "Sistem",
+        donanim_tipi   = payload.get("donanim_tipi"),
+        marka          = None if is_license else payload.get("marka"),
+        model          = None if is_license else payload.get("model"),
+        lisans_anahtari= payload.get("lisans_anahtari") if is_license else None,
+        mail_adresi    = payload.get("mail_adresi") if is_license else None,
+        miktar         = 1 if is_license else int(payload.get("miktar") or 0),
+        ifs_no         = payload.get("ifs_no") or None,
+        islem          = payload.get("islem") or "girdi",
+        tarih          = datetime.utcnow(),
+        actor          = payload.get("islem_yapan") or "Sistem",
     )
     db.add(log)
     db.commit()
