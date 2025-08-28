@@ -81,3 +81,15 @@ document.getElementById('frmStockAssign')?.addEventListener('submit', async (e)=
   const j = await res.json();
   if(j.ok){ location.reload(); } else { alert(j.error || 'Atama başarısız'); }
 });
+
+// Stok durumu modalı
+const stockStatusModal = document.getElementById('stockStatusModal');
+stockStatusModal?.addEventListener('show.bs.modal', ()=>{
+  fetch('/stock/durum/json')
+    .then(r=>r.json())
+    .then(d=>{
+      const tbody = document.querySelector('#tblStockStatus tbody');
+      if(!tbody) return;
+      tbody.innerHTML = (d.rows||[]).map(r=>`<tr><td>${r.donanim_tipi}</td><td>${r.ifs_no||'-'}</td><td>${r.stok}</td></tr>`).join('');
+    });
+});
