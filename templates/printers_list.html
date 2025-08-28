@@ -388,8 +388,10 @@ document.addEventListener('DOMContentLoaded', () => {
         assignModal.show();
       } else if(val === 'scrap'){
         if(!confirm('Bu yazıcıyı hurdaya ayırmak istiyor musunuz?')) { e.target.value=''; return; }
+        const reason = prompt('Hurda sebebi / not (opsiyonel):','');
+        if(reason === null){ e.target.value=''; return; }
         const formData = new FormData();
-        formData.append('reason','İşlemler menüsünden hurdaya ayrıldı');
+        if(reason) formData.append('reason', reason);
         fetch(`/printers/scrap/${printerId}`, { method: 'POST', body: formData })
           .then(r => r.json()).then(j => { if(j.ok){ location.reload(); } else { alert('İşlem başarısız'); } })
           .catch(() => alert('Sunucu hatası'));
