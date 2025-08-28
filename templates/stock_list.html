@@ -7,7 +7,7 @@
     <h5 class="mb-0">Stok Logları (En Güncel)</h5>
     <div class="d-flex gap-2">
       <button class="btn btn-outline-info btn-sm" type="button"
-              onclick="window.open('/stock/durum','stokDurumu','width=600,height=400')">
+              data-bs-toggle="modal" data-bs-target="#stockStatusModal">
         Stok Durumu
       </button>
       <div class="dropdown">
@@ -63,6 +63,32 @@
         {% endfor %}
       </tbody>
     </table>
+  </div>
+</div>
+
+<!-- STOK DURUMU MODALI -->
+<div class="modal fade" id="stockStatusModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Stok Durumu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table table-sm" id="tblStockStatus">
+            <thead class="table-light">
+              <tr>
+                <th>Donanım Tipi</th>
+                <th>IFS No</th>
+                <th>Stok</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
