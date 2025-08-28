@@ -39,6 +39,9 @@ from routers.lookup import router as lookup_router
 from routers.picker import router as picker_router
 from routers.api import router as api_router
 from routes.admin import router as admin_router
+from routes.stock import router as stock_extra_router
+from routes.scrap import router as scrap_router
+from utils.i18n import humanize_log
 from security import current_user, require_roles
 
 load_dotenv()
@@ -91,6 +94,7 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 app.state.templates = templates
+templates.env.filters["humanize_log"] = humanize_log
 
 # --- Routers (korumalı) -------------------------------------------------------
 app.include_router(home.router, prefix="", dependencies=[Depends(current_user)])
@@ -102,6 +106,8 @@ app.include_router(printers_scrap_list.router, dependencies=[Depends(current_use
 app.include_router(catalog_router.router, dependencies=[Depends(current_user)])
 app.include_router(reqs.router, prefix="/requests", tags=["Requests"], dependencies=[Depends(current_user)])
 app.include_router(stock.router, dependencies=[Depends(current_user)])
+app.include_router(stock_extra_router, dependencies=[Depends(current_user)])
+app.include_router(scrap_router, dependencies=[Depends(current_user)])
 app.include_router(trash.router, prefix="/trash", tags=["Trash"], dependencies=[Depends(current_user)])
 app.include_router(profile.router, prefix="/profile", tags=["Profile"], dependencies=[Depends(current_user)])
 app.include_router(api_router)

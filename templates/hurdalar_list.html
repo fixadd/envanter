@@ -1,0 +1,43 @@
+<table class="table table-sm align-middle">
+  <thead><tr><th>#</th><th>Donanım Tipi</th><th>IFS No</th><th>Tarih</th><th>İşlem</th><th></th></tr></thead>
+  <tbody>
+    {% for row in items %}
+    <tr>
+      <td>{{ row.id }}</td>
+      <td>{{ row.donanim_tipi }}</td>
+      <td>{{ row.ifs_no or '-' }}</td>
+      <td>{{ row.tarih }}</td>
+      <td>{{ row.islem|replace('assign','Atama')|replace('scrap','Hurdaya Ayırma') }}</td>
+      <td>
+        <button class="btn btn-outline-secondary btn-sm view-btn" data-id="{{ row.id }}" title="Detayı Göster">
+          <i class="bi bi-eye"></i>
+        </button>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Detay Modal -->
+<div class="modal fade" id="hurdaDetayModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Hurda Detayı</h5>
+        <button class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body" id="hurdaDetayBody">Yükleniyor...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.view-btn').forEach(b=>{
+  b.addEventListener('click', async ()=>{
+    const id = b.dataset.id;
+    const r = await fetch('/scrap/detail/'+id);
+    const h = await r.text();
+    document.getElementById('hurdaDetayBody').innerHTML = h;
+    new bootstrap.Modal(document.getElementById('hurdaDetayModal')).show();
+  });
+});
+</script>

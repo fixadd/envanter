@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Kullanıcı Düzenle{% endblock %}
+{% block content %}
+<div class="container py-3">
+  <h5>Kullanıcı Düzenle</h5>
+  <form method="post" class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label">Ad Soyad</label>
+      <input name="full_name" class="form-control" value="{{ u.full_name }}" required>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">E-Posta</label>
+      <input name="email" type="email" class="form-control" value="{{ u.email }}" required>
+    </div>
+    <div class="col-12">
+      <button class="btn btn-primary">Kaydet</button>
+      <a class="btn btn-secondary" href="/admin">İptal</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
