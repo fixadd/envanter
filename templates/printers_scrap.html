@@ -14,6 +14,7 @@
           <th>Kullanım Alanı</th>
           <th>Sorumlu</th>
           <th>Bağlı Env.</th>
+          <th>Not</th>
           <th>Tarih</th>
         </tr>
       </thead>
@@ -28,6 +29,7 @@
           <td>{{ r.snapshot.kullanim_alani or '-' }}</td>
           <td>{{ r.snapshot.sorumlu_personel or '-' }}</td>
           <td>{{ r.snapshot.bagli_envanter_no or '-' }}</td>
+          <td>{{ r.reason or '-' }}</td>
           <td>{{ r.created_at.strftime("%d.%m.%Y %H:%M") }}</td>
         </tr>
         {% endfor %}
@@ -41,6 +43,7 @@
           <td>{{ p.kullanim_alani or '-' }}</td>
           <td>{{ p.sorumlu_personel or '-' }}</td>
           <td>{{ p.bagli_envanter_no or '-' }}</td>
+          <td>-</td>
           <td>-</td>
         </tr>
         {% endfor %}

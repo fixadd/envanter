@@ -23,6 +23,7 @@ from models import (
     UsageArea,
     HardwareType,
     License,
+    ScrapPrinter,
 )
 from security import current_user
 from utils.i18n import humanize_log
@@ -407,6 +408,17 @@ def hurdalar_listesi(request: Request, db: Session = Depends(get_db), user=Depen
     )
     for item in hurdalar
   }
+
+  license_scraps = db.query(License).filter(License.durum == "hurda").all()
+  printer_scraps = db.query(ScrapPrinter).order_by(ScrapPrinter.created_at.desc()).all()
+
   return templates.TemplateResponse(
-    "hurdalar.html", {"request": request, "hurdalar": hurdalar, "logs_map": logs_map}
+    "hurdalar.html",
+    {
+      "request": request,
+      "hurdalar": hurdalar,
+      "logs_map": logs_map,
+      "license_scraps": license_scraps,
+      "printer_scraps": printer_scraps,
+    },
   )

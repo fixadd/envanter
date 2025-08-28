@@ -315,6 +315,9 @@
         } else if (val === 'edit') {
           window.location.href = `/licenses/${id}/edit`;
         } else if (val === 'scrap') {
+          if(!confirm('Bu lisansı hurdaya ayırmak istiyor musunuz?')) { e.target.value=''; return; }
+          const reason = prompt('Hurda sebebi / not (opsiyonel):','');
+          if(reason === null){ e.target.value=''; return; }
           const f = document.createElement('form');
           f.method = 'post';
           f.action = `/lisans/${id}/scrap`;
@@ -322,6 +325,7 @@
           who.name = 'islem_yapan';
           who.value = "{{ current_user.full_name if current_user else 'system' }}";
           f.appendChild(who);
+          if(reason){ const r = document.createElement('input'); r.name = 'aciklama'; r.value = reason; f.appendChild(r); }
           document.body.appendChild(f);
           f.submit();
         }
