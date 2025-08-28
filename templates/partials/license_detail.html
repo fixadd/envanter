@@ -6,6 +6,7 @@
       <tr><th>Key</th><td class="text-truncate" style="max-width:220px;">{{ item.lisans_key }}</td></tr>
       <tr><th>Sorumlu</th><td>{{ item.sorumlu_personel or '-' }}</td></tr>
       <tr><th>Bağlı Envanter</th><td>{{ item.bagli_envanter_no or '-' }}</td></tr>
+      <tr><th>E-posta</th><td>{{ item.mail_adresi or '-' }}</td></tr>
       <tr><th>Durum</th><td>{{ item.durum }}</td></tr>
       {% if item.notlar %}
       <tr><th>Notlar</th><td>{{ item.notlar }}</td></tr>
