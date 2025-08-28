@@ -8,9 +8,37 @@ fetch('/api/lookup/donanim_tipi')
   });
 
 // Ekle form submit
+const chkIsLicense = document.getElementById('chkIsLicense');
+const hardwareFields = document.getElementById('hardwareFields');
+const licenseFields  = document.getElementById('licenseFields');
+const miktarInput    = document.getElementById('miktar');
+const donanimSel     = document.getElementById('donanim_tipi');
+const rowMiktar      = document.getElementById('rowMiktar');
+
+chkIsLicense?.addEventListener('change', e=>{
+  const isLic = e.target.checked;
+  hardwareFields?.classList.toggle('d-none', isLic);
+  licenseFields?.classList.toggle('d-none', !isLic);
+  donanimSel.required = !isLic;
+  rowMiktar?.classList.toggle('d-none', isLic);
+  hardwareFields?.querySelectorAll('input,select').forEach(el=> el.disabled = isLic);
+  licenseFields?.querySelectorAll('input,select').forEach(el=> el.disabled = !isLic);
+  if(isLic){
+    miktarInput.value = 1;
+    miktarInput.readOnly = true;
+  }else{
+    miktarInput.readOnly = false;
+  }
+});
+
 document.getElementById('frmStockAdd')?.addEventListener('submit', async (e)=>{
   e.preventDefault();
   const fd = new FormData(e.target);
+  if(chkIsLicense?.checked){
+    fd.set('miktar','1');
+    fd.set('donanim_tipi', fd.get('lisans_adi')||'');
+    fd.set('is_license','1');
+  }
   const payload = Object.fromEntries(fd.entries());
   const res = await fetch('/stock/add', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
   const j = await res.json();
