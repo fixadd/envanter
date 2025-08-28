@@ -263,6 +263,7 @@ def assign_license(
 @router.post("/{lic_id}/scrap")
 def scrap_license(
     lic_id: int,
+    aciklama: str = Form(""),
     islem_yapan: str = Form("system"),
     request: Request = None,
     db: Session = Depends(get_db),
@@ -271,7 +272,10 @@ def scrap_license(
     if not lic:
         raise HTTPException(status_code=404, detail="Lisans bulunamadı")
     lic.durum = "hurda"
-    _logla(db, lic, "HURDA", "Lisans hurdaya ayrıldı.", islem_yapan)
+    if aciklama:
+        lic.notlar = (lic.notlar + "\n" if lic.notlar else "") + aciklama
+    detay = "Lisans hurdaya ayrıldı." + (f" Not: {aciklama}" if aciklama else "")
+    _logla(db, lic, "HURDA", detay, islem_yapan)
     db.commit()
     return RedirectResponse(url=request.url_for("license_scrap_list"), status_code=status.HTTP_303_SEE_OTHER)
 
