@@ -25,8 +25,10 @@ from models import (
     License,
 )
 from security import current_user
+from utils.i18n import humanize_log
 
 templates = Jinja2Templates(directory="templates")
+templates.env.filters["humanize_log"] = humanize_log
 
 router = APIRouter(prefix="/inventory", tags=["inventory"])
 
