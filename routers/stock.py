@@ -166,8 +166,16 @@ def add_log(
     return RedirectResponse(url="/stock", status_code=303)
 
 
-@router.get("/durum")
-def stock_status(db: Session = Depends(get_db)):
+@router.get("/durum", response_class=HTMLResponse)
+def stock_status_page(request: Request, db: Session = Depends(get_db)):
+    rows = current_stock(db)
+    return templates.TemplateResponse(
+        "stock_status.html", {"request": request, "rows": rows}
+    )
+
+
+@router.get("/durum/json")
+def stock_status_json(db: Session = Depends(get_db)):
     return JSONResponse({"ok": True, "rows": current_stock(db)})
 
 
