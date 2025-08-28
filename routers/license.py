@@ -323,6 +323,14 @@ def license_scrap_list(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse("license_scrap_list.html", {"request": request, "items": items})
 
 
+@router.get("/detail/{lic_id}", response_class=HTMLResponse, name="license.detail_partial")
+def license_detail_partial(lic_id: int, request: Request, db: Session = Depends(get_db)):
+    lic = db.query(License).get(lic_id)
+    if not lic:
+        raise HTTPException(status_code=404, detail="Lisans bulunamadı")
+    return templates.TemplateResponse("partials/license_detail.html", {"request": request, "item": lic})
+
+
 @router.get("/{lic_id}", name="license_detail")
 def license_detail(lic_id: int, request: Request, db: Session = Depends(get_db)):
     lic = db.query(License).get(lic_id)

@@ -1,0 +1,26 @@
+<div class="table-responsive">
+  <table class="table table-sm mb-0">
+    <tbody>
+      <tr><th>No</th><td>{{ item.id }}</td></tr>
+      <tr><th>Lisans Adı</th><td>{{ item.lisans_adi }}</td></tr>
+      <tr><th>Key</th><td class="text-truncate" style="max-width:220px;">{{ item.lisans_key }}</td></tr>
+      <tr><th>Sorumlu</th><td>{{ item.sorumlu_personel or '-' }}</td></tr>
+      <tr><th>Bağlı Envanter</th><td>{{ item.bagli_envanter_no or '-' }}</td></tr>
+      <tr><th>Durum</th><td>{{ item.durum }}</td></tr>
+      {% if item.notlar %}
+      <tr><th>Notlar</th><td>{{ item.notlar }}</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+<h6 class="mt-3">Geçmiş</h6>
+<ul class="list-group">
+  {% for log in item.logs|sort(attribute='tarih', reverse=True) %}
+  <li class="list-group-item small">
+    <strong>{{ log.islem }}</strong> — {{ log.detay }}
+    <span class="text-muted">({{ log.islem_yapan }}, {{ log.tarih }})</span>
+  </li>
+  {% else %}
+  <li class="list-group-item text-muted">Kayıt yok.</li>
+  {% endfor %}
+</ul>
