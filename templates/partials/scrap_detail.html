@@ -1,0 +1,15 @@
+<div class="row g-3">
+  <div class="col-md-6"><strong>Donanım Tipi:</strong> {{ row.donanim_tipi }}</div>
+  <div class="col-md-6"><strong>IFS No:</strong> {{ row.ifs_no or '-' }}</div>
+  <div class="col-md-6"><strong>Tarih:</strong> {{ row.tarih }}</div>
+  <div class="col-md-6"><strong>Durum:</strong> Hurda</div>
+</div>
+<hr>
+<h6>Loglar</h6>
+<ul class="list-group">
+  {% for log in row.loglar %}
+    <li class="list-group-item">{{ log|humanize_log }}</li>
+  {% else %}
+    <li class="list-group-item text-muted">Kayıt yok.</li>
+  {% endfor %}
+</ul>

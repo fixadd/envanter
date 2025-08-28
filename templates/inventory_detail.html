@@ -68,27 +68,28 @@
     </div>
   </div>
 
-  <hr class="my-3">
-  <h5 class="mb-2">Lisanslar</h5>
-
-  {% set licenses = inv.licenses or [] %}
-
-  {% if licenses|length > 0 %}
+  <h6 class="mt-4">Bağlı Lisanslar</h6>
   <ul class="list-group">
-  {% for lic in licenses %}
-    <li class="list-group-item">
-      <strong>{{ lic.lisans_adi or "-" }}</strong>
-      <div>Anahtar: {{ lic.lisans_anahtari or "-" }}</div>
-      <div>Sorumlu: {{ lic.sorumlu_personel or "-" }}</div>
-      <div>Bağlı Envanter: {{ lic.bagli_envanter_no or "-" }}</div>
-      <div>Durum: {{ lic.durum or "-" }}</div>
-      <div>Not: {{ lic.notlar or "-" }}</div>
-    </li>
-  {% endfor %}
+    {% if lisanslar and lisanslar|length %}
+      {% for l in lisanslar %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span>{{ l.lisans_adi }}{% if l.lisans_anahtari %} - {{ l.lisans_anahtari }}{% endif %}</span>
+        <span class="text-muted">{{ l.durum or 'Aktif' }}</span>
+      </li>
+      {% endfor %}
+    {% else %}
+      <li class="list-group-item text-muted">Kayıtlı lisans yok.</li>
+    {% endif %}
   </ul>
-  {% else %}
-  <div class="alert alert-info">Bu envantere bağlı lisans bulunamadı.</div>
-  {% endif %}
+
+  <h6 class="mt-4">Geçmiş Kayıtlar</h6>
+  <ul class="list-group">
+    {% for log in loglar %}
+      <li class="list-group-item">{{ log|humanize_log }}</li>
+    {% else %}
+      <li class="list-group-item text-muted">Kayıt yok.</li>
+    {% endfor %}
+  </ul>
 </div>
 {% endblock %}
 
