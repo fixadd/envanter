@@ -295,19 +295,18 @@
     const assignModal = new bootstrap.Modal(document.getElementById('assignModal'));
     const assignForm  = document.getElementById('assignForm');
 
-    document.querySelectorAll('.dropdown-menu [data-action]').forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (item.classList.contains('disabled')) return;
+    document.querySelectorAll('#licensesTable .action-select').forEach(sel => {
+      sel.addEventListener('change', (e) => {
+        const id = e.target.dataset.id;
+        const val = e.target.value;
+        if (!val) return;
 
-        const id = item.dataset.id;
-        const action = item.dataset.action;
-
-        if (action === 'assign') {
+        if (val === 'assign') {
           assignForm.action = `/lisans/${id}/assign`;
           assignModal.show();
-        } else if (action === 'scrap') {
+        } else if (val === 'edit') {
+          window.location.href = `/licenses/${id}/edit`;
+        } else if (val === 'scrap') {
           const f = document.createElement('form');
           f.method = 'post';
           f.action = `/lisans/${id}/scrap`;
@@ -318,6 +317,8 @@
           document.body.appendChild(f);
           f.submit();
         }
+
+        e.target.value = '';
       });
     });
 
