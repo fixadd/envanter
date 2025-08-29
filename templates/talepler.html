@@ -97,6 +97,10 @@
       </div>
 
       <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">IFS No</label>
+          <input id="ifsNoGlobal" class="form-control" placeholder="IFS No">
+        </div>
         <div id="talepRows">
           <div class="talep-row row g-2 align-items-end mb-2 flex-nowrap">
             <div class="col-md-2">
@@ -128,10 +132,6 @@
               <select name="donanim_tipi" class="form-select">
                 <option value="">Seçiniz...</option>
               </select>
-            </div>
-            <div class="col-md-2 d-none" data-types="aksesuar,lisans">
-              <label class="form-label">IFS No</label>
-              <input name="ifs_no" class="form-control" placeholder="IFS No">
             </div>
             <div class="col-md-1 d-none" data-types="aksesuar">
               <label class="form-label">Miktar</label>
@@ -211,6 +211,8 @@
       row.querySelectorAll('input, select').forEach(el => {
         if (el.name && el.value) fd.append(el.name, el.value);
       });
+      const globalIfs = document.getElementById('ifsNoGlobal').value;
+      if (globalIfs) fd.append('ifs_no', globalIfs);
       const res = await fetch('/talepler', { method: 'POST', body: fd });
       const data = await res.json();
       if (!data.ok) { alert('Kayıt hatası'); return false; }
