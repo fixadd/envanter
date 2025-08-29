@@ -89,7 +89,7 @@
 
 <!-- Talep Aç Modal -->
 <div class="modal fade" id="talepModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
     <form id="frmTalep" class="modal-content" onsubmit="return talepGonder(event)">
       <div class="modal-header">
         <h5 class="modal-title">Talep Aç</h5>
@@ -97,49 +97,63 @@
       </div>
 
       <div class="modal-body">
-        <!-- Tür seçimi -->
-        <div class="mb-3">
-          <label class="form-label">Talep Türü</label>
-          <select class="form-select" name="tur" id="tur" required>
-            <option value="envanter">Envanter</option>
-            <option value="lisans">Lisans</option>
-            <option value="aksesuar">Aksesuar</option>
-          </select>
-        </div>
-
-        <!-- Aksesuar alanları (opsiyonel) -->
-        <div id="grpAksesuar" class="mt-3 d-none">
-          <div class="row g-2 mb-2">
-            <div class="col-12">
-              <label class="form-label">Donanım Tipi (opsiyonel)</label>
-              <select id="donanim_tipi" name="donanim_tipi" class="form-select">
+        <div id="talepRows">
+          <div class="talep-row row g-2 align-items-end mb-2">
+            <div class="col-md-2">
+              <label class="form-label">Talep Türü</label>
+              <select class="form-select tur" name="tur">
+                <option value="envanter">Envanter</option>
+                <option value="lisans">Lisans</option>
+                <option value="aksesuar">Aksesuar</option>
+              </select>
+            </div>
+            <div class="col-md-2 envanter-field">
+              <label class="form-label">Envanter No</label>
+              <input name="envanter_no" class="form-control" placeholder="Envanter No">
+            </div>
+            <div class="col-md-2 envanter-field">
+              <label class="form-label">Sorumlu</label>
+              <input name="sorumlu_personel" class="form-control" placeholder="Ad Soyad">
+            </div>
+            <div class="col-md-2 envanter-field">
+              <label class="form-label">Bağlı Envanter</label>
+              <input name="bagli_envanter_no" class="form-control" placeholder="Bağlı Envanter No">
+            </div>
+            <div class="col-md-2 lisans-field d-none">
+              <label class="form-label">Lisans Adı</label>
+              <input name="lisans_adi" class="form-control" placeholder="Lisans Adı">
+            </div>
+            <div class="col-md-2 aksesuar-field d-none">
+              <label class="form-label">Donanım Tipi</label>
+              <select name="donanim_tipi" class="form-select">
                 <option value="">Seçiniz...</option>
               </select>
             </div>
-          </div>
-          <div id="aksesuarList"></div>
-          <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="aksesuarSatirEkle()">+</button>
-        </div>
-
-        <!-- Envanter alanları (opsiyonel) -->
-        <div id="grpEnvanter" class="mt-3">
-          <div id="envanterList"></div>
-        </div>
-
-        <!-- Lisans alanları (opsiyonel) -->
-        <div id="grpLisans" class="mt-3 d-none">
-          <div class="row g-2">
-            <div class="col-12">
-              <label class="form-label">Lisans Adı (opsiyonel)</label>
-              <input name="lisans_adi" class="form-control" placeholder="Lisans Adı">
+            <div class="col-md-2 aksesuar-field d-none">
+              <label class="form-label">IFS No</label>
+              <input name="ifs_no" class="form-control" placeholder="IFS No">
+            </div>
+            <div class="col-md-1 aksesuar-field d-none">
+              <label class="form-label">Miktar</label>
+              <input name="miktar" type="number" min="1" class="form-control" placeholder="Miktar">
+            </div>
+            <div class="col-md-2 aksesuar-field d-none">
+              <label class="form-label">Marka</label>
+              <input name="marka" class="form-control" placeholder="Marka">
+            </div>
+            <div class="col-md-2 aksesuar-field d-none">
+              <label class="form-label">Model</label>
+              <input name="model" class="form-control" placeholder="Model">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Not</label>
+              <input name="aciklama" class="form-control" placeholder="Not">
+            </div>
+            <div class="col-auto">
+              <button type="button" class="btn btn-success btn-sm add-row">+</button>
+              <button type="button" class="btn btn-danger btn-sm remove-row">-</button>
             </div>
           </div>
-        </div>
-
-        <!-- İsteğe bağlı açıklama -->
-        <div class="mt-3">
-          <label class="form-label">Açıklama (opsiyonel)</label>
-          <textarea name="aciklama" class="form-control" rows="2" placeholder="Not"></textarea>
         </div>
       </div>
 
@@ -152,90 +166,52 @@
 </div>
 
 <script>
-  const turSel = document.getElementById('tur');
-  const grpEnvanter = document.getElementById('grpEnvanter');
-  const grpLisans = document.getElementById('grpLisans');
-  const grpAksesuar = document.getElementById('grpAksesuar');
-  const envanterList = document.getElementById('envanterList');
-  const aksesuarList = document.getElementById('aksesuarList');
+  const rowContainer = document.getElementById('talepRows');
 
-  function toggleGroups() {
-    const val = turSel.value;
-    grpEnvanter.classList.toggle('d-none', val !== 'envanter');
-    grpLisans.classList.toggle('d-none', val !== 'lisans');
-    grpAksesuar.classList.toggle('d-none', val !== 'aksesuar');
+  function bindRow(row) {
+    const tur = row.querySelector('.tur');
+    function toggle() {
+      const val = tur.value;
+      row.querySelectorAll('.envanter-field').forEach(e => e.classList.toggle('d-none', val !== 'envanter'));
+      row.querySelectorAll('.lisans-field').forEach(e => e.classList.toggle('d-none', val !== 'lisans'));
+      row.querySelectorAll('.aksesuar-field').forEach(e => e.classList.toggle('d-none', val !== 'aksesuar'));
+    }
+    tur.addEventListener('change', toggle);
+    toggle();
+
+    row.querySelector('.add-row').addEventListener('click', () => {
+      const clone = row.cloneNode(true);
+      clone.querySelectorAll('input').forEach(i => i.value = '');
+      clone.querySelectorAll('select').forEach(s => { if(!s.classList.contains('tur')) s.selectedIndex = 0; });
+      rowContainer.appendChild(clone);
+      bindRow(clone);
+    });
+
+    row.querySelector('.remove-row').addEventListener('click', () => {
+      if (rowContainer.children.length > 1) row.remove();
+    });
   }
-  turSel.addEventListener('change', toggleGroups);
-  toggleGroups();
+
+  bindRow(rowContainer.firstElementChild);
 
   fetch('/api/lookup/donanim_tipi').then(r=>r.json()).then(list=>{
-    const sel=document.getElementById('donanim_tipi');
-    list.forEach(n=>{ const o=document.createElement('option'); o.value=o.textContent=n; sel.appendChild(o); });
+    const opts = list.map(n=>`<option value="${n}">${n}</option>`).join('');
+    document.querySelectorAll('select[name="donanim_tipi"]').forEach(sel=>sel.insertAdjacentHTML('beforeend', opts));
   });
-
-  function envanterSatirEkle() {
-    const row = document.createElement('div');
-    row.className = 'row g-2 align-items-end envanter-row mt-2';
-    row.innerHTML = `
-      <div class="col-auto env-btns">
-        <button type="button" class="btn btn-outline-primary btn-sm env-add">+</button>
-        <button type="button" class="btn btn-outline-danger btn-sm env-remove d-none">-</button>
-      </div>
-      <div class="col"><input name="envanter_no" class="form-control" placeholder="Envanter No"></div>
-      <div class="col"><input name="sorumlu_personel" class="form-control" placeholder="Ad Soyad"></div>
-      <div class="col"><input name="bagli_envanter_no" class="form-control" placeholder="Bağlı Envanter No"></div>`;
-    envanterList.appendChild(row);
-    guncelleEnvButtons();
-  }
-
-  function guncelleEnvButtons() {
-    const rows = document.querySelectorAll('#envanterList .envanter-row');
-    rows.forEach((r,i) => {
-      const add = r.querySelector('.env-add');
-      const remove = r.querySelector('.env-remove');
-      add.onclick = () => envanterSatirEkle();
-      remove.onclick = () => { r.remove(); guncelleEnvButtons(); };
-      add.classList.toggle('d-none', i !== 0);
-      remove.classList.toggle('d-none', rows.length === 1);
-    });
-  }
-
-  function aksesuarSatirEkle() {
-    const row = document.createElement('div');
-    row.className = 'row g-2 align-items-end aksesuar-row mt-2';
-    row.innerHTML = `
-      <div class="col"><input name="ifs_no" class="form-control" placeholder="IFS No"></div>
-      <div class="col"><input name="miktar" type="number" min="1" class="form-control" placeholder="Miktar"></div>
-      <div class="col"><input name="marka" class="form-control" placeholder="Marka"></div>
-      <div class="col"><input name="model" class="form-control" placeholder="Model"></div>
-      <div class="col-auto">
-        <button type="button" class="btn btn-outline-danger btn-sm d-none aks-remove">-</button>
-      </div>`;
-    aksesuarList.appendChild(row);
-    guncelleAksButtons();
-  }
-
-  function guncelleAksButtons() {
-    const rows = document.querySelectorAll('#aksesuarList .aksesuar-row');
-    rows.forEach(r => {
-      const btn = r.querySelector('.aks-remove');
-      btn.onclick = () => { r.remove(); guncelleAksButtons(); };
-      if (rows.length > 1) btn.classList.remove('d-none');
-      else btn.classList.add('d-none');
-    });
-  }
-
-  envanterSatirEkle();
-  aksesuarSatirEkle();
 
   async function talepGonder(e) {
     e.preventDefault();
-    const form = document.getElementById('frmTalep');
-    const fd = new FormData(form);
-    const res = await fetch('/talepler', { method: 'POST', body: fd });
-    const data = await res.json();
-    if (data.ok) location.reload();
-    else alert('Kayıt hatası');
+    const rows = rowContainer.querySelectorAll('.talep-row');
+    for (const row of rows) {
+      const fd = new FormData();
+      row.querySelectorAll('input, select').forEach(el => {
+        if (el.name && el.value) fd.append(el.name, el.value);
+      });
+      const res = await fetch('/talepler', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!data.ok) { alert('Kayıt hatası'); return false; }
+    }
+    location.reload();
     return false;
   }
 
