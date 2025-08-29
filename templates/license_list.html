@@ -189,6 +189,30 @@
         </div>
       </div>
     </form>
+</div>
+</div>
+
+<!-- HURDA MODALI -->
+<div class="modal fade" id="scrapModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="scrapForm" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Hurdaya Ayır</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Bu lisans hurdaya ayrılacak. Onaylıyor musunuz?</p>
+        <div class="mb-2">
+          <label class="form-label">Açıklama (opsiyonel)</label>
+          <textarea name="aciklama" class="form-control" rows="3" placeholder="Hurda sebebi / not"></textarea>
+        </div>
+        <input type="hidden" name="islem_yapan" value="{{ current_user.full_name if current_user else 'system' }}">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Vazgeç</button>
+        <button class="btn btn-danger" type="submit">Hurdaya Ayır</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -296,9 +320,13 @@
     // Mevcut atama/hurda işlemleri
     const assignModal = new bootstrap.Modal(document.getElementById('assignModal'));
     const assignForm  = document.getElementById('assignForm');
+    const scrapModal  = new bootstrap.Modal(document.getElementById('scrapModal'));
+    const scrapForm   = document.getElementById('scrapForm');
+    let scrapId = null;
 
     document.querySelectorAll('#licensesTable .action-select').forEach(sel => {
       sel.addEventListener('change', (e) => {
+        e.stopImmediatePropagation();
         const id = e.target.dataset.id;
         const val = e.target.value;
         if (!val) return;
@@ -309,23 +337,20 @@
         } else if (val === 'edit') {
           if(window.openModal){ openModal(`/lisans/${id}/edit?modal=1`); }
         } else if (val === 'scrap') {
-          if(!confirm('Bu lisansı hurdaya ayırmak istiyor musunuz?')) { e.target.value=''; return; }
-          const reason = prompt('Hurda sebebi / not (opsiyonel):','');
-          if(reason === null){ e.target.value=''; return; }
-          const f = document.createElement('form');
-          f.method = 'post';
-          f.action = `/lisans/${id}/scrap`;
-          const who = document.createElement('input');
-          who.name = 'islem_yapan';
-          who.value = "{{ current_user.full_name if current_user else 'system' }}";
-          f.appendChild(who);
-          if(reason){ const r = document.createElement('input'); r.name = 'aciklama'; r.value = reason; f.appendChild(r); }
-          document.body.appendChild(f);
-          f.submit();
+          scrapId = id;
+          scrapModal.show();
         }
 
         e.target.value = '';
       });
+    });
+
+    scrapForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(scrapForm);
+      const res = await fetch(`/lisans/${scrapId}/scrap`, { method: 'POST', body: fd });
+      if(res.ok){ scrapModal.hide(); window.location.href = `{{ url_for('license_scrap_list') }}`; }
+      else { alert('Hurdaya ayırma başarısız'); }
     });
 
     if (window.Choices) {
