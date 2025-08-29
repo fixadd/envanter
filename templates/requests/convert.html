@@ -1,5 +1,18 @@
 {% extends "base.html" %}{% block title %}Talep – Envantere Dönüştür{% endblock %}
 {% block content %}
-<h2 class="h5 mb-3">Talebi Envantere Dönüştür (ID: {{ request_id }})</h2>
-<div class="card p-3">Dönüştürme adımları...</div>
+<h2 class="h5 mb-3">Talebi Envantere Dönüştür (ID: {{ talep.id }})</h2>
+<form class="card p-3">
+  {% for i in range(adet) %}
+  <fieldset class="mb-3">
+    <legend>Ürün {{ i + 1 }}</legend>
+    {% for field in eksik %}
+    <div class="mb-2">
+      <label class="form-label">{{ field.replace('_', ' ').title() }}</label>
+      <input name="{{ field }}_{{ i }}" class="form-control" required>
+    </div>
+    {% endfor %}
+  </fieldset>
+  {% endfor %}
+  <button class="btn btn-primary" type="submit">Kaydet</button>
+</form>
 {% endblock %}

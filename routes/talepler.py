@@ -67,23 +67,57 @@ def olustur(
 
 
 @router.post("/{talep_id}/cancel", response_class=JSONResponse)
-def cancel_request(talep_id: int, db: Session = Depends(get_db)):
+def cancel_request(talep_id: int, adet: int = Form(1), db: Session = Depends(get_db)):
     talep = db.get(Talep, talep_id)
     if not talep:
         return JSONResponse({"ok": False}, status_code=404)
-    talep.durum = TalepDurum.IPTAL
+    mevcut = talep.miktar or 1
+    if mevcut > adet:
+        talep.miktar = mevcut - adet
+    else:
+        talep.durum = TalepDurum.IPTAL
+        talep.miktar = 0
     db.commit()
     return {"ok": True}
 
 
 @router.post("/{talep_id}/close", response_class=JSONResponse)
-def close_request(talep_id: int, db: Session = Depends(get_db)):
+def close_request(talep_id: int, adet: int = Form(1), db: Session = Depends(get_db)):
     talep = db.get(Talep, talep_id)
     if not talep:
         return JSONResponse({"ok": False}, status_code=404)
-    talep.durum = TalepDurum.TAMAMLANDI
+    mevcut = talep.miktar or 1
+    if mevcut > adet:
+        talep.miktar = mevcut - adet
+    else:
+        talep.durum = TalepDurum.TAMAMLANDI
+        talep.miktar = 0
     db.commit()
     return {"ok": True}
+
+
+@router.get("/convert/{talep_id}", response_class=HTMLResponse)
+def convert_request(talep_id: int, request: Request, adet: int = 1, db: Session = Depends(get_db)):
+    talep = db.get(Talep, talep_id)
+    if not talep:
+        return HTMLResponse(status_code=404)
+    fields = [
+        f
+        for f in [
+            "envanter_no",
+            "sorumlu_personel",
+            "bagli_envanter_no",
+            "lisans_adi",
+            "donanim_tipi",
+            "marka",
+            "model",
+        ]
+        if not getattr(talep, f)
+    ]
+    return templates.TemplateResponse(
+        "requests/convert.html",
+        {"request": request, "talep": talep, "adet": adet, "eksik": fields},
+    )
 
 
 @router.get("/export.xlsx")
