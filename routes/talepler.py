@@ -15,13 +15,30 @@ router = APIRouter(prefix="/talepler", tags=["Talepler"])
 
 @router.get("", response_class=HTMLResponse)
 def liste(request: Request, db: Session = Depends(get_db)):
-    aktif = db.query(Talep).filter(Talep.durum == TalepDurum.AKTIF).all()
-    gruplu: Dict[str, List[Talep]] = {}
-    for t in aktif:
-        key = t.ifs_no or f"NO-IFS-{t.id}"
-        gruplu.setdefault(key, []).append(t)
+    def gruplandir(rows: List[Talep]) -> Dict[str, List[Talep]]:
+        gruplu: Dict[str, List[Talep]] = {}
+        for t in rows:
+            key = t.ifs_no or f"NO-IFS-{t.id}"
+            gruplu.setdefault(key, []).append(t)
+        return gruplu
+
+    aktif = gruplandir(
+        db.query(Talep).filter(Talep.durum == TalepDurum.AKTIF).all()
+    )
+    kapali = gruplandir(
+        db.query(Talep).filter(Talep.durum == TalepDurum.TAMAMLANDI).all()
+    )
+    iptal = gruplandir(
+        db.query(Talep).filter(Talep.durum == TalepDurum.IPTAL).all()
+    )
     return templates.TemplateResponse(
-        "talepler.html", {"request": request, "gruplu": gruplu}
+        "talepler.html",
+        {
+            "request": request,
+            "gruplu_aktif": aktif,
+            "gruplu_kapali": kapali,
+            "gruplu_iptal": iptal,
+        },
     )
 
 
