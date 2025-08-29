@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from datetime import datetime, date
 from typing import Optional
+import enum
 from sqlalchemy import (
     create_engine,
     Integer,
@@ -350,6 +351,44 @@ class StockTotal(Base):
     __tablename__ = "stock_totals"
     donanim_tipi = Column(String(150), primary_key=True)
     toplam = Column(Integer, nullable=False, default=0)
+
+
+class TalepDurum(str, enum.Enum):
+    AKTIF = "aktif"
+    TAMAMLANDI = "tamamlandi"
+
+    def __str__(self) -> str:
+        return str(self.value)
+
+
+class TalepTuru(str, enum.Enum):
+    ENVANTER = "envanter"
+    LISANS = "lisans"
+    AKSESUAR = "aksesuar"
+
+    def __str__(self) -> str:
+        return str(self.value)
+
+
+class Talep(Base):
+    __tablename__ = "talepler"
+
+    id = Column(Integer, primary_key=True, index=True)
+    tur = Column(Enum(TalepTuru), nullable=False)
+
+    ifs_no = Column(String(100), index=True, nullable=True)
+    miktar = Column(Integer, nullable=True)
+    marka = Column(String(150), nullable=True)
+    model = Column(String(150), nullable=True)
+
+    envanter_no = Column(String(100), nullable=True)
+    sorumlu_personel = Column(String(150), nullable=True)
+    bagli_envanter_no = Column(String(100), nullable=True)
+    lisans_adi = Column(String(200), nullable=True)
+
+    aciklama = Column(Text, nullable=True)
+    durum = Column(Enum(TalepDurum), default=TalepDurum.AKTIF, nullable=False)
+    olusturma_tarihi = Column(DateTime, default=datetime.utcnow, nullable=False)
 
 
 class Lookup(Base):
