@@ -404,7 +404,14 @@ def scrap_printer(
     )
 
     if USE_SCRAP_TABLE:
-        db.merge(ScrapPrinter(printer_id=p.id, snapshot=snapshot(p), reason=reason))
+        snap = snapshot(p)
+        existing = db.query(ScrapPrinter).filter_by(printer_id=p.id).first()
+        if existing:
+            existing.snapshot = snap
+            existing.reason = reason
+            existing.created_at = datetime.utcnow()
+        else:
+            db.add(ScrapPrinter(printer_id=p.id, snapshot=snap, reason=reason))
 
     db.commit()
     return JSONResponse({"ok": True})
