@@ -107,7 +107,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (window.self !== window.top) {
     const aside = document.querySelector("aside");
     const main = document.querySelector("main");
+    const nav = document.querySelector("nav.navbar");
     if (aside) aside.remove();
+    if (nav) nav.remove();
     if (main) main.classList.remove("col-lg-10");
   }
 
