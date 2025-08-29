@@ -5,7 +5,9 @@
 <div class="container-fluid p-3 content">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h4 class="mb-0">Lisans {{ 'Düzenle' if license else 'Ekle' }}</h4>
+    {% if not modal %}
     <a class="btn btn-light" href="{{ url_for('license_list') }}">← Listeye Dön</a>
+    {% endif %}
   </div>
 
   <div class="card shadow-sm">
@@ -63,7 +65,9 @@
 
         <div class="d-flex gap-2 mt-4">
           <button class="btn btn-primary" type="submit">Kaydet</button>
+          {% if not modal %}
           <a class="btn btn-secondary" href="{{ url_for('license_list') }}">İptal</a>
+          {% endif %}
         </div>
       </form>
     </div>
