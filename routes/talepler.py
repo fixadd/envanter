@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request, Form
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from sqlalchemy.orm import Session
-from typing import Optional
+from typing import Optional, List
 from io import BytesIO
 from openpyxl import Workbook
 
@@ -36,10 +36,10 @@ def liste(request: Request, db: Session = Depends(get_db)):
 def olustur(
     tur: TalepTuru = Form(...),
     donanim_tipi: Optional[str] = Form(None),
-    ifs_no: Optional[str] = Form(None),
-    miktar: Optional[int] = Form(None),
-    marka: Optional[str] = Form(None),
-    model: Optional[str] = Form(None),
+    ifs_no: List[str] = Form([]),
+    miktar: List[int] = Form([]),
+    marka: List[str] = Form([]),
+    model: List[str] = Form([]),
     envanter_no: Optional[str] = Form(None),
     sorumlu_personel: Optional[str] = Form(None),
     bagli_envanter_no: Optional[str] = Form(None),
@@ -47,23 +47,61 @@ def olustur(
     aciklama: Optional[str] = Form(None),
     db: Session = Depends(get_db),
 ):
-    talep = Talep(
-        tur=tur,
-        donanim_tipi=donanim_tipi,
-        ifs_no=ifs_no,
-        miktar=miktar,
-        marka=marka,
-        model=model,
-        envanter_no=envanter_no,
-        sorumlu_personel=sorumlu_personel,
-        bagli_envanter_no=bagli_envanter_no,
-        lisans_adi=lisans_adi,
-        aciklama=aciklama,
-    )
-    db.add(talep)
+    created_ids: List[int] = []
+    if tur == TalepTuru.AKSESUAR and ifs_no:
+        for idx, no in enumerate(ifs_no):
+            talep = Talep(
+                tur=tur,
+                donanim_tipi=donanim_tipi,
+                ifs_no=no or None,
+                miktar=miktar[idx] if idx < len(miktar) else None,
+                marka=marka[idx] if idx < len(marka) else None,
+                model=model[idx] if idx < len(model) else None,
+                aciklama=aciklama,
+            )
+            db.add(talep)
+            db.flush()
+            created_ids.append(talep.id)
+    else:
+        talep = Talep(
+            tur=tur,
+            donanim_tipi=donanim_tipi,
+            ifs_no=ifs_no[0] if ifs_no else None,
+            miktar=miktar[0] if miktar else None,
+            marka=marka[0] if marka else None,
+            model=model[0] if model else None,
+            envanter_no=envanter_no,
+            sorumlu_personel=sorumlu_personel,
+            bagli_envanter_no=bagli_envanter_no,
+            lisans_adi=lisans_adi,
+            aciklama=aciklama,
+        )
+        db.add(talep)
+        db.flush()
+        created_ids.append(talep.id)
+
     db.commit()
-    db.refresh(talep)
-    return {"ok": True, "id": talep.id}
+    return {"ok": True, "ids": created_ids}
+
+
+@router.post("/{talep_id}/cancel", response_class=JSONResponse)
+def cancel_request(talep_id: int, db: Session = Depends(get_db)):
+    talep = db.get(Talep, talep_id)
+    if not talep:
+        return JSONResponse({"ok": False}, status_code=404)
+    talep.durum = TalepDurum.IPTAL
+    db.commit()
+    return {"ok": True}
+
+
+@router.post("/{talep_id}/close", response_class=JSONResponse)
+def close_request(talep_id: int, db: Session = Depends(get_db)):
+    talep = db.get(Talep, talep_id)
+    if not talep:
+        return JSONResponse({"ok": False}, status_code=404)
+    talep.durum = TalepDurum.TAMAMLANDI
+    db.commit()
+    return {"ok": True}
 
 
 @router.get("/export.xlsx")
