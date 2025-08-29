@@ -167,6 +167,15 @@
 
 <script>
   const rowContainer = document.getElementById('talepRows');
+  const templateRow = rowContainer.firstElementChild.cloneNode(true);
+
+  function addRow() {
+    const clone = templateRow.cloneNode(true);
+    clone.querySelectorAll('input').forEach(i => i.value = '');
+    clone.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+    rowContainer.appendChild(clone);
+    bindRow(clone);
+  }
 
   function bindRow(row) {
     const tur = row.querySelector('.tur');
@@ -180,13 +189,7 @@
     tur.addEventListener('change', toggle);
     toggle();
 
-    row.querySelector('.add-row').addEventListener('click', () => {
-      const clone = row.cloneNode(true);
-      clone.querySelectorAll('input').forEach(i => i.value = '');
-      clone.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
-      rowContainer.appendChild(clone);
-      bindRow(clone);
-    });
+    row.querySelector('.add-row').addEventListener('click', addRow);
 
     row.querySelector('.remove-row').addEventListener('click', () => {
       if (rowContainer.children.length > 1) row.remove();
