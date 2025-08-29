@@ -16,30 +16,47 @@
       <thead>
         <tr>
           <th>#</th><th>Tür</th><th>Donanım Tipi</th><th>Marka</th><th>Model</th><th>Miktar</th>
-          <th>IFS No</th><th>Envanter No</th><th>Lisans Adı</th><th>Sorumlu</th><th>Açıklama</th><th>Tarih</th>
+          <th>IFS No</th><th>Envanter No</th><th>Lisans Adı</th><th>Sorumlu</th><th>Açıklama</th><th>Tarih</th><th>İşlem</th>
         </tr>
       </thead>
       <tbody>
-        {% for t in rows %}
-        <tr>
-          <td>{{ t.id }}</td>
-          <td>{{ t.tur }}</td>
-          <td>{{ t.donanim_tipi or '-' }}</td>
-          <td>{{ t.marka or '-' }}</td>
-          <td>{{ t.model or '-' }}</td>
-          <td>{{ t.miktar or '-' }}</td>
-          <td>{{ t.ifs_no or '-' }}</td>
-          <td>{{ t.envanter_no or t.bagli_envanter_no or '-' }}</td>
-          <td>{{ t.lisans_adi or '-' }}</td>
-          <td>{{ t.sorumlu_personel or '-' }}</td>
-          <td>{{ t.aciklama or '-' }}</td>
-          <td>{{ t.olusturma_tarihi.strftime('%Y-%m-%d %H:%M') }}</td>
+        {% set groups = rows|groupby('ifs_no') %}
+        {% for g in groups %}
+        <tr class="table-light">
+          <td colspan="13">IFS No: {{ g.grouper or '-' }}</td>
         </tr>
-        {% else %}
-        <tr>
-          <td colspan="12" class="text-center text-muted">{{ empty_msg }}</td>
-        </tr>
+          {% for t in g.list %}
+          <tr>
+            <td>{{ t.id }}</td>
+            <td>{{ t.tur }}</td>
+            <td>{{ t.donanim_tipi or '-' }}</td>
+            <td>{{ t.marka or '-' }}</td>
+            <td>{{ t.model or '-' }}</td>
+            <td>{{ t.miktar or '-' }}</td>
+            <td>{{ t.ifs_no or '-' }}</td>
+            <td>{{ t.envanter_no or t.bagli_envanter_no or '-' }}</td>
+            <td>{{ t.lisans_adi or '-' }}</td>
+            <td>{{ t.sorumlu_personel or '-' }}</td>
+            <td>{{ t.aciklama or '-' }}</td>
+            <td>{{ t.olusturma_tarihi.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>
+              <div class="btn-group">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">İşlem</button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#" onclick="talepIptal({{ t.id }})">İptal Et</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="talepKapat({{ t.id }})">Stok Gir</a></li>
+                  <li><a class="dropdown-item" href="/talepler/convert/{{ t.id }}">Direk Giriş</a></li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
         {% endfor %}
+        {% if rows|length == 0 %}
+        <tr>
+          <td colspan="13" class="text-center text-muted">{{ empty_msg }}</td>
+        </tr>
+        {% endif %}
       </tbody>
     </table>
   </div>
@@ -91,29 +108,17 @@
         </div>
 
         <!-- Aksesuar alanları (opsiyonel) -->
-        <div id="grpAksesuar" class="row g-2 d-none">
-          <div class="col-12">
-            <label class="form-label">Donanım Tipi (opsiyonel)</label>
-            <select id="donanim_tipi" name="donanim_tipi" class="form-select">
-              <option value="">Seçiniz...</option>
-            </select>
+        <div id="grpAksesuar" class="mt-3 d-none">
+          <div class="row g-2 mb-2">
+            <div class="col-12">
+              <label class="form-label">Donanım Tipi (opsiyonel)</label>
+              <select id="donanim_tipi" name="donanim_tipi" class="form-select">
+                <option value="">Seçiniz...</option>
+              </select>
+            </div>
           </div>
-          <div class="col-6">
-            <label class="form-label">IFS No (opsiyonel)</label>
-            <input name="ifs_no" class="form-control" placeholder="IFS No">
-          </div>
-          <div class="col-6">
-            <label class="form-label">Miktar (opsiyonel)</label>
-            <input name="miktar" type="number" min="1" class="form-control" placeholder="Miktar">
-          </div>
-          <div class="col-6">
-            <label class="form-label">Marka (opsiyonel)</label>
-            <input name="marka" class="form-control" placeholder="Marka">
-          </div>
-          <div class="col-6">
-            <label class="form-label">Model (opsiyonel)</label>
-            <input name="model" class="form-control" placeholder="Model">
-          </div>
+          <div id="aksesuarList"></div>
+          <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="aksesuarSatirEkle()">+</button>
         </div>
 
         <!-- Envanter alanları (opsiyonel) -->
@@ -164,6 +169,7 @@
   const grpEnvanter = document.getElementById('grpEnvanter');
   const grpLisans = document.getElementById('grpLisans');
   const grpAksesuar = document.getElementById('grpAksesuar');
+  const aksesuarList = document.getElementById('aksesuarList');
 
   function toggleGroups() {
     const val = turSel.value;
@@ -179,6 +185,33 @@
     list.forEach(n=>{ const o=document.createElement('option'); o.value=o.textContent=n; sel.appendChild(o); });
   });
 
+  function aksesuarSatirEkle() {
+    const row = document.createElement('div');
+    row.className = 'row g-2 align-items-end aksesuar-row mt-2';
+    row.innerHTML = `
+      <div class="col"><input name="ifs_no" class="form-control" placeholder="IFS No"></div>
+      <div class="col"><input name="miktar" type="number" min="1" class="form-control" placeholder="Miktar"></div>
+      <div class="col"><input name="marka" class="form-control" placeholder="Marka"></div>
+      <div class="col"><input name="model" class="form-control" placeholder="Model"></div>
+      <div class="col-auto">
+        <button type="button" class="btn btn-outline-danger btn-sm d-none aks-remove">-</button>
+      </div>`;
+    aksesuarList.appendChild(row);
+    guncelleAksButtons();
+  }
+
+  function guncelleAksButtons() {
+    const rows = document.querySelectorAll('#aksesuarList .aksesuar-row');
+    rows.forEach(r => {
+      const btn = r.querySelector('.aks-remove');
+      btn.onclick = () => { r.remove(); guncelleAksButtons(); };
+      if (rows.length > 1) btn.classList.remove('d-none');
+      else btn.classList.add('d-none');
+    });
+  }
+
+  aksesuarSatirEkle();
+
   async function talepGonder(e) {
     e.preventDefault();
     const form = document.getElementById('frmTalep');
@@ -188,6 +221,18 @@
     if (data.ok) location.reload();
     else alert('Kayıt hatası');
     return false;
+  }
+
+  async function talepIptal(id) {
+    if (!confirm('Talep iptal edilsin mi?')) return;
+    const res = await fetch(`/talepler/${id}/cancel`, {method:'POST'});
+    if (res.ok) location.reload();
+  }
+
+  async function talepKapat(id) {
+    if (!confirm('Talep kapatılsın mı?')) return;
+    const res = await fetch(`/talepler/${id}/close`, {method:'POST'});
+    if (res.ok) location.reload();
   }
 </script>
 {% endblock %}
