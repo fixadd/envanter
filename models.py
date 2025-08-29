@@ -383,6 +383,7 @@ class StockTotal(Base):
 class TalepDurum(str, enum.Enum):
     AKTIF = "aktif"
     TAMAMLANDI = "tamamlandi"
+    IPTAL = "iptal"
 
     def __str__(self) -> str:
         return str(self.value)
