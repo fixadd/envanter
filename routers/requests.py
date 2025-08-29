@@ -28,6 +28,7 @@ async def export_requests(db: Session = Depends(get_db)):
         [
             "ID",
             "Tür",
+            "Donanım Tipi",
             "IFS No",
             "Marka",
             "Model",
@@ -47,6 +48,7 @@ async def export_requests(db: Session = Depends(get_db)):
             [
                 t.id,
                 t.tur.value,
+                t.donanim_tipi or "",
                 t.ifs_no or "",
                 t.marka or "",
                 t.model or "",
@@ -93,6 +95,7 @@ async def list_requests(request: Request, db: Session = Depends(get_db)):
 @router.post("/", response_class=JSONResponse)
 async def create_request(
     tur: TalepTuru = Form(...),
+    donanim_tipi: Optional[str] = Form(None),
     ifs_no: Optional[str] = Form(None),
     miktar: Optional[int] = Form(None),
     marka: Optional[str] = Form(None),
@@ -106,6 +109,7 @@ async def create_request(
 ):
     talep = Talep(
         tur=tur,
+        donanim_tipi=donanim_tipi,
         ifs_no=ifs_no,
         miktar=miktar,
         marka=marka,
