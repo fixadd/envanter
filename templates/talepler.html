@@ -123,20 +123,7 @@
 
         <!-- Envanter alanları (opsiyonel) -->
         <div id="grpEnvanter" class="mt-3">
-          <div class="row g-2">
-            <div class="col-6">
-              <label class="form-label">Envanter No (opsiyonel)</label>
-              <input name="envanter_no" class="form-control" placeholder="Envanter No">
-            </div>
-            <div class="col-6">
-              <label class="form-label">Sorumlu Personel (opsiyonel)</label>
-              <input name="sorumlu_personel" class="form-control" placeholder="Ad Soyad">
-            </div>
-            <div class="col-12">
-              <label class="form-label">Bağlı Envanter No (opsiyonel)</label>
-              <input name="bagli_envanter_no" class="form-control" placeholder="Bağlı Envanter No">
-            </div>
-          </div>
+          <div id="envanterList"></div>
         </div>
 
         <!-- Lisans alanları (opsiyonel) -->
@@ -169,6 +156,7 @@
   const grpEnvanter = document.getElementById('grpEnvanter');
   const grpLisans = document.getElementById('grpLisans');
   const grpAksesuar = document.getElementById('grpAksesuar');
+  const envanterList = document.getElementById('envanterList');
   const aksesuarList = document.getElementById('aksesuarList');
 
   function toggleGroups() {
@@ -184,6 +172,33 @@
     const sel=document.getElementById('donanim_tipi');
     list.forEach(n=>{ const o=document.createElement('option'); o.value=o.textContent=n; sel.appendChild(o); });
   });
+
+  function envanterSatirEkle() {
+    const row = document.createElement('div');
+    row.className = 'row g-2 align-items-end envanter-row mt-2';
+    row.innerHTML = `
+      <div class="col-auto env-btns">
+        <button type="button" class="btn btn-outline-primary btn-sm env-add">+</button>
+        <button type="button" class="btn btn-outline-danger btn-sm env-remove d-none">-</button>
+      </div>
+      <div class="col"><input name="envanter_no" class="form-control" placeholder="Envanter No"></div>
+      <div class="col"><input name="sorumlu_personel" class="form-control" placeholder="Ad Soyad"></div>
+      <div class="col"><input name="bagli_envanter_no" class="form-control" placeholder="Bağlı Envanter No"></div>`;
+    envanterList.appendChild(row);
+    guncelleEnvButtons();
+  }
+
+  function guncelleEnvButtons() {
+    const rows = document.querySelectorAll('#envanterList .envanter-row');
+    rows.forEach((r,i) => {
+      const add = r.querySelector('.env-add');
+      const remove = r.querySelector('.env-remove');
+      add.onclick = () => envanterSatirEkle();
+      remove.onclick = () => { r.remove(); guncelleEnvButtons(); };
+      add.classList.toggle('d-none', i !== 0);
+      remove.classList.toggle('d-none', rows.length === 1);
+    });
+  }
 
   function aksesuarSatirEkle() {
     const row = document.createElement('div');
@@ -210,6 +225,7 @@
     });
   }
 
+  envanterSatirEkle();
   aksesuarSatirEkle();
 
   async function talepGonder(e) {
