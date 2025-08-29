@@ -21,7 +21,9 @@
       <textarea name="notlar" class="form-control" rows="3">{{ p.notlar or '' }}</textarea>
     </div>
     <button class="btn btn-primary btn-sm">Kaydet</button>
+    {% if not modal %}
     <a href="/printers/{{ p.id }}" class="btn btn-outline-secondary btn-sm">İptal</a>
+    {% endif %}
   </form>
 </div>
 {% endblock %}
