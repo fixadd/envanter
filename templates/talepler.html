@@ -24,7 +24,7 @@
               <table class="table table-sm align-middle mb-0">
                 <thead>
                   <tr>
-                    <th>#</th><th>Tür</th><th>Marka</th><th>Model</th><th>Miktar</th>
+                    <th>#</th><th>Tür</th><th>Donanım Tipi</th><th>Marka</th><th>Model</th><th>Miktar</th>
                     <th>Envanter No</th><th>Lisans Adı</th><th>Sorumlu</th><th>Açıklama</th><th>Tarih</th>
                   </tr>
                 </thead>
@@ -33,6 +33,7 @@
                   <tr>
                     <td>{{ t.id }}</td>
                     <td>{{ t.tur }}</td>
+                    <td>{{ t.donanim_tipi or '-' }}</td>
                     <td>{{ t.marka or '-' }}</td>
                     <td>{{ t.model or '-' }}</td>
                     <td>{{ t.miktar or '-' }}</td>
@@ -75,8 +76,14 @@
           </select>
         </div>
 
-        <!-- Ortak alanlar (Aksesuar isteğiyle uyumlu: Marka/Model/Miktar/IFS) -->
-        <div class="row g-2">
+        <!-- Aksesuar alanları (opsiyonel) -->
+        <div id="grpAksesuar" class="row g-2 d-none">
+          <div class="col-12">
+            <label class="form-label">Donanım Tipi (opsiyonel)</label>
+            <select id="donanim_tipi" name="donanim_tipi" class="form-select">
+              <option value="">Seçiniz...</option>
+            </select>
+          </div>
           <div class="col-6">
             <label class="form-label">IFS No (opsiyonel)</label>
             <input name="ifs_no" class="form-control" placeholder="IFS No">
@@ -142,14 +149,21 @@
   const turSel = document.getElementById('tur');
   const grpEnvanter = document.getElementById('grpEnvanter');
   const grpLisans = document.getElementById('grpLisans');
+  const grpAksesuar = document.getElementById('grpAksesuar');
 
   function toggleGroups() {
     const val = turSel.value;
     grpEnvanter.classList.toggle('d-none', val !== 'envanter');
     grpLisans.classList.toggle('d-none', val !== 'lisans');
+    grpAksesuar.classList.toggle('d-none', val !== 'aksesuar');
   }
   turSel.addEventListener('change', toggleGroups);
   toggleGroups();
+
+  fetch('/api/lookup/donanim_tipi').then(r=>r.json()).then(list=>{
+    const sel=document.getElementById('donanim_tipi');
+    list.forEach(n=>{ const o=document.createElement('option'); o.value=o.textContent=n; sel.appendChild(o); });
+  });
 
   async function talepGonder(e) {
     e.preventDefault();

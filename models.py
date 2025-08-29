@@ -38,12 +38,16 @@ if DATABASE_URL.startswith("sqlite"):
 
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {},
+    connect_args=(
+        {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+    ),
 )
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
+
 class Base(DeclarativeBase):
     pass
+
 
 class User(Base):
     __tablename__ = "users"
@@ -56,7 +60,9 @@ class User(Base):
     # E-posta artık opsiyonel ve benzersiz
     email: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)
     role: Mapped[str] = mapped_column(String(16), default="admin")  # admin/staff/user
-    created_at: Mapped[str] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[str] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
     @property
     def is_admin(self) -> bool:
@@ -86,7 +92,9 @@ class Inventory(Base):
     __tablename__ = "inventories"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    no: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    no: Mapped[str] = mapped_column(
+        String(100), unique=True, index=True, nullable=False
+    )
     fabrika: Mapped[str | None] = mapped_column(String(150), index=True)
     departman: Mapped[str | None] = mapped_column(String(150), index=True)
     donanim_tipi: Mapped[str | None] = mapped_column(String(100), index=True)
@@ -137,7 +145,9 @@ class InventoryLog(Base):
     __tablename__ = "inventory_log"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    inventory_id: Mapped[int] = mapped_column(ForeignKey("inventories.id"), index=True, nullable=False)
+    inventory_id: Mapped[int] = mapped_column(
+        ForeignKey("inventories.id"), index=True, nullable=False
+    )
     action: Mapped[str] = mapped_column(String, index=True)
     before_json: Mapped[dict | None] = mapped_column(JSON)
     after_json: Mapped[dict | None] = mapped_column(JSON)
@@ -203,7 +213,9 @@ class License(Base):
     durum = Column(String(20), default="aktif")
     notlar = Column(Text, nullable=True)
 
-    logs = relationship("LicenseLog", back_populates="license", cascade="all, delete-orphan")
+    logs = relationship(
+        "LicenseLog", back_populates="license", cascade="all, delete-orphan"
+    )
     inventory = relationship("Inventory", back_populates="licenses")
 
 
@@ -222,7 +234,9 @@ class Brand(Base):
     __tablename__ = "brands"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(String(150), unique=True, nullable=False, index=True)
+    name: Mapped[str] = mapped_column(
+        String(150), unique=True, nullable=False, index=True
+    )
 
     models: Mapped[list["Model"]] = relationship(
         "Model", back_populates="brand", cascade="all, delete-orphan"
@@ -246,28 +260,37 @@ class UsageArea(Base):
     __tablename__ = "usage_areas"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(String(150), unique=True, nullable=False, index=True)
+    name: Mapped[str] = mapped_column(
+        String(150), unique=True, nullable=False, index=True
+    )
 
 
 class Factory(Base):
     __tablename__ = "factories"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(String(150), unique=True, nullable=False, index=True)
+    name: Mapped[str] = mapped_column(
+        String(150), unique=True, nullable=False, index=True
+    )
 
 
 class LicenseName(Base):
     __tablename__ = "license_names"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(String(200), unique=True, nullable=False, index=True)
+    name: Mapped[str] = mapped_column(
+        String(200), unique=True, nullable=False, index=True
+    )
 
 
 class HardwareType(Base):
     __tablename__ = "hardware_types"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(String(150), unique=True, nullable=False, index=True)
+    name: Mapped[str] = mapped_column(
+        String(150), unique=True, nullable=False, index=True
+    )
+
 
 class Printer(Base):
     __tablename__ = "printers"
@@ -293,7 +316,9 @@ class Printer(Base):
     durum = Column(String(30), default="aktif")
     notlar = Column(Text, nullable=True)
 
-    histories = relationship("PrinterHistory", back_populates="printer", cascade="all, delete-orphan")
+    histories = relationship(
+        "PrinterHistory", back_populates="printer", cascade="all, delete-orphan"
+    )
 
 
 class PrinterHistory(Base):
@@ -330,7 +355,9 @@ class StockLog(Base):
     lisans_anahtari = Column(String(500), nullable=True)
     mail_adresi = Column(String(200), nullable=True)
     tarih = Column(DateTime, default=datetime.utcnow)
-    islem = Column(Enum("girdi", "cikti", "hurda", "atama", name="stock_islem"), nullable=False)
+    islem = Column(
+        Enum("girdi", "cikti", "hurda", "atama", name="stock_islem"), nullable=False
+    )
     actor = Column(String(150), nullable=True)
 
 
@@ -375,6 +402,7 @@ class Talep(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     tur = Column(Enum(TalepTuru), nullable=False)
+    donanim_tipi = Column(String(150), nullable=True)
 
     ifs_no = Column(String(100), index=True, nullable=True)
     miktar = Column(Integer, nullable=True)
@@ -398,7 +426,9 @@ class Lookup(Base):
     type: Mapped[str] = mapped_column(String(50), index=True, nullable=False)
     value: Mapped[str] = mapped_column(String(200), nullable=False)
     created_by: Mapped[str | None] = mapped_column(String(150))
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, nullable=False
+    )
 
     __table_args__ = (UniqueConstraint("type", "value", name="uq_lookup_type_value"),)
 
@@ -430,9 +460,7 @@ def init_db():
                 text("ALTER TABLE users ADD COLUMN full_name VARCHAR(120) DEFAULT ''")
             )
         if "email" not in cols:
-            conn.execute(
-                text("ALTER TABLE users ADD COLUMN email VARCHAR(255)")
-            )
+            conn.execute(text("ALTER TABLE users ADD COLUMN email VARCHAR(255)"))
         if "role" not in cols:
             conn.execute(
                 text("ALTER TABLE users ADD COLUMN role VARCHAR(16) DEFAULT 'admin'")
@@ -457,7 +485,9 @@ def init_db():
     with engine.begin() as conn:
         if "lisans_adi" not in cols:
             if "adi" in cols:
-                conn.execute(text("ALTER TABLE licenses RENAME COLUMN adi TO lisans_adi"))
+                conn.execute(
+                    text("ALTER TABLE licenses RENAME COLUMN adi TO lisans_adi")
+                )
             else:
                 conn.execute(
                     text("ALTER TABLE licenses ADD COLUMN lisans_adi VARCHAR(200)")
@@ -465,30 +495,24 @@ def init_db():
         if "lisans_anahtari" not in cols:
             if "anahtari" in cols:
                 conn.execute(
-                    text("ALTER TABLE licenses RENAME COLUMN anahtari TO lisans_anahtari")
+                    text(
+                        "ALTER TABLE licenses RENAME COLUMN anahtari TO lisans_anahtari"
+                    )
                 )
             else:
                 conn.execute(
-                    text(
-                        "ALTER TABLE licenses ADD COLUMN lisans_anahtari VARCHAR(500)"
-                    )
+                    text("ALTER TABLE licenses ADD COLUMN lisans_anahtari VARCHAR(500)")
                 )
         if "sorumlu_personel" not in cols:
             conn.execute(
-                text(
-                    "ALTER TABLE licenses ADD COLUMN sorumlu_personel VARCHAR(150)"
-                )
+                text("ALTER TABLE licenses ADD COLUMN sorumlu_personel VARCHAR(150)")
             )
         if "bagli_envanter_no" not in cols:
             conn.execute(
-                text(
-                    "ALTER TABLE licenses ADD COLUMN bagli_envanter_no VARCHAR(150)"
-                )
+                text("ALTER TABLE licenses ADD COLUMN bagli_envanter_no VARCHAR(150)")
             )
         if "inventory_id" not in cols:
-            conn.execute(
-                text("ALTER TABLE licenses ADD COLUMN inventory_id INTEGER")
-            )
+            conn.execute(text("ALTER TABLE licenses ADD COLUMN inventory_id INTEGER"))
             conn.execute(
                 text(
                     "CREATE INDEX IF NOT EXISTS idx_licenses_inventory_id ON licenses(inventory_id)"
@@ -496,7 +520,9 @@ def init_db():
             )
         if "durum" not in cols:
             conn.execute(
-                text("ALTER TABLE licenses ADD COLUMN durum VARCHAR(20) DEFAULT 'aktif'")
+                text(
+                    "ALTER TABLE licenses ADD COLUMN durum VARCHAR(20) DEFAULT 'aktif'"
+                )
             )
         if "notlar" not in cols:
             conn.execute(text("ALTER TABLE licenses ADD COLUMN notlar TEXT"))
@@ -505,9 +531,13 @@ def init_db():
         if "tarih" not in cols:
             conn.execute(text("ALTER TABLE licenses ADD COLUMN tarih DATE"))
         if "islem_yapan" not in cols:
-            conn.execute(text("ALTER TABLE licenses ADD COLUMN islem_yapan VARCHAR(120)"))
+            conn.execute(
+                text("ALTER TABLE licenses ADD COLUMN islem_yapan VARCHAR(120)")
+            )
         if "mail_adresi" not in cols:
-            conn.execute(text("ALTER TABLE licenses ADD COLUMN mail_adresi VARCHAR(200)"))
+            conn.execute(
+                text("ALTER TABLE licenses ADD COLUMN mail_adresi VARCHAR(200)")
+            )
 
     # -- License Logs ----------------------------------------------------------
     insp = inspect(engine)
@@ -515,22 +545,36 @@ def init_db():
     with engine.begin() as conn:
         if "islem" not in cols:
             if "field" in cols:
-                conn.execute(text("ALTER TABLE license_logs RENAME COLUMN field TO islem"))
+                conn.execute(
+                    text("ALTER TABLE license_logs RENAME COLUMN field TO islem")
+                )
             else:
-                conn.execute(text("ALTER TABLE license_logs ADD COLUMN islem VARCHAR(50)"))
+                conn.execute(
+                    text("ALTER TABLE license_logs ADD COLUMN islem VARCHAR(50)")
+                )
         if "detay" not in cols:
             if "old_value" in cols:
-                conn.execute(text("ALTER TABLE license_logs RENAME COLUMN old_value TO detay"))
+                conn.execute(
+                    text("ALTER TABLE license_logs RENAME COLUMN old_value TO detay")
+                )
             else:
                 conn.execute(text("ALTER TABLE license_logs ADD COLUMN detay TEXT"))
         if "islem_yapan" not in cols:
             if "changed_by" in cols:
-                conn.execute(text("ALTER TABLE license_logs RENAME COLUMN changed_by TO islem_yapan"))
+                conn.execute(
+                    text(
+                        "ALTER TABLE license_logs RENAME COLUMN changed_by TO islem_yapan"
+                    )
+                )
             else:
-                conn.execute(text("ALTER TABLE license_logs ADD COLUMN islem_yapan VARCHAR(120)"))
+                conn.execute(
+                    text("ALTER TABLE license_logs ADD COLUMN islem_yapan VARCHAR(120)")
+                )
         if "tarih" not in cols:
             if "changed_at" in cols:
-                conn.execute(text("ALTER TABLE license_logs RENAME COLUMN changed_at TO tarih"))
+                conn.execute(
+                    text("ALTER TABLE license_logs RENAME COLUMN changed_at TO tarih")
+                )
             else:
                 conn.execute(text("ALTER TABLE license_logs ADD COLUMN tarih DATETIME"))
 
@@ -557,11 +601,20 @@ def init_db():
             )
         if "durum" not in cols:
             conn.execute(
-                text("ALTER TABLE inventories ADD COLUMN durum VARCHAR(50) DEFAULT 'aktif'")
+                text(
+                    "ALTER TABLE inventories ADD COLUMN durum VARCHAR(50) DEFAULT 'aktif'"
+                )
             )
         if "ifs_no" not in cols:
+            conn.execute(text("ALTER TABLE inventories ADD COLUMN ifs_no VARCHAR(150)"))
+
+    # -- Talepler --------------------------------------------------------------
+    insp = inspect(engine)
+    cols = {col["name"] for col in insp.get_columns("talepler")}
+    with engine.begin() as conn:
+        if "donanim_tipi" not in cols:
             conn.execute(
-                text("ALTER TABLE inventories ADD COLUMN ifs_no VARCHAR(150)")
+                text("ALTER TABLE talepler ADD COLUMN donanim_tipi VARCHAR(150)")
             )
 
     # -- Printers --------------------------------------------------------------
@@ -579,17 +632,29 @@ def init_db():
         if "fabrika" not in cols:
             conn.execute(text("ALTER TABLE printers ADD COLUMN fabrika VARCHAR(100)"))
         if "kullanim_alani" not in cols:
-            conn.execute(text("ALTER TABLE printers ADD COLUMN kullanim_alani VARCHAR(150)"))
+            conn.execute(
+                text("ALTER TABLE printers ADD COLUMN kullanim_alani VARCHAR(150)")
+            )
         if "sorumlu_personel" not in cols:
-            conn.execute(text("ALTER TABLE printers ADD COLUMN sorumlu_personel VARCHAR(150)"))
+            conn.execute(
+                text("ALTER TABLE printers ADD COLUMN sorumlu_personel VARCHAR(150)")
+            )
         if "bagli_envanter_no" not in cols:
-            conn.execute(text("ALTER TABLE printers ADD COLUMN bagli_envanter_no VARCHAR(50)"))
+            conn.execute(
+                text("ALTER TABLE printers ADD COLUMN bagli_envanter_no VARCHAR(50)")
+            )
         if "durum" not in cols:
-            conn.execute(text("ALTER TABLE printers ADD COLUMN durum VARCHAR(30) DEFAULT 'aktif'"))
+            conn.execute(
+                text(
+                    "ALTER TABLE printers ADD COLUMN durum VARCHAR(30) DEFAULT 'aktif'"
+                )
+            )
         if "notlar" not in cols:
             conn.execute(text("ALTER TABLE printers ADD COLUMN notlar TEXT"))
         if "envanter_no" not in cols:
-            conn.execute(text("ALTER TABLE printers ADD COLUMN envanter_no VARCHAR(100)"))
+            conn.execute(
+                text("ALTER TABLE printers ADD COLUMN envanter_no VARCHAR(100)")
+            )
         if "ip_adresi" not in cols:
             conn.execute(text("ALTER TABLE printers ADD COLUMN ip_adresi VARCHAR(50)"))
         if "mac" not in cols:
@@ -601,7 +666,9 @@ def init_db():
         if "tarih" not in cols:
             conn.execute(text("ALTER TABLE printers ADD COLUMN tarih DATE"))
         if "islem_yapan" not in cols:
-            conn.execute(text("ALTER TABLE printers ADD COLUMN islem_yapan VARCHAR(150)"))
+            conn.execute(
+                text("ALTER TABLE printers ADD COLUMN islem_yapan VARCHAR(150)")
+            )
 
     # -- Stock Logs --------------------------------------------------------------
     insp = inspect(engine)
@@ -615,9 +682,7 @@ def init_db():
             conn.execute(text("ALTER TABLE stock_logs ADD COLUMN model VARCHAR(150)"))
         if "lisans_anahtari" not in cols:
             conn.execute(
-                text(
-                    "ALTER TABLE stock_logs ADD COLUMN lisans_anahtari VARCHAR(500)"
-                )
+                text("ALTER TABLE stock_logs ADD COLUMN lisans_anahtari VARCHAR(500)")
             )
         if "mail_adresi" not in cols:
             conn.execute(
