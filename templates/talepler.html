@@ -98,7 +98,7 @@
 
       <div class="modal-body">
         <div id="talepRows">
-          <div class="talep-row row g-2 align-items-end mb-2">
+          <div class="talep-row row g-2 align-items-end mb-2 flex-nowrap">
             <div class="col-md-2">
               <label class="form-label">Talep Türü</label>
               <select class="form-select tur" name="tur">
@@ -107,45 +107,45 @@
                 <option value="aksesuar">Aksesuar</option>
               </select>
             </div>
-            <div class="col-md-2 envanter-field">
+            <div class="col-md-2 d-none" data-types="envanter">
               <label class="form-label">Envanter No</label>
               <input name="envanter_no" class="form-control" placeholder="Envanter No">
             </div>
-            <div class="col-md-2 envanter-field">
+            <div class="col-md-2 d-none" data-types="envanter,lisans">
               <label class="form-label">Sorumlu</label>
               <input name="sorumlu_personel" class="form-control" placeholder="Ad Soyad">
             </div>
-            <div class="col-md-2 envanter-field">
+            <div class="col-md-2 d-none" data-types="envanter,lisans">
               <label class="form-label">Bağlı Envanter</label>
               <input name="bagli_envanter_no" class="form-control" placeholder="Bağlı Envanter No">
             </div>
-            <div class="col-md-2 lisans-field d-none">
+            <div class="col-md-2 d-none" data-types="lisans">
               <label class="form-label">Lisans Adı</label>
               <input name="lisans_adi" class="form-control" placeholder="Lisans Adı">
             </div>
-            <div class="col-md-2 aksesuar-field d-none">
+            <div class="col-md-2 d-none" data-types="aksesuar">
               <label class="form-label">Donanım Tipi</label>
               <select name="donanim_tipi" class="form-select">
                 <option value="">Seçiniz...</option>
               </select>
             </div>
-            <div class="col-md-2 aksesuar-field d-none">
+            <div class="col-md-2 d-none" data-types="aksesuar,lisans">
               <label class="form-label">IFS No</label>
               <input name="ifs_no" class="form-control" placeholder="IFS No">
             </div>
-            <div class="col-md-1 aksesuar-field d-none">
+            <div class="col-md-1 d-none" data-types="aksesuar">
               <label class="form-label">Miktar</label>
               <input name="miktar" type="number" min="1" class="form-control" placeholder="Miktar">
             </div>
-            <div class="col-md-2 aksesuar-field d-none">
+            <div class="col-md-2 d-none" data-types="aksesuar">
               <label class="form-label">Marka</label>
               <input name="marka" class="form-control" placeholder="Marka">
             </div>
-            <div class="col-md-2 aksesuar-field d-none">
+            <div class="col-md-2 d-none" data-types="aksesuar">
               <label class="form-label">Model</label>
               <input name="model" class="form-control" placeholder="Model">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
               <label class="form-label">Not</label>
               <input name="aciklama" class="form-control" placeholder="Not">
             </div>
@@ -172,9 +172,10 @@
     const tur = row.querySelector('.tur');
     function toggle() {
       const val = tur.value;
-      row.querySelectorAll('.envanter-field').forEach(e => e.classList.toggle('d-none', val !== 'envanter'));
-      row.querySelectorAll('.lisans-field').forEach(e => e.classList.toggle('d-none', val !== 'lisans'));
-      row.querySelectorAll('.aksesuar-field').forEach(e => e.classList.toggle('d-none', val !== 'aksesuar'));
+      row.querySelectorAll('[data-types]').forEach(el => {
+        const types = el.dataset.types.split(',');
+        el.classList.toggle('d-none', !types.includes(val));
+      });
     }
     tur.addEventListener('change', toggle);
     toggle();
@@ -182,7 +183,7 @@
     row.querySelector('.add-row').addEventListener('click', () => {
       const clone = row.cloneNode(true);
       clone.querySelectorAll('input').forEach(i => i.value = '');
-      clone.querySelectorAll('select').forEach(s => { if(!s.classList.contains('tur')) s.selectedIndex = 0; });
+      clone.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
       rowContainer.appendChild(clone);
       bindRow(clone);
     });
