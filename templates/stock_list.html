@@ -10,6 +10,10 @@
               data-bs-toggle="modal" data-bs-target="#stockStatusModal">
         Stok Durumu
       </button>
+      <button class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#stockAddModal">
+        <i class="bi bi-plus-lg"></i>
+        <span>Ekle</span>
+      </button>
       <div class="dropdown">
         <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
           Excel
@@ -24,10 +28,6 @@
           </li>
         </ul>
       </div>
-      <button class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#stockAddModal">
-        <i class="bi bi-plus-lg"></i>
-        <span>Ekle</span>
-      </button>
       <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#stockAssignModal">Atama</button>
     </div>
   </div>
@@ -80,8 +80,8 @@
             <thead class="table-light">
               <tr>
                 <th>Donanım Tipi</th>
-                <th>IFS No</th>
                 <th>Stok</th>
+                <th></th>
               </tr>
             </thead>
             <tbody></tbody>
