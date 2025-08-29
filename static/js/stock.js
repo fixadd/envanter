@@ -84,12 +84,19 @@ document.getElementById('frmStockAssign')?.addEventListener('submit', async (e)=
 
 // Stok durumu modalı
 const stockStatusModal = document.getElementById('stockStatusModal');
-stockStatusModal?.addEventListener('show.bs.modal', ()=>{
-  fetch('/stock/durum/json')
-    .then(r=>r.json())
-    .then(d=>{
+stockStatusModal?.addEventListener('show.bs.modal', () => {
+  fetch('/api/stock/status')
+    .then(r => r.json())
+    .then(d => {
       const tbody = document.querySelector('#tblStockStatus tbody');
-      if(!tbody) return;
-      tbody.innerHTML = (d.rows||[]).map(r=>`<tr><td>${r.donanim_tipi}</td><td>${r.ifs_no||'-'}</td><td>${r.stok}</td></tr>`).join('');
+      if (!tbody) return;
+      const detail = d.detail || {};
+      tbody.innerHTML = Object.entries(d.totals || {}).map(([dt, qty]) => {
+        const det = detail[dt];
+        const id = 'det' + dt.replace(/[^a-zA-Z0-9]/g, '');
+        const btn = det ? `<button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#${id}"><i class="bi bi-list"></i></button>` : '';
+        const detailRows = det ? `<tr id="${id}" class="collapse"><td colspan="3"><table class="table table-sm mb-0">${Object.entries(det).map(([ifs, q]) => `<tr><td>${ifs}</td><td>${q}</td></tr>`).join('')}</table></td></tr>` : '';
+        return `<tr><td>${dt}</td><td>${qty}</td><td>${btn}</td></tr>${detailRows}`;
+      }).join('');
     });
 });

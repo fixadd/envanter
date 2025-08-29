@@ -3,14 +3,12 @@
 {% block content %}
 <div id="licenses-list" class="container-fluid p-2 content">
   <div class="d-flex align-items-center justify-content-between mb-3">
+    <h5 class="mb-0">Lisans</h5>
     <div class="d-flex align-items-center gap-2">
-        <a href="#" class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#addModal">
-          <i class="bi bi-plus-lg"></i>
-          <span>Ekle</span>
-        </a>
-      <h5 class="mb-0">Lisans</h5>
-    </div>
-    <div class="d-flex align-items-center gap-2">
+      <a href="#" class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#addModal">
+        <i class="bi bi-plus-lg"></i>
+        <span>Ekle</span>
+      </a>
       <div class="dropdown">
         <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
           Excel
@@ -28,12 +26,6 @@
       <button class="btn btn-outline-secondary btn-sm" id="filterBtn">Filtre</button>
       <button class="btn btn-outline-secondary btn-sm d-none" id="clearFilterBtn">Temizle</button>
       <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Ara...">
-      <select id="licIslemSelect" class="form-select form-select-sm ms-2">
-        <option value="">Seçiniz</option>
-        <option value="assign">Atama Yap</option>
-        <option value="edit">Düzenle</option>
-        <option value="scrap">Hurdaya Ayır</option>
-      </select>
     </div>
   </div>
   <div class="table-responsive">
