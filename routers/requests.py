@@ -82,13 +82,31 @@ async def import_requests(file: UploadFile = File(...)):
 
 @router.get("/", response_class=HTMLResponse)
 async def list_requests(request: Request, db: Session = Depends(get_db)):
-    aktif = db.query(Talep).filter(Talep.durum == TalepDurum.AKTIF).all()
-    gruplu = {}
-    for t in aktif:
-        key = t.ifs_no or f"NO-IFS-{t.id}"
-        gruplu.setdefault(key, []).append(t)
+    def group(rows: list[Talep]) -> dict[str, list[Talep]]:
+        gruplu: dict[str, list[Talep]] = {}
+        for t in rows:
+            key = t.ifs_no or f"NO-IFS-{t.id}"
+            gruplu.setdefault(key, []).append(t)
+        return gruplu
+
+    aktif = group(
+        db.query(Talep).filter(Talep.durum == TalepDurum.AKTIF).all()
+    )
+    kapali = group(
+        db.query(Talep).filter(Talep.durum == TalepDurum.TAMAMLANDI).all()
+    )
+    iptal = group(
+        db.query(Talep).filter(Talep.durum == TalepDurum.IPTAL).all()
+    )
+
     return templates.TemplateResponse(
-        "requests/list.html", {"request": request, "gruplu": gruplu}
+        "requests/list.html",
+        {
+            "request": request,
+            "gruplu_aktif": aktif,
+            "gruplu_kapali": kapali,
+            "gruplu_iptal": iptal,
+        },
     )
 
 
