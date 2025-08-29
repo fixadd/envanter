@@ -43,9 +43,9 @@
               <div class="btn-group">
                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">İşlem</button>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#" onclick="talepIptal({{ t.id }})">İptal Et</a></li>
-                  <li><a class="dropdown-item" href="#" onclick="talepKapat({{ t.id }})">Stok Gir</a></li>
-                  <li><a class="dropdown-item" href="/talepler/convert/{{ t.id }}">Direk Giriş</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="talepIptal({{ t.id }}, {{ t.miktar or 1 }})">İptal Et</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="talepKapat({{ t.id }}, {{ t.miktar or 1 }})">Stok Gir</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="talepConvert({{ t.id }}, {{ t.miktar or 1 }})">Direk Giriş</a></li>
                 </ul>
               </div>
             </td>
@@ -221,16 +221,45 @@
     return false;
   }
 
-  async function talepIptal(id) {
+  async function talepIptal(id, qty) {
     if (!confirm('Talep iptal edilsin mi?')) return;
-    const res = await fetch(`/talepler/${id}/cancel`, {method:'POST'});
+    let count = 1;
+    if (qty > 1) {
+      const input = prompt('Kaç adet iptal edilsin?', qty);
+      if (!input) return;
+      count = parseInt(input, 10);
+      if (isNaN(count) || count < 1) return;
+    }
+    const fd = new FormData();
+    fd.append('adet', count);
+    const res = await fetch(`/talepler/${id}/cancel`, {method:'POST', body: fd});
     if (res.ok) location.reload();
   }
 
-  async function talepKapat(id) {
+  async function talepKapat(id, qty) {
     if (!confirm('Talep kapatılsın mı?')) return;
-    const res = await fetch(`/talepler/${id}/close`, {method:'POST'});
+    let count = 1;
+    if (qty > 1) {
+      const input = prompt('Kaç adet stok girilecek?', qty);
+      if (!input) return;
+      count = parseInt(input, 10);
+      if (isNaN(count) || count < 1) return;
+    }
+    const fd = new FormData();
+    fd.append('adet', count);
+    const res = await fetch(`/talepler/${id}/close`, {method:'POST', body: fd});
     if (res.ok) location.reload();
+  }
+
+  function talepConvert(id, qty) {
+    let count = 1;
+    if (qty > 1) {
+      const input = prompt('Kaç adet dönüştürülecek?', qty);
+      if (!input) return;
+      count = parseInt(input, 10);
+      if (isNaN(count) || count < 1) return;
+    }
+    window.location.href = `/talepler/convert/${id}?adet=${count}`;
   }
 </script>
 {% endblock %}
