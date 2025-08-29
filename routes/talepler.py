@@ -28,6 +28,7 @@ def liste(request: Request, db: Session = Depends(get_db)):
 @router.post("", response_class=JSONResponse)
 def olustur(
     tur: TalepTuru = Form(...),
+    donanim_tipi: Optional[str] = Form(None),
     ifs_no: Optional[str] = Form(None),
     miktar: Optional[int] = Form(None),
     marka: Optional[str] = Form(None),
@@ -41,6 +42,7 @@ def olustur(
 ):
     talep = Talep(
         tur=tur,
+        donanim_tipi=donanim_tipi,
         ifs_no=ifs_no,
         miktar=miktar,
         marka=marka,
@@ -65,6 +67,7 @@ def export_excel(db: Session = Depends(get_db)):
         [
             "ID",
             "Tür",
+            "Donanım Tipi",
             "IFS No",
             "Miktar",
             "Marka",
@@ -82,6 +85,7 @@ def export_excel(db: Session = Depends(get_db)):
             [
                 t.id,
                 str(t.tur),
+                t.donanim_tipi,
                 t.ifs_no,
                 t.miktar,
                 t.marka,
@@ -104,4 +108,3 @@ def export_excel(db: Session = Depends(get_db)):
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers=headers,
     )
-
