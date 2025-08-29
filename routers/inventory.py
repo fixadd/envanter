@@ -25,6 +25,7 @@ from models import (
     UsageArea,
     HardwareType,
     License,
+    LicenseLog,
     ScrapPrinter,
     StockLog,
 )
@@ -413,6 +414,17 @@ def scrap(item_id: int = Form(...), aciklama: str = Form(""), db: Session = Depe
 
   item.durum = "hurda"
   db.add(item)
+
+  for lic in list(item.licenses):
+    lic.sorumlu_personel = None
+    lic.bagli_envanter_no = None
+    lic.inventory_id = None
+    db.add(LicenseLog(
+      license_id=lic.id,
+      islem="ATAMA",
+      detay="Envanter hurdaya ayrıldığı için lisans bağlantısı kaldırıldı",
+      islem_yapan=user.username
+    ))
 
   db.add(InventoryLog(
     inventory_id=item.id,
