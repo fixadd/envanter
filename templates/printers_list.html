@@ -221,6 +221,30 @@
     </form>
   </div>
 </div>
+
+<!-- HURDA MODAL -->
+<div class="modal fade" id="scrapModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="scrapForm" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Hurdaya Ayır</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="scrapPrinterId">
+        <p>Bu envanter hurdaya ayrılacak. Onaylıyor musunuz?</p>
+        <div class="mb-2">
+          <label class="form-label">Açıklama (opsiyonel)</label>
+          <textarea name="reason" class="form-control" rows="3" placeholder="Hurda sebebi / not"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Vazgeç</button>
+        <button class="btn btn-danger" type="submit">Hurdaya Ayır</button>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -364,33 +388,42 @@ document.addEventListener('DOMContentLoaded', () => {
   const assignModalEl = document.getElementById('assignModal');
   const assignModal = new bootstrap.Modal(assignModalEl);
   const assignForm = document.getElementById('assignForm');
+  const scrapModalEl = document.getElementById('scrapModal');
+  const scrapModal = new bootstrap.Modal(scrapModalEl);
+  const scrapForm = document.getElementById('scrapForm');
 
   document.querySelectorAll('.action-select').forEach(sel => {
     sel.addEventListener('change', (e) => {
+      e.stopImmediatePropagation();
       const tr = e.target.closest('tr');
       const printerId = tr.dataset.id;
       const val = e.target.value;
       if(!val) return;
 
       if(val === 'edit'){
-        if(window.openModal){ openModal(`/printers/edit/${printerId}?modal=1`); }
+        if(window.openModal){ openModal(`/printers/${printerId}/edit?modal=1`); }
       } else if(val === 'assign'){
         document.getElementById('assignPrinterId').value = printerId;
         document.getElementById('assignPrinterLabel').innerText = `#${printerId}`;
         assignModal.show();
       } else if(val === 'scrap'){
-        if(!confirm('Bu yazıcıyı hurdaya ayırmak istiyor musunuz?')) { e.target.value=''; return; }
-        const reason = prompt('Hurda sebebi / not (opsiyonel):','');
-        if(reason === null){ e.target.value=''; return; }
-        const formData = new FormData();
-        if(reason) formData.append('reason', reason);
-        fetch(`/printers/scrap/${printerId}`, { method: 'POST', body: formData })
-          .then(r => r.json()).then(j => { if(j.ok){ location.reload(); } else { alert('İşlem başarısız'); } })
-          .catch(() => alert('Sunucu hatası'));
+        document.getElementById('scrapPrinterId').value = printerId;
+        scrapModal.show();
       }
 
       e.target.value = '';
     });
+  });
+
+  scrapForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    const pid = document.getElementById('scrapPrinterId').value;
+    const formData = new FormData(scrapForm);
+    fetch(`/printers/${pid}/scrap`, { method: 'POST', body: formData })
+      .then(r => r.json()).then(j => {
+        if(j.ok){ scrapModal.hide(); window.location.href = '/printers/scrap'; }
+        else { alert('Hurdaya ayırma başarısız'); }
+      }).catch(()=> alert('Sunucu hatası'));
   });
 
   assignForm.addEventListener('submit', function(e){

@@ -303,7 +303,7 @@ def assign_printer(
     return JSONResponse({"ok": True})
 
 
-@router.get("/edit/{printer_id}", response_class=HTMLResponse)
+@router.get("/{printer_id}/edit", response_class=HTMLResponse)
 def edit_printer(printer_id: int, request: Request, modal: bool = False, db: Session = Depends(get_db)):
     p = db.get(Printer, printer_id)
     if not p:
@@ -311,7 +311,7 @@ def edit_printer(printer_id: int, request: Request, modal: bool = False, db: Ses
     return templates.TemplateResponse("printers_edit.html", {"request": request, "p": p, "modal": modal})
 
 
-@router.post("/edit/{printer_id}")
+@router.post("/{printer_id}/edit")
 def edit_printer_post(
     printer_id: int,
     marka: str = Form(None),
@@ -376,7 +376,7 @@ def stock_printer(printer_id: int, db: Session = Depends(get_db), user=Depends(c
     return RedirectResponse(url="/stock", status_code=303)
 
 
-@router.post("/scrap/{printer_id}")
+@router.post("/{printer_id}/scrap")
 def scrap_printer(
     printer_id: int,
     reason: str = Form(None),
