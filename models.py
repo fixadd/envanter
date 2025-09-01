@@ -467,6 +467,12 @@ def init_db():
             conn.execute(
                 text("ALTER TABLE users ADD COLUMN role VARCHAR(16) DEFAULT 'admin'")
             )
+        if "theme" not in cols:
+            conn.execute(
+                text(
+                    "ALTER TABLE users ADD COLUMN theme VARCHAR(20) DEFAULT 'default'"
+                )
+            )
         if "created_at" not in cols:
             conn.execute(
                 text(
