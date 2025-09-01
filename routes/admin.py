@@ -82,7 +82,7 @@ def user_edit_post(
     is_admin: bool = Form(False),
     db: Session = Depends(get_db),
 ):
-    u = db.query(User).get(uid)
+    u = db.get(User, uid)
     if not u:
         raise HTTPException(404, "Kullanıcı bulunamadı")
     u.username = username

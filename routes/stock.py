@@ -52,19 +52,19 @@ def stock_assign(payload: dict = Body(...), db: Session = Depends(get_db)):
     desc = None
     if target_type == "license":
         lic_id = payload.get("license_id")
-        lic = db.query(License).get(int(lic_id)) if lic_id else None
+        lic = db.get(License, int(lic_id)) if lic_id else None
         if not lic:
             return {"ok": False, "error": "Lisans bulunamadı"}
         desc = f"Lisans envantere atandı"
     elif target_type == "inventory":
         inv_id = payload.get("inventory_id")
-        inv = db.query(Inventory).get(int(inv_id)) if inv_id else None
+        inv = db.get(Inventory, int(inv_id)) if inv_id else None
         if not inv:
             return {"ok": False, "error": "Envanter bulunamadı"}
         desc = f"Stok envantere atandı"
     elif target_type == "printer":
         prn_id = payload.get("printer_id")
-        prn = db.query(Printer).get(int(prn_id)) if prn_id else None
+        prn = db.get(Printer, int(prn_id)) if prn_id else None
         if not prn:
             return {"ok": False, "error": "Yazıcı bulunamadı"}
         desc = f"Stok yazıcıya atandı"
