@@ -22,7 +22,7 @@ def logs_home(request: Request, db: Session = Depends(get_db)):
     inventory_logs = (
         db.query(InventoryLog, Inventory.no.label("inv_no"))
         .join(Inventory, Inventory.id == InventoryLog.inventory_id)
-        .order_by(Inventory.no.asc(), InventoryLog.created_at.desc())
+        .order_by(InventoryLog.created_at.desc())
         .all()
     )
     return templates.TemplateResponse(
