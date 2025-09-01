@@ -9,7 +9,7 @@ from sqlalchemy import inspect
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 
-def test_init_db_adds_theme_column(tmp_path):
+def test_init_db_adds_theme_and_animation_columns(tmp_path):
     db_file = tmp_path / "theme.db"
     os.environ["DATABASE_URL"] = f"sqlite:///{db_file}"
     import models
@@ -37,6 +37,7 @@ def test_init_db_adds_theme_column(tmp_path):
     insp = inspect(models.engine)
     cols = {c["name"] for c in insp.get_columns("users")}
     assert "theme" in cols
+    assert "animation" in cols
 
     # restore default in-memory database for subsequent tests
     models.engine.dispose()
