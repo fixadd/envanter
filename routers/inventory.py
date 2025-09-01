@@ -279,7 +279,7 @@ def assign_sources(
 ):
     if not type:
         users = db.query(User).order_by(User.full_name.asc()).all()
-        inv_q = db.query(Inventory)
+        inv_q = db.query(Inventory).filter(Inventory.durum != "hurda")
         if exclude_id:
             inv_q = inv_q.filter(Inventory.id != exclude_id)
         inventories = inv_q.order_by(Inventory.id.desc()).all()
@@ -322,7 +322,7 @@ def assign_sources(
         )
         return [{"id": r[0], "text": r[0]} for r in rows if (r[0] or "").strip()]
     if type == "envanter":
-        q = db.query(Inventory)
+        q = db.query(Inventory).filter(Inventory.durum != "hurda")
         if exclude_id:
             q = q.filter(Inventory.id != exclude_id)
         rows = q.order_by(Inventory.id.desc()).all()
