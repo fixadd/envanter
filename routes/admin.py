@@ -2,6 +2,7 @@ from fastapi import APIRouter, Request, Depends, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from models import User, Lookup, Setting
+import models
 from database import get_db
 from fastapi.templating import Jinja2Templates
 from auth import hash_password
@@ -66,8 +67,24 @@ def create_product(
     fabrika: str = Form(""),
     db: Session = Depends(get_db),
 ):
-    # TODO: Kendi Inventory/Product modeline göre kaydı yap
-    # item = Inventory(...); db.add(item)
+    # Uygun veri modeli seç (Product tanımlı değilse Inventory kullan)
+    model_cls = getattr(models, "Product", models.Inventory)
+
+    if not donanim_tipi:
+        raise HTTPException(status_code=400, detail="Donanım tipi gerekli")
+
+    data = {
+        "donanim_tipi": donanim_tipi,
+        "marka": marka or None,
+        "model": model or None,
+        "kullanim_alani": kullanim_alani or None,
+        "fabrika": fabrika or None,
+    }
+    if hasattr(model_cls, "__table__") and "lisans_adi" in model_cls.__table__.columns:
+        data["lisans_adi"] = lisans_adi or None
+
+    item = model_cls(**data)
+    db.add(item)
     db.commit()
     return RedirectResponse(url="/admin#products", status_code=303)
 
