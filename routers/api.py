@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 import models
-from sqlalchemy import func, case, and_
+from sqlalchemy import func, case, and_, or_
 
 router = APIRouter(prefix="/api", tags=["API"])
 
@@ -91,6 +91,69 @@ def printers_list(db: Session = Depends(get_db)):
             for r in rows
         ]
     }
+
+
+@router.get("/users/list")
+def users_list(
+    q: str | None = None,
+    role: str | None = None,
+    db: Session = Depends(get_db),
+):
+    query = db.query(models.User)
+    if q:
+        like = f"%{q}%"
+        filters = [models.User.username.ilike(like)]
+        if hasattr(models.User, "full_name"):
+            filters.append(models.User.full_name.ilike(like))
+        if hasattr(models.User, "first_name"):
+            filters.append(models.User.first_name.ilike(like))
+        if hasattr(models.User, "last_name"):
+            filters.append(models.User.last_name.ilike(like))
+        query = query.filter(or_(*filters))
+    if role:
+        query = query.filter(models.User.role == role)
+    rows = query.order_by(models.User.id.asc()).all()
+    return {
+        "items": [
+            {
+                "id": u.id,
+                "username": u.username,
+                "full_name": getattr(u, "full_name", None),
+                "email": u.email,
+                "role": u.role,
+            }
+            for u in rows
+        ]
+    }
+
+
+@router.get("/inventory/list")
+def inventory_list(
+    q: str | None = None,
+    fabrika: str | None = None,
+    departman: str | None = None,
+    db: Session = Depends(get_db),
+):
+    query = db.query(models.Inventory).filter(models.Inventory.durum != "hurda")
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            or_(
+                models.Inventory.no.ilike(like),
+                models.Inventory.sorumlu_personel.ilike(like),
+                models.Inventory.marka.ilike(like),
+                models.Inventory.model.ilike(like),
+                models.Inventory.bilgisayar_adi.ilike(like),
+                models.Inventory.seri_no.ilike(like),
+                models.Inventory.ifs_no.ilike(like),
+            )
+        )
+    if fabrika:
+        query = query.filter(models.Inventory.fabrika == fabrika)
+    if departman:
+        query = query.filter(models.Inventory.departman == departman)
+    rows = query.order_by(models.Inventory.id.desc()).all()
+    return {"items": [r.to_dict() for r in rows]}
 
 
 # === STOCK API ===
