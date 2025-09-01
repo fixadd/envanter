@@ -9,7 +9,7 @@
   <link href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" rel="stylesheet">
   <title>{% block title %}{% endblock %}</title>
 </head>
-<body class="bg-app">
+<body{% if request.session.get('user_id') %} class="bg-app"{% endif %}>
   <nav class="navbar navbar-light bg-transparent p-3 pb-0">
     <div class="container-fluid">
       <a class="navbar-brand fw-semibold"></a>
