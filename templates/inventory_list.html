@@ -407,6 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // İşlem seçimi
   document.querySelectorAll('.action-select').forEach(sel => {
     sel.addEventListener('change', async (e) => {
+      e.stopImmediatePropagation();
       const id = e.target.dataset.id;
       const val = e.target.value;
       if (!val) return;
