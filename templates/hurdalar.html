@@ -72,9 +72,9 @@
             <td>{{ row.bagli_envanter_no or '-' }}</td>
             <td>{{ row.notlar or '-' }}</td>
             <td class="text-nowrap">
-              <a href="/lisans/{{ row.id }}" class="btn btn-outline-secondary btn-sm" title="Detayı Göster">
+              <button class="btn btn-outline-secondary btn-sm view-btn" data-id="{{ row.id }}" title="Detayı Göster">
                 <i class="bi bi-eye"></i>
-              </a>
+              </button>
             </td>
           </tr>
           {% else %}
@@ -144,6 +144,16 @@ document.querySelectorAll('#envanter .view-btn').forEach(b=>{
   b.addEventListener('click', async ()=>{
     const id = b.dataset.id;
     const r = await fetch('/scrap/inventory/'+id);
+    const h = await r.text();
+    document.getElementById('hurdaDetayBody').innerHTML = h;
+    new bootstrap.Modal(document.getElementById('hurdaDetayModal')).show();
+  });
+});
+
+document.querySelectorAll('#lisans .view-btn').forEach(b=>{
+  b.addEventListener('click', async ()=>{
+    const id = b.dataset.id;
+    const r = await fetch('/lisans/detail/'+id);
     const h = await r.text();
     document.getElementById('hurdaDetayBody').innerHTML = h;
     new bootstrap.Modal(document.getElementById('hurdaDetayModal')).show();
