@@ -181,6 +181,58 @@ def stock_assign(
         islem_yapan=islem_yapan,
         db=db,
     )
-    # TODO: hedef_tur'a göre ilişki tablosuna ekle
-    return {"ok": True, "donanim_tipi": donanim_tipi, "miktar": miktar, "ifs_no": ifs_no}
+    assign = models.StockAssignment(
+        donanim_tipi=donanim_tipi,
+        miktar=miktar,
+        ifs_no=ifs_no,
+        hedef_envanter_no=hedef_envanter_no,
+        sorumlu_personel=sorumlu_personel,
+        kullanim_alani=kullanim_alani,
+        actor=islem_yapan,
+    )
+    db.add(assign)
+    target = None
+    if hedef_tur == "lisans":
+        target = db.query(models.License).filter_by(ifs_no=ifs_no).first()
+        if not target:
+            raise HTTPException(404, "Lisans bulunamadı")
+        if hedef_envanter_no:
+            target.bagli_envanter_no = hedef_envanter_no
+        if sorumlu_personel:
+            target.sorumlu_personel = sorumlu_personel
+    elif hedef_tur == "envanter":
+        target = db.query(models.Inventory).filter_by(no=hedef_envanter_no).first()
+        if not target:
+            raise HTTPException(404, "Envanter bulunamadı")
+        if ifs_no:
+            target.ifs_no = ifs_no
+        if sorumlu_personel:
+            target.sorumlu_personel = sorumlu_personel
+        if kullanim_alani:
+            target.kullanim_alani = kullanim_alani
+    elif hedef_tur == "yazici":
+        target = db.query(models.Printer).filter_by(ifs_no=ifs_no).first()
+        if not target:
+            raise HTTPException(404, "Yazıcı bulunamadı")
+        if sorumlu_personel:
+            target.sorumlu_personel = sorumlu_personel
+        if kullanim_alani:
+            target.kullanim_alani = kullanim_alani
+        if hedef_envanter_no:
+            target.envanter_no = hedef_envanter_no
+            target.bagli_envanter_no = hedef_envanter_no
+    db.commit()
+    log = (
+        db.query(models.StockLog)
+        .order_by(models.StockLog.id.desc())
+        .first()
+    )
+    if not log or log.donanim_tipi != donanim_tipi or log.miktar != miktar or log.ifs_no != ifs_no or log.islem != "cikti":
+        raise HTTPException(500, "Log kaydı doğrulanamadı")
+    return {
+        "ok": True,
+        "donanim_tipi": donanim_tipi,
+        "miktar": miktar,
+        "ifs_no": ifs_no,
+    }
 
