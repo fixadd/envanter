@@ -53,3 +53,14 @@
   box-shadow: none;
   outline: none;
 }
+
+/* Remove spacing between adjacent nav tabs to match admin panel styling */
+.nav-tabs .nav-link {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.nav-tabs .nav-item {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
