@@ -1,23 +1,21 @@
 # security.py
+from dataclasses import dataclass, field
 from fastapi import Request, HTTPException, status, Depends
 from sqlalchemy.orm import Session
 from database import get_db
 from auth import get_user_by_id
 
+@dataclass
 class SessionUser:
-    def __init__(
-        self,
-        id: int,
-        username: str,
-        role: str,
-        full_name: str | None = None,
-        email: str | None = None,
-    ):
-        self.id = id
-        self.username = username
-        self.role = role
-        self.full_name = full_name or username
-        self.email = email
+    id: int
+    username: str
+    role: str
+    full_name: str | None = field(default=None)
+    email: str | None = field(default=None)
+
+    def __post_init__(self) -> None:
+        if self.full_name is None:
+            self.full_name = self.username
 
 def current_user(request: Request, db: Session = Depends(get_db)) -> SessionUser:
     user_id = request.session.get("user_id")
