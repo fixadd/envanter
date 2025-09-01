@@ -15,7 +15,7 @@
   </style>
   <title>{% block title %}{% endblock %}</title>
 </head>
-<body>
+<body class="theme-{{ request.session.get('user_theme', 'default') }}">
   <nav class="navbar navbar-light bg-transparent p-3 pb-0">
     <div class="container-fluid">
       <a class="navbar-brand fw-semibold"></a>
@@ -198,9 +198,26 @@ window.addEventListener("message", (e) => {
     <canvas id="bg"></canvas>
 
     <style>
-      body {
-        margin:0;
-        background: linear-gradient(180deg,#dbeafe,#bfdbfe); /* açık mavi degrade */
+      body { margin:0; }
+      body.theme-default {
+        background: linear-gradient(180deg,#dbeafe,#bfdbfe);
+      }
+      body.theme-dark {
+        background:#1f1f1f;
+        color:#f8f9fa;
+      }
+      body.theme-dark .soft-card,
+      body.theme-dark .card { background:#2c2c2c; }
+      body.theme-dark .side-link { color:#f8f9fa; }
+      body.theme-dark .side-link:hover { background:#3a3a3a; }
+      body.theme-green {
+        background: linear-gradient(180deg,#e8f5e9,#a5d6a7);
+      }
+      body.theme-red {
+        background: linear-gradient(180deg,#ffebee,#ffcdd2);
+      }
+      body.theme-purple {
+        background: linear-gradient(180deg,#f3e5f5,#d1c4e9);
       }
       #bg {
         position:fixed;
