@@ -348,7 +348,7 @@ def edit_printer_post(
 
 @router.get("/{printer_id}/stock")
 def stock_printer(printer_id: int, db: Session = Depends(get_db), user=Depends(current_user)):
-    p = db.query(Printer).get(printer_id)
+    p = db.get(Printer, printer_id)
     if not p:
         raise HTTPException(404, "Yazıcı bulunamadı")
     actor = getattr(user, "full_name", None) or user.username

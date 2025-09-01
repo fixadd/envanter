@@ -121,7 +121,7 @@ def new_license_post(
     db: Session = Depends(get_db),
     user = Depends(current_user),
 ):
-    inv = db.query(Inventory).get(inventory_id) if inventory_id else None
+    inv = db.get(Inventory, inventory_id) if inventory_id else None
     lic = License(
         lisans_adi=adi,
         lisans_anahtari=anahtar or None,
@@ -168,7 +168,7 @@ def create_license(
 
 @router.get("/{lic_id}/edit", response_class=HTMLResponse, name="license.edit_form")
 def edit_license_form(lic_id: int, request: Request, modal: bool = False, db: Session = Depends(get_db)):
-    lic = db.query(License).get(lic_id)
+    lic = db.get(License, lic_id)
     if not lic:
         raise HTTPException(status_code=404, detail="Lisans bulunamadı")
     envanterler = db.query(Inventory).order_by(Inventory.no).all()
@@ -202,10 +202,10 @@ def edit_license_post(
     db: Session = Depends(get_db),
     user = Depends(current_user),
 ):
-    lic = db.query(License).get(lic_id)
+    lic = db.get(License, lic_id)
     if not lic:
         raise HTTPException(status_code=404, detail="Lisans bulunamadı")
-    inv = db.query(Inventory).get(inventory_id) if inventory_id else None
+    inv = db.get(Inventory, inventory_id) if inventory_id else None
     lic.lisans_adi = adi
     lic.lisans_anahtari = anahtar or None
     lic.sorumlu_personel = sorumlu_personel or None
@@ -227,7 +227,7 @@ def assign_license_form(
     db: Session = Depends(get_db),
     user=Depends(current_user),
 ):
-    lic = db.query(License).get(lic_id)
+    lic = db.get(License, lic_id)
     if not lic:
         raise HTTPException(status_code=404, detail="Lisans bulunamadı")
     envanterler = db.query(Inventory).order_by(Inventory.no).all()
@@ -252,7 +252,7 @@ def assign_license(
     request: Request = None,
     db: Session = Depends(get_db),
 ):
-    lic = db.query(License).get(lic_id)
+    lic = db.get(License, lic_id)
     if not lic:
         raise HTTPException(status_code=404, detail="Lisans bulunamadı")
     eski_sp = lic.sorumlu_personel or ""
@@ -266,7 +266,7 @@ def assign_license(
 
 @router.get("/{lic_id}/stock")
 def stock_license(lic_id: int, db: Session = Depends(get_db), user=Depends(current_user)):
-    lic = db.query(License).get(lic_id)
+    lic = db.get(License, lic_id)
     if not lic:
         raise HTTPException(status_code=404, detail="Lisans bulunamadı")
     actor = getattr(user, "full_name", None) or user.username
@@ -294,7 +294,7 @@ def scrap_license(
     request: Request = None,
     db: Session = Depends(get_db),
 ):
-    lic = db.query(License).get(lic_id)
+    lic = db.get(License, lic_id)
     if not lic:
         raise HTTPException(status_code=404, detail="Lisans bulunamadı")
     lic.durum = "hurda"
@@ -314,7 +314,7 @@ def edit_quick_license(
     request: Request = None,
     db: Session = Depends(get_db),
 ):
-    lic = db.query(License).get(lic_id)
+    lic = db.get(License, lic_id)
     if not lic:
         raise HTTPException(status_code=404, detail="Lisans bulunamadı")
     eski = getattr(lic, "notlar", "")
@@ -351,7 +351,7 @@ def license_scrap_list(request: Request, db: Session = Depends(get_db)):
 
 @router.get("/detail/{lic_id}", response_class=HTMLResponse, name="license.detail_partial")
 def license_detail_partial(lic_id: int, request: Request, db: Session = Depends(get_db)):
-    lic = db.query(License).get(lic_id)
+    lic = db.get(License, lic_id)
     if not lic:
         raise HTTPException(status_code=404, detail="Lisans bulunamadı")
     return templates.TemplateResponse("partials/license_detail.html", {"request": request, "item": lic})
@@ -359,7 +359,7 @@ def license_detail_partial(lic_id: int, request: Request, db: Session = Depends(
 
 @router.get("/{lic_id}", name="license_detail")
 def license_detail(lic_id: int, request: Request, db: Session = Depends(get_db)):
-    lic = db.query(License).get(lic_id)
+    lic = db.get(License, lic_id)
     if not lic:
         raise HTTPException(status_code=404, detail="Lisans bulunamadı")
     return templates.TemplateResponse("license_detail.html", {"request": request, "item": lic})

@@ -63,7 +63,7 @@ def create_model(brand_id: int, name: str, db: Session = Depends(get_db)):
     name = (name or "").strip()
     if not name:
         raise HTTPException(400, "Model adı boş olamaz")
-    brand = db.query(Brand).get(brand_id)
+    brand = db.get(Brand, brand_id)
     if not brand:
         raise HTTPException(404, "Marka yok")
     exists = (

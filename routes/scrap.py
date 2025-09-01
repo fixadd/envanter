@@ -11,7 +11,7 @@ def get_templates(request: Request):
 
 @router.get("/scrap/detail/{id}", response_class=HTMLResponse)
 def scrap_detail(id: int, request: Request, db: Session = Depends(get_db)):
-    row = db.query(StockLog).get(id)
+    row = db.get(StockLog, id)
     templates = get_templates(request)
     return templates.TemplateResponse("partials/scrap_detail.html", {"request": request, "row": row})
 
