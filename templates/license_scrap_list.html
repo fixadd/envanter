@@ -20,9 +20,9 @@
           <td>{{ row.notlar or '-' }}</td>
           <td><span class="badge bg-secondary">Hurda</span></td>
           <td class="text-nowrap">
-            <a href="/lisans/{{ row.id }}" class="btn btn-outline-secondary btn-sm" title="Detayı Göster">
+            <button class="btn btn-outline-secondary btn-sm view-btn" data-id="{{ row.id }}" title="Detayı Göster">
               <i class="bi bi-eye"></i>
-            </a>
+            </button>
           </td>
         </tr>
         {% else %}
@@ -32,4 +32,28 @@
     </table>
   </div>
 </div>
+
+<div class="modal fade" id="hurdaDetayModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Hurda Detayı</h5>
+        <button class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body" id="hurdaDetayBody">Yükleniyor...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.view-btn').forEach(b=>{
+  b.addEventListener('click', async ()=>{
+    const id = b.dataset.id;
+    const r = await fetch('/lisans/detail/'+id);
+    const h = await r.text();
+    document.getElementById('hurdaDetayBody').innerHTML = h;
+    new bootstrap.Modal(document.getElementById('hurdaDetayModal')).show();
+  });
+});
+</script>
+
 {% endblock %}
