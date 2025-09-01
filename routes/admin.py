@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request, Depends, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from models import User, Lookup, Setting
 import models
 from database import get_db
@@ -11,8 +12,21 @@ router = APIRouter(prefix="/admin", tags=["Admin"])
 templates = Jinja2Templates(directory="templates")
 
 @router.get("", response_class=HTMLResponse)
-def admin_index(request: Request, db: Session = Depends(get_db)):
-    users = db.query(User).order_by(User.username.asc()).all()
+def admin_index(request: Request, q: str | None = None, db: Session = Depends(get_db)):
+    query = db.query(User)
+    if q:
+        like = f"%{q}%"
+        filters = [User.username.ilike(like)]
+        if hasattr(User, "full_name"):
+            filters.append(User.full_name.ilike(like))
+        if hasattr(User, "first_name"):
+            filters.append(User.first_name.ilike(like))
+        if hasattr(User, "last_name"):
+            filters.append(User.last_name.ilike(like))
+        if hasattr(User, "email"):
+            filters.append(User.email.ilike(like))
+        query = query.filter(or_(*filters))
+    users = query.order_by(User.username.asc()).all()
 
     def get(type_):
         return (
@@ -25,6 +39,7 @@ def admin_index(request: Request, db: Session = Depends(get_db)):
     ctx = {
         "request": request,
         "users": users,
+        "q": q,
         "lookup_kullanim_alanlari": get("kullanim_alani"),
         "lookup_lisans_adlari": get("lisans_adi"),
         "lookup_fabrikalar": get("fabrika"),
