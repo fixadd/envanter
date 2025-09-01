@@ -297,13 +297,36 @@ def scrap_license(
     lic = db.get(License, lic_id)
     if not lic:
         raise HTTPException(status_code=404, detail="Lisans bulunamadı")
+    eski_sp = lic.sorumlu_personel
+    eski_env = lic.bagli_envanter_no
+    lic.sorumlu_personel = None
+    lic.bagli_envanter_no = None
+    lic.inventory_id = None
     lic.durum = "hurda"
     if aciklama:
         lic.notlar = (lic.notlar + "\n" if lic.notlar else "") + aciklama
-    detay = "Lisans hurdaya ayrıldı." + (f" Not: {aciklama}" if aciklama else "")
+    detay = "Lisans hurdaya ayrıldı."
+    if eski_sp or eski_env:
+        detay += f" Sorumlu: {eski_sp or '-'}; Bağlı Envanter: {eski_env or '-'}"
+    if aciklama:
+        detay += f" Not: {aciklama}"
     _logla(db, lic, "HURDA", detay, islem_yapan)
+    db.add(
+        StockLog(
+            donanim_tipi=lic.lisans_adi,
+            miktar=1,
+            ifs_no=lic.ifs_no,
+            lisans_anahtari=lic.lisans_anahtari,
+            mail_adresi=lic.mail_adresi,
+            islem="hurda",
+            actor=islem_yapan,
+        )
+    )
     db.commit()
-    return RedirectResponse(url=request.url_for("license_scrap_list"), status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(
+        url=request.url_for("license_scrap_list"),
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
 
 
 @router.post("/{lic_id}/editquick")
