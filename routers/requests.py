@@ -101,30 +101,21 @@ async def list_requests(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/", response_class=JSONResponse)
 async def create_request(
-    tur: TalepTuru = Form(...),
     donanim_tipi: Optional[str] = Form(None),
     ifs_no: Optional[str] = Form(None),
     miktar: Optional[int] = Form(None),
     marka: Optional[str] = Form(None),
     model: Optional[str] = Form(None),
-    envanter_no: Optional[str] = Form(None),
-    sorumlu_personel: Optional[str] = Form(None),
-    bagli_envanter_no: Optional[str] = Form(None),
-    lisans_adi: Optional[str] = Form(None),
     aciklama: Optional[str] = Form(None),
     db: Session = Depends(get_db),
 ):
     talep = Talep(
-        tur=tur,
+        tur=TalepTuru.AKSESUAR,
         donanim_tipi=donanim_tipi,
         ifs_no=ifs_no,
         miktar=miktar,
         marka=marka,
         model=model,
-        envanter_no=envanter_no,
-        sorumlu_personel=sorumlu_personel,
-        bagli_envanter_no=bagli_envanter_no,
-        lisans_adi=lisans_adi,
         aciklama=aciklama,
     )
     db.add(talep)
