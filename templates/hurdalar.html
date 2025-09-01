@@ -48,9 +48,9 @@
               </ul>
             </td>
             <td class="text-nowrap">
-              <a href="/inventory/{{ item.id }}" class="btn btn-outline-secondary btn-sm" title="Detayı Göster">
+              <button class="btn btn-outline-secondary btn-sm view-btn" data-id="{{ item.id }}" title="Detayı Göster">
                 <i class="bi bi-eye"></i>
-              </a>
+              </button>
             </td>
           </tr>
           {% endfor %}
@@ -140,6 +140,16 @@
 </div>
 
 <script>
+document.querySelectorAll('#envanter .view-btn').forEach(b=>{
+  b.addEventListener('click', async ()=>{
+    const id = b.dataset.id;
+    const r = await fetch('/scrap/inventory/'+id);
+    const h = await r.text();
+    document.getElementById('hurdaDetayBody').innerHTML = h;
+    new bootstrap.Modal(document.getElementById('hurdaDetayModal')).show();
+  });
+});
+
 document.querySelectorAll('#yazici .view-btn').forEach(b=>{
   b.addEventListener('click', async ()=>{
     const id = b.dataset.id;
