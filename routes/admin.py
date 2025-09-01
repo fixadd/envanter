@@ -7,6 +7,7 @@ import models
 from database import get_db
 from fastapi.templating import Jinja2Templates
 from auth import hash_password
+from security import SessionUser, current_user
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 templates = Jinja2Templates(directory="templates")
@@ -126,6 +127,24 @@ def user_edit_post(
     if password:
         u.password_hash = hash_password(password)
     db.add(u)
+    db.commit()
+    return RedirectResponse(url="/admin#users", status_code=303)
+
+
+@router.post("/users/{uid}/delete")
+def user_delete(
+    uid: int,
+    user: SessionUser = Depends(current_user),
+    db: Session = Depends(get_db),
+):
+    target = db.get(User, uid)
+    if not target:
+        raise HTTPException(404, "Kullanıcı bulunamadı")
+    if target.username.lower() == "admin":
+        raise HTTPException(403, "Admin silinemez")
+    if user.username.lower() != "admin" and target.role == "admin":
+        raise HTTPException(403, "Adminler birbirini silemez")
+    db.delete(target)
     db.commit()
     return RedirectResponse(url="/admin#users", status_code=303)
 
