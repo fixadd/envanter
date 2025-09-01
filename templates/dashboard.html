@@ -40,6 +40,13 @@
 <div class="soft-card p-0">
   <div class="px-3 py-2 border-bottom fw-semibold">Son İşlemler</div>
   <div class="table-responsive p-3 pt-2">
+    {% set islem_map = {
+      "assign": "Atama",
+      "create": "Oluşturma",
+      "edit": "Düzenleme",
+      "stock": "Stok",
+      "scrap": "Hurdaya Ayır"
+    } %}
     <table class="table align-middle">
       <thead>
         <tr>
@@ -55,7 +62,7 @@
         <tr>
           <td>{{ row.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
           <td>{{ row.actor or '-' }}</td>
-          <td>{{ row.action }}</td>
+          <td>{{ islem_map.get(row.action, row.action) }}</td>
           <td>{{ row.no }}</td>
           <td><span class="badge badge-soft-success">Başarılı</span></td>
         </tr>

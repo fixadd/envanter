@@ -4,6 +4,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
+from types import SimpleNamespace
 
 from database import get_db
 from models import (
@@ -13,6 +14,7 @@ from models import (
     LicenseLog,
     Printer,
     StockLog,
+    User,
 )
 
 router = APIRouter()
@@ -85,11 +87,36 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         .all()
     )
 
-    son_islemler = sorted(
-        [*inv_logs, *stock_logs, *license_logs],
-        key=lambda x: x.created_at,
-        reverse=True,
-    )[:5]
+    actors = {
+        log.actor
+        for log in [*inv_logs, *stock_logs, *license_logs]
+        if getattr(log, "actor", None)
+    }
+    user_map = {}
+    if actors:
+        users = (
+            db.query(
+                User.username, User.first_name, User.last_name, User.full_name
+            )
+            .filter(User.username.in_(actors))
+            .all()
+        )
+        for u in users:
+            full_name = u.full_name or f"{u.first_name} {u.last_name}".strip()
+            user_map[u.username] = full_name or u.username
+
+    son_islemler = [
+        SimpleNamespace(
+            created_at=log.created_at,
+            actor=user_map.get(log.actor, log.actor),
+            action=log.action,
+            no=log.no,
+        )
+        for log in [*inv_logs, *stock_logs, *license_logs]
+    ]
+
+    son_islemler.sort(key=lambda x: x.created_at, reverse=True)
+    son_islemler = son_islemler[:5]
 
     stats = {
         "toplam_cihaz": toplam_cihaz,
