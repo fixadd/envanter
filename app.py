@@ -21,7 +21,7 @@ from auth import (
     hash_password,
 )
 from routers import (
-    home,
+    home as home_router,
     inventory as inventory_router,
     license as license_router,
     printers as printers_router,
@@ -115,7 +115,9 @@ def home(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
 
 # --- Routers (korumalı) -------------------------------------------------------
-app.include_router(home.router, prefix="", dependencies=[Depends(current_user)])
+app.include_router(
+    home_router.router, prefix="", dependencies=[Depends(current_user)]
+)
 app.include_router(panel_router.router, dependencies=[Depends(current_user)])
 app.include_router(inventory_router.router, dependencies=[Depends(current_user)])
 app.include_router(license_router.router, dependencies=[Depends(current_user)])
