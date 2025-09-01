@@ -109,10 +109,12 @@ app.state.templates = templates
 
 # --- Public Routes -----------------------------------------------------------
 @app.get("/", response_class=HTMLResponse)
-def home(request: Request):
-    """Render public landing page."""
+def root(request: Request):
+    """Redirect base URL depending on authentication state."""
 
-    return templates.TemplateResponse("home.html", {"request": request})
+    if request.session.get("user_id"):
+        return RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
 
 # --- Routers (korumalı) -------------------------------------------------------
 app.include_router(
