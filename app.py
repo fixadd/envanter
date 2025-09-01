@@ -61,6 +61,7 @@ if not SESSION_SECRET or len(SESSION_SECRET) < 32:
 DEFAULT_ADMIN_USERNAME = os.getenv("DEFAULT_ADMIN_USERNAME", "admin")
 DEFAULT_ADMIN_PASSWORD = os.getenv("DEFAULT_ADMIN_PASSWORD", "admin123")
 DEFAULT_ADMIN_FULLNAME = os.getenv("DEFAULT_ADMIN_FULLNAME", "Sistem Yöneticisi")
+SESSION_HTTPS_ONLY = os.getenv("SESSION_HTTPS_ONLY", "true").lower() in ("1", "true", "t", "yes")
 
 # --- App & Middleware ---------------------------------------------------------
 app = FastAPI(title="Envanter Takip – Login")
@@ -88,7 +89,7 @@ app.add_middleware(
     secret_key=SESSION_SECRET,
     max_age=60 * 60 * 8,
     same_site="lax",
-    https_only=False,
+    https_only=SESSION_HTTPS_ONLY,
 )
 
 # Statik dosyalar ve şablonlar
