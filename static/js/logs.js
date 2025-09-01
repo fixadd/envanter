@@ -1,30 +1,33 @@
 // Simple search & action filtering for logs page
 (function () {
-  function setupFilter(inputId, tableSelector, actionSelectId) {
+  function setupFilter(inputId, tableSelector, selectId, dataAttr) {
     const input = document.getElementById(inputId);
-    const actionSel = document.getElementById(actionSelectId);
-    if (!input && !actionSel) return;
+    const select = document.getElementById(selectId);
+    if (!input && !select) return;
     const rows = document.querySelectorAll(`${tableSelector} tbody tr`);
 
     function apply() {
       const q = input ? input.value.toLowerCase() : "";
-      const act = actionSel ? actionSel.value : "";
+      const selVal = select ? select.value : "";
       rows.forEach((row) => {
         const text = row.textContent.toLowerCase();
-        const actionCell = row.querySelector('td[data-action]');
-        const action = actionCell ? actionCell.getAttribute('data-action') : "";
+        let attrVal = "";
+        if (select && dataAttr) {
+          const cell = row.querySelector(`[${dataAttr}]`);
+          attrVal = cell ? cell.getAttribute(dataAttr) : "";
+        }
         const matchText = !q || text.includes(q);
-        const matchAction = !act || action === act;
-        row.classList.toggle('d-none', !(matchText && matchAction));
+        const matchSelect = !selVal || attrVal === selVal;
+        row.classList.toggle('d-none', !(matchText && matchSelect));
       });
     }
 
     if (input) input.addEventListener('input', apply);
-    if (actionSel) actionSel.addEventListener('change', apply);
+    if (select) select.addEventListener('change', apply);
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    setupFilter('searchUserLogs', '#userlogs', 'filterUserAction');
-    setupFilter('searchInventoryLogs', '#inventorylogs', 'filterInventoryAction');
+    setupFilter('searchUserLogs', '#userlogs', 'filterUserName', 'data-user');
+    setupFilter('searchInventoryLogs', '#inventorylogs', 'filterInventoryNo', 'data-inv');
   });
 })();

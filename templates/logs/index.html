@@ -18,13 +18,13 @@
   <div class="tab-pane fade show active" id="userlogs" role="tabpanel" aria-labelledby="userlogs-tab">
     <div class="card p-0">
       <div class="p-2 d-flex justify-content-end gap-2">
-        <select id="filterUserAction" class="form-select form-select-sm" style="max-width:160px;">
-          <option value="">İşlem...</option>
-          {% for key, val in islem_map.items() %}
-          <option value="{{ key }}">{{ val }}</option>
+        <select id="filterUserName" class="form-select form-select-sm" style="max-width:160px;">
+          <option value="">Kullanıcı...</option>
+          {% for u in users %}
+          <option value="{{ u }}">{{ u }}</option>
           {% endfor %}
         </select>
-        <input type="text" id="searchUserLogs" class="form-control form-control-sm" placeholder="Ara..." style="max-width:200px;">
+        <input type="text" id="searchUserLogs" class="form-control form-control-sm py-0" placeholder="Ara..." style="max-width:200px;">
       </div>
       <div class="table-responsive">
         <table class="table table-sm table-striped mb-0">
@@ -39,7 +39,7 @@
           <tbody>
           {% for log, inv_no in user_logs %}
             <tr>
-              <td>{{ log.actor }}</td>
+              <td data-user="{{ log.actor }}">{{ log.actor }}</td>
               <td data-action="{{ log.action }}">{{ islem_map.get(log.action, log.action) }}</td>
               <td>{{ inv_no }}</td>
               <td>{{ log.created_at.strftime("%d.%m.%Y %H:%M:%S") }}</td>
@@ -55,13 +55,13 @@
   <div class="tab-pane fade" id="inventorylogs" role="tabpanel" aria-labelledby="inventorylogs-tab">
     <div class="card p-0">
       <div class="p-2 d-flex justify-content-end gap-2">
-        <select id="filterInventoryAction" class="form-select form-select-sm" style="max-width:160px;">
-          <option value="">İşlem...</option>
-          {% for key, val in islem_map.items() %}
-          <option value="{{ key }}">{{ val }}</option>
+        <select id="filterInventoryNo" class="form-select form-select-sm" style="max-width:160px;">
+          <option value="">Envanter No...</option>
+          {% for no in inventory_numbers %}
+          <option value="{{ no }}">{{ no }}</option>
           {% endfor %}
         </select>
-        <input type="text" id="searchInventoryLogs" class="form-control form-control-sm" placeholder="Ara..." style="max-width:200px;">
+        <input type="text" id="searchInventoryLogs" class="form-control form-control-sm py-0" placeholder="Ara..." style="max-width:200px;">
       </div>
       <div class="table-responsive">
         <table class="table table-sm table-striped mb-0">
@@ -78,7 +78,7 @@
           <tbody>
           {% for log, inv_no in inventory_logs %}
             <tr>
-              <td>{{ inv_no }}</td>
+              <td data-inv="{{ inv_no }}">{{ inv_no }}</td>
               <!-- İşlem Türkçeleştirme -->
               <td data-action="{{ log.action }}">{{ islem_map.get(log.action, log.action) }}</td>
 
