@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Ana Sayfa{% endblock %}
+
+{% block content %}
+  <!-- Sayfa içeriğin -->
+  <div class="container position-relative" style="z-index:2;">
+    <div class="py-5 text-center text-light">
+      <h1 class="fw-bold mb-2">Envanter Yönetimi</h1>
+      <p class="lead opacity-75 mb-0">Hoş geldiniz</p>
+    </div>
+  </div>
+
+  <!-- Particles canvas -->
+  <div id="tsparticles"></div>
+
+  <style>
+    /* Arka plan koyu dursun; içerik üstte */
+    html, body { height:100%; background:#0b1324; }
+    #tsparticles{
+      position:fixed; inset:0; width:100%; height:100%;
+      z-index:1;      /* içerik (z=2) üstte */
+    }
+    /* Hareket hassasiyeti olanlar için animasyonu kapat */
+    @media (prefers-reduced-motion: reduce){
+      #tsparticles{ display:none; }
+    }
+  </style>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<!-- tsParticles CDN (bundle) -->
+<script src="https://cdn.jsdelivr.net/npm/tsparticles@3/tsparticles.bundle.min.js" defer></script>
+
+<script defer>
+document.addEventListener("DOMContentLoaded", async () => {
+  await tsParticles.load({
+    id: "tsparticles",
+    options: {
+      background: { color: "#0b1324" },
+      fpsLimit: 60,
+      detectRetina: true,
+      fullScreen: { enable: false },     // fixed container
+      particles: {
+        number: { value: 70, density: { enable: true, area: 800 } },
+        color: { value: "#9ecbff" },
+        shape: { type: "circle" },
+        opacity: { value: 0.5 },
+        size: { value: { min: 1, max: 3 } },
+        links: { enable: true, color: "#5da9ff", opacity: 0.35, distance: 140, width: 1 },
+        move: { enable: true, speed: 1.1, outModes: { default: "out" } }
+      },
+      interactivity: {
+        events: {
+          onHover: { enable: true, mode: "grab" },
+          resize: true
+        },
+        modes: {
+          grab: { distance: 140, links: { opacity: 0.6 } }
+        }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}
