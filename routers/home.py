@@ -6,7 +6,14 @@ from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import Inventory, InventoryLog, License, Printer
+from models import (
+    Inventory,
+    InventoryLog,
+    License,
+    LicenseLog,
+    Printer,
+    StockLog,
+)
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -49,7 +56,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     except Exception:
         bekleyen_talep = 0
 
-    son_islemler = (
+    inv_logs = (
         db.query(
             InventoryLog.created_at,
             InventoryLog.actor,
@@ -57,10 +64,32 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             Inventory.no.label("no"),
         )
         .join(Inventory, Inventory.id == InventoryLog.inventory_id)
-        .order_by(InventoryLog.created_at.desc())
-        .limit(5)
         .all()
     )
+
+    stock_logs = db.query(
+        StockLog.tarih.label("created_at"),
+        StockLog.actor,
+        StockLog.islem.label("action"),
+        StockLog.donanim_tipi.label("no"),
+    ).all()
+
+    license_logs = (
+        db.query(
+            LicenseLog.tarih.label("created_at"),
+            LicenseLog.islem_yapan.label("actor"),
+            LicenseLog.islem.label("action"),
+            License.lisans_adi.label("no"),
+        )
+        .join(License, License.id == LicenseLog.license_id)
+        .all()
+    )
+
+    son_islemler = sorted(
+        [*inv_logs, *stock_logs, *license_logs],
+        key=lambda x: x.created_at,
+        reverse=True,
+    )[:5]
 
     stats = {
         "toplam_cihaz": toplam_cihaz,
