@@ -300,7 +300,7 @@ def assign(
   db: Session = Depends(get_db),
   user=Depends(current_user),
 ):
-  item = db.query(Inventory).get(item_id)
+  item = db.get(Inventory, item_id)
   if not item:
     raise HTTPException(404)
 
@@ -342,7 +342,7 @@ def edit_page(
   db: Session = Depends(get_db),
   user=Depends(current_user),
 ):
-  item = db.query(Inventory).get(item_id)
+  item = db.get(Inventory, item_id)
   if not item:
     raise HTTPException(404)
   return templates.TemplateResponse(
@@ -352,7 +352,7 @@ def edit_page(
 @router.post("/{item_id:int}/edit", name="inventory.edit_post")
 async def edit_post(item_id: int, request: Request, modal: bool = False, db: Session = Depends(get_db), user=Depends(current_user)):
   form = dict(await request.form())
-  item = db.query(Inventory).get(item_id)
+  item = db.get(Inventory, item_id)
   if not item:
     raise HTTPException(404)
 
@@ -378,7 +378,7 @@ async def edit_post(item_id: int, request: Request, modal: bool = False, db: Ses
 
 @router.get("/{item_id:int}/stock", name="inventory.stock")
 def stock_entry(item_id: int, db: Session = Depends(get_db), user=Depends(current_user)):
-  item = db.query(Inventory).get(item_id)
+  item = db.get(Inventory, item_id)
   if not item:
     raise HTTPException(404)
   actor = getattr(user, "full_name", None) or user.username
@@ -405,7 +405,7 @@ def stock_entry(item_id: int, db: Session = Depends(get_db), user=Depends(curren
 
 @router.post("/scrap", name="inventory.scrap")
 def scrap(item_id: int = Form(...), aciklama: str = Form(""), db: Session = Depends(get_db), user=Depends(current_user)):
-  item = db.query(Inventory).get(item_id)
+  item = db.get(Inventory, item_id)
   if not item:
     raise HTTPException(404)
 

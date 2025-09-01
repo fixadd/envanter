@@ -155,7 +155,7 @@ def picker_delete(entity: str, row_id: int, db: Session = Depends(get_db)):
 
     meta = _resolve(entity)
     Model = meta["model"]
-    obj = db.query(Model).get(row_id)
+    obj = db.get(Model, row_id)
     if not obj:
         raise HTTPException(404, "Kayıt bulunamadı.")
     db.delete(obj)
