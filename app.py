@@ -107,6 +107,13 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = register_filters(Jinja2Templates(directory="templates"))
 app.state.templates = templates
 
+# --- Public Routes -----------------------------------------------------------
+@app.get("/", response_class=HTMLResponse)
+def home(request: Request):
+    """Render public landing page."""
+
+    return templates.TemplateResponse("home.html", {"request": request})
+
 # --- Routers (korumalı) -------------------------------------------------------
 app.include_router(home.router, prefix="", dependencies=[Depends(current_user)])
 app.include_router(panel_router.router, dependencies=[Depends(current_user)])
@@ -187,7 +194,7 @@ def _check_csrf(request: Request, token_from_form: Optional[str]) -> bool:
 async def login_form(request: Request):
     # Zaten girişliyse yönlendir
     if request.session.get("user_id"):
-        return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
     csrf_token = _ensure_csrf(request)
     saved_username = request.cookies.get("saved_username", "")
     return templates.TemplateResponse(
@@ -242,7 +249,7 @@ async def login_submit(
     request.session["user_name"] = user.full_name or user.username
     request.session["user_role"] = getattr(user, "role", "")
     _ensure_csrf(request)  # token yenile
-    response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+    response = RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
     if remember:
         response.set_cookie("saved_username", username, max_age=60 * 60 * 24 * 30)
     else:
