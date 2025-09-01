@@ -253,6 +253,7 @@ async def login_submit(
     request.session["user_name"] = user.full_name or user.username
     request.session["user_role"] = getattr(user, "role", "")
     request.session["user_theme"] = getattr(user, "theme", "default")
+    request.session["user_anim"] = getattr(user, "animation", "none")
     _ensure_csrf(request)  # token yenile
     response = RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
     if remember:
