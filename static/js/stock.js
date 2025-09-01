@@ -34,6 +34,7 @@ chkIsLicense?.addEventListener('change', e=>{
 document.getElementById('frmStockAdd')?.addEventListener('submit', async (e)=>{
   e.preventDefault();
   const fd = new FormData(e.target);
+  fd.set('islem', 'girdi');
   if(chkIsLicense?.checked){
     fd.set('miktar','1');
     fd.set('donanim_tipi', fd.get('lisans_adi')||'');
