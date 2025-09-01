@@ -179,7 +179,6 @@ async def login_form(request: Request):
         return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
     csrf_token = _ensure_csrf(request)
     saved_username = request.cookies.get("saved_username", "")
-    saved_password = request.cookies.get("saved_password", "")
     return templates.TemplateResponse(
         "login.html",
         {
@@ -187,7 +186,6 @@ async def login_form(request: Request):
             "csrf_token": csrf_token,
             "error": None,
             "saved_username": saved_username,
-            "saved_password": saved_password,
         },
     )
 
@@ -201,7 +199,6 @@ async def login_submit(
     db: Session = Depends(get_db),
 ):
     saved_username = request.cookies.get("saved_username", "")
-    saved_password = request.cookies.get("saved_password", "")
     if not _check_csrf(request, csrf_token):
         csrf_token = _ensure_csrf(request)
         return templates.TemplateResponse(
@@ -211,7 +208,6 @@ async def login_submit(
                 "csrf_token": csrf_token,
                 "error": "Oturum süresi doldu. Lütfen tekrar deneyin.",
                 "saved_username": saved_username,
-                "saved_password": saved_password,
             },
             status_code=status.HTTP_400_BAD_REQUEST,
         )
@@ -226,7 +222,6 @@ async def login_submit(
                 "csrf_token": csrf_token,
                 "error": "Kullanıcı adı veya parola hatalı.",
                 "saved_username": saved_username,
-                "saved_password": saved_password,
             },
             status_code=status.HTTP_401_UNAUTHORIZED,
         )
@@ -239,10 +234,8 @@ async def login_submit(
     response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
     if remember:
         response.set_cookie("saved_username", username, max_age=60 * 60 * 24 * 30)
-        response.set_cookie("saved_password", password, max_age=60 * 60 * 24 * 30)
     else:
         response.delete_cookie("saved_username")
-        response.delete_cookie("saved_password")
     return response
 
 @app.get("/logout")
