@@ -61,6 +61,7 @@ class User(Base):
     email: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)
     role: Mapped[str] = mapped_column(String(16), default="admin")  # admin/staff/user
     theme: Mapped[str] = mapped_column(String(20), default="default")
+    animation: Mapped[str] = mapped_column(String(20), default="none")
     created_at: Mapped[str] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -471,6 +472,12 @@ def init_db():
             conn.execute(
                 text(
                     "ALTER TABLE users ADD COLUMN theme VARCHAR(20) DEFAULT 'default'"
+                )
+            )
+        if "animation" not in cols:
+            conn.execute(
+                text(
+                    "ALTER TABLE users ADD COLUMN animation VARCHAR(20) DEFAULT 'none'"
                 )
             )
         if "created_at" not in cols:

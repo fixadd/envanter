@@ -15,7 +15,7 @@
   </style>
   <title>{% block title %}{% endblock %}</title>
 </head>
-<body class="theme-{{ request.session.get('user_theme', 'default') }}">
+<body class="theme-{{ request.session.get('user_theme', 'default') }} anim-{{ request.session.get('user_anim', 'none') }}">
   <nav class="navbar navbar-light bg-transparent p-3 pb-0">
     <div class="container-fluid">
       <a class="navbar-brand fw-semibold"></a>
@@ -219,6 +219,16 @@ window.addEventListener("message", (e) => {
       body.theme-purple {
         background: linear-gradient(180deg,#f3e5f5,#d1c4e9);
       }
+      body.anim-gradient {
+        background-size:400% 400%;
+        animation: gradientMove 15s ease infinite;
+      }
+      @keyframes gradientMove {
+        0% {background-position:0% 50%;}
+        50% {background-position:100% 50%;}
+        100% {background-position:0% 50%;}
+      }
+      body:not(.anim-particles) #bg { display:none; }
       #bg {
         position:fixed;
         inset:0;
@@ -227,60 +237,62 @@ window.addEventListener("message", (e) => {
     </style>
 
     <script>
-    const canvas=document.getElementById("bg"),ctx=canvas.getContext("2d");
-    let w,h;
-    function resize(){
-      w=canvas.width=innerWidth;
-      h=canvas.height=innerHeight;
-    }
-    window.addEventListener("resize",resize);
-    resize();
+    if (document.body.classList.contains("anim-particles")) {
+      const canvas=document.getElementById("bg"),ctx=canvas.getContext("2d");
+      let w,h;
+      function resize(){
+        w=canvas.width=innerWidth;
+        h=canvas.height=innerHeight;
+      }
+      window.addEventListener("resize",resize);
+      resize();
 
-    // parçacıklar
-    let particles=[];
-    for(let i=0;i<80;i++){ // nokta sayısı
-      particles.push({
-        x:Math.random()*w,
-        y:Math.random()*h,
-        vx:(Math.random()-.5)*0.3,  // x hızı
-        vy:(Math.random()-.5)*0.3   // y hızı
-      });
-    }
-
-    function draw(){
-      ctx.clearRect(0,0,w,h);
-
-      // noktalar
-      for(let p of particles){
-        p.x+=p.vx; p.y+=p.vy;
-        if(p.x<0||p.x>w) p.vx*=-1;
-        if(p.y<0||p.y>h) p.vy*=-1;
-
-        ctx.beginPath();
-        ctx.arc(p.x,p.y,2,0,Math.PI*2);
-        ctx.fillStyle="rgba(0,120,255,0.7)";
-        ctx.fill();
+      // parçacıklar
+      let particles=[];
+      for(let i=0;i<80;i++){ // nokta sayısı
+        particles.push({
+          x:Math.random()*w,
+          y:Math.random()*h,
+          vx:(Math.random()-.5)*0.3,  // x hızı
+          vy:(Math.random()-.5)*0.3   // y hızı
+        });
       }
 
-      // çizgiler
-      for(let i=0;i<particles.length;i++){
-        for(let j=i+1;j<particles.length;j++){
-          let dx=particles[i].x-particles[j].x;
-          let dy=particles[i].y-particles[j].y;
-          let dist=Math.sqrt(dx*dx+dy*dy);
-          if(dist<140){ // mesafe limit
-            ctx.strokeStyle="rgba(0,120,255,"+(1-dist/140)*0.4+")";
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x,particles[i].y);
-            ctx.lineTo(particles[j].x,particles[j].y);
-            ctx.stroke();
+      function draw(){
+        ctx.clearRect(0,0,w,h);
+
+        // noktalar
+        for(let p of particles){
+          p.x+=p.vx; p.y+=p.vy;
+          if(p.x<0||p.x>w) p.vx*=-1;
+          if(p.y<0||p.y>h) p.vy*=-1;
+
+          ctx.beginPath();
+          ctx.arc(p.x,p.y,2,0,Math.PI*2);
+          ctx.fillStyle="rgba(0,120,255,0.7)";
+          ctx.fill();
+        }
+
+        // çizgiler
+        for(let i=0;i<particles.length;i++){
+          for(let j=i+1;j<particles.length;j++){
+            let dx=particles[i].x-particles[j].x;
+            let dy=particles[i].y-particles[j].y;
+            let dist=Math.sqrt(dx*dx+dy*dy);
+            if(dist<140){ // mesafe limit
+              ctx.strokeStyle="rgba(0,120,255,"+(1-dist/140)*0.4+")";
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x,particles[i].y);
+              ctx.lineTo(particles[j].x,particles[j].y);
+              ctx.stroke();
+            }
           }
         }
-      }
 
-      requestAnimationFrame(draw);
+        requestAnimationFrame(draw);
+      }
+      draw();
     }
-    draw();
     </script>
   </body>
   </html>

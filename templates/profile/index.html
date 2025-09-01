@@ -19,6 +19,14 @@
         <option value="purple" {% if theme == 'purple' %}selected{% endif %}>Mor</option>
       </select>
     </div>
+    <div class="mb-3">
+      <label for="animationSelect" class="form-label">Animasyon</label>
+      <select name="animation" id="animationSelect" class="form-select">
+        <option value="none" {% if animation == 'none' %}selected{% endif %}>Yok</option>
+        <option value="particles" {% if animation == 'particles' %}selected{% endif %}>Parçacıklar</option>
+        <option value="gradient" {% if animation == 'gradient' %}selected{% endif %}>Gradyan</option>
+      </select>
+    </div>
     <button type="submit" class="btn btn-primary">Kaydet</button>
   </form>
 </div>
