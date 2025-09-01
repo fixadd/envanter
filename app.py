@@ -61,7 +61,17 @@ if not SESSION_SECRET or len(SESSION_SECRET) < 32:
 DEFAULT_ADMIN_USERNAME = os.getenv("DEFAULT_ADMIN_USERNAME", "admin")
 DEFAULT_ADMIN_PASSWORD = os.getenv("DEFAULT_ADMIN_PASSWORD", "admin123")
 DEFAULT_ADMIN_FULLNAME = os.getenv("DEFAULT_ADMIN_FULLNAME", "Sistem Yöneticisi")
-SESSION_HTTPS_ONLY = os.getenv("SESSION_HTTPS_ONLY", "true").lower() in ("1", "true", "t", "yes")
+# Varsayılan olarak geliştirme ortamına uygun olsun; üretimde .env ile true yapın
+SESSION_HTTPS_ONLY = os.getenv("SESSION_HTTPS_ONLY", "false").lower() in (
+    "1",
+    "true",
+    "t",
+    "yes",
+)
+if not SESSION_HTTPS_ONLY:
+    print(
+        "WARNING: SESSION cookies are not marked secure; set SESSION_HTTPS_ONLY=true in production."
+    )
 
 # --- App & Middleware ---------------------------------------------------------
 app = FastAPI(title="Envanter Takip – Login")
