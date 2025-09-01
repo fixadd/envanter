@@ -133,6 +133,10 @@ def list_printers(
     durum: Optional[str] = None,
 ):
     query = db.query(Printer)
+    if durum:
+        query = query.filter(Printer.durum == durum)
+    else:
+        query = query.filter(Printer.durum != "hurda")
     if q:
         like = f"%{q}%"
         query = query.filter(
@@ -145,8 +149,6 @@ def list_printers(
             | (Printer.ip_adresi.ilike(like))
             | (Printer.hostname.ilike(like))
         )
-    if durum:
-        query = query.filter(Printer.durum == durum)
 
     printers = query.order_by(Printer.id.desc()).all()
 
