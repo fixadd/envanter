@@ -106,9 +106,20 @@ async def import_inventory(file: UploadFile = File(...)):
 
 
 def current_full_name(request: Request) -> str:
+    """Return the current user's full name if available.
+
+    In environments where the ``AuthenticationMiddleware`` is not installed,
+    accessing ``request.user`` raises an ``AssertionError``.  To avoid this we
+    read the user object directly from the request scope which is populated by
+    the middleware when present.  This keeps the function safe to call in
+    unauthenticated contexts such as tests or simple deployments.
+    """
+
+    user = request.scope.get("user")
+
     return (
         request.session.get("full_name")
-        or getattr(getattr(request, "user", None), "full_name", None)
+        or getattr(user, "full_name", None)
         or "Bilinmeyen Kullanıcı"
     )
 
