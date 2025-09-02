@@ -15,7 +15,8 @@
   <div class="page-section">
     {% if active_key == "envanter" %}
     <div id="envanter">
-      <table class="table table-striped align-top">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover table-sm align-middle">
         <thead>
           <tr>
             <th>Envanter No</th>
@@ -54,11 +55,13 @@
           </tr>
           {% endfor %}
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
     {% elif active_key == "lisans" %}
     <div id="lisans">
-      <table class="table table-sm align-middle">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover table-sm align-middle">
         <thead>
           <tr><th>No</th><th>Lisans Adı</th><th>Key</th><th>Sorumlu</th><th>Bağlı Envanter</th><th>Not</th><th></th></tr>
         </thead>
@@ -81,12 +84,13 @@
           <tr><td colspan="7" class="text-muted">Kayıt yok.</td></tr>
           {% endfor %}
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
     {% else %}
     <div id="yazici">
       <div class="table-responsive">
-        <table class="table table-sm align-middle">
+        <table class="table table-striped table-hover table-sm align-middle">
           <thead class="table-light">
             <tr>
               <th>ID</th>
