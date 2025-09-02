@@ -1,18 +1,55 @@
-// Donanım tipi lookup doldur
-fetch('/api/lookup/donanim_tipi')
-  .then(r=>r.json())
-  .then(d=>{
-    const sel = document.getElementById('donanim_tipi');
-    if(!sel) return;
-    sel.innerHTML = '<option value="">Seçiniz</option>' + (d.items||[]).map(x=>`<option>${x.ad}</option>`).join('');
-  });
+// Lookup'ları picker API'sinden doldur
+async function loadPicker(sel, url){
+  if(!sel) return;
+  try{
+    const res = await fetch(url, {headers:{Accept:'application/json'}});
+    if(!res.ok) throw new Error(res.status);
+    let data = await res.json();
+    if(!Array.isArray(data)) data = data.rows || data.items || [];
+    sel.innerHTML = '<option value="">Seçiniz</option>' +
+      data.map(x=>`<option value="${x.text||x.name||''}" data-id="${x.id||''}">${x.text||x.name||''}</option>`).join('');
+  }catch(e){
+    console.error('lookup failed', url, e);
+    sel.innerHTML = '<option value="">Veri alınamadı</option>';
+  }
+}
+
+const donanimSel = document.getElementById('donanim_tipi');
+const markaSel    = document.getElementById('marka');
+const modelSel    = document.getElementById('model');
+const lisansSel   = document.getElementById('lisans_adi');
+
+function initLookups(){
+  loadPicker(donanimSel, '/api/picker/donanim_tipi');
+  loadPicker(markaSel, '/api/picker/marka').then(()=> loadModels());
+  loadPicker(lisansSel, '/api/picker/lisans_adi');
+}
+
+document.getElementById('stockAddModal')?.addEventListener('shown.bs.modal', initLookups);
+
+async function loadModels(){
+  if(!modelSel) return;
+  const opt = markaSel?.selectedOptions[0];
+  const markaId = opt?.dataset.id;
+  modelSel.innerHTML = '<option value="">Seçiniz</option>';
+  if(!markaId) return;
+  try{
+    const res = await fetch(`/api/picker/model?marka_id=${markaId}`, {headers:{Accept:'application/json'}});
+    if(!res.ok) return;
+    let data = await res.json();
+    if(!Array.isArray(data)) data = data.rows || data.items || [];
+    modelSel.innerHTML = '<option value="">Seçiniz</option>' +
+      data.map(x=>`<option value="${x.text||x.name||''}" data-id="${x.id||''}">${x.text||x.name||''}</option>`).join('');
+  }catch(e){ console.error('model lookup failed', e); }
+}
+
+markaSel?.addEventListener('change', loadModels);
 
 // Ekle form submit
 const chkIsLicense = document.getElementById('chkIsLicense');
 const hardwareFields = document.getElementById('hardwareFields');
 const licenseFields  = document.getElementById('licenseFields');
 const miktarInput    = document.getElementById('miktar');
-const donanimSel     = document.getElementById('donanim_tipi');
 const rowMiktar      = document.getElementById('rowMiktar');
 
 chkIsLicense?.addEventListener('change', e=>{
