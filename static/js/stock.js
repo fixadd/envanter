@@ -49,24 +49,35 @@ document.getElementById('frmStockAdd')?.addEventListener('submit', async (e)=>{
 const sectionLicense  = document.getElementById('sectionLicense');
 const sectionInventory= document.getElementById('sectionInventory');
 const sectionPrinter  = document.getElementById('sectionPrinter');
+const licSel          = document.getElementById('selLicense');
+const invSel          = document.getElementById('selInventory');
+const prnSel          = document.getElementById('selPrinter');
+const stockSel        = document.getElementById('selStockItem');
 const showSection = (t)=>{
   sectionLicense?.classList.toggle('d-none', t!=='license');
   sectionInventory?.classList.toggle('d-none', t!=='inventory');
   sectionPrinter?.classList.toggle('d-none', t!=='printer');
+  if(licSel) licSel.required = (t==='license');
+  if(invSel) invSel.required = (t==='inventory');
+  if(prnSel) prnSel.required = (t==='printer');
 };
 ['ttLisans','ttEnvanter','ttYazici'].forEach(id=>{
   document.getElementById(id)?.addEventListener('change', e=> showSection(e.target.value));
 });
 
 // Kaynakları doldur
+if(stockSel){
+  fetch('/api/stock/status')
+    .then(r=>r.json())
+    .then(d=>{
+      stockSel.innerHTML = '<option value="">Seçiniz</option>' + Object.entries(d.totals||{}).map(([dt, qty])=>`<option value="${dt}">${dt} (${qty})</option>`).join('');
+    });
+}
 Promise.all([
   fetch('/inventory/assign/sources').then(r=>r.json()), // { users, inventories }
   fetch('/api/licenses/list').then(r=>r.json()),
   fetch('/api/printers/list').then(r=>r.json()),
 ]).then(([src, lic, prn])=>{
-  const invSel = document.getElementById('selInventory');
-  const licSel = document.getElementById('selLicense');
-  const prnSel = document.getElementById('selPrinter');
   if(invSel) invSel.innerHTML = '<option value="">Seçiniz</option>' + (src.inventories||[]).map(i=>`<option value="${i.id}">${i.envanter_no} - ${i.marka||''} ${i.model||''}</option>`).join('');
   if(licSel) licSel.innerHTML = '<option value="">Seçiniz</option>' + (lic.items||[]).map(l=>`<option value="${l.id}">${l.lisans_adi} ${l.lisans_anahtari?('('+l.lisans_anahtari+')'):''}</option>`).join('');
   if(prnSel) prnSel.innerHTML = '<option value="">Seçiniz</option>' + (prn.items||[]).map(p=>`<option value="${p.id}">${p.marka||''} ${p.model||''} ${p.seri_no?('('+p.seri_no+')'):''}</option>`).join('');
