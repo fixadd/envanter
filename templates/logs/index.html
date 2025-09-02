@@ -8,14 +8,16 @@
   "edit": "Düzenleme",
   "scrap": "Hurdaya Ayır"
 } %}
-{{ tabs(
-  items=[
-    {"label":"Kullanıcı Kayıtları","href": url_for('logs_page') ~ "?tab=kullanici","key":"kullanici"},
-    {"label":"Envanter Kayıtları","href": url_for('logs_page') ~ "?tab=envanter","key":"envanter"},
-  ],
-  active_key=active_key
-) }}
-<div class="page-section">
+  <div class="tabs-wrap">
+  {{ tabs(
+    items=[
+      {"label":"Kullanıcı Kayıtları","href": url_for('logs_page') ~ "?tab=kullanici","key":"kullanici"},
+      {"label":"Envanter Kayıtları","href": url_for('logs_page') ~ "?tab=envanter","key":"envanter"},
+    ],
+    active_key=active_key
+  ) }}
+  </div>
+  <div class="page-section">
 {% if active_key == "kullanici" %}
   <div class="card p-0">
     <div class="p-2 d-flex justify-content-end gap-2">
