@@ -1,18 +1,45 @@
-// Donanım tipi lookup doldur
-fetch('/api/lookup/donanim_tipi')
-  .then(r=>r.json())
-  .then(d=>{
-    const sel = document.getElementById('donanim_tipi');
-    if(!sel) return;
-    sel.innerHTML = '<option value="">Seçiniz</option>' + (d.items||[]).map(x=>`<option>${x.ad}</option>`).join('');
-  });
+// Lookup'ları picker API'sinden doldur
+async function loadPicker(sel, url){
+  if(!sel) return;
+  try{
+    const res = await fetch(url, {headers:{Accept:'application/json'}});
+    const data = await res.json();
+    sel.innerHTML = '<option value="">Seçiniz</option>' + (data||[]).map(x=>`<option value="${x.text}" data-id="${x.id||''}">${x.text}</option>`).join('');
+  }catch(e){
+    console.error('lookup failed', url, e);
+  }
+}
+
+const donanimSel = document.getElementById('donanim_tipi');
+const markaSel    = document.getElementById('marka');
+const modelSel    = document.getElementById('model');
+const lisansSel   = document.getElementById('lisans_adi');
+
+loadPicker(donanimSel, '/api/picker/donanim_tipi');
+loadPicker(markaSel, '/api/picker/marka').then(()=> loadModels());
+loadPicker(lisansSel, '/api/picker/lisans_adi');
+
+async function loadModels(){
+  if(!modelSel) return;
+  const opt = markaSel?.selectedOptions[0];
+  const markaId = opt?.dataset.id;
+  modelSel.innerHTML = '<option value="">Seçiniz</option>';
+  if(!markaId) return;
+  try{
+    const res = await fetch(`/api/picker/model?marka_id=${markaId}`, {headers:{Accept:'application/json'}});
+    if(!res.ok) return;
+    const data = await res.json();
+    modelSel.innerHTML = '<option value="">Seçiniz</option>' + (data||[]).map(x=>`<option value="${x.text}" data-id="${x.id||''}">${x.text}</option>`).join('');
+  }catch(e){ console.error('model lookup failed', e); }
+}
+
+markaSel?.addEventListener('change', loadModels);
 
 // Ekle form submit
 const chkIsLicense = document.getElementById('chkIsLicense');
 const hardwareFields = document.getElementById('hardwareFields');
 const licenseFields  = document.getElementById('licenseFields');
 const miktarInput    = document.getElementById('miktar');
-const donanimSel     = document.getElementById('donanim_tipi');
 const rowMiktar      = document.getElementById('rowMiktar');
 
 chkIsLicense?.addEventListener('change', e=>{
