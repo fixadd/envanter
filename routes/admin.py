@@ -12,8 +12,8 @@ from security import SessionUser, current_user
 router = APIRouter(prefix="/admin", tags=["Admin"])
 templates = Jinja2Templates(directory="templates")
 
-@router.get("", response_class=HTMLResponse)
-def admin_index(request: Request, q: str | None = None, db: Session = Depends(get_db)):
+@router.get("", response_class=HTMLResponse, name="admin_index")
+def admin_index(request: Request, tab: str = "kullanici", q: str | None = None, db: Session = Depends(get_db)):
     query = db.query(User)
     if q:
         like = f"%{q}%"
@@ -48,7 +48,8 @@ def admin_index(request: Request, q: str | None = None, db: Session = Depends(ge
         "lookup_markalar": get("marka"),
         "lookup_modeller": get("model"),
     }
-    return templates.TemplateResponse("admin.html", ctx)
+    ctx["tab"] = tab
+    return templates.TemplateResponse("admin/index.html", ctx)
 
 @router.post("/users/create")
 def create_user(
