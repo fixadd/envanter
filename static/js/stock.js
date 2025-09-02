@@ -50,6 +50,7 @@ document.addEventListener('shown.bs.modal', async (ev) => {
   if (ev.target.id !== 'stokAtamaModal') return;
   await sa_loadStocks();
   await sa_loadSources();
+  sa_applyFieldRules();
 });
 
 async function sa_loadStocks() {
@@ -74,7 +75,7 @@ async function sa_loadStocks() {
 }
 
 async function sa_loadSources() {
-  const fillSelect = (el, items, valueKey='id', labelKey='ad') => {
+  const fillSelect = (el, items, valueKey = 'id', labelKey = 'ad') => {
     el.innerHTML = `<option value="">Seçiniz...</option>`;
     items.forEach(x => {
       const opt = document.createElement('option');
@@ -105,21 +106,61 @@ async function sa_loadSources() {
   }
 }
 
-document.getElementById('sa_stock')?.addEventListener('change', (e) => {
-  const opt = e.target.selectedOptions[0];
-  const meta = document.getElementById('sa_stock_meta');
-  if (!opt || !opt.value) {
-    meta?.classList.add('d-none');
-    return;
-  }
-  document.getElementById('sa_meta_tip').textContent = opt.dataset.tip || '-';
-  document.getElementById('sa_meta_ifs').textContent = opt.dataset.ifs || '-';
-  document.getElementById('sa_meta_qty').textContent = opt.dataset.qty || '0';
-  meta?.classList.remove('d-none');
+function sa_bindStockMeta() {
+  const sel = document.getElementById('sa_stock');
+  if (!sel) return;
+  sel.addEventListener('change', () => {
+    const opt = sel.selectedOptions[0];
+    const meta = document.getElementById('sa_stock_meta');
+    if (!opt || !opt.value) {
+      meta?.classList.add('d-none');
+      return;
+    }
+    document.getElementById('sa_meta_tip').textContent = opt.dataset.tip || '-';
+    document.getElementById('sa_meta_ifs').textContent = opt.dataset.ifs || '-';
+    document.getElementById('sa_meta_qty').textContent = opt.dataset.qty || '0';
+    meta?.classList.remove('d-none');
+    const miktar = document.getElementById('sa_miktar');
+    if (miktar) {
+      const max = opt.dataset.qty || 1;
+      miktar.max = max;
+      if (Number(miktar.value) > Number(max)) miktar.value = max;
+    }
+  });
+}
 
-  const miktar = document.getElementById('sa_miktar');
-  miktar.max = opt.dataset.qty || 1;
-  if (Number(miktar.value) > Number(miktar.max)) miktar.value = miktar.max;
+function sa_applyFieldRules() {
+  const active = document.querySelector('#sa_tabs .nav-link.active');
+  const isLic = active && active.dataset.bsTarget?.includes('lisans');
+  const isEnv = active && active.dataset.bsTarget?.includes('envanter');
+  const isYaz = active && active.dataset.bsTarget?.includes('yazici');
+
+  const show = (el, on) => el && el.classList.toggle('d-none', !on);
+  const req = (el, on) => {
+    if (!el) return;
+    if (on) el.setAttribute('required', 'required');
+    else el.removeAttribute('required');
+  };
+
+  show(document.getElementById('sa_tab_lisans'), isLic);
+  show(document.getElementById('sa_tab_envanter'), isEnv);
+  show(document.getElementById('sa_tab_yazici'), isYaz);
+
+  req(document.getElementById('sa_lisans'), isLic);
+  req(document.getElementById('sa_envanter'), isEnv);
+  req(document.getElementById('sa_yazici'), isYaz);
+}
+
+function sa_bindTabChange() {
+  document.querySelectorAll('#sa_tabs .nav-link').forEach(b =>
+    b.addEventListener('shown.bs.tab', sa_applyFieldRules)
+  );
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  sa_bindStockMeta();
+  sa_bindTabChange();
+  sa_applyFieldRules();
 });
 
 document.getElementById('sa_submit')?.addEventListener('click', async () => {
