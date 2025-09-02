@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "components/main_tabs.html" import main_tabs %}
+{% from "components/main_tabs.html" import main_tabs with context %}
 {% from "components/tabs.html" import tabs %}
 {% set active_key = request.query_params.get("durum") or "aktif" %}
 {% block title %}Talep Takip{% endblock %}
