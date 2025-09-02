@@ -64,3 +64,62 @@
   margin-left: 0 !important;
   margin-right: 0 !important;
 }
+/* Ensure nav tabs render correctly even without Bootstrap */
+.nav-tabs {
+  list-style: none;
+  padding-left: 0;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.nav-tabs .nav-link {
+  display: block;
+  padding: .5rem 1rem;
+  border: 1px solid transparent;
+  border-top-left-radius: .25rem;
+  border-top-right-radius: .25rem;
+  margin-bottom: -1px;
+}
+
+.nav-tabs .nav-link:hover {
+  border-color: #e9ecef #e9ecef #dee2e6;
+}
+
+.nav-tabs .nav-link.active {
+  color: #495057;
+  background-color: #fff;
+  border-color: #dee2e6 #dee2e6 #fff;
+}
+
+/* Basic table styling for environments without Bootstrap */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: .5rem;
+  border: 1px solid #dee2e6;
+}
+
+.table thead th {
+  background-color: #f8f9fa;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, .05);
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 0, 0, .075);
+}
+
+.table-sm th,
+.table-sm td {
+  padding: .25rem;
+}
+
+.align-middle th,
+.align-middle td {
+  vertical-align: middle;
+}
