@@ -28,7 +28,7 @@
           </li>
         </ul>
       </div>
-      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#stockAssignModal">Atama</button>
+      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#stokAtamaModal">Atama</button>
     </div>
   </div>
 
@@ -156,47 +156,120 @@
 </div>
 
 <!-- STOK ATAMA MODALI -->
-<div class="modal fade" id="stockAssignModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <form id="frmStockAssign" class="modal-content">
+<div class="modal fade" id="stokAtamaModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Stok Atama</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
       </div>
+
       <div class="modal-body">
-        <label class="form-label">Stok</label>
-        <select id="selStockItem" name="donanim_tipi" class="form-select mb-3" required></select>
-        <label class="form-label d-block">Atama Türü</label>
-        <div class="btn-group w-100 mb-3" role="group">
-          <input type="radio" class="btn-check" name="targetType" id="ttLisans" value="license">
-          <label class="btn btn-outline-primary" for="ttLisans">Lisans</label>
-          <input type="radio" class="btn-check" name="targetType" id="ttEnvanter" value="inventory">
-          <label class="btn btn-outline-primary" for="ttEnvanter">Envanter</label>
-          <input type="radio" class="btn-check" name="targetType" id="ttYazici" value="printer">
-          <label class="btn btn-outline-primary" for="ttYazici">Yazıcı</label>
-        </div>
+        <form id="stockAssignForm" class="vstack gap-3">
+          <!-- 1) STOK SEÇ (Stok Durumu'ndan) -->
+          <div>
+            <label class="form-label fw-semibold">Stok Seç</label>
+            <select id="sa_stock" class="form-select" required>
+              <option value="">Seçiniz...</option>
+            </select>
+            <div id="sa_stock_meta" class="small text-muted mt-1 d-none">
+              <span id="sa_meta_tip"></span> ·
+              IFS: <span id="sa_meta_ifs"></span> ·
+              Mevcut: <span id="sa_meta_qty"></span>
+            </div>
+          </div>
 
-        <div id="sectionLicense" class="d-none">
-          <label class="form-label">Lisans</label>
-          <select id="selLicense" name="license_id" class="form-select"></select>
-        </div>
-        <div id="sectionInventory" class="d-none">
-          <label class="form-label">Envanter</label>
-          <select id="selInventory" name="inventory_id" class="form-select"></select>
-        </div>
-        <div id="sectionPrinter" class="d-none">
-          <label class="form-label">Yazıcı</label>
-          <select id="selPrinter" name="printer_id" class="form-select"></select>
-        </div>
+          <!-- 2) Atama Türü -->
+          <div>
+            <label class="form-label fw-semibold">Atama Türü</label>
+            <ul class="nav nav-tabs" id="sa_tabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#sa_tab_lisans" type="button" role="tab">Lisans</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sa_tab_envanter" type="button" role="tab">Envanter</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sa_tab_yazici" type="button" role="tab">Yazıcı</button>
+              </li>
+            </ul>
 
-        <input type="hidden" id="stock_row_id" name="stock_row_id">
-        <input type="hidden" name="miktar" value="1">
+            <div class="tab-content border border-top-0 p-3 rounded-bottom">
+              <!-- LISANS -->
+              <div class="tab-pane fade show active" id="sa_tab_lisans" role="tabpanel">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Lisans</label>
+                    <select id="sa_lisans" class="form-select">
+                      <option value="">Seçiniz...</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Sorumlu Personel</label>
+                    <select id="sa_user" class="form-select">
+                      <option value="">Seçiniz...</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Bağlı Envanter (opsiyonel)</label>
+                    <select id="sa_envanter_for_lic" class="form-select">
+                      <option value="">Seçiniz...</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ENVANTER -->
+              <div class="tab-pane fade" id="sa_tab_envanter" role="tabpanel">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Hedef Envanter</label>
+                    <select id="sa_envanter" class="form-select">
+                      <option value="">Seçiniz...</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Sorumlu Personel (opsiyonel)</label>
+                    <select id="sa_user2" class="form-select">
+                      <option value="">Seçiniz...</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- YAZICI -->
+              <div class="tab-pane fade" id="sa_tab_yazici" role="tabpanel">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Hedef Yazıcı</label>
+                    <select id="sa_yazici" class="form-select">
+                      <option value="">Seçiniz...</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3) Genel Alanlar -->
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Miktar</label>
+              <input id="sa_miktar" type="number" class="form-control" value="1" min="1">
+            </div>
+            <div class="col-md-8">
+              <label class="form-label">Notlar (opsiyonel)</label>
+              <input id="sa_not" type="text" class="form-control" placeholder="İsteğe bağlı açıklama">
+            </div>
+          </div>
+        </form>
       </div>
+
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-        <button class="btn btn-primary" type="submit">Atamayı Yap</button>
+        <button id="sa_submit" class="btn btn-primary">Atamayı Yap</button>
       </div>
-    </form>
+    </div>
   </div>
 </div>
 {% endblock %}
