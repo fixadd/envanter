@@ -1,11 +1,9 @@
 {% extends "base.html" %}
-{% from "components/main_tabs.html" import main_tabs with context %}
 {% from "components/tabs.html" import tabs %}
 {% set active_key = request.query_params.get("tur") or "envanter" %}
 {% block title %}Hurdalar{% endblock %}
 {% block content %}
 <div class="container-fluid p-3">
-  {{ main_tabs('hurdalar') }}
   {{ tabs(
     items=[
       {"label":"Envanter Hurda","href": url_for('inventory.hurdalar') ~ "?tur=envanter","key":"envanter"},
