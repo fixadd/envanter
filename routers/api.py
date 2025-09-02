@@ -8,9 +8,9 @@ router = APIRouter(prefix="/api", tags=["API"])
 
 # Basit lookup tablosu
 ENTITY_TABLE = {
-    # "donanim_tipi": models.HardwareType,
-    # "kullanim_alani": models.UsageArea,
-    # "license_names": models.LicenseName,  # lisans adlarını ayrı tabloda tutuyorsan
+    "donanim_tipi": models.HardwareType,
+    "kullanim_alani": models.UsageArea,
+    "license_names": models.LicenseName,  # lisans adlarını ayrı tabloda tutuyorsan
 }
 
 
