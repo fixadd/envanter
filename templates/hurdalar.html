@@ -4,14 +4,16 @@
 {% block title %}Hurdalar{% endblock %}
 {% block content %}
 <div class="container-fluid p-3">
-  {{ tabs(
-    items=[
-      {"label":"Envanter Hurda","href": url_for('inventory.hurdalar') ~ "?tur=envanter","key":"envanter"},
-      {"label":"Lisans","href": url_for('inventory.hurdalar') ~ "?tur=lisans","key":"lisans"},
-      {"label":"Yazıcı","href": url_for('inventory.hurdalar') ~ "?tur=yazici","key":"yazici"},
-    ],
-    active_key=active_key
-  ) }}
+  <div class="tabs-wrap">
+    {{ tabs(
+      items=[
+        {"label":"Envanter Hurda","href": url_for('inventory.hurdalar') ~ "?tur=envanter","key":"envanter"},
+        {"label":"Lisans","href": url_for('inventory.hurdalar') ~ "?tur=lisans","key":"lisans"},
+        {"label":"Yazıcı","href": url_for('inventory.hurdalar') ~ "?tur=yazici","key":"yazici"},
+      ],
+      active_key=active_key
+    ) }}
+  </div>
   <div class="page-section">
     {% if active_key == "envanter" %}
     <div id="envanter">
