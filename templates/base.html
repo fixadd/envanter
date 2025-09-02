@@ -14,6 +14,19 @@
     nav.navbar, .container-fluid { position:relative; }
     nav.navbar { z-index:1; }
   </style>
+  <style>
+    /* Admin panel görünümü ile aynı, yumuşak köşeler ve aktif sekmeyi öne çıkar */
+    .nav-tabs .nav-link {
+      border-radius: .5rem .5rem 0 0;
+      font-weight: 500;
+    }
+    .nav-tabs .nav-link.active {
+      background: #fff;
+      border-color: #dee2e6 #dee2e6 #fff;
+    }
+    /* Sayfa üstü ile sekmeler arasında nefes alanı */
+    .page-section { background: #fff; border: 1px solid #dee2e6; border-top: 0; border-radius: 0 0 .75rem .75rem; padding: 1rem; }
+  </style>
   <title>{% block title %}{% endblock %}</title>
 </head>
 <body class="theme-{{ request.session.get('user_theme', 'default') }} anim-{{ request.session.get('user_anim', 'none') }}">
