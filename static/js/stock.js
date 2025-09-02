@@ -45,52 +45,134 @@ document.getElementById('frmStockAdd')?.addEventListener('submit', async (e)=>{
   if(j.ok){ location.reload(); } else { alert(j.error || 'Kayıt başarısız'); }
 });
 
-// Bölümleri göster/gizle
-const sectionLicense  = document.getElementById('sectionLicense');
-const sectionInventory= document.getElementById('sectionInventory');
-const sectionPrinter  = document.getElementById('sectionPrinter');
-const licSel          = document.getElementById('selLicense');
-const invSel          = document.getElementById('selInventory');
-const prnSel          = document.getElementById('selPrinter');
-const stockSel        = document.getElementById('selStockItem');
-const showSection = (t)=>{
-  sectionLicense?.classList.toggle('d-none', t!=='license');
-  sectionInventory?.classList.toggle('d-none', t!=='inventory');
-  sectionPrinter?.classList.toggle('d-none', t!=='printer');
-  if(licSel) licSel.required = (t==='license');
-  if(invSel) invSel.required = (t==='inventory');
-  if(prnSel) prnSel.required = (t==='printer');
-};
-['ttLisans','ttEnvanter','ttYazici'].forEach(id=>{
-  document.getElementById(id)?.addEventListener('change', e=> showSection(e.target.value));
+// --- Yeni stok atama modali -------------------------------------------------
+document.addEventListener('shown.bs.modal', async (ev) => {
+  if (ev.target.id !== 'stokAtamaModal') return;
+  await sa_loadStocks();
+  await sa_loadSources();
 });
 
-// Kaynakları doldur
-if(stockSel){
-  fetch('/api/stock/status')
-    .then(r=>r.json())
-    .then(d=>{
-      stockSel.innerHTML = '<option value="">Seçiniz</option>' + Object.entries(d.totals||{}).map(([dt, qty])=>`<option value="${dt}">${dt} (${qty})</option>`).join('');
+async function sa_loadStocks() {
+  const sel = document.getElementById('sa_stock');
+  if (!sel) return;
+  sel.innerHTML = `<option value="">Seçiniz...</option>`;
+  try {
+    const res = await fetch('/stock/options');
+    const data = await res.json();
+    data.forEach(o => {
+      const opt = document.createElement('option');
+      opt.value = o.id;
+      opt.textContent = o.label;
+      opt.dataset.tip = o.donanim_tipi || '';
+      opt.dataset.ifs = o.ifs_no || '';
+      opt.dataset.qty = o.mevcut_miktar || 0;
+      sel.appendChild(opt);
     });
+  } catch (e) {
+    console.error(e);
+  }
 }
-Promise.all([
-  fetch('/inventory/assign/sources').then(r=>r.json()), // { users, inventories }
-  fetch('/api/licenses/list').then(r=>r.json()),
-  fetch('/api/printers/list').then(r=>r.json()),
-]).then(([src, lic, prn])=>{
-  if(invSel) invSel.innerHTML = '<option value="">Seçiniz</option>' + (src.inventories||[]).map(i=>`<option value="${i.id}">${i.envanter_no} - ${i.marka||''} ${i.model||''}</option>`).join('');
-  if(licSel) licSel.innerHTML = '<option value="">Seçiniz</option>' + (lic.items||[]).map(l=>`<option value="${l.id}">${l.lisans_adi} ${l.lisans_anahtari?('('+l.lisans_anahtari+')'):''}</option>`).join('');
-  if(prnSel) prnSel.innerHTML = '<option value="">Seçiniz</option>' + (prn.items||[]).map(p=>`<option value="${p.id}">${p.marka||''} ${p.model||''} ${p.seri_no?('('+p.seri_no+')'):''}</option>`).join('');
+
+async function sa_loadSources() {
+  const fillSelect = (el, items, valueKey='id', labelKey='ad') => {
+    el.innerHTML = `<option value="">Seçiniz...</option>`;
+    items.forEach(x => {
+      const opt = document.createElement('option');
+      opt.value = x[valueKey];
+      opt.textContent = x[labelKey] || x[valueKey];
+      el.appendChild(opt);
+    });
+  };
+
+  try {
+    const [srcRes, licRes, prnRes] = await Promise.all([
+      fetch('/inventory/assign/sources'),
+      fetch('/api/licenses/list'),
+      fetch('/api/printers/list'),
+    ]);
+    const src = await srcRes.json();
+    const lic = await licRes.json();
+    const prn = await prnRes.json();
+
+    fillSelect(document.getElementById('sa_user'), src.users || [], 'id', 'text');
+    fillSelect(document.getElementById('sa_user2'), src.users || [], 'id', 'text');
+    fillSelect(document.getElementById('sa_lisans'), lic.items || [], 'id', 'lisans_adi');
+    fillSelect(document.getElementById('sa_envanter'), src.inventories || [], 'id', 'envanter_no');
+    fillSelect(document.getElementById('sa_envanter_for_lic'), src.inventories || [], 'id', 'envanter_no');
+    fillSelect(document.getElementById('sa_yazici'), prn.items || [], 'id', 'model');
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+document.getElementById('sa_stock')?.addEventListener('change', (e) => {
+  const opt = e.target.selectedOptions[0];
+  const meta = document.getElementById('sa_stock_meta');
+  if (!opt || !opt.value) {
+    meta?.classList.add('d-none');
+    return;
+  }
+  document.getElementById('sa_meta_tip').textContent = opt.dataset.tip || '-';
+  document.getElementById('sa_meta_ifs').textContent = opt.dataset.ifs || '-';
+  document.getElementById('sa_meta_qty').textContent = opt.dataset.qty || '0';
+  meta?.classList.remove('d-none');
+
+  const miktar = document.getElementById('sa_miktar');
+  miktar.max = opt.dataset.qty || 1;
+  if (Number(miktar.value) > Number(miktar.max)) miktar.value = miktar.max;
 });
 
-// Atama submit
-document.getElementById('frmStockAssign')?.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const payload = Object.fromEntries(fd.entries());
-  const res = await fetch('/stock/assign', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-  const j = await res.json();
-  if(j.ok){ location.reload(); } else { alert(j.error || 'Atama başarısız'); }
+document.getElementById('sa_submit')?.addEventListener('click', async () => {
+  const stockId = document.getElementById('sa_stock').value;
+  if (!stockId) { alert('Lütfen stok seçiniz.'); return; }
+
+  const activeTab = document.querySelector('#sa_tabs .nav-link.active');
+  let atama_turu = 'lisans';
+  if (activeTab && activeTab.dataset.bsTarget) {
+    if (activeTab.dataset.bsTarget.includes('envanter')) atama_turu = 'envanter';
+    else if (activeTab.dataset.bsTarget.includes('yazici')) atama_turu = 'yazici';
+  }
+
+  const payload = {
+    stock_id: stockId,
+    atama_turu,
+    miktar: Number(document.getElementById('sa_miktar').value || 1),
+    notlar: document.getElementById('sa_not').value || null,
+    lisans_id: null,
+    hedef_envanter_id: null,
+    hedef_yazici_id: null,
+    sorumlu_personel_id: null,
+  };
+
+  if (atama_turu === 'lisans') {
+    payload.lisans_id = Number(document.getElementById('sa_lisans').value || 0) || null;
+    payload.sorumlu_personel_id = document.getElementById('sa_user').value || null;
+    const eforlic = Number(document.getElementById('sa_envanter_for_lic').value || 0);
+    if (eforlic) payload.hedef_envanter_id = eforlic;
+  }
+  if (atama_turu === 'envanter') {
+    payload.hedef_envanter_id = Number(document.getElementById('sa_envanter').value || 0) || null;
+    payload.sorumlu_personel_id = document.getElementById('sa_user2').value || null;
+  }
+  if (atama_turu === 'yazici') {
+    payload.hedef_yazici_id = Number(document.getElementById('sa_yazici').value || 0) || null;
+  }
+
+  try {
+    const res = await fetch('/stock/assign', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out?.detail || 'Hata');
+    alert(out.message || 'Atama tamamlandı.');
+    document.querySelector('#stokAtamaModal .btn-close')?.click();
+    location.reload();
+  } catch (e) {
+    alert(`Hata: ${e.message}`);
+    console.error(e);
+  }
 });
 
 // Stok durumu modalı
