@@ -11,8 +11,8 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
-@router.get("/", response_class=HTMLResponse)
-def logs_home(request: Request, db: Session = Depends(get_db)):
+@router.get("/", response_class=HTMLResponse, name="logs_page")
+def logs_home(request: Request, tab: str = "kullanici", db: Session = Depends(get_db)):
     user_logs = (
         db.query(InventoryLog, Inventory.no.label("inv_no"))
         .join(Inventory, Inventory.id == InventoryLog.inventory_id)
@@ -35,5 +35,6 @@ def logs_home(request: Request, db: Session = Depends(get_db)):
             "inventory_logs": inventory_logs,
             "users": users,
             "inventory_numbers": inventory_numbers,
+            "tab": tab,
         },
     )

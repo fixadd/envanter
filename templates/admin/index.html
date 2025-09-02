@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from "components/tabs.html" import tabs %}
+{% set active_key = request.query_params.get("tab") or tab or "kullanici" %}
+{% block title %}Admin Paneli{% endblock %}
+{% block content %}
+{{ tabs(
+  items=[
+    {"label":"Kullanıcı","href": url_for('admin_index') ~ "?tab=kullanici","key":"kullanici"},
+    {"label":"Ürün Ekle","href": url_for('admin_index') ~ "?tab=urun","key":"urun"},
+    {"label":"Bağlantılar","href": url_for('admin_index') ~ "?tab=baglantilar","key":"baglantilar"},
+  ],
+  active_key=active_key
+) }}
+<div class="page-section">
+  {% include "admin/_kullanici.html" if active_key == "kullanici" else '' %}
+  {% include "admin/_urun.html" if active_key == "urun" else '' %}
+  {% include "admin/_baglantilar.html" if active_key == "baglantilar" else '' %}
+</div>
+{% endblock %}

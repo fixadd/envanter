@@ -1,14 +1,21 @@
 {% extends "base.html" %}
+{% from "components/tabs.html" import tabs %}
+{% set active_key = request.query_params.get("durum") or "aktif" %}
 {% block title %}Talep Takip{% endblock %}
 {% block content %}
 <div class="container-fluid p-3">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="mb-0">Talepler</h5>
-    <div class="d-flex gap-2">
-      <a href="/talepler/export.xlsx" class="btn btn-outline-secondary btn-sm">Excel</a>
-      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#talepModal">Talep Aç</button>
-    </div>
-  </div>
+  {{ tabs(
+      items=[
+        {"label":"Aktif","href": url_for('talep_list') ~ "?durum=aktif", "key":"aktif"},
+        {"label":"Kapalı","href": url_for('talep_list') ~ "?durum=kapali","key":"kapali"},
+        {"label":"İptal","href": url_for('talep_list') ~ "?durum=iptal","key":"iptal"},
+      ],
+      active_key=active_key,
+      right_slot='''
+        <a href="{{ url_for('talep_export_excel') }}" class="btn btn-outline-secondary btn-sm">Excel</a>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#talepModal">Talep Aç</button>
+      '''
+  ) }}
 
   {% macro render_table(rows, empty_msg, show_actions=False) %}
   <div class="table-responsive">
@@ -64,28 +71,9 @@
   </div>
   {% endmacro %}
 
-  <ul class="nav nav-tabs" id="talepTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="aktif-tab" data-bs-toggle="tab" data-bs-target="#aktif" type="button" role="tab">Aktif</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="kapali-tab" data-bs-toggle="tab" data-bs-target="#kapali" type="button" role="tab">Kapalı</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="iptal-tab" data-bs-toggle="tab" data-bs-target="#iptal" type="button" role="tab">İptal</button>
-    </li>
-  </ul>
-
-  <div class="tab-content mt-3" id="talepTabsContent">
-    <div class="tab-pane fade show active" id="aktif" role="tabpanel" aria-labelledby="aktif-tab">
-      {{ render_table(aktif, "Aktif talep bulunamadı.", True) }}
-    </div>
-    <div class="tab-pane fade" id="kapali" role="tabpanel" aria-labelledby="kapali-tab">
-      {{ render_table(kapali, "Kapalı talep bulunamadı.") }}
-    </div>
-    <div class="tab-pane fade" id="iptal" role="tabpanel" aria-labelledby="iptal-tab">
-      {{ render_table(iptal, "İptal talep bulunamadı.") }}
-    </div>
+  {% set msg_map = {'aktif':'Aktif talep bulunamadı.','kapali':'Kapalı talep bulunamadı.','iptal':'İptal talep bulunamadı.'} %}
+  <div class="page-section">
+    {{ render_table(rows, msg_map.get(active_key), active_key=='aktif') }}
   </div>
 </div>
 
@@ -118,131 +106,32 @@
             <div class="col-md-2">
               <label class="form-label">Marka</label>
               <select name="marka" class="form-select">
-                <option value="">Seçiniz...</option>
               </select>
             </div>
             <div class="col-md-2">
               <label class="form-label">Model</label>
               <select name="model" class="form-select">
-                <option value="">Seçiniz...</option>
               </select>
             </div>
             <div class="col-md-3">
-              <label class="form-label">Not</label>
-              <input name="aciklama" class="form-control" placeholder="Not">
+              <label class="form-label">Açıklama</label>
+              <input name="aciklama" class="form-control" placeholder="Açıklama">
             </div>
-            <div class="col-auto">
-              <button type="button" class="btn btn-success btn-sm add-row">+</button>
-              <button type="button" class="btn btn-danger btn-sm remove-row">-</button>
+            <div class="col-md-1 text-end">
+              <button type="button" class="btn btn-outline-danger" onclick="talepSatirSil(this)">
+                <i class="bi bi-x"></i>
+              </button>
             </div>
           </div>
         </div>
+        <button type="button" class="btn btn-outline-secondary" onclick="talepSatirEkle()">Satır Ekle</button>
       </div>
 
       <div class="modal-footer">
-        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Kapat</button>
-        <button class="btn btn-primary" type="submit">Kaydet</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+        <button type="submit" class="btn btn-primary">Gönder</button>
       </div>
     </form>
   </div>
 </div>
-
-<script>
-  const rowContainer = document.getElementById('talepRows');
-  let templateRow;
-
-  function bindRow(row) {
-    const markaSel = row.querySelector('select[name="marka"]');
-    const modelSel = row.querySelector('select[name="model"]');
-    markaSel.addEventListener('change', () => {
-      const id = markaSel.selectedOptions[0]?.dataset.id || '';
-      modelSel.innerHTML = '<option value="">Seçiniz...</option>';
-      if (!id) return;
-      fetch(`/api/lookup/model?marka_id=${id}`).then(r=>r.json()).then(list=>{
-        const opts = list.map(n=>`<option value="${n.name ?? n}">${n.name ?? n}</option>`).join('');
-        modelSel.insertAdjacentHTML('beforeend', opts);
-      });
-    });
-
-    row.querySelector('.add-row').addEventListener('click', addRow);
-    row.querySelector('.remove-row').addEventListener('click', () => {
-      if (rowContainer.children.length > 1) row.remove();
-    });
-  }
-
-  function addRow() {
-    const clone = templateRow.cloneNode(true);
-    clone.querySelectorAll('input').forEach(i => i.value = '');
-    clone.querySelectorAll('select').forEach(sel => {
-      sel.selectedIndex = 0;
-      if (sel.name === 'model') sel.innerHTML = '<option value="">Seçiniz...</option>';
-    });
-    rowContainer.appendChild(clone);
-    bindRow(clone);
-  }
-
-  const lookups = Promise.all([
-    fetch('/api/lookup/donanim_tipi').then(r=>r.json()),
-    fetch('/api/lookup/marka').then(r=>r.json()),
-  ]);
-
-  lookups.then(([donanimList, markaList]) => {
-    const donanimOpts = donanimList.map(n=>`<option value="${n.name ?? n}">${n.name ?? n}</option>`).join('');
-    const markaOpts = markaList.map(n=>`<option value="${n.name ?? n}" data-id="${n.id ?? ''}">${n.name ?? n}</option>`).join('');
-    const firstRow = rowContainer.firstElementChild;
-    firstRow.querySelector('select[name="donanim_tipi"]').insertAdjacentHTML('beforeend', donanimOpts);
-    firstRow.querySelector('select[name="marka"]').insertAdjacentHTML('beforeend', markaOpts);
-    templateRow = firstRow.cloneNode(true);
-    bindRow(firstRow);
-  });
-
-  async function talepGonder(e) {
-    e.preventDefault();
-    const rows = rowContainer.querySelectorAll('.talep-row');
-    for (const row of rows) {
-      const fd = new FormData();
-      row.querySelectorAll('input, select').forEach(el => {
-        if (el.name && el.value) fd.append(el.name, el.value);
-      });
-      const globalIfs = document.getElementById('ifsNoGlobal').value;
-      if (globalIfs) fd.append('ifs_no', globalIfs);
-      const res = await fetch('/talepler', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (!data.ok) { alert('Kayıt hatası'); return false; }
-    }
-    location.reload();
-    return false;
-  }
-
-  async function talepIptal(id, qty) {
-    if (!confirm('Talep iptal edilsin mi?')) return;
-    let count = 1;
-    if (qty > 1) {
-      const input = prompt('Kaç adet iptal edilsin?', qty);
-      if (!input) return;
-      count = parseInt(input, 10);
-      if (isNaN(count) || count < 1) return;
-    }
-    const fd = new FormData();
-    fd.append('adet', count);
-    const res = await fetch(`/talepler/${id}/cancel`, {method:'POST', body: fd});
-    if (res.ok) location.reload();
-  }
-
-  async function talepKapat(id, qty) {
-    if (!confirm('Talep kapatılsın mı?')) return;
-    let count = 1;
-    if (qty > 1) {
-      const input = prompt('Kaç adet stok girilecek?', qty);
-      if (!input) return;
-      count = parseInt(input, 10);
-      if (isNaN(count) || count < 1) return;
-    }
-    const fd = new FormData();
-    fd.append('adet', count);
-    const res = await fetch(`/talepler/${id}/close`, {method:'POST', body: fd});
-    if (res.ok) location.reload();
-  }
-</script>
 {% endblock %}
-
