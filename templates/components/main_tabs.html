@@ -10,5 +10,7 @@
       {"label": "Kayıtlar", "href": url_for('logs_page'), "key": "logs"}
     ] %}
   {% endif %}
-  {{ tabs(items=items, active_key=active_key) }}
+  <div class="tabs-wrap">
+    {{ tabs(items=items, active_key=active_key) }}
+  </div>
 {% endmacro %}
