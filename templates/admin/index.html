@@ -52,7 +52,12 @@
                         data-id="{{ u.id }}" data-username="{{ u.username }}" data-first_name="{{ u.first_name or '' }}"
                         data-last_name="{{ u.last_name or '' }}" data-email="{{ u.email or '' }}"
                         data-is_admin="{{ 1 if u.is_admin else 0 }}">Düzenle</button>
-                <button class="btn btn-outline-danger btn-sm">Sil</button>
+                <form method="post" action="/admin/users/{{ u.id }}/delete" class="d-inline">
+                  <button type="submit" class="btn btn-outline-danger btn-sm"
+                          onclick="return confirm('\'{{ u.username }}\' kullanıcısını silmek istediğinize emin misiniz?')">
+                    Sil
+                  </button>
+                </form>
               </td>
             </tr>
             {% else %}
