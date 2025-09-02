@@ -1,6 +1,6 @@
-{# Tek bir yerden sekme çiz: items=[{"label":"Aktif","href":"/talep?durum=aktif","key":"aktif"}, ...] #}
+{# ortak sekme bileşeni #}
 {% macro tabs(items=[], active_key="", right_slot="") -%}
-  <div class="d-flex align-items-center justify-content-between mb-3">
+  <div class="tabs-wrap d-flex align-items-center justify-content-between mb-2">
     <ul class="nav nav-tabs">
       {%- for it in items %}
         <li class="nav-item">
@@ -11,10 +11,6 @@
         </li>
       {%- endfor %}
     </ul>
-
-    {# Sağ üstte buton alanı (örn. Excel, Talep Aç) #}
-    <div class="d-flex gap-2">
-      {{ right_slot | safe }}
-    </div>
+    <div class="d-flex gap-2">{{ right_slot | safe }}</div>
   </div>
 {%- endmacro %}
