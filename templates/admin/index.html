@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Admin Paneli{% endblock %}
+{% from "components/main_tabs.html" import main_tabs %}
 
 {% block content %}
 <div class="container-fluid p-3">
+  {{ main_tabs('admin') }}
 
   <!-- SEKME BAŞLIKLARI -->
   <ul class="nav nav-tabs" id="adminTabs" role="tablist">

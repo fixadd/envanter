@@ -1,9 +1,11 @@
 {% extends "base.html" %}
+{% from "components/main_tabs.html" import main_tabs %}
 {% from "components/tabs.html" import tabs %}
 {% set active_key = request.query_params.get("durum") or "aktif" %}
 {% block title %}Talep Takip{% endblock %}
 {% block content %}
 <div class="container-fluid p-3">
+  {{ main_tabs('talepler') }}
   {% set right_slot %}
     <a href="{{ url_for('talep_export_excel') }}" class="btn btn-outline-secondary btn-sm">Excel</a>
     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#talepModal">Talep Aç</button>
