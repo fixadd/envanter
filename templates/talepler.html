@@ -9,15 +9,17 @@
     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#talepModal">Talep Aç</button>
   {% endset %}
 
-  {{ tabs(
-      items=[
-        {"label":"Aktif","href": url_for('talep_list') ~ "?durum=aktif", "key":"aktif"},
-        {"label":"Kapalı","href": url_for('talep_list') ~ "?durum=kapali","key":"kapali"},
-        {"label":"İptal","href": url_for('talep_list') ~ "?durum=iptal","key":"iptal"},
-      ],
-      active_key=active_key,
-      right_slot=right_slot
-  ) }}
+  <div class="tabs-wrap">
+    {{ tabs(
+        items=[
+          {"label":"Aktif","href": url_for('talep_list') ~ "?durum=aktif", "key":"aktif"},
+          {"label":"Kapalı","href": url_for('talep_list') ~ "?durum=kapali","key":"kapali"},
+          {"label":"İptal","href": url_for('talep_list') ~ "?durum=iptal","key":"iptal"},
+        ],
+        active_key=active_key,
+        right_slot=right_slot
+    ) }}
+  </div>
 
   {% macro render_table(rows, empty_msg, show_actions=False) %}
   <div class="table-responsive">
