@@ -1,0 +1,14 @@
+{% from "components/tabs.html" import tabs %}
+{% macro main_tabs(active_key) %}
+  {% set items = [
+    {"label": "Talep Takip", "href": url_for('talep_list'), "key": "talepler"},
+    {"label": "Hurdalar", "href": url_for('inventory.hurdalar'), "key": "hurdalar"}
+  ] %}
+  {% if request.session.get('user_role') == 'admin' %}
+    {% set items = items + [
+      {"label": "Admin Paneli", "href": url_for('admin_index'), "key": "admin"},
+      {"label": "Kayıtlar", "href": url_for('logs_page'), "key": "logs"}
+    ] %}
+  {% endif %}
+  {{ tabs(items=items, active_key=active_key) }}
+{% endmacro %}
