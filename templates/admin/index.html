@@ -12,8 +12,14 @@
   active_key=active_key
 ) }}
 <div class="page-section">
-  {% include "admin/_kullanici.html" if active_key == "kullanici" else '' %}
-  {% include "admin/_urun.html" if active_key == "urun" else '' %}
-  {% include "admin/_baglantilar.html" if active_key == "baglantilar" else '' %}
+  {% if active_key == "kullanici" %}
+    {% include "admin/_kullanici.html" %}
+  {% endif %}
+  {% if active_key == "urun" %}
+    {% include "admin/_urun.html" %}
+  {% endif %}
+  {% if active_key == "baglantilar" %}
+    {% include "admin/_baglantilar.html" %}
+  {% endif %}
 </div>
 {% endblock %}
