@@ -110,11 +110,13 @@
             <div class="col-md-2">
               <label class="form-label">Marka</label>
               <select name="marka" class="form-select">
+                <option value="">Seçiniz...</option>
               </select>
             </div>
             <div class="col-md-2">
               <label class="form-label">Model</label>
               <select name="model" class="form-select">
+                <option value="">Seçiniz...</option>
               </select>
             </div>
             <div class="col-md-3">
@@ -138,4 +140,80 @@
     </form>
   </div>
 </div>
+<script>
+  const rowContainer = document.getElementById('talepRows');
+  let templateRow;
+
+  function bindRow(row) {
+    const markaSel = row.querySelector('select[name="marka"]');
+    const modelSel = row.querySelector('select[name="model"]');
+    markaSel.addEventListener('change', () => {
+      const id = markaSel.selectedOptions[0]?.dataset.id || '';
+      modelSel.innerHTML = '<option value="">Seçiniz...</option>';
+      if (!id) return;
+      fetch(`/api/lookup/model?marka_id=${id}`).then(r => r.json()).then(list => {
+        const opts = list.map(n => `<option value="${n.name ?? n}">${n.name ?? n}</option>`).join('');
+        modelSel.insertAdjacentHTML('beforeend', opts);
+      });
+    });
+  }
+
+  function talepSatirEkle() {
+    const clone = templateRow.cloneNode(true);
+    clone.querySelectorAll('input').forEach(i => i.value = '');
+    clone.querySelectorAll('select').forEach(sel => {
+      sel.selectedIndex = 0;
+      if (sel.name === 'model') sel.innerHTML = '<option value="">Seçiniz...</option>';
+    });
+    rowContainer.appendChild(clone);
+    bindRow(clone);
+  }
+
+  function talepSatirSil(btn) {
+    if (rowContainer.children.length > 1) {
+      btn.closest('.talep-row').remove();
+    }
+  }
+
+  const lookups = Promise.all([
+    fetch('/api/lookup/donanim-tipi').then(r => r.json()),
+    fetch('/api/lookup/marka').then(r => r.json()),
+  ]);
+
+  lookups.then(([donanimList, markaList]) => {
+    const donanimOpts = donanimList
+      .map(n => `<option value="${n.name ?? n}">${n.name ?? n}</option>`)
+      .join('');
+    const markaOpts = markaList
+      .map(n => `<option value="${n.name ?? n}" data-id="${n.id ?? ''}">${n.name ?? n}</option>`)
+      .join('');
+    const firstRow = rowContainer.firstElementChild;
+    firstRow
+      .querySelector('select[name="donanim_tipi"]')
+      .insertAdjacentHTML('beforeend', donanimOpts);
+    firstRow
+      .querySelector('select[name="marka"]')
+      .insertAdjacentHTML('beforeend', markaOpts);
+    templateRow = firstRow.cloneNode(true);
+    bindRow(firstRow);
+  });
+
+  async function talepGonder(e) {
+    e.preventDefault();
+    const ifsNo = document.getElementById('ifsNoGlobal').value;
+    const rows = rowContainer.querySelectorAll('.talep-row');
+    for (const row of rows) {
+      const fd = new FormData();
+      if (ifsNo) fd.append('ifs_no', ifsNo);
+      row.querySelectorAll('input, select').forEach(el => {
+        if (el.name && el.value) fd.append(el.name, el.value);
+      });
+      const res = await fetch('/talepler', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!data.ok) { alert('Kayıt hatası'); return false; }
+    }
+    location.reload();
+    return false;
+  }
+</script>
 {% endblock %}
