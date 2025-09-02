@@ -165,7 +165,10 @@
 
   lookups.then(([donanimList, markaList]) => {
     const donanimOpts = donanimList.map(n=>`<option value="${n.name ?? n}">${n.name ?? n}</option>`).join('');
-    const markaOpts = markaList.map(n=>`<option value="${n.name ?? n}" data-id="${n.id ?? ''}">${n.name ?? n}</option>`).join('');
+        const markaOpts = markaList
+      .map(n=>`<option value="${n.name ?? n}" data-id="${n.id ?? ''}">${n.name ?? n}</option>`)
+      .join('');
+
     const firstRow = rowContainer.firstElementChild;
     firstRow.querySelector('select[name="donanim_tipi"]').insertAdjacentHTML('beforeend', donanimOpts);
     firstRow.querySelector('select[name="marka"]').insertAdjacentHTML('beforeend', markaOpts);
