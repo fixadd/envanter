@@ -1,25 +1,423 @@
 {% extends "base.html" %}
-{% from "components/tabs.html" import tabs %}
-{% set active_key = request.query_params.get("tab") or tab or "kullanici" %}
 {% block title %}Admin Paneli{% endblock %}
+
 {% block content %}
-{{ tabs(
-  items=[
-    {"label":"Kullanıcı","href": url_for('admin_index') ~ "?tab=kullanici","key":"kullanici"},
-    {"label":"Ürün Ekle","href": url_for('admin_index') ~ "?tab=urun","key":"urun"},
-    {"label":"Bağlantılar","href": url_for('admin_index') ~ "?tab=baglantilar","key":"baglantilar"},
-  ],
-  active_key=active_key
-) }}
-<div class="page-section">
-  {% if active_key == "kullanici" %}
-    {% include "admin/_kullanici.html" %}
-  {% endif %}
-  {% if active_key == "urun" %}
-    {% include "admin/_urun.html" %}
-  {% endif %}
-  {% if active_key == "baglantilar" %}
-    {% include "admin/_baglantilar.html" %}
-  {% endif %}
+<div class="container-fluid p-3">
+
+  <!-- SEKME BAŞLIKLARI -->
+  <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="tab-users" data-bs-toggle="tab" data-bs-target="#pane-users" type="button" role="tab">Kullanıcı</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-products" data-bs-toggle="tab" data-bs-target="#pane-products" type="button" role="tab">Ürün Ekle</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-connections" data-bs-toggle="tab" data-bs-target="#pane-connections" type="button" role="tab">Bağlantılar</button>
+    </li>
+  </ul>
+
+  <div class="tab-content border border-top-0 rounded-bottom p-3 bg-white" id="adminTabsContent">
+
+    <!-- ========== KULLANICI ========== -->
+    <div class="tab-pane fade show active" id="pane-users" role="tabpanel" aria-labelledby="tab-users">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="mb-0">Kullanıcı Yönetimi</h5>
+        <div class="d-flex align-items-center gap-2">
+          <form method="get" action="/admin" class="d-flex align-items-center gap-2">
+            <input type="text" name="q" value="{{ q or '' }}" class="form-control form-control-sm" placeholder="Ara...">
+            <button class="btn btn-outline-secondary btn-sm" type="submit">Ara</button>
+          </form>
+          <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalUserCreate">+ Yeni Kullanıcı</button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead class="table-light">
+            <tr><th>#</th><th>Kullanıcı Adı</th><th>Ad</th><th>Soyad</th><th>E-posta</th><th>Rol</th><th class="text-end">İşlemler</th></tr>
+          </thead>
+          <tbody>
+            {% for u in users or [] %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ u.username }}</td>
+              <td>{{ u.first_name or '' }}</td>
+              <td>{{ u.last_name or '' }}</td>
+              <td>{{ u.email or '' }}</td>
+              <td><span class="badge bg-{{ 'primary' if u.role=='admin' else 'secondary' }}">{{ u.role or 'user' }}</span></td>
+              <td class="text-end">
+                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalUserEdit"
+                        data-id="{{ u.id }}" data-username="{{ u.username }}" data-first_name="{{ u.first_name or '' }}"
+                        data-last_name="{{ u.last_name or '' }}" data-email="{{ u.email or '' }}"
+                        data-is_admin="{{ 1 if u.is_admin else 0 }}">Düzenle</button>
+                <button class="btn btn-outline-danger btn-sm">Sil</button>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="text-center text-muted">Kayıt yok.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== ÜRÜN / ENVANTER EKLE ========== -->
+      <div class="tab-pane fade" id="pane-products" role="tabpanel" aria-labelledby="tab-products">
+        <section id="admin-urun-ekle">
+          <h5 class="mb-3">Ürün / Envanter Ekle</h5>
+          <div class="actions-grid">
+            <!-- Kullanım Alanı -->
+            <div class="pick-item">
+              <div class="pick-label">Kullanım Alanı
+                <span class="pick-chip d-none" data-for="kullanim_alani"></span>
+              </div>
+              <button type="button" class="pick-btn" data-entity="kullanim_alani" aria-label="Kullanım Alanı">≡</button>
+              <input type="hidden" name="kullanim_alani" id="kullanim_alani">
+            </div>
+
+            <!-- Lisans Adı -->
+            <div class="pick-item">
+              <div class="pick-label">Lisans Adı
+                <span class="pick-chip d-none" data-for="lisans_adi"></span>
+              </div>
+              <button type="button" class="pick-btn" data-entity="lisans_adi" aria-label="Lisans Adı">≡</button>
+              <input type="hidden" name="lisans_adi" id="lisans_adi">
+            </div>
+
+            <!-- Fabrika -->
+            <div class="pick-item">
+              <div class="pick-label">Fabrika
+                <span class="pick-chip d-none" data-for="fabrika"></span>
+              </div>
+              <button type="button" class="pick-btn" data-entity="fabrika" aria-label="Fabrika">≡</button>
+              <input type="hidden" name="fabrika" id="fabrika">
+            </div>
+
+            <!-- Donanım Tipi -->
+            <div class="pick-item">
+              <div class="pick-label">Donanım Tipi
+                <span class="pick-chip d-none" data-for="donanim_tipi"></span>
+              </div>
+              <button type="button" class="pick-btn" data-entity="donanim_tipi" aria-label="Donanım Tipi">≡</button>
+              <input type="hidden" name="donanim_tipi" id="donanim_tipi">
+            </div>
+
+            <!-- Marka -->
+            <div class="pick-item">
+              <div class="pick-label">Marka
+                <span class="pick-chip d-none" data-for="marka"></span>
+              </div>
+              <button type="button" class="pick-btn" data-entity="marka" aria-label="Marka">≡</button>
+              <input type="hidden" name="marka" id="marka">
+            </div>
+
+            <!-- Model -->
+            <div class="pick-item">
+              <div class="pick-label">Model
+                <span class="pick-chip d-none" data-for="model"></span>
+              </div>
+              <button type="button" class="pick-btn" data-entity="model" aria-label="Model">≡</button>
+              <input type="hidden" name="model" id="model">
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ==== Stil (Ürün / Envanter Ekle sekmesi) ==== -->
+      <style>
+        #admin-urun-ekle .actions-grid{display:grid;gap:16px 24px;grid-template-columns:repeat(3,minmax(220px,1fr))}
+        @media (max-width:1200px){ #admin-urun-ekle .actions-grid{grid-template-columns:repeat(2,minmax(220px,1fr))}}
+        @media (max-width:640px){ #admin-urun-ekle .actions-grid{grid-template-columns:1fr}}
+        #admin-urun-ekle .pick-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+        #admin-urun-ekle .pick-label{font-weight:600;color:#111827;display:flex;align-items:center;gap:8px}
+        #admin-urun-ekle .pick-chip{font-size:.75rem;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#3730a3}
+        #admin-urun-ekle .pick-btn{width:48px;height:48px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #d1d5db;border-radius:12px;background:#f9fafb;transition:all .15s ease;font-size:20px;line-height:1}
+        #admin-urun-ekle .pick-btn:hover{background:#f3f4f6;transform:translateY(-1px)}
+        #admin-urun-ekle .pick-btn:active{transform:translateY(0)}
+        .picker-modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.4);z-index:1085}
+        .picker-card{width:420px;max-width:92vw;background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.18);overflow:hidden}
+        .picker-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #eef2f7}
+        .picker-close{border:0;background:transparent;font-size:22px;line-height:1;cursor:pointer;padding:2px 6px}
+        .picker-search{display:flex;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid #eef2f7}
+        .picker-search input{flex:1 1 auto;padding:10px 12px;border:1px solid #dbe2ea;border-radius:10px}
+        .picker-add{flex:0 0 auto;padding:9px 14px;border:1px solid #16a34a;background:#16a34a;color:#fff;border-radius:10px;cursor:pointer}
+        .picker-add:disabled{opacity:.5;cursor:not-allowed}
+        .picker-list{max-height:320px;overflow:auto}
+        .picker-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px dashed #eef2f7}
+        .picker-row:nth-child(even){background:#fafbff}
+        .picker-name{margin:0;font-size:14px}
+        .picker-actions{display:flex;gap:8px;align-items:center}
+        .picker-select{border:1px solid #d1d5db;background:#f9fafb;border-radius:8px;padding:6px 10px;cursor:pointer}
+        .picker-del{border:1px solid #ef4444;background:#fff;color:#ef4444;border-radius:999px;width:28px;height:28px;line-height:1;font-weight:700}
+        .picker-del:hover{background:#fee2e2}
+        .picker-empty{padding:14px;color:#6b7280;font-size:14px}
+        .picker-foot{padding:10px 14px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid #eef2f7}
+      </style>
+
+      <!-- ========== Mini Picker Modal (tek sefer eklenir) ========== -->
+      <div id="picker-modal" class="picker-modal" hidden>
+        <div class="picker-card">
+          <div class="picker-head">
+            <strong id="picker-title">Seçim</strong>
+            <button type="button" class="picker-close" aria-label="Kapat">×</button>
+          </div>
+          <div class="picker-search">
+            <input id="picker-search" type="text" placeholder="Ara / yeni değer yaz..." />
+            <button type="button" class="picker-add" id="picker-add">Ekle</button>
+          </div>
+          <div id="picker-list" class="picker-list"></div>
+          <div class="picker-foot"><button type="button" class="btn btn-light" id="picker-cancel">Kapat</button></div>
+        </div>
+      </div>
+
+      <!-- ===== Mini Picker Script ===== -->
+      <script src="{{ url_for('static', path='js/mini-picker.js') }}"></script>
+
+    <div class="tab-pane fade" id="pane-connections" role="tabpanel" aria-labelledby="tab-connections">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">LDAP Bağlantıları</h5>
+        <a class="btn btn-sm btn-outline-primary" href="/admin/connections/ldap">Ayarlar</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead class="table-light">
+            <tr><th>Ad</th><th>Sunucu</th><th>Port</th><th>Base DN</th><th>Kullanıcı</th></tr>
+          </thead>
+          <tbody>
+            {% for c in connections or [] %}
+            <tr>
+              <td>{{ c.name }}</td>
+              <td>{{ c.host }}</td>
+              <td>{{ c.port }}</td>
+              <td>{{ c.base_dn }}</td>
+              <td>{{ c.user_dn }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center text-muted">Kayıt yok.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== Kullanıcı Oluştur Modal ===== -->
+<div class="modal fade" id="modalUserCreate" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" method="post" action="/admin/users/create">
+      <div class="modal-header">
+        <h5 class="modal-title">Yeni Kullanıcı</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body row g-3">
+        <div class="col-md-6"><label class="form-label">Kullanıcı Adı</label><input class="form-control" name="username" required></div>
+        <div class="col-md-6"><label class="form-label">Şifre</label><input class="form-control" type="password" name="password" required></div>
+        <div class="col-md-6"><label class="form-label">Adı</label><input class="form-control" name="first_name"></div>
+        <div class="col-md-6"><label class="form-label">Soyadı</label><input class="form-control" name="last_name"></div>
+        <div class="col-12"><label class="form-label">E-posta</label><input class="form-control" type="email" name="email"></div>
+        <div class="col-12">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="is_admin" id="create_is_admin">
+            <label class="form-check-label" for="create_is_admin">Admin</label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">İptal</button>
+        <button class="btn btn-primary" type="submit">Oluştur</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== Kullanıcı Düzenle Modal ===== -->
+<div class="modal fade" id="modalUserEdit" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" method="post" id="formUserEdit" action="">
+      <div class="modal-header">
+        <h5 class="modal-title">Kullanıcı Düzenle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body row g-3">
+        <div class="col-md-6"><label class="form-label">Kullanıcı Adı</label><input class="form-control" id="edit_username" name="username" required></div>
+        <div class="col-md-6"><label class="form-label">Şifre (isteğe bağlı)</label><input class="form-control" type="password" id="edit_password" name="password" placeholder="Boş bırakılırsa değişmez"></div>
+        <div class="col-md-6"><label class="form-label">Adı</label><input class="form-control" id="edit_first_name" name="first_name"></div>
+        <div class="col-md-6"><label class="form-label">Soyadı</label><input class="form-control" id="edit_last_name" name="last_name"></div>
+        <div class="col-12"><label class="form-label">E-posta</label><input class="form-control" type="email" id="edit_email" name="email"></div>
+        <div class="col-12">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="edit_is_admin" name="is_admin">
+            <label class="form-check-label" for="edit_is_admin">Admin</label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">İptal</button>
+        <button class="btn btn-primary" type="submit">Kaydet</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== Lookup Yönetim Modali (tek modal) ===== -->
+<div class="modal fade" id="modalLookupManage" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><span id="lm-title">Değerleri Yönet</span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="lm-chips" class="d-flex flex-wrap gap-2"></div>
+        <hr class="my-3">
+        <div class="row g-2">
+          <div class="col-md-9"><input id="lm-input" class="form-control" placeholder="Yeni değer…"></div>
+          <div class="col-md-3 d-grid"><button id="lm-add" type="button" class="btn btn-primary">Ekle</button></div>
+        </div>
+        <small class="text-muted d-block mt-2">Silme işlemi kalıcıdır.</small>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<style>
+  .chip{display:inline-flex;align-items:center;gap:.5rem;padding:.35rem .6rem;border:1px solid var(--bs-border-color);border-radius:999px;background:#fff}
+  .chip .chip-text{max-width:22rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style>
+<script>
+  // Choices init
+  document.querySelectorAll('.js-choices').forEach(el=>{
+    if (window.Choices) new Choices(el, { searchEnabled:true, shouldSort:false });
+  });
+
+  // URL hash ile sekme seçimi
+  (function(){
+    const hash=location.hash.replace('#','');
+    if(hash){
+      const btn=document.querySelector(`[data-bs-target="#pane-${hash}"]`);
+      if(btn) new bootstrap.Tab(btn).show();
+    }
+    document.querySelectorAll('#adminTabs [data-bs-toggle="tab"]').forEach(btn=>{
+      btn.addEventListener('shown.bs.tab', e=>{
+        const target=e.target.getAttribute('data-bs-target');
+        history.replaceState(null,'','#'+target.replace('#pane-',''));
+      });
+    });
+  })();
+
+  // Kullanıcı düzenleme modalini doldur
+  const modalUserEditEl=document.getElementById('modalUserEdit');
+  if(modalUserEditEl){
+    modalUserEditEl.addEventListener('show.bs.modal',event=>{
+      const btn=event.relatedTarget;
+      const id=btn.getAttribute('data-id');
+      const form=modalUserEditEl.querySelector('form');
+      form.setAttribute('action', `/admin/users/${id}/edit`);
+      modalUserEditEl.querySelector('#edit_username').value=btn.getAttribute('data-username')||'';
+      modalUserEditEl.querySelector('#edit_first_name').value=btn.getAttribute('data-first_name')||'';
+      modalUserEditEl.querySelector('#edit_last_name').value=btn.getAttribute('data-last_name')||'';
+      modalUserEditEl.querySelector('#edit_email').value=btn.getAttribute('data-email')||'';
+      modalUserEditEl.querySelector('#edit_password').value='';
+      modalUserEditEl.querySelector('#edit_is_admin').checked=btn.getAttribute('data-is_admin')==='1';
+    });
+  }
+
+  // ===== Lookup Modal logic =====
+  (function(){
+    const modalEl=document.getElementById('modalLookupManage');
+    const chipsEl=document.getElementById('lm-chips');
+    const inputEl=document.getElementById('lm-input');
+    const addBtn=document.getElementById('lm-add');
+    const titleEl=document.getElementById('lm-title');
+    let current={type:null,title:null,select:null};
+
+    // Açıcılar
+    document.querySelectorAll('.lm-open').forEach(btn=>{
+      btn.addEventListener('click',e=>{
+        e.preventDefault();
+        current.type=btn.dataset.lmType;
+        current.title=btn.dataset.lmTitle;
+        current.select=document.querySelector(btn.dataset.lmSelect);
+        titleEl.textContent=`${current.title} — Değerleri Yönet`;
+        inputEl.value='';
+        loadItems();
+        new bootstrap.Modal(modalEl).show();
+      });
+    });
+
+    async function loadItems(){
+      chipsEl.innerHTML='<div class="text-muted">Yükleniyor…</div>';
+      try{
+        const r=await fetch(`/api/lookup/${encodeURIComponent(current.type)}`);
+        const data=await r.json(); // [{id,name}]
+        renderChips(data);
+      }catch{ chipsEl.innerHTML='<div class="text-danger">Liste alınamadı.</div>'; }
+    }
+    function renderChips(items){
+      chipsEl.innerHTML='';
+      if(!items||!items.length){ chipsEl.innerHTML='<div class="text-muted">Kayıt yok.</div>'; return; }
+      items.forEach(it=>{
+        const chip=document.createElement('span');
+        chip.className='chip'; chip.dataset.id=it.id;
+        chip.innerHTML=`<span class="chip-text">${it.name}</span>
+                        <button type="button" class="btn btn-sm btn-outline-danger px-2 py-0">✕</button>`;
+        chip.querySelector('button').addEventListener('click',()=>delItem(it.id,it.name));
+        chipsEl.appendChild(chip);
+      });
+    }
+
+    addBtn.addEventListener('click',async()=>{
+      const val=(inputEl.value||'').trim(); if(!val) return;
+      addBtn.disabled=true;
+      try{
+        const r=await fetch(`/api/ref/${encodeURIComponent(current.type)}`,{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({name:val})
+        });
+        if(!r.ok) throw 0;
+        const created=await r.json(); // {id,name}
+        // chips’i yenile
+        loadItems();
+        // select’e ekle + seç
+        upsertSelectOption(current.select, created.name, true);
+        inputEl.value='';
+      }catch{ alert('Eklenemedi'); } finally{ addBtn.disabled=false; }
+    });
+
+    async function delItem(id,value){
+      if(!confirm(`Silinsin mi?\n${value}`)) return;
+      try{
+        const r=await fetch(`/api/ref/${encodeURIComponent(current.type)}/${id}`,{method:'DELETE'});
+        if(!r.ok) throw 0;
+        // Chips’ten/Select’ten kaldır
+        const c=chipsEl.querySelector(`.chip[data-id="${id}"]`); if(c) c.remove();
+        removeSelectOption(current.select, value);
+      }catch{ alert('Silinemedi'); }
+    }
+
+    // Select yardımcıları (Choices uyumlu)
+    function getChoicesInstance(sel){ return sel && (sel.choices || sel._choices) || null; }
+    function upsertSelectOption(sel,value,selectIt=false){
+      if(!sel) return;
+      const exists=Array.from(sel.options).find(o=>o.value===value);
+      if(exists){ if(selectIt){ exists.selected=true; sel.dispatchEvent(new Event('change')); } return; }
+      const ch=getChoicesInstance(sel);
+      if(ch && ch.setChoices){ ch.setChoices([{value,label:value,selected:selectIt}],"value","label",false); }
+      else { sel.add(new Option(value,value,selectIt,selectIt)); if(selectIt) sel.dispatchEvent(new Event('change')); }
+    }
+    function removeSelectOption(sel,value){
+      if(!sel) return;
+      const ch=getChoicesInstance(sel);
+      if(ch && ch._store){ const opt=[...sel.options].find(o=>o.value===value); if(opt) opt.remove(); }
+      else { [...sel.options].forEach(o=>{ if(o.value===value) o.remove(); }); }
+    }
+  })();
+</script>
+{% endblock %}
+

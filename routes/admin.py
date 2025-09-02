@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
-from models import User, Lookup, Setting
+from models import Connection, Lookup, Setting, User
 import models
 from database import get_db
 from fastapi.templating import Jinja2Templates
@@ -29,6 +29,8 @@ def admin_index(request: Request, tab: str = "kullanici", q: str | None = None, 
         query = query.filter(or_(*filters))
     users = query.order_by(User.username.asc()).all()
 
+    connections = db.query(Connection).order_by(Connection.name.asc()).all()
+
     def get(type_):
         return (
             db.query(Lookup)
@@ -47,6 +49,7 @@ def admin_index(request: Request, tab: str = "kullanici", q: str | None = None, 
         "lookup_donanim_tipleri": get("donanim_tipi"),
         "lookup_markalar": get("marka"),
         "lookup_modeller": get("model"),
+        "connections": connections,
     }
     ctx["tab"] = tab
     return templates.TemplateResponse("admin/index.html", ctx)
