@@ -15,17 +15,25 @@
     nav.navbar { z-index:1; }
   </style>
   <style>
-    /* Admin panel görünümü ile aynı, yumuşak köşeler ve aktif sekmeyi öne çıkar */
-    .nav-tabs .nav-link {
-      border-radius: .5rem .5rem 0 0;
-      font-weight: 500;
-    }
-    .nav-tabs .nav-link.active {
-      background: #fff;
-      border-color: #dee2e6 #dee2e6 #fff;
-    }
-    /* Sayfa üstü ile sekmeler arasında nefes alanı */
-    .page-section { background: #fff; border: 1px solid #dee2e6; border-top: 0; border-radius: 0 0 .75rem .75rem; padding: 1rem; }
+  /* sekme görünümü */
+  .tabs-wrap .nav-tabs { border-bottom: 0; gap: .25rem; }
+  .tabs-wrap .nav-link {
+    border: 1px solid #dee2e6; border-bottom: 0;
+    background: #f3f4f6; color: #444; text-decoration: none;
+    border-radius: .75rem .75rem 0 0; padding: .5rem .9rem; margin-bottom: 0;
+  }
+  .tabs-wrap .nav-link:hover { background: #e9ecef; color: #222; }
+  .tabs-wrap .nav-link.active {
+    background: #fff; color: #111; position: relative; z-index: 2;
+    border-color: #dee2e6 #dee2e6 #fff;
+  }
+
+  /* sekmelerin altındaki kutu */
+  .page-section {
+    background: #fff; border: 1px solid #dee2e6;
+    border-radius: 0 .75rem .75rem .75rem;
+    padding: 1rem; margin-top: -1px;
+  }
   </style>
   <title>{% block title %}{% endblock %}</title>
 </head>
