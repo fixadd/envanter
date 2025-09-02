@@ -536,7 +536,10 @@ def scrap(
 
 @router.get("/hurdalar", name="inventory.hurdalar")
 def hurdalar_listesi(
-    request: Request, db: Session = Depends(get_db), user=Depends(current_user)
+    request: Request,
+    tur: str = "envanter",
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
 ):
     hurdalar = db.query(Inventory).filter(Inventory.durum == "hurda").all()
     logs_map = {
@@ -562,5 +565,6 @@ def hurdalar_listesi(
             "logs_map": logs_map,
             "license_scraps": license_scraps,
             "printer_scraps": printer_scraps,
+            "tur": tur,
         },
     )

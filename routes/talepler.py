@@ -13,21 +13,24 @@ templates = Jinja2Templates(directory="templates")
 router = APIRouter(prefix="/talepler", tags=["Talepler"])
 
 
-@router.get("", response_class=HTMLResponse)
-def liste(request: Request, db: Session = Depends(get_db)):
+@router.get("", response_class=HTMLResponse, name="talep_list")
+def liste(request: Request, durum: str = "aktif", db: Session = Depends(get_db)):
     """Talep kayıtlarını duruma göre tablo halinde göster."""
 
-    aktif = db.query(Talep).filter(Talep.durum == TalepDurum.AKTIF).all()
-    kapali = db.query(Talep).filter(Talep.durum == TalepDurum.TAMAMLANDI).all()
-    iptal = db.query(Talep).filter(Talep.durum == TalepDurum.IPTAL).all()
+    durum_map = {
+        "aktif": TalepDurum.AKTIF,
+        "kapali": TalepDurum.TAMAMLANDI,
+        "iptal": TalepDurum.IPTAL,
+    }
+    selected = durum_map.get(durum, TalepDurum.AKTIF)
+    rows = db.query(Talep).filter(Talep.durum == selected).all()
 
     return templates.TemplateResponse(
         "talepler.html",
         {
             "request": request,
-            "aktif": aktif,
-            "kapali": kapali,
-            "iptal": iptal,
+            "rows": rows,
+            "durum": durum,
         },
     )
 
@@ -111,7 +114,7 @@ def convert_request(talep_id: int, request: Request, adet: int = 1, db: Session 
     )
 
 
-@router.get("/export.xlsx")
+@router.get("/export.xlsx", name="talep_export_excel")
 def export_excel(db: Session = Depends(get_db)):
     wb = Workbook()
     ws = wb.active

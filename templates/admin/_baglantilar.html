@@ -1,0 +1,17 @@
+<h5 class="mb-3">Bağlantılar</h5>
+<table class="table table-sm align-middle">
+  <thead class="table-light"><tr><th>Ad</th><th>Sunucu</th><th>Port</th><th>Base DN</th><th>Kullanıcı</th></tr></thead>
+  <tbody>
+    {% for c in connections or [] %}
+    <tr>
+      <td>{{ c.name }}</td>
+      <td>{{ c.host }}</td>
+      <td>{{ c.port }}</td>
+      <td>{{ c.base_dn }}</td>
+      <td>{{ c.user_dn }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="text-center text-muted">Kayıt yok.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>

@@ -1,0 +1,24 @@
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h5 class="mb-0">Kullanıcı Yönetimi</h5>
+</div>
+<div class="table-responsive">
+  <table class="table table-sm align-middle">
+    <thead class="table-light">
+      <tr><th>#</th><th>Kullanıcı Adı</th><th>Ad</th><th>Soyad</th><th>E-posta</th><th>Rol</th></tr>
+    </thead>
+    <tbody>
+      {% for u in users or [] %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ u.username }}</td>
+        <td>{{ u.first_name or '' }}</td>
+        <td>{{ u.last_name or '' }}</td>
+        <td>{{ u.email or '' }}</td>
+        <td>{{ u.role }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="text-center text-muted">Kayıt yok.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
