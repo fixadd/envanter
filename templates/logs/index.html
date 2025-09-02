@@ -1,10 +1,8 @@
 {% extends "base.html" %}{% block title %}Kayıtlar{% endblock %}
-{% from "components/main_tabs.html" import main_tabs with context %}
 {% from "components/tabs.html" import tabs %}
 {% set active_key = request.query_params.get("tab") or "kullanici" %}
 {% block content %}
 <div class="container-fluid p-3">
-  {{ main_tabs('logs') }}
   {% set islem_map = {
   "assign": "Atama",
   "edit": "Düzenleme",
