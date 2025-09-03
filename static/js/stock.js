@@ -18,7 +18,7 @@ chkIsLicense?.addEventListener('change', e=>{
   const isLic = e.target.checked;
   hardwareFields?.classList.toggle('d-none', isLic);
   licenseFields?.classList.toggle('d-none', !isLic);
-  donanimSel.required = !isLic;
+  donanimSel?.toggleAttribute('required', !isLic);
   rowMiktar?.classList.toggle('d-none', isLic);
   hardwareFields?.querySelectorAll('input,select').forEach(el=> el.disabled = isLic);
   licenseFields?.querySelectorAll('input,select').forEach(el=> el.disabled = !isLic);
