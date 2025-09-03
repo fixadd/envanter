@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from security import SessionUser, current_user
-from models import StockAssignment, StockLog, HardwareType, UsageArea
+from models import StockAssignment, StockLog, HardwareType, UsageArea, LicenseName
 
 
 router = APIRouter(prefix="/stock", tags=["Stock"])
@@ -124,6 +124,9 @@ def current_stock(db: Session):
 def stock_list(request: Request, db: Session = Depends(get_db)):
     logs = db.query(StockLog).order_by(StockLog.tarih.desc(), StockLog.id.desc()).all()
     hardware_types = db.query(HardwareType).order_by(HardwareType.name).all()
+    license_names = db.query(LicenseName).order_by(LicenseName.name).all()
+    hardware_map = {str(h.id): h.name for h in hardware_types}
+    license_map = {str(l.id): l.name for l in license_names}
     users = [r[0] for r in db.execute(text("SELECT full_name FROM users ORDER BY full_name")).fetchall()]
     usage_areas = db.query(UsageArea).order_by(UsageArea.name).all()
     return templates.TemplateResponse(
@@ -132,6 +135,8 @@ def stock_list(request: Request, db: Session = Depends(get_db)):
             "request": request,
             "logs": logs,
             "hardware_types": hardware_types,
+            "hardware_map": hardware_map,
+            "license_map": license_map,
             "users": users,
             "usage_areas": usage_areas,
         },

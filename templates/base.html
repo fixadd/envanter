@@ -380,9 +380,18 @@ window.addEventListener("message", (e) => {
     first.value = ''; first.textContent = 'Seçiniz…';
     el.appendChild(first);
 
-    for (const v of (items || [])) {
+    const list = (items || []).map(v => {
+      if (v && typeof v === 'object') {
+        return { id: v.id ?? '', text: v.name ?? v.ad ?? v.text ?? v.value ?? '' };
+      }
+      return { id: '', text: v };
+    });
+
+    for (const v of list) {
       const opt = document.createElement('option');
-      opt.value = v; opt.textContent = v;
+      opt.value = v.text;
+      opt.textContent = v.text;
+      if (v.id) opt.dataset.id = v.id;
       el.appendChild(opt);
     }
 
@@ -401,14 +410,14 @@ window.addEventListener("message", (e) => {
     // TomSelect
     if (el.tomselect) {
       el.tomselect.clearOptions();
-      el.tomselect.addOptions((items||[]).map(v => ({ value: v, text: v })));
+      el.tomselect.addOptions(list.map(v => ({ value: v.text, text: v.text })));
     }
 
     // Choices.js
     if (window.Choices && el.classList.contains('choices')) {
       if (el._choices && el._choices.destroy) el._choices.destroy();
       el._choices = new Choices(el, { searchEnabled: true, itemSelectText: '' });
-      el._choices.setChoices((items||[]).map(v => ({ value: v, label: v })), 'value', 'label', true);
+      el._choices.setChoices(list.map(v => ({ value: v.text, label: v.text })), 'value', 'label', true);
     }
   }
 
