@@ -3,7 +3,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Body
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import func, text
+from sqlalchemy import func, text, select
 from sqlalchemy.orm import Session
 from typing import Optional, Literal
 from pydantic import BaseModel, Field
@@ -269,57 +269,66 @@ def stock_assign(payload: AssignPayload, db: Session = Depends(get_db)):
 
     personel = payload.sorumlu_personel_id
 
-    if payload.atama_turu == "envanter":
-        if not payload.hedef_envanter_id:
-            raise HTTPException(status_code=422, detail="Hedef envanter seçiniz.")
-        hedef = db.get(Inventory, payload.hedef_envanter_id)
-        if not hedef:
-            raise HTTPException(status_code=404, detail="Hedef envanter bulunamadı.")
-        if ifs_no:
-            hedef.ifs_no = ifs_no
-        if personel:
-            hedef.sorumlu_personel = personel
-    elif payload.atama_turu == "yazici":
-        if not payload.hedef_yazici_id:
-            raise HTTPException(status_code=422, detail="Hedef yazıcı seçiniz.")
-        hedef = db.get(Printer, payload.hedef_yazici_id)
-        if not hedef:
-            raise HTTPException(status_code=404, detail="Hedef yazıcı bulunamadı.")
-        if personel:
-            hedef.sorumlu_personel = personel
-    elif payload.atama_turu == "lisans":
-        if not payload.lisans_id:
-            raise HTTPException(status_code=422, detail="Lisans seçiniz.")
-        hedef = db.get(License, payload.lisans_id)
-        if not hedef:
-            raise HTTPException(status_code=404, detail="Lisans bulunamadı.")
-        if personel:
-            hedef.sorumlu_personel = personel
-        if payload.hedef_envanter_id:
-            env = db.get(Inventory, payload.hedef_envanter_id)
-            if env:
-                hedef.bagli_envanter_no = env.no
-    else:  # pragma: no cover - validation
-        raise HTTPException(status_code=400, detail="Geçersiz atama türü.")
+    # stock_status sorgusu otomatik olarak bir transaction başlatabilir.
+    # Yeni işlem başlatmadan önce mevcut durumu sonlandır.
+    db.rollback()
 
-    total = db.get(StockTotal, donanim_tipi)
-    if not total or total.toplam < payload.miktar:
-        raise HTTPException(status_code=400, detail="Yetersiz stok.")
+    with db.begin():
+        if payload.atama_turu == "envanter":
+            if not payload.hedef_envanter_id:
+                raise HTTPException(status_code=422, detail="Hedef envanter seçiniz.")
+            hedef = db.get(Inventory, payload.hedef_envanter_id)
+            if not hedef:
+                raise HTTPException(status_code=404, detail="Hedef envanter bulunamadı.")
+            if ifs_no:
+                hedef.ifs_no = ifs_no
+            if personel:
+                hedef.sorumlu_personel = personel
+        elif payload.atama_turu == "yazici":
+            if not payload.hedef_yazici_id:
+                raise HTTPException(status_code=422, detail="Hedef yazıcı seçiniz.")
+            hedef = db.get(Printer, payload.hedef_yazici_id)
+            if not hedef:
+                raise HTTPException(status_code=404, detail="Hedef yazıcı bulunamadı.")
+            if personel:
+                hedef.sorumlu_personel = personel
+        elif payload.atama_turu == "lisans":
+            if not payload.lisans_id:
+                raise HTTPException(status_code=422, detail="Lisans seçiniz.")
+            hedef = db.get(License, payload.lisans_id)
+            if not hedef:
+                raise HTTPException(status_code=404, detail="Lisans bulunamadı.")
+            if personel:
+                hedef.sorumlu_personel = personel
+            if payload.hedef_envanter_id:
+                env = db.get(Inventory, payload.hedef_envanter_id)
+                if env:
+                    hedef.bagli_envanter_no = env.no
+        else:  # pragma: no cover - validation
+            raise HTTPException(status_code=400, detail="Geçersiz atama türü.")
 
-    total.toplam -= payload.miktar
-    db.merge(total)
-
-    db.add(
-        StockLog(
-            donanim_tipi=donanim_tipi,
-            miktar=payload.miktar,
-            ifs_no=ifs_no,
-            islem="cikti",
-            actor=personel,
+        total = (
+            db.execute(
+                select(StockTotal)
+                .where(StockTotal.donanim_tipi == donanim_tipi)
+                .with_for_update()
+            ).scalar_one_or_none()
         )
-    )
+        if not total or total.toplam < payload.miktar:
+            raise HTTPException(status_code=400, detail="Yetersiz stok.")
 
-    db.commit()
+        total.toplam -= payload.miktar
+        db.merge(total)
+
+        db.add(
+            StockLog(
+                donanim_tipi=donanim_tipi,
+                miktar=payload.miktar,
+                ifs_no=ifs_no,
+                islem="cikti",
+                actor=personel,
+            )
+        )
 
     return {
         "ok": True,
