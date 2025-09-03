@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="api-root" content="/api">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link href="{{ url_for('static', path='css/custom.css') }}" rel="stylesheet">
@@ -337,6 +338,137 @@ window.addEventListener("message", (e) => {
       }
       draw();
     }
+    </script>
+    <script>
+(function () {
+  // ---- API kökünü tespit et (meta varsa onu kullan, yoksa mantıklı varsayılan) ----
+  const META_API = document.querySelector('meta[name="api-root"]')?.content;
+  const API_ROOT = (META_API && META_API.replace(/\/$/, '')) || '/api';
+
+  // ---- Lookup cache + güvenli fetch ----
+  const Cache = new Map();
+  async function fetchLookup(entity, params = {}) {
+    const key = entity + '::' + JSON.stringify(params);
+    if (Cache.has(key)) return Cache.get(key);
+
+    const url = new URL(`${API_ROOT}/lookup/${encodeURIComponent(entity)}`, window.location.origin);
+    Object.entries(params).forEach(([k, v]) => (v != null && v !== '') && url.searchParams.set(k, v));
+
+    const res = await fetch(url.toString(), { credentials: 'same-origin' });
+    const ct = res.headers.get('content-type') || '';
+    // Login'e yönlendirme / HTML dönerse yakala
+    if (!res.ok || !ct.includes('application/json')) {
+      console.error('[lookup] Hatalı cevap:', res.status, ct);
+      const text = await res.text().catch(() => '');
+      if (text.includes('<form') && text.toLowerCase().includes('login')) {
+        console.warn('[lookup] Muhtemel oturum/redirect. Sayfada giriş/çerez kontrol et.');
+      }
+      Cache.set(key, []); return [];
+    }
+    const data = await res.json().catch(() => []);
+    Cache.set(key, Array.isArray(data) ? data : []);
+    return Cache.get(key);
+  }
+
+  // ---- Select eklentileri için evrensel doldurucu ----
+  function fillSelect(el, items) {
+    if (!el) return;
+
+    // Native temizle
+    el.innerHTML = '';
+    const first = document.createElement('option');
+    first.value = ''; first.textContent = 'Seçiniz…';
+    el.appendChild(first);
+
+    for (const v of (items || [])) {
+      const opt = document.createElement('option');
+      opt.value = v; opt.textContent = v;
+      el.appendChild(opt);
+    }
+
+    // jQuery + Bootstrap-select
+    if (window.jQuery) {
+      const $el = jQuery(el);
+      if ($el.hasClass('selectpicker') && jQuery.fn.selectpicker) $el.selectpicker('refresh');
+
+      // Select2
+      if (jQuery.fn.select2) {
+        if ($el.data('select2')) { $el.trigger('change.select2'); }
+        else { $el.select2({ width: '100%', language: { noResults: ()=>'Seçenek yok', searching:()=> 'Aranıyor…' } }); }
+      }
+    }
+
+    // TomSelect
+    if (el.tomselect) {
+      el.tomselect.clearOptions();
+      el.tomselect.addOptions((items||[]).map(v => ({ value: v, text: v })));
+    }
+
+    // Choices.js
+    if (window.Choices && el.classList.contains('choices')) {
+      if (el._choices && el._choices.destroy) el._choices.destroy();
+      el._choices = new Choices(el, { searchEnabled: true, itemSelectText: '' });
+      el._choices.setChoices((items||[]).map(v => ({ value: v, label: v })), 'value', 'label', true);
+    }
+  }
+
+  // ---- Tek satırı initialize et ----
+  async function initRow(container, rowEl) {
+    const donanim = rowEl.querySelector('select[data-lookup="donanim_tipi"]');
+    const marka   = rowEl.querySelector('select[data-lookup="marka"]');
+    const model   = rowEl.querySelector('select[data-lookup="model"]');
+
+    if (donanim) fillSelect(donanim, await fetchLookup('donanim_tipi'));
+    if (marka)   fillSelect(marka,   await fetchLookup('marka'));
+
+    // model marka'ya bağımlıysa
+    if (model) {
+      const depSel = model.getAttribute('data-depends');
+      const depEl  = depSel ? (rowEl.querySelector(depSel) || container.querySelector(depSel) || document.querySelector(depSel)) : marka;
+      fillSelect(model, []); // başta boş
+      if (depEl) {
+        depEl.addEventListener('change', async () => {
+          const m = depEl.value || '';
+          const list = await fetchLookup('model', m ? { marka: m } : {});
+          fillSelect(model, list);
+        }, { passive: true });
+      } else {
+        // Bağımlı yoksa tüm modeller
+        fillSelect(model, await fetchLookup('model'));
+      }
+    }
+  }
+
+  // ---- Bir konteyner içindeki tüm satırları kur ----
+  async function initContainer(container) {
+    const rows = container.querySelectorAll('.talep-row, .stok-row');
+    if (rows.length) {
+      for (const r of rows) await initRow(container, r);
+      return;
+    }
+    // Eğer tek satırlık formsa
+    await initRow(container, container);
+  }
+
+  // ---- Modal açıldığında doldur ----
+  document.addEventListener('shown.bs.modal', (ev) => {
+    const modal = ev.target;
+    initContainer(modal);
+  });
+
+  // ---- Sonradan eklenen satırları yakala ----
+  const mo = new MutationObserver((muts) => {
+    for (const m of muts) {
+      m.addedNodes.forEach(n => {
+        if (n.nodeType !== 1) return;
+        if (n.matches?.('.talep-row, .stok-row, .modal')) initContainer(n);
+        const inner = n.querySelector?.('select[data-lookup]');
+        if (inner) initContainer(n.closest('.modal') || document);
+      });
+    }
+  });
+  mo.observe(document.body, { childList: true, subtree: true });
+})();
     </script>
   </body>
   </html>
