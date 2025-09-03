@@ -138,36 +138,61 @@
     const rowContainer = document.getElementById('talepRows');
     let templateRow = rowContainer.firstElementChild.cloneNode(true);
 
-  document.addEventListener('click', (ev) => {
-    const addBtn = ev.target.closest('[data-action="row-add"]');
-    if (addBtn) {
-      const clone = templateRow.cloneNode(true);
-      clone.querySelectorAll('input').forEach(i => i.value = '');
-      clone.querySelectorAll('select').forEach(sel => sel.value = '');
-      rowContainer.appendChild(clone);
+    let rowIdx = 0;
+    async function initRow(row){
+      rowIdx++;
+      const donSel = row.querySelector("[data-lookup='donanim_tipi']");
+      const markaSel = row.querySelector("[data-lookup='marka']");
+      const modelSel = row.querySelector("[data-lookup='model']");
+      if (donSel){
+        donSel.id = donSel.id || `talep_donanim_${rowIdx}`;
+        await _selects.fillChoices({ endpoint: '/api/lookup/donanim_tipi', selectId: donSel.id, placeholder: 'Donanım tipi seçiniz…' });
+      }
+      if (markaSel){
+        markaSel.id = markaSel.id || `talep_marka_${rowIdx}`;
+        await _selects.fillChoices({ endpoint: '/api/lookup/marka', selectId: markaSel.id, placeholder: 'Marka seçiniz…' });
+      }
+      if (markaSel && modelSel){
+        modelSel.id = modelSel.id || `talep_model_${rowIdx}`;
+        _selects.bindMarkaModel(markaSel.id, modelSel.id);
+      }
     }
-    const rmBtn = ev.target.closest('[data-action="row-remove"]');
-    if (rmBtn && rowContainer.children.length > 1) {
-      rmBtn.closest('.talep-row').remove();
-    }
-  });
 
-  async function talepGonder(e) {
-    e.preventDefault();
-    const ifsNo = document.getElementById('ifsNoGlobal').value;
-    const rows = rowContainer.querySelectorAll('.talep-row');
-    for (const row of rows) {
-      const fd = new FormData();
-      if (ifsNo) fd.append('ifs_no', ifsNo);
-      row.querySelectorAll('input, select').forEach(el => {
-        if (el.name && el.value) fd.append(el.name, el.value);
-      });
-      const res = await fetch('/talepler', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (!data.ok) { alert('Kayıt hatası'); return false; }
+    document.addEventListener('DOMContentLoaded', () => {
+      initRow(rowContainer.firstElementChild);
+    });
+
+    document.addEventListener('click', async (ev) => {
+      const addBtn = ev.target.closest('[data-action="row-add"]');
+      if (addBtn) {
+        const clone = templateRow.cloneNode(true);
+        clone.querySelectorAll('input').forEach(i => i.value = '');
+        clone.querySelectorAll('select').forEach(sel => sel.value = '');
+        rowContainer.appendChild(clone);
+        await initRow(clone);
+      }
+      const rmBtn = ev.target.closest('[data-action="row-remove"]');
+      if (rmBtn && rowContainer.children.length > 1) {
+        rmBtn.closest('.talep-row').remove();
+      }
+    });
+
+    async function talepGonder(e) {
+      e.preventDefault();
+      const ifsNo = document.getElementById('ifsNoGlobal').value;
+      const rows = rowContainer.querySelectorAll('.talep-row');
+      for (const row of rows) {
+        const fd = new FormData();
+        if (ifsNo) fd.append('ifs_no', ifsNo);
+        row.querySelectorAll('input, select').forEach(el => {
+          if (el.name && el.value) fd.append(el.name, el.value);
+        });
+        const res = await fetch('/talepler', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (!data.ok) { alert('Kayıt hatası'); return false; }
+      }
+      location.reload();
+      return false;
     }
-    location.reload();
-    return false;
-  }
-</script>
+  </script>
 {% endblock %}
