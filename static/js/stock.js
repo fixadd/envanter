@@ -1,30 +1,10 @@
-// Lookup listelerini admin paneldeki lookup API'lerinden doldur
-async function loadLookup(sel, url){
-  if(!sel) return;
-  try{
-    const res = await fetch(url, {headers:{Accept:'application/json'}});
-    const data = await res.json();
-    const opts = (data || []).map(x => {
-      const label = x.name || x.ad || x.text || x;
-      const val   = x.name || x.ad || x.text || x;
-      const id    = x.id ?? '';
-      return `<option value="${val}" data-id="${id}">${label}</option>`;
-    }).join('');
-    sel.innerHTML = '<option value="">Seçiniz</option>' + opts;
-  }catch(e){
-    console.error('lookup failed', url, e);
-  }
-}
-
 let donanimSel, markaSel, modelSel, lisansSel;
 
-document.getElementById('modalStockAdd')?.addEventListener('shown.bs.modal', async () => {
+document.getElementById('modalStockAdd')?.addEventListener('shown.bs.modal', () => {
   donanimSel = document.getElementById('stok_donanim_tipi');
   markaSel    = document.getElementById('stok_marka');
   modelSel    = document.getElementById('stok_model');
   lisansSel   = document.getElementById('lisans_adi');
-
-  await loadLookup(lisansSel, '/api/lookup/lisans-adi');
 });
 
 // Ekle form submit
@@ -59,9 +39,22 @@ document.getElementById('frmStockAdd')?.addEventListener('submit', async (e)=>{
     fd.set('is_license','1');
   }
   const payload = Object.fromEntries(fd.entries());
-  const res = await fetch('/stock/add', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-  const j = await res.json();
-  if(j.ok){ location.reload(); } else { alert(j.error || 'Kayıt başarısız'); }
+  try{
+    const res = await fetch('/stock/add', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const j = await res.json();
+    if(j.ok){
+      location.reload();
+    } else {
+      alert(j.error || 'Kayıt başarısız');
+    }
+  }catch(err){
+    console.error('stock add failed', err);
+    alert('Kayıt başarısız');
+  }
 });
 
 // --- Yeni stok atama modali -------------------------------------------------
