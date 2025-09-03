@@ -49,7 +49,7 @@
         {% for r in logs %}
         <tr>
           <td>#{{ r.id }}</td>
-          <td>{{ r.donanim_tipi }}</td>
+          <td>{{ hardware_map.get(r.donanim_tipi) or license_map.get(r.donanim_tipi) or r.donanim_tipi }}</td>
           <td>{{ r.miktar }}</td>
           <td>{{ r.ifs_no or '-' }}</td>
           <td>{{ (r.tarih).strftime("%d.%m.%Y %H:%M") if r.tarih else '-' }}</td>
@@ -110,25 +110,23 @@
 
         <div id="hardwareFields" class="col-12">
           <div class="row g-3 stok-row">
-            <div class="col-md-4">
+            <div class="col-md-3">
               <label class="form-label">Donanım Tipi</label>
               <select name="donanim_tipi" class="form-select" data-lookup="donanim_tipi" id="stok_donanim_tipi" required></select>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
               <label class="form-label">Marka (ops.)</label>
               <select name="marka" class="form-select" data-lookup="marka" id="stok_marka"></select>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-2">
               <label class="form-label">Model (ops.)</label>
               <select name="model" class="form-select" data-lookup="model" data-depends="#stok_marka" id="stok_model"></select>
             </div>
-          </div>
-          <div class="row g-3 mt-0">
             <div class="col-md-2" id="rowMiktar">
               <label class="form-label">Miktar</label>
               <input type="number" min="1" id="miktar" name="miktar" class="form-control" required>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
               <label class="form-label">IFS No (opsiyonel)</label>
               <input type="text" id="ifs_no" name="ifs_no" class="form-control">
             </div>
