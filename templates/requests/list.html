@@ -6,7 +6,7 @@
     <h5 class="mb-0">Talepler</h5>
     <div class="d-flex gap-2">
       <a href="/requests/export" class="btn btn-outline-secondary btn-sm">Excel</a>
-      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#talepModal">Talep Aç</button>
+      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalTalepAc">Talep Aç</button>
     </div>
   </div>
 
@@ -69,209 +69,208 @@
     </div>
   </div>
 </div>
-
 <!-- Talep Aç Modal -->
-<div class="modal fade" id="talepModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <form id="frmTalep" class="modal-content" onsubmit="return talepGonder(event)">
+<div class="modal fade" id="modalTalepAc" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Talep Aç</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
       </div>
 
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">Talep Türü</label>
-            <select id="talep_turu" class="form-select">
-              <option value="">Seçiniz…</option>
-              <option value="envanter">Envanter</option>
-              <option value="lisans">Lisans</option>
-              <option value="aksesuar">Aksesuar</option>
-            </select>
-          </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">IFS No</label>
+          <input type="text" class="form-control" name="ifs_no" placeholder="IFS No">
+        </div>
 
-          <div id="grup_envanter" class="row g-2 d-none">
-            <div class="col-md-6">
-              <label class="form-label">Donanım Tipi</label>
-              <select id="talep_donanim_tipi" class="form-select"></select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Marka</label>
-              <select id="talep_marka" class="form-select"></select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Model</label>
-              <select id="talep_model" class="form-select"></select>
-            </div>
-          </div>
-
-          <div id="grup_lisans" class="row g-2 d-none">
-            <div class="col-md-8">
-              <label class="form-label">Lisans Adı</label>
-              <select id="talep_lisans_adi" class="form-select"></select>
-            </div>
-          </div>
-
-          <div id="grup_aksesuar" class="row g-2 d-none">
-            <div class="col-md-6">
-              <label class="form-label">Donanım Tipi</label>
-              <select id="talep_aksesuar_tip" class="form-select"></select>
-            </div>
+        <div class="talep-rows">
+          <!-- İlk satır -->
+          <div class="row g-2 align-items-end talep-row">
             <div class="col-md-3">
+              <label class="form-label">Donanım Tipi</label>
+              <select class="form-select js-donanim"><option value="">Seçiniz…</option></select>
+            </div>
+            <div class="col-md-2">
               <label class="form-label">Miktar</label>
-              <input id="talep_miktar" type="number" min="1" class="form-control" />
+              <input type="number" min="1" value="1" class="form-control" name="miktar[]">
             </div>
             <div class="col-md-3">
-              <label class="form-label">IFS No (opsiyonel)</label>
-              <input id="talep_ifs" type="text" class="form-control" />
+              <label class="form-label">Marka</label>
+              <select class="form-select js-marka"><option value="">Seçiniz…</option></select>
             </div>
-          </div>
-
-          <div id="talepRows">
-          <div class="talep-row row g-2 align-items-end mb-2">
             <div class="col-md-3">
-              <label class="form-label">Donanım Tipi</label>
-              <select name="donanim_tipi" class="form-select">
-                <option value="">Seçiniz...</option>
-              </select>
+              <label class="form-label">Model</label>
+              <select class="form-select js-model"><option value="">Seçiniz…</option></select>
             </div>
             <div class="col-md-1">
-              <label class="form-label">Miktar</label>
-              <input name="miktar" type="number" min="1" class="form-control" placeholder="Miktar">
+              <button type="button" class="btn btn-outline-danger" data-action="row-remove">✕</button>
             </div>
-            <div class="col-md-2">
-              <label class="form-label">Marka</label>
-              <select name="marka" class="form-select">
-                <option value="">Seçiniz...</option>
-              </select>
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">Model</label>
-              <select name="model" class="form-select">
-                <option value="">Seçiniz...</option>
-              </select>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Açıklama</label>
-              <input name="aciklama" class="form-control" placeholder="Açıklama">
-            </div>
-            <div class="col-auto">
-              <button type="button" class="btn btn-success btn-sm add-row">+</button>
-              <button type="button" class="btn btn-danger btn-sm remove-row">-</button>
+            <div class="col-12 mt-2">
+              <input type="text" class="form-control" name="aciklama[]" placeholder="Açıklama">
             </div>
           </div>
+        </div>
+
+        <div class="mt-3">
+          <button type="button" class="btn btn-light" data-action="row-add">Satır Ekle</button>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Kapat</button>
-        <button class="btn btn-primary" type="submit">Kaydet</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+        <button class="btn btn-primary">Gönder</button>
       </div>
-    </form>
+    </div>
   </div>
 </div>
 
+<!-- Satır template'i -->
+<template id="talep-row-template">
+  <div class="row g-2 align-items-end talep-row mt-2">
+    <div class="col-md-3">
+      <label class="form-label">Donanım Tipi</label>
+      <select class="form-select js-donanim"><option value="">Seçiniz…</option></select>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">Miktar</label>
+      <input type="number" min="1" value="1" class="form-control" name="miktar[]">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Marka</label>
+      <select class="form-select js-marka"><option value="">Seçiniz…</option></select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Model</label>
+      <select class="form-select js-model"><option value="">Seçiniz…</option></select>
+    </div>
+    <div class="col-md-1">
+      <button type="button" class="btn btn-outline-danger" data-action="row-remove">✕</button>
+    </div>
+    <div class="col-12 mt-2">
+      <input type="text" class="form-control" name="aciklama[]" placeholder="Açıklama">
+    </div>
+  </div>
+</template>
+
 <script>
-  const rowContainer = document.getElementById('talepRows');
-  let templateRow;
+// ====== Lookup cache ve yardımcılar ======
+const LookupCache = {};
 
-  function bindRow(row) {
-    const markaSel = row.querySelector('select[name="marka"]');
-    const modelSel = row.querySelector('select[name="model"]');
-    markaSel.addEventListener('change', () => {
-      const id = markaSel.selectedOptions[0]?.dataset.id || '';
-      modelSel.innerHTML = '<option value="">Seçiniz...</option>';
-      if (!id) return;
-      fetch(`/api/lookup/model?marka_id=${id}`).then(r=>r.json()).then(list=>{
-        const opts = list.map(n=>`<option value="${n.name ?? n}">${n.name ?? n}</option>`).join('');
-        modelSel.insertAdjacentHTML('beforeend', opts);
-      });
-    });
+async function fetchLookup(entity, params = {}) {
+  const key = entity + JSON.stringify(params);
+  if (LookupCache[key]) return LookupCache[key];
 
-    row.querySelector('.add-row').addEventListener('click', addRow);
-    row.querySelector('.remove-row').addEventListener('click', () => {
-      if (rowContainer.children.length > 1) row.remove();
-    });
-  }
-
-  function addRow() {
-    const clone = templateRow.cloneNode(true);
-    clone.querySelectorAll('input').forEach(i => i.value = '');
-    clone.querySelectorAll('select').forEach(sel => {
-      sel.selectedIndex = 0;
-      if (sel.name === 'model') sel.innerHTML = '<option value="">Seçiniz...</option>';
-    });
-    rowContainer.appendChild(clone);
-    bindRow(clone);
-  }
-
-  const lookups = Promise.all([
-    fetch('/api/lookup/donanim-tipi').then(r=>r.json()),
-    fetch('/api/lookup/marka').then(r=>r.json()),
-  ]);
-
-  lookups.then(([donanimList, markaList]) => {
-    const donanimOpts = donanimList.map(n=>`<option value="${n.name ?? n}">${n.name ?? n}</option>`).join('');
-        const markaOpts = markaList
-      .map(n=>`<option value="${n.name ?? n}" data-id="${n.id ?? ''}">${n.name ?? n}</option>`)
-      .join('');
-
-    const firstRow = rowContainer.firstElementChild;
-    firstRow.querySelector('select[name="donanim_tipi"]').insertAdjacentHTML('beforeend', donanimOpts);
-    firstRow.querySelector('select[name="marka"]').insertAdjacentHTML('beforeend', markaOpts);
-    templateRow = firstRow.cloneNode(true);
-    bindRow(firstRow);
+  const url = new URL(`/api/lookup/${encodeURIComponent(entity)}`, window.location.origin);
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v);
   });
 
-  async function talepGonder(e) {
-    e.preventDefault();
-    const rows = rowContainer.querySelectorAll('.talep-row');
-    for (const row of rows) {
-      const fd = new FormData();
-      row.querySelectorAll('input, select').forEach(el => {
-        if (el.name && el.value) fd.append(el.name, el.value);
-      });
-      const res = await fetch('/requests', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (!data.ok) { alert('Kayıt hatası'); return false; }
-    }
-    location.reload();
-    return false;
-  }
-</script>
-<script>
-const E = sel => document.querySelector(sel);
-const show = el => el.classList.remove('d-none');
-const hide = el => el.classList.add('d-none');
-
-async function fill(id, entity){
-  const el = document.getElementById(id);
-  if(!el) return;
-  el.innerHTML = '<option value="">Yükleniyor…</option>';
-  const r = await fetch(`/api/lookup/${entity}`);
-  const data = r.ok ? await r.json() : [];
-  el.innerHTML = '<option value="">Seçiniz…</option>' + data.map(v => `<option value="${v}">${v}</option>`).join('');
+  const res = await fetch(url.toString());
+  if (!res.ok) return [];
+  const data = await res.json();
+  LookupCache[key] = data;
+  return data;
 }
 
-E('#talep_turu')?.addEventListener('change', async (ev) => {
-  const v = ev.target.value;
-  hide(E('#grup_envanter')); hide(E('#grup_lisans')); hide(E('#grup_aksesuar'));
-  if (v === 'envanter') {
-    show(E('#grup_envanter'));
-    await fill('talep_donanim_tipi', 'donanim_tipi');
-    await fill('talep_marka', 'marka');
-    await fill('talep_model', 'model');
-  } else if (v === 'lisans') {
-    show(E('#grup_lisans'));
-    await fill('talep_lisans_adi', 'lisans_adi');
-  } else if (v === 'aksesuar') {
-    show(E('#grup_aksesuar'));
-    await fill('talep_aksesuar_tip', 'donanim_tipi');
+function initSelectPlugin(selectEl) {
+  // Select2 kullanıyorsan:
+  if (window.jQuery && jQuery(selectEl).data && jQuery(selectEl).data('select2')) {
+    jQuery(selectEl).select2('destroy');
   }
-});
+  if (window.jQuery && jQuery.fn && jQuery.fn.select2) {
+    jQuery(selectEl).select2({
+      width: '100%',
+      language: {
+        noResults: () => 'Seçenek yok',
+        searching: () => 'Aranıyor…'
+      }
+    });
+  }
 
+  // Choices kullanıyorsan:
+  if (selectEl._choices && selectEl._choices.destroy) {
+    selectEl._choices.destroy();
+  }
+  if (window.Choices && selectEl.classList.contains('choices')) {
+    selectEl._choices = new Choices(selectEl, { searchEnabled: true, itemSelectText: '' });
+  }
+}
+
+function fillOptions(selectEl, items) {
+  if (!selectEl) return;
+  const opts = ['<option value="">Seçiniz…</option>']
+    .concat(items.map(v => `<option value="${v}">${v}</option>`)).join('');
+  selectEl.innerHTML = opts;
+  initSelectPlugin(selectEl);
+}
+
+// ====== Satır başlatma (tek satır) ======
+async function initTalepRow(rowEl) {
+  const donanimSel = rowEl.querySelector('.js-donanim');
+  const markaSel   = rowEl.querySelector('.js-marka');
+  const modelSel   = rowEl.querySelector('.js-model');
+
+  // 1) donanım tipi & marka & (şimdilik) boş model
+  const [donanimList, markaList] = await Promise.all([
+    fetchLookup('donanim_tipi'),
+    fetchLookup('marka')
+  ]);
+
+  fillOptions(donanimSel, donanimList);
+  fillOptions(markaSel, markaList);
+  fillOptions(modelSel, []); // marka seçilince dolduracağız
+
+  // 2) Marka seçilince model doldur
+  markaSel.addEventListener('change', async (e) => {
+    const selectedMarka = e.target.value || '';
+    // önce tamamen temizle
+    fillOptions(modelSel, []);
+    // marka yoksa tüm modelleri getirmek istersen aşağıyı değiştir:
+    const modelList = await fetchLookup('model', { marka: selectedMarka });
+    fillOptions(modelSel, modelList);
+  }, { passive: true });
+}
+
+// ====== Modal içindeki tüm satırları başlat ======
+async function initAllRows(modal) {
+  const rows = modal.querySelectorAll('.talep-row');
+  for (const row of rows) {
+    await initTalepRow(row);
+  }
+}
+
+// ====== Modal ve satır ekleme/çıkarma ======
 document.addEventListener('DOMContentLoaded', () => {
-  // gerekirse başlangıçta bir tür seçiliyse onu doldur
+  const modal = document.getElementById('modalTalepAc'); // modal id'n bu olmalı
+  if (!modal) return;
+
+  // Modal açıldığında var olan satırları doldur
+  modal.addEventListener('shown.bs.modal', async () => {
+    await initAllRows(modal);
+  });
+
+  // "Satır Ekle" butonu (data-action="row-add")
+  modal.addEventListener('click', async (ev) => {
+    const btn = ev.target.closest('[data-action="row-add"]');
+    if (btn) {
+      const container = modal.querySelector('.talep-rows');
+      const tpl = modal.querySelector('#talep-row-template');
+      if (!container || !tpl) return;
+
+      const clone = document.importNode(tpl.content, true);
+      container.appendChild(clone);
+      // yeni eklenen satırı başlat
+      const newRow = container.lastElementChild;
+      await initTalepRow(newRow);
+    }
+
+    const rm = ev.target.closest('[data-action="row-remove"]');
+    if (rm) {
+      const row = rm.closest('.talep-row');
+      if (row) row.remove();
+    }
+  });
 });
 </script>
 {% endblock %}

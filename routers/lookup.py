@@ -72,6 +72,7 @@ def lookup_list(
     q: str = Query(default=""),
     limit: int = 50,
     marka_id: int | None = None,
+    marka: str | None = None,
     db: Session = Depends(get_db),
 ):
     entity = entity.strip().lower()
@@ -85,6 +86,16 @@ def lookup_list(
             where.append("LOWER(name) LIKE LOWER(:q)")
             params["q"] = f"%{q}%"
         if entity == "model":
+            if marka_id is None and marka:
+                try:
+                    row = db.execute(
+                        text("SELECT id FROM brands WHERE name = :name LIMIT 1"),
+                        {"name": marka},
+                    ).mappings().first()
+                    if row:
+                        marka_id = row["id"]
+                except Exception:
+                    pass
             if marka_id is None:
                 return []  # Model listesi marka seçimi olmadan boş dönsün
             where.append("brand_id = :brand_id")
