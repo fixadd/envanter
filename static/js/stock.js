@@ -45,11 +45,9 @@ document.getElementById('stockAddModal')?.addEventListener('shown.bs.modal', asy
   lisansSel   = document.getElementById('lisans_adi');
 
   await Promise.all([
- codex/fill-dropdowns-on-modal-open-3646ku
     loadLookup(donanimSel, '/api/lookup/donanim-tipi'),
     loadLookup(markaSel, '/api/lookup/marka'),
     loadLookup(lisansSel, '/api/lookup/lisans-adi'),
- main
   ]);
 
   loadModels();
