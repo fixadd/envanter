@@ -79,8 +79,55 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
-      <div class="modal-body">
-        <div id="talepRows">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Talep Türü</label>
+            <select id="talep_turu" class="form-select">
+              <option value="">Seçiniz…</option>
+              <option value="envanter">Envanter</option>
+              <option value="lisans">Lisans</option>
+              <option value="aksesuar">Aksesuar</option>
+            </select>
+          </div>
+
+          <div id="grup_envanter" class="row g-2 d-none">
+            <div class="col-md-6">
+              <label class="form-label">Donanım Tipi</label>
+              <select id="talep_donanim_tipi" class="form-select"></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Marka</label>
+              <select id="talep_marka" class="form-select"></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Model</label>
+              <select id="talep_model" class="form-select"></select>
+            </div>
+          </div>
+
+          <div id="grup_lisans" class="row g-2 d-none">
+            <div class="col-md-8">
+              <label class="form-label">Lisans Adı</label>
+              <select id="talep_lisans_adi" class="form-select"></select>
+            </div>
+          </div>
+
+          <div id="grup_aksesuar" class="row g-2 d-none">
+            <div class="col-md-6">
+              <label class="form-label">Donanım Tipi</label>
+              <select id="talep_aksesuar_tip" class="form-select"></select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Miktar</label>
+              <input id="talep_miktar" type="number" min="1" class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">IFS No (opsiyonel)</label>
+              <input id="talep_ifs" type="text" class="form-control" />
+            </div>
+          </div>
+
+          <div id="talepRows">
           <div class="talep-row row g-2 align-items-end mb-2">
             <div class="col-md-3">
               <label class="form-label">Donanım Tipi</label>
@@ -191,5 +238,40 @@
     location.reload();
     return false;
   }
+</script>
+<script>
+const E = sel => document.querySelector(sel);
+const show = el => el.classList.remove('d-none');
+const hide = el => el.classList.add('d-none');
+
+async function fill(id, entity){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.innerHTML = '<option value="">Yükleniyor…</option>';
+  const r = await fetch(`/api/lookup/${entity}`);
+  const data = r.ok ? await r.json() : [];
+  el.innerHTML = '<option value="">Seçiniz…</option>' + data.map(v => `<option value="${v}">${v}</option>`).join('');
+}
+
+E('#talep_turu')?.addEventListener('change', async (ev) => {
+  const v = ev.target.value;
+  hide(E('#grup_envanter')); hide(E('#grup_lisans')); hide(E('#grup_aksesuar'));
+  if (v === 'envanter') {
+    show(E('#grup_envanter'));
+    await fill('talep_donanim_tipi', 'donanim_tipi');
+    await fill('talep_marka', 'marka');
+    await fill('talep_model', 'model');
+  } else if (v === 'lisans') {
+    show(E('#grup_lisans'));
+    await fill('talep_lisans_adi', 'lisans_adi');
+  } else if (v === 'aksesuar') {
+    show(E('#grup_aksesuar'));
+    await fill('talep_aksesuar_tip', 'donanim_tipi');
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  // gerekirse başlangıçta bir tür seçiliyse onu doldur
+});
 </script>
 {% endblock %}
