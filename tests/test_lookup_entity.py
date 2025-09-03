@@ -31,3 +31,14 @@ def test_lookup_donanim_tipi(db_session):
 
     res = lookup_entity("donanim_tipi", db=db)
     assert res == ["A", "B"]
+
+
+def test_lookup_marka_model(db_session):
+    db = db_session
+    brand = models.Brand(name="Dell")
+    model = models.Model(name="XPS", brand=brand)
+    db.add_all([brand, model])
+    db.commit()
+
+    assert lookup_entity("marka", db=db) == ["Dell"]
+    assert lookup_entity("model", db=db) == ["XPS"]

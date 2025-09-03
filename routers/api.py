@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 import models
 from sqlalchemy import func, case, and_, or_
+from typing import List
 
 router = APIRouter(prefix="/api", tags=["API"])
 
@@ -11,11 +12,14 @@ ENTITY_TABLE = {
     "donanim_tipi": models.HardwareType,
     "kullanim_alani": models.UsageArea,
     "license_names": models.LicenseName,  # lisans adlarını ayrı tabloda tutuyorsan
+    "marka": models.Brand,
+    "model": models.Model,
 }
 
 
-@router.get("/lookup/{entity}")
+@router.get("/lookup/{entity}", response_model=List[str])
 def lookup_entity(entity: str, db: Session = Depends(get_db)):
+    entity = entity.strip().lower()
     tbl = ENTITY_TABLE.get(entity)
     if not tbl:
         raise HTTPException(status_code=404, detail="Entity not found")
