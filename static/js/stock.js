@@ -10,14 +10,7 @@ async function loadPicker(sel, url){
   }
 }
 
-const donanimSel = document.getElementById('donanim_tipi');
-const markaSel    = document.getElementById('marka');
-const modelSel    = document.getElementById('model');
-const lisansSel   = document.getElementById('lisans_adi');
-
-loadPicker(donanimSel, '/api/picker/donanim_tipi');
-loadPicker(markaSel, '/api/picker/marka').then(()=> loadModels());
-loadPicker(lisansSel, '/api/picker/lisans_adi');
+let donanimSel, markaSel, modelSel, lisansSel;
 
 async function loadModels(){
   if(!modelSel) return;
@@ -33,7 +26,21 @@ async function loadModels(){
   }catch(e){ console.error('model lookup failed', e); }
 }
 
-markaSel?.addEventListener('change', loadModels);
+document.getElementById('stockAddModal')?.addEventListener('shown.bs.modal', async () => {
+  donanimSel = document.getElementById('donanim_tipi');
+  markaSel    = document.getElementById('marka');
+  modelSel    = document.getElementById('model');
+  lisansSel   = document.getElementById('lisans_adi');
+
+  await Promise.all([
+    loadPicker(donanimSel, '/api/picker/donanim_tipi'),
+    loadPicker(markaSel, '/api/picker/marka'),
+    loadPicker(lisansSel, '/api/picker/lisans_adi'),
+  ]);
+
+  loadModels();
+  if(markaSel) markaSel.onchange = loadModels;
+});
 
 // Ekle form submit
 const chkIsLicense = document.getElementById('chkIsLicense');
