@@ -96,41 +96,35 @@
           <input id="ifsNoGlobal" class="form-control" placeholder="IFS No">
         </div>
         <div id="talepRows">
-          <div class="talep-row row g-2 align-items-end mb-2 flex-nowrap">
+          <div class="row g-2 align-items-end talep-row">
             <div class="col-md-3">
               <label class="form-label">Donanım Tipi</label>
-              <select name="donanim_tipi" class="form-select">
-                <option value="">Seçiniz...</option>
-              </select>
+              <select name="donanim_tipi" class="form-select" data-lookup="donanim_tipi"></select>
             </div>
-            <div class="col-md-1">
+            <div class="col-md-2">
               <label class="form-label">Miktar</label>
               <input name="miktar" type="number" min="1" class="form-control" placeholder="Miktar">
             </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
               <label class="form-label">Marka</label>
-              <select name="marka" class="form-select">
-                <option value="">Seçiniz...</option>
-              </select>
+              <select name="marka" class="form-select" data-lookup="marka"></select>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
               <label class="form-label">Model</label>
-              <select name="model" class="form-select">
-                <option value="">Seçiniz...</option>
-              </select>
+              <select name="model" class="form-select" data-lookup="model" data-depends="[data-lookup='marka']"></select>
             </div>
             <div class="col-md-3">
               <label class="form-label">Açıklama</label>
               <input name="aciklama" class="form-control" placeholder="Açıklama">
             </div>
             <div class="col-md-1 text-end">
-              <button type="button" class="btn btn-outline-danger" onclick="talepSatirSil(this)">
+              <button type="button" class="btn btn-outline-danger" data-action="row-remove">
                 <i class="bi bi-x"></i>
               </button>
             </div>
           </div>
         </div>
-        <button type="button" class="btn btn-outline-secondary" onclick="talepSatirEkle()">Satır Ekle</button>
+        <button type="button" class="btn btn-outline-secondary" data-action="row-add">Satır Ekle</button>
       </div>
 
       <div class="modal-footer">
@@ -140,62 +134,22 @@
     </form>
   </div>
 </div>
-<script>
-  const rowContainer = document.getElementById('talepRows');
-  let templateRow;
+  <script>
+    const rowContainer = document.getElementById('talepRows');
+    let templateRow = rowContainer.firstElementChild.cloneNode(true);
 
-  function bindRow(row) {
-    const markaSel = row.querySelector('select[name="marka"]');
-    const modelSel = row.querySelector('select[name="model"]');
-    markaSel.addEventListener('change', () => {
-      const id = markaSel.selectedOptions[0]?.dataset.id || '';
-      modelSel.innerHTML = '<option value="">Seçiniz...</option>';
-      if (!id) return;
-      fetch(`/api/lookup/model?marka_id=${id}`).then(r => r.json()).then(list => {
-        const opts = list.map(n => `<option value="${n.name ?? n}">${n.name ?? n}</option>`).join('');
-        modelSel.insertAdjacentHTML('beforeend', opts);
-      });
-    });
-  }
-
-  function talepSatirEkle() {
-    const clone = templateRow.cloneNode(true);
-    clone.querySelectorAll('input').forEach(i => i.value = '');
-    clone.querySelectorAll('select').forEach(sel => {
-      sel.selectedIndex = 0;
-      if (sel.name === 'model') sel.innerHTML = '<option value="">Seçiniz...</option>';
-    });
-    rowContainer.appendChild(clone);
-    bindRow(clone);
-  }
-
-  function talepSatirSil(btn) {
-    if (rowContainer.children.length > 1) {
-      btn.closest('.talep-row').remove();
+  document.addEventListener('click', (ev) => {
+    const addBtn = ev.target.closest('[data-action="row-add"]');
+    if (addBtn) {
+      const clone = templateRow.cloneNode(true);
+      clone.querySelectorAll('input').forEach(i => i.value = '');
+      clone.querySelectorAll('select').forEach(sel => sel.value = '');
+      rowContainer.appendChild(clone);
     }
-  }
-
-  const lookups = Promise.all([
-    fetch('/api/lookup/donanim-tipi').then(r => r.json()),
-    fetch('/api/lookup/marka').then(r => r.json()),
-  ]);
-
-  lookups.then(([donanimList, markaList]) => {
-    const donanimOpts = donanimList
-      .map(n => `<option value="${n.name ?? n}">${n.name ?? n}</option>`)
-      .join('');
-    const markaOpts = markaList
-      .map(n => `<option value="${n.name ?? n}" data-id="${n.id ?? ''}">${n.name ?? n}</option>`)
-      .join('');
-    const firstRow = rowContainer.firstElementChild;
-    firstRow
-      .querySelector('select[name="donanim_tipi"]')
-      .insertAdjacentHTML('beforeend', donanimOpts);
-    firstRow
-      .querySelector('select[name="marka"]')
-      .insertAdjacentHTML('beforeend', markaOpts);
-    templateRow = firstRow.cloneNode(true);
-    bindRow(firstRow);
+    const rmBtn = ev.target.closest('[data-action="row-remove"]');
+    if (rmBtn && rowContainer.children.length > 1) {
+      rmBtn.closest('.talep-row').remove();
+    }
   });
 
   async function talepGonder(e) {
