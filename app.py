@@ -39,8 +39,6 @@ from routers.lookup import router as lookup_router
 from routers.picker import router as picker_router
 from routers.api import router as api_router
 from routes.admin import router as admin_router
-from routes.stock import router as stock_extra_router
-from routes.stock_assign import router as stock_assign_router
 from routes.scrap import router as scrap_router
 from routes.talepler import router as talepler_router
 from utils.template_filters import register_filters
@@ -129,8 +127,6 @@ app.include_router(printers_router.router, dependencies=[Depends(current_user)])
 app.include_router(catalog_router.router, dependencies=[Depends(current_user)])
 app.include_router(reqs.router, prefix="/requests", tags=["Requests"], dependencies=[Depends(current_user)])
 app.include_router(stock.router, dependencies=[Depends(current_user)])
-app.include_router(stock_extra_router, dependencies=[Depends(current_user)])
-app.include_router(stock_assign_router, dependencies=[Depends(current_user)])
 app.include_router(scrap_router, dependencies=[Depends(current_user)])
 app.include_router(talepler_router, dependencies=[Depends(current_user)])
 app.include_router(trash.router, prefix="/trash", tags=["Trash"], dependencies=[Depends(current_user)])
