@@ -89,7 +89,7 @@
           <div class="row g-2 align-items-end talep-row">
             <div class="col-md-3">
               <label class="form-label">Donanım Tipi</label>
-              <select class="form-select js-donanim"><option value="">Seçiniz…</option></select>
+              <select class="form-select" data-lookup="donanim_tipi"></select>
             </div>
             <div class="col-md-2">
               <label class="form-label">Miktar</label>
@@ -97,11 +97,11 @@
             </div>
             <div class="col-md-3">
               <label class="form-label">Marka</label>
-              <select class="form-select js-marka"><option value="">Seçiniz…</option></select>
+              <select class="form-select" data-lookup="marka" id="talep_marka_1"></select>
             </div>
             <div class="col-md-3">
               <label class="form-label">Model</label>
-              <select class="form-select js-model"><option value="">Seçiniz…</option></select>
+              <select class="form-select" data-lookup="model" data-depends="#talep_marka_1"></select>
             </div>
             <div class="col-md-1">
               <button type="button" class="btn btn-outline-danger" data-action="row-remove">✕</button>
@@ -130,7 +130,7 @@
   <div class="row g-2 align-items-end talep-row mt-2">
     <div class="col-md-3">
       <label class="form-label">Donanım Tipi</label>
-      <select class="form-select js-donanim"><option value="">Seçiniz…</option></select>
+      <select class="form-select" data-lookup="donanim_tipi"></select>
     </div>
     <div class="col-md-2">
       <label class="form-label">Miktar</label>
@@ -138,11 +138,11 @@
     </div>
     <div class="col-md-3">
       <label class="form-label">Marka</label>
-      <select class="form-select js-marka"><option value="">Seçiniz…</option></select>
+      <select class="form-select" data-lookup="marka"></select>
     </div>
     <div class="col-md-3">
       <label class="form-label">Model</label>
-      <select class="form-select js-model"><option value="">Seçiniz…</option></select>
+      <select class="form-select" data-lookup="model" data-depends="[data-lookup='marka']"></select>
     </div>
     <div class="col-md-1">
       <button type="button" class="btn btn-outline-danger" data-action="row-remove">✕</button>
@@ -154,123 +154,22 @@
 </template>
 
 <script>
-// ====== Lookup cache ve yardımcılar ======
-const LookupCache = {};
-
-async function fetchLookup(entity, params = {}) {
-  const key = entity + JSON.stringify(params);
-  if (LookupCache[key]) return LookupCache[key];
-
-  const url = new URL(`/api/lookup/${encodeURIComponent(entity)}`, window.location.origin);
-  Object.entries(params).forEach(([k, v]) => {
-    if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v);
-  });
-
-  const res = await fetch(url.toString());
-  if (!res.ok) return [];
-  const data = await res.json();
-  LookupCache[key] = data;
-  return data;
-}
-
-function initSelectPlugin(selectEl) {
-  // Select2 kullanıyorsan:
-  if (window.jQuery && jQuery(selectEl).data && jQuery(selectEl).data('select2')) {
-    jQuery(selectEl).select2('destroy');
-  }
-  if (window.jQuery && jQuery.fn && jQuery.fn.select2) {
-    jQuery(selectEl).select2({
-      width: '100%',
-      language: {
-        noResults: () => 'Seçenek yok',
-        searching: () => 'Aranıyor…'
-      }
-    });
-  }
-
-  // Choices kullanıyorsan:
-  if (selectEl._choices && selectEl._choices.destroy) {
-    selectEl._choices.destroy();
-  }
-  if (window.Choices && selectEl.classList.contains('choices')) {
-    selectEl._choices = new Choices(selectEl, { searchEnabled: true, itemSelectText: '' });
-  }
-}
-
-function fillOptions(selectEl, items) {
-  if (!selectEl) return;
-  const opts = ['<option value="">Seçiniz…</option>']
-    .concat(items.map(v => `<option value="${v}">${v}</option>`)).join('');
-  selectEl.innerHTML = opts;
-  initSelectPlugin(selectEl);
-}
-
-// ====== Satır başlatma (tek satır) ======
-async function initTalepRow(rowEl) {
-  const donanimSel = rowEl.querySelector('.js-donanim');
-  const markaSel   = rowEl.querySelector('.js-marka');
-  const modelSel   = rowEl.querySelector('.js-model');
-
-  // 1) donanım tipi & marka & (şimdilik) boş model
-  const [donanimList, markaList] = await Promise.all([
-    fetchLookup('donanim_tipi'),
-    fetchLookup('marka')
-  ]);
-
-  fillOptions(donanimSel, donanimList);
-  fillOptions(markaSel, markaList);
-  fillOptions(modelSel, []); // marka seçilince dolduracağız
-
-  // 2) Marka seçilince model doldur
-  markaSel.addEventListener('change', async (e) => {
-    const selectedMarka = e.target.value || '';
-    // önce tamamen temizle
-    fillOptions(modelSel, []);
-    // marka yoksa tüm modelleri getirmek istersen aşağıyı değiştir:
-    const modelList = await fetchLookup('model', { marka: selectedMarka });
-    fillOptions(modelSel, modelList);
-  }, { passive: true });
-}
-
-// ====== Modal içindeki tüm satırları başlat ======
-async function initAllRows(modal) {
-  const rows = modal.querySelectorAll('.talep-row');
-  for (const row of rows) {
-    await initTalepRow(row);
-  }
-}
-
-// ====== Modal ve satır ekleme/çıkarma ======
-document.addEventListener('DOMContentLoaded', () => {
-  const modal = document.getElementById('modalTalepAc'); // modal id'n bu olmalı
+document.addEventListener('click', (ev) => {
+  const modal = document.getElementById('modalTalepAc');
   if (!modal) return;
-
-  // Modal açıldığında var olan satırları doldur
-  modal.addEventListener('shown.bs.modal', async () => {
-    await initAllRows(modal);
-  });
-
-  // "Satır Ekle" butonu (data-action="row-add")
-  modal.addEventListener('click', async (ev) => {
-    const btn = ev.target.closest('[data-action="row-add"]');
-    if (btn) {
-      const container = modal.querySelector('.talep-rows');
-      const tpl = modal.querySelector('#talep-row-template');
-      if (!container || !tpl) return;
-
-      const clone = document.importNode(tpl.content, true);
-      container.appendChild(clone);
-      // yeni eklenen satırı başlat
-      const newRow = container.lastElementChild;
-      await initTalepRow(newRow);
+  const addBtn = ev.target.closest('[data-action="row-add"]');
+  if (addBtn) {
+    const container = modal.querySelector('.talep-rows');
+    const tpl = document.getElementById('talep-row-template');
+    if (container && tpl) {
+      container.appendChild(document.importNode(tpl.content, true));
     }
-
-    const rm = ev.target.closest('[data-action="row-remove"]');
-    if (rm) {
-      const row = rm.closest('.talep-row');
-      if (row) row.remove();
-    }
-  });
+  }
+  const rm = ev.target.closest('[data-action="row-remove"]');
+  if (rm) {
+    const row = rm.closest('.talep-row');
+    if (row) row.remove();
+  }
 });
 </script>
 {% endblock %}
