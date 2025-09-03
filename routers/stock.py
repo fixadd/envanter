@@ -1,21 +1,25 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request, UploadFile, File
-from fastapi.responses import (
-    HTMLResponse,
-    JSONResponse,
-    RedirectResponse,
-    PlainTextResponse,
-    StreamingResponse,
-)
+from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Body
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
+from typing import Optional, Literal
+from pydantic import BaseModel, Field
 
 from database import get_db
-from security import SessionUser, current_user
-from models import StockAssignment, StockLog, HardwareType, UsageArea, LicenseName
-
+from models import (
+    StockLog,
+    HardwareType,
+    UsageArea,
+    LicenseName,
+    StockTotal,
+    Inventory,
+    License,
+    Printer,
+)
+from routers.api import stock_status
 
 router = APIRouter(prefix="/stock", tags=["Stock"])
 templates = Jinja2Templates(directory="templates")
@@ -32,17 +36,15 @@ async def export_stock(db: Session = Depends(get_db)):
 
     logs = db.query(StockLog).order_by(StockLog.id.asc()).all()
     for l in logs:
-        ws.append(
-            [
-                l.id,
-                l.donanim_tipi,
-                l.miktar,
-                l.ifs_no,
-                l.tarih,
-                l.islem,
-                l.actor,
-            ]
-        )
+        ws.append([
+            l.id,
+            l.donanim_tipi,
+            l.miktar,
+            l.ifs_no,
+            l.tarih,
+            l.islem,
+            l.actor,
+        ])
 
     stream = BytesIO()
     wb.save(stream)
@@ -58,7 +60,6 @@ async def export_stock(db: Session = Depends(get_db)):
 @router.post("/import", response_class=PlainTextResponse)
 async def import_stock(file: UploadFile = File(...)):
     return f"Received {file.filename}, but import is not implemented."
-
 
 def current_stock(db: Session):
     plus = (
@@ -87,9 +88,7 @@ def current_stock(db: Session):
         db.query(
             plus.c.donanim_tipi,
             plus.c.ifs_no,
-            (func.coalesce(plus.c.sum_plus, 0) - func.coalesce(minus.c.sum_minus, 0)).label(
-                "stok"
-            ),
+            (func.coalesce(plus.c.sum_plus, 0) - func.coalesce(minus.c.sum_minus, 0)).label("stok"),
         )
         .outerjoin(
             minus,
@@ -119,7 +118,6 @@ def current_stock(db: Session):
         {"donanim_tipi": r[0], "ifs_no": r[1], "stok": int(r[2])} for r in all_rows
     ]
 
-
 @router.get("", response_class=HTMLResponse)
 def stock_list(request: Request, db: Session = Depends(get_db)):
     logs = db.query(StockLog).order_by(StockLog.tarih.desc(), StockLog.id.desc()).all()
@@ -142,35 +140,6 @@ def stock_list(request: Request, db: Session = Depends(get_db)):
         },
     )
 
-
-@router.post("/log")
-def add_log(
-    donanim_tipi: str = Form(...),
-    miktar: int = Form(...),
-    ifs_no: str | None = Form(None),
-    islem: str = Form(...),
-    db: Session = Depends(get_db),
-    user: SessionUser = Depends(current_user),
-):
-    if islem not in ("girdi", "cikti", "hurda"):
-        raise HTTPException(status_code=400, detail="islem sadece girdi|cikti|hurda olabilir")
-    if miktar <= 0:
-        raise HTTPException(status_code=400, detail="miktar > 0 olmalı")
-
-    actor = getattr(user, "full_name", None) if user else None
-    log = StockLog(
-        donanim_tipi=donanim_tipi,
-        miktar=miktar,
-        ifs_no=ifs_no,
-        islem=islem,
-        actor=actor,
-        tarih=datetime.utcnow(),
-    )
-    db.add(log)
-    db.commit()
-    return RedirectResponse(url="/stock", status_code=303)
-
-
 @router.get("/durum", response_class=HTMLResponse)
 def stock_status_page(request: Request, db: Session = Depends(get_db)):
     rows = current_stock(db)
@@ -178,61 +147,182 @@ def stock_status_page(request: Request, db: Session = Depends(get_db)):
         "stock_status.html", {"request": request, "rows": rows}
     )
 
-
 @router.get("/durum/json")
 def stock_status_json(db: Session = Depends(get_db)):
     return JSONResponse({"ok": True, "rows": current_stock(db)})
 
+@router.post("/add")
+def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):
+    is_license = payload.get("is_license")
+    donanim_tipi = payload.get("donanim_tipi")
+    miktar = 1 if is_license else int(payload.get("miktar") or 0)
+    islem = payload.get("islem") or "girdi"
+
+    total = db.get(StockTotal, donanim_tipi) or StockTotal(
+        donanim_tipi=donanim_tipi, toplam=0
+    )
+    if islem in ("cikti", "hurda") and total.toplam < miktar:
+        return {"ok": False, "error": "Yetersiz stok"}
+
+    log = StockLog(
+        donanim_tipi=donanim_tipi,
+        marka=None if is_license else payload.get("marka"),
+        model=None if is_license else payload.get("model"),
+        lisans_anahtari=payload.get("lisans_anahtari") if is_license else None,
+        mail_adresi=payload.get("mail_adresi") if is_license else None,
+        miktar=miktar,
+        ifs_no=payload.get("ifs_no") or None,
+        islem=islem,
+        tarih=datetime.utcnow(),
+        actor=payload.get("islem_yapan") or "Sistem",
+    )
+    db.add(log)
+
+    total.toplam = total.toplam + miktar if islem == "girdi" else total.toplam - miktar
+    db.merge(total)
+    db.commit()
+    return {"ok": True, "id": log.id}
+
+class StockOption(BaseModel):
+    """UI'daki stok seçenekleri için DTO."""
+
+    id: str
+    label: str
+    donanim_tipi: Optional[str] = None
+    ifs_no: Optional[str] = None
+    mevcut_miktar: int
+
+class AssignPayload(BaseModel):
+    """Stok atama isteği."""
+
+    stock_id: str = Field(..., description="donanim_tipi|ifs_no biçiminde kimlik")
+    atama_turu: Literal["lisans", "envanter", "yazici"]
+    miktar: int = 1
+
+    hedef_envanter_id: Optional[int] = None
+    hedef_yazici_id: Optional[int] = None
+    lisans_id: Optional[int] = None
+    sorumlu_personel_id: Optional[str] = None
+    notlar: Optional[str] = None
+
+@router.get("/options", response_model=list[StockOption])
+def stock_options(db: Session = Depends(get_db), q: Optional[str] = None):
+    """Miktarı > 0 olan stokları döndür."""
+
+    status = stock_status(db)
+    items: list[StockOption] = []
+    q_lower = q.lower() if q else None
+
+    for dt, total in status["totals"].items():
+        detail = status["detail"].get(dt, {})
+        if detail:
+            for ifs, qty in detail.items():
+                if qty <= 0:
+                    continue
+                if q_lower and q_lower not in dt.lower() and q_lower not in (ifs or "").lower():
+                    continue
+                items.append(
+                    StockOption(
+                        id=f"{dt}|{ifs}",
+                        label=f"{dt or 'Donanım'} | IFS:{ifs or '-'} | Mevcut:{qty}",
+                        donanim_tipi=dt,
+                        ifs_no=ifs,
+                        mevcut_miktar=qty,
+                    )
+                )
+        elif total > 0:
+            if q_lower and q_lower not in dt.lower():
+                continue
+            items.append(
+                StockOption(
+                    id=f"{dt}|",
+                    label=f"{dt or 'Donanım'} | IFS:- | Mevcut:{total}",
+                    donanim_tipi=dt,
+                    mevcut_miktar=total,
+                )
+            )
+
+    return items
 
 @router.post("/assign")
-def assign_stock(
-    donanim_tipi: str = Form(...),
-    miktar: int = Form(...),
-    ifs_no: str | None = Form(None),
-    hedef_envanter_no: str | None = Form(None),
-    sorumlu_personel: str | None = Form(None),
-    kullanim_alani: str | None = Form(None),
-    db: Session = Depends(get_db),
-    user: SessionUser = Depends(current_user),
-):
-    if miktar <= 0:
-        raise HTTPException(status_code=400, detail="miktar > 0 olmalı")
+def stock_assign(payload: AssignPayload, db: Session = Depends(get_db)):
+    """Stoktaki bir kaydı lisans/envanter/yazıcıya atar."""
 
-    snapshot = current_stock(db)
-    match = next(
-        (r for r in snapshot if r["donanim_tipi"] == donanim_tipi and r["ifs_no"] == ifs_no),
-        None,
-    )
-    mevcut = match["stok"] if match else 0
-    if mevcut < miktar:
-        raise HTTPException(status_code=400, detail=f"Yetersiz stok. Mevcut: {mevcut}")
+    try:
+        donanim_tipi, ifs_no = payload.stock_id.split("|", 1)
+    except ValueError:  # pragma: no cover - validation
+        raise HTTPException(status_code=400, detail="Geçersiz stok kimliği.")
+    ifs_no = ifs_no or None
 
-    actor = getattr(user, "full_name", None) if user else None
+    status = stock_status(db)
+    mevcut = status["detail"].get(donanim_tipi, {}).get(ifs_no)
+    if mevcut is None:
+        mevcut = status["totals"].get(donanim_tipi, 0)
 
-    atama = StockAssignment(
-        donanim_tipi=donanim_tipi,
-        miktar=miktar,
-        ifs_no=ifs_no,
-        hedef_envanter_no=hedef_envanter_no,
-        sorumlu_personel=sorumlu_personel,
-        kullanim_alani=kullanim_alani,
-        actor=actor,
-        tarih=datetime.utcnow(),
-    )
-    db.add(atama)
-    db.flush()
+    if payload.miktar <= 0:
+        raise HTTPException(status_code=400, detail="Miktar 0'dan büyük olmalı.")
+    if payload.miktar > mevcut:
+        raise HTTPException(
+            status_code=400,
+            detail="Stoktaki mevcut miktardan fazla atayamazsınız.",
+        )
+
+    personel = payload.sorumlu_personel_id
+
+    if payload.atama_turu == "envanter":
+        if not payload.hedef_envanter_id:
+            raise HTTPException(status_code=422, detail="Hedef envanter seçiniz.")
+        hedef = db.get(Inventory, payload.hedef_envanter_id)
+        if not hedef:
+            raise HTTPException(status_code=404, detail="Hedef envanter bulunamadı.")
+        if ifs_no:
+            hedef.ifs_no = ifs_no
+        if personel:
+            hedef.sorumlu_personel = personel
+    elif payload.atama_turu == "yazici":
+        if not payload.hedef_yazici_id:
+            raise HTTPException(status_code=422, detail="Hedef yazıcı seçiniz.")
+        hedef = db.get(Printer, payload.hedef_yazici_id)
+        if not hedef:
+            raise HTTPException(status_code=404, detail="Hedef yazıcı bulunamadı.")
+        if personel:
+            hedef.sorumlu_personel = personel
+    elif payload.atama_turu == "lisans":
+        if not payload.lisans_id:
+            raise HTTPException(status_code=422, detail="Lisans seçiniz.")
+        hedef = db.get(License, payload.lisans_id)
+        if not hedef:
+            raise HTTPException(status_code=404, detail="Lisans bulunamadı.")
+        if personel:
+            hedef.sorumlu_personel = personel
+        if payload.hedef_envanter_id:
+            env = db.get(Inventory, payload.hedef_envanter_id)
+            if env:
+                hedef.bagli_envanter_no = env.no
+    else:  # pragma: no cover - validation
+        raise HTTPException(status_code=400, detail="Geçersiz atama türü.")
+
+    total = db.get(StockTotal, donanim_tipi)
+    if not total or total.toplam < payload.miktar:
+        raise HTTPException(status_code=400, detail="Yetersiz stok.")
+
+    total.toplam -= payload.miktar
+    db.merge(total)
 
     db.add(
         StockLog(
             donanim_tipi=donanim_tipi,
-            miktar=miktar,
+            miktar=payload.miktar,
             ifs_no=ifs_no,
-            islem="atama",
-            actor=actor,
-            tarih=datetime.utcnow(),
+            islem="cikti",
+            actor=personel,
         )
     )
 
     db.commit()
-    return JSONResponse({"ok": True})
 
+    return {
+        "ok": True,
+        "message": "Atama tamamlandı.",
+        "kalan_miktar": total.toplam,
+    }
