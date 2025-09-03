@@ -17,7 +17,7 @@ ENTITY_TABLE = {
 }
 
 
-@router.get("/lookup/{entity}", response_model=List[str])
+@router.get("/lookup_plain/{entity}", response_model=List[str])
 def lookup_entity(entity: str, db: Session = Depends(get_db)):
     entity = entity.strip().lower()
     tbl = ENTITY_TABLE.get(entity)
