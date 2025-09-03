@@ -18,40 +18,13 @@ async function loadLookup(sel, url){
 
 let donanimSel, markaSel, modelSel, lisansSel;
 
-async function loadModels(){
-  if(!modelSel) return;
-  const opt = markaSel?.selectedOptions[0];
-  const markaId = opt?.dataset.id;
-  modelSel.innerHTML = '<option value="">Seçiniz</option>';
-  if(!markaId) return;
-  try{
-    const res = await fetch(`/api/lookup/model?marka_id=${markaId}`, {headers:{Accept:'application/json'}});
-    if(!res.ok) return;
-    const data = await res.json();
-    const opts = (data || []).map(x => {
-      const label = x.name || x.ad || x.text || x;
-      const val   = x.name || x.ad || x.text || x;
-      const id    = x.id ?? '';
-      return `<option value="${val}" data-id="${id}">${label}</option>`;
-    }).join('');
-    modelSel.innerHTML = '<option value="">Seçiniz</option>' + opts;
-  }catch(e){ console.error('model lookup failed', e); }
-}
-
-document.getElementById('stockAddModal')?.addEventListener('shown.bs.modal', async () => {
-  donanimSel = document.getElementById('donanim_tipi');
-  markaSel    = document.getElementById('marka');
-  modelSel    = document.getElementById('model');
+document.getElementById('modalStockAdd')?.addEventListener('shown.bs.modal', async () => {
+  donanimSel = document.getElementById('stok_donanim_tipi');
+  markaSel    = document.getElementById('stok_marka');
+  modelSel    = document.getElementById('stok_model');
   lisansSel   = document.getElementById('lisans_adi');
 
-  await Promise.all([
-    loadLookup(donanimSel, '/api/lookup/donanim-tipi'),
-    loadLookup(markaSel, '/api/lookup/marka'),
-    loadLookup(lisansSel, '/api/lookup/lisans-adi'),
-  ]);
-
-  loadModels();
-  if(markaSel) markaSel.onchange = loadModels;
+  await loadLookup(lisansSel, '/api/lookup/lisans-adi');
 });
 
 // Ekle form submit

@@ -14,8 +14,11 @@ ENTITY_TABLE = {
     "model": "models",  # Not: model listesi brand_id filtresi bekleyebilir.
     "fabrika": "factories",
     "kullanim-alani": "usage_areas",
+    "kullanim_alani": "usage_areas",
     "donanim-tipi": "hardware_types",
+    "donanim_tipi": "hardware_types",
     "lisans-adi": "license_names",
+    "lisans_adi": "license_names",
 }
 
 # Kolon/lookup bulunmadığında dönecek güvenli değerler
@@ -71,6 +74,7 @@ def lookup_list(
     marka_id: int | None = None,
     db: Session = Depends(get_db),
 ):
+    entity = entity.strip().lower()
     table = ENTITY_TABLE.get(entity)
 
     if table:

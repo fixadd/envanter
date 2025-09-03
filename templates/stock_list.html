@@ -10,7 +10,7 @@
               data-bs-toggle="modal" data-bs-target="#stockStatusModal">
         Stok Durumu
       </button>
-      <button class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#stockAddModal">
+      <button class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#modalStockAdd">
         <i class="bi bi-plus-lg"></i>
         <span>Ekle</span>
       </button>
@@ -93,7 +93,7 @@
 </div>
 
 <!-- STOK EKLE MODALI -->
-<div class="modal fade" id="stockAddModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalStockAdd" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <form id="frmStockAdd" class="modal-content">
       <div class="modal-header">
@@ -111,15 +111,15 @@
         <div id="hardwareFields" class="col-12 row g-3">
           <div class="col-md-4">
             <label class="form-label">Donanım Tipi</label>
-            <select id="donanim_tipi" name="donanim_tipi" class="form-select" required></select>
+            <select id="stok_donanim_tipi" name="donanim_tipi" class="form-select" required></select>
           </div>
           <div class="col-md-3">
             <label class="form-label">Marka (opsiyonel)</label>
-            <select id="marka" name="marka" class="form-select"></select>
+            <select id="stok_marka" name="marka" class="form-select"></select>
           </div>
           <div class="col-md-3">
             <label class="form-label">Model (opsiyonel)</label>
-            <select id="model" name="model" class="form-select"></select>
+            <select id="stok_model" name="model" class="form-select"></select>
           </div>
           <div class="col-md-2" id="rowMiktar">
             <label class="form-label">Miktar</label>
@@ -306,6 +306,88 @@ document.addEventListener('DOMContentLoaded', () => {
   fillSelect('islem_select', 'islem');
   fillSelect('donanim_tipi_select', 'donanim_tipi');
   // fillSelect('ifs_no_select', 'ifs_no');
+});
+</script>
+<script>
+// Basit fetch helper
+async function getLookup(entity) {
+  try {
+    const r = await fetch(`/api/lookup/${encodeURIComponent(entity)}`);
+    if (!r.ok) return [];
+    return await r.json();
+  } catch (_) {
+    return [];
+  }
+}
+
+// Select'e seçenek yazan helper
+function setOptions(selectEl, items) {
+  if (!selectEl) return;
+
+  // Düz <select> içeriği
+  const html = ['<option value="">Seçiniz…</option>']
+    .concat(items.map(v => `<option value="${v}">${v}</option>`))
+    .join('');
+  selectEl.innerHTML = html;
+
+  // Eğer Select2 kullanıyorsan yeniden kur
+  if (window.jQuery && jQuery(selectEl).data('select2')) {
+    jQuery(selectEl).off('select2:select');          // olası eski event'leri temizle
+    jQuery(selectEl).select2('destroy');             // eski instance'ı yok et
+    jQuery(selectEl).select2({
+      width: '100%',
+      language: {
+        noResults: () => 'Seçenek yok',
+        searching: () => 'Aranıyor…'
+      }
+    });
+  }
+
+  // Eğer Choices.js kullanıyorsan:
+  if (selectEl.classList.contains('choices')) {
+    // basit bir reset için:
+    selectEl._choices && selectEl._choices.destroy && selectEl._choices.destroy();
+    const choices = items.map(v => ({ value: v, label: v }));
+    // global Choices varsa:
+    if (window.Choices) {
+      selectEl._choices = new Choices(selectEl, { searchEnabled: true, shouldSort: true, itemSelectText: '' });
+      // mevcut “Seçiniz…” kalsın, diğerlerini ekle
+      choices.forEach(c => selectEl._choices.setChoices([c], 'value', 'label', false));
+    }
+  }
+}
+
+// Modal açıldığında doldur
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('modalStockAdd'); // Modal id’n bu olmalı
+  if (!modal) return;
+
+  modal.addEventListener('shown.bs.modal', async () => {
+    const donanimSel = document.getElementById('stok_donanim_tipi');
+    const markaSel   = document.getElementById('stok_marka');
+    const modelSel   = document.getElementById('stok_model');
+
+    // Paralel çek
+    const [donanimlar, markalar, modeller] = await Promise.all([
+      getLookup('donanim_tipi'),
+      getLookup('marka'),
+      getLookup('model')
+    ]);
+
+    setOptions(donanimSel, donanimlar);
+    setOptions(markaSel, markalar);
+    setOptions(modelSel, modeller);
+  });
+
+  // Eğer modal içeriği dinamik yükleniyorsa (HTMX/AJAX),
+  // butona tıklayınca da zorla açılışta doldurt:
+  const openBtn = document.querySelector('[data-bs-target="#modalStockAdd"]');
+  if (openBtn) {
+    openBtn.addEventListener('click', () => {
+      // Bootstrap modal açılınca zaten shown.bs.modal ateşlenecek
+      // burada ekstra işleme gerek yok.
+    });
+  }
 });
 </script>
 {% endblock %}
