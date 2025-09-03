@@ -112,7 +112,7 @@
           <div class="row g-3 stok-row">
             <div class="col-md-4">
               <label class="form-label">Donanım Tipi</label>
-              <select name="donanim_tipi" class="form-select" data-lookup="donanim_tipi" required></select>
+              <select name="donanim_tipi" class="form-select" data-lookup="donanim_tipi" id="stok_donanim_tipi" required></select>
             </div>
             <div class="col-md-4">
               <label class="form-label">Marka (ops.)</label>
@@ -120,7 +120,7 @@
             </div>
             <div class="col-md-4">
               <label class="form-label">Model (ops.)</label>
-              <select name="model" class="form-select" data-lookup="model" data-depends="#stok_marka"></select>
+              <select name="model" class="form-select" data-lookup="model" data-depends="#stok_marka" id="stok_model"></select>
             </div>
           </div>
           <div class="row g-3 mt-0">
@@ -138,7 +138,7 @@
         <div id="licenseFields" class="col-12 row g-3 d-none">
           <div class="col-md-4">
             <label class="form-label">Lisans Adı</label>
-            <select id="lisans_adi" name="lisans_adi" class="form-select" required></select>
+            <select id="lisans_adi" name="lisans_adi" class="form-select" data-lookup="lisans_adi" required></select>
           </div>
           <div class="col-md-4">
             <label class="form-label">Lisans Anahtarı</label>
@@ -298,7 +298,10 @@ async function fillSelect(id, entity) {
     const r = await fetch(`/api/lookup/${entity}`);
     if (!r.ok) throw new Error(await r.text());
     const data = await r.json();
-    el.innerHTML = '<option value="">Seçiniz…</option>' + (data || []).map(v => `<option value="${v}">${v}</option>`).join('');
+    el.innerHTML = '<option value="">Seçiniz…</option>' + (data || []).map(v => {
+      const text = typeof v === 'string' ? v : (v.name || v.text || v.id);
+      return `<option value="${text}">${text}</option>`;
+    }).join('');
   } catch (e) {
     console.error(e);
     el.innerHTML = '<option value="">(Veri Yok)</option>';
@@ -313,85 +316,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 <script>
-// Basit fetch helper
-async function getLookup(entity) {
-  try {
-    const r = await fetch(`/api/lookup/${encodeURIComponent(entity)}`);
-    if (!r.ok) return [];
-    return await r.json();
-  } catch (_) {
-    return [];
-  }
-}
-
-// Select'e seçenek yazan helper
-function setOptions(selectEl, items) {
-  if (!selectEl) return;
-
-  // Düz <select> içeriği
-  const html = ['<option value="">Seçiniz…</option>']
-    .concat(items.map(v => `<option value="${v}">${v}</option>`))
-    .join('');
-  selectEl.innerHTML = html;
-
-  // Eğer Select2 kullanıyorsan yeniden kur
-  if (window.jQuery && jQuery(selectEl).data('select2')) {
-    jQuery(selectEl).off('select2:select');          // olası eski event'leri temizle
-    jQuery(selectEl).select2('destroy');             // eski instance'ı yok et
-    jQuery(selectEl).select2({
-      width: '100%',
-      language: {
-        noResults: () => 'Seçenek yok',
-        searching: () => 'Aranıyor…'
-      }
-    });
-  }
-
-  // Eğer Choices.js kullanıyorsan:
-  if (selectEl.classList.contains('choices')) {
-    // basit bir reset için:
-    selectEl._choices && selectEl._choices.destroy && selectEl._choices.destroy();
-    const choices = items.map(v => ({ value: v, label: v }));
-    // global Choices varsa:
-    if (window.Choices) {
-      selectEl._choices = new Choices(selectEl, { searchEnabled: true, shouldSort: true, itemSelectText: '' });
-      // mevcut “Seçiniz…” kalsın, diğerlerini ekle
-      choices.forEach(c => selectEl._choices.setChoices([c], 'value', 'label', false));
-    }
-  }
-}
-
-// Modal açıldığında doldur
 document.addEventListener('DOMContentLoaded', () => {
-  const modal = document.getElementById('modalStockAdd'); // Modal id’n bu olmalı
+  const modal = document.getElementById('modalStockAdd');
   if (!modal) return;
-
   modal.addEventListener('shown.bs.modal', async () => {
-    const donanimSel = document.getElementById('stok_donanim_tipi');
-    const markaSel   = document.getElementById('stok_marka');
-    const modelSel   = document.getElementById('stok_model');
-
-    // Paralel çek
-    const [donanimlar, markalar, modeller] = await Promise.all([
-      getLookup('donanim_tipi'),
-      getLookup('marka'),
-      getLookup('model')
-    ]);
-
-    setOptions(donanimSel, donanimlar);
-    setOptions(markaSel, markalar);
-    setOptions(modelSel, modeller);
+    await _selects.fillChoices({ endpoint: '/api/lookup/donanim_tipi', selectId: 'stok_donanim_tipi', placeholder: 'Donanım tipi seçiniz…' });
+    await _selects.fillChoices({ endpoint: '/api/lookup/marka', selectId: 'stok_marka', placeholder: 'Marka seçiniz…' });
+    await _selects.fillChoices({ endpoint: '/api/lookup/lisans_adi', selectId: 'lisans_adi', placeholder: 'Lisans adı seçiniz…' });
+    _selects.bindMarkaModel('stok_marka', 'stok_model');
   });
-
-  // Eğer modal içeriği dinamik yükleniyorsa (HTMX/AJAX),
-  // butona tıklayınca da zorla açılışta doldurt:
-  const openBtn = document.querySelector('[data-bs-target="#modalStockAdd"]');
-  if (openBtn) {
-    openBtn.addEventListener('click', () => {
-      // Bootstrap modal açılınca zaten shown.bs.modal ateşlenecek
-      // burada ekstra işleme gerek yok.
-    });
-  }
 });
 </script>
 {% endblock %}
