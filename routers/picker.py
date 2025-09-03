@@ -7,7 +7,16 @@ from typing import List, Dict, Any, Optional
 from database import get_db
 
 # ==== MODELLERİNİ İMPORT ET (projeye göre güncellenmiş) ====
-from models import UsageArea, LicenseName, Factory, HardwareType, Brand, Model, User
+from models import (
+    UsageArea,
+    LicenseName,
+    Factory,
+    HardwareType,
+    Brand,
+    Model,
+    User,
+    Lookup,
+)
 
 router = APIRouter(prefix="/api/picker", tags=["Picker"])
 
@@ -109,6 +118,18 @@ def picker_list(
         query = query.filter(getattr(Model, label).ilike(f"%{q}%"))
 
     rows = query.order_by(getattr(Model, label).asc()).limit(200).all()
+
+    if not rows:
+        fallback = (
+            db.query(Lookup)
+            .filter(Lookup.type == entity)
+            .order_by(Lookup.value.asc())
+            .limit(200)
+            .all()
+        )
+        if fallback:
+            return [{"id": r.id, "text": r.value} for r in fallback]
+
     return [{"id": getattr(r, "id"), "text": getattr(r, label)} for r in rows]
 
 # ---- EKLE (kullanici HARİÇ) ----
