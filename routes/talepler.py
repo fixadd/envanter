@@ -62,6 +62,8 @@ def olustur(
 
 @router.post("/{talep_id}/cancel", response_class=JSONResponse)
 def cancel_request(talep_id: int, adet: int = Form(1), db: Session = Depends(get_db)):
+    if adet <= 0:
+        return JSONResponse({"ok": False, "error": "Adet 0'dan büyük olmalı"}, status_code=400)
     talep = db.get(Talep, talep_id)
     if not talep:
         return JSONResponse({"ok": False}, status_code=404)
@@ -77,6 +79,8 @@ def cancel_request(talep_id: int, adet: int = Form(1), db: Session = Depends(get
 
 @router.post("/{talep_id}/close", response_class=JSONResponse)
 def close_request(talep_id: int, adet: int = Form(1), db: Session = Depends(get_db)):
+    if adet <= 0:
+        return JSONResponse({"ok": False, "error": "Adet 0'dan büyük olmalı"}, status_code=400)
     talep = db.get(Talep, talep_id)
     if not talep:
         return JSONResponse({"ok": False}, status_code=404)
@@ -92,6 +96,8 @@ def close_request(talep_id: int, adet: int = Form(1), db: Session = Depends(get_
 
 @router.get("/convert/{talep_id}", response_class=HTMLResponse)
 def convert_request(talep_id: int, request: Request, adet: int = 1, db: Session = Depends(get_db)):
+    if adet <= 0:
+        return HTMLResponse(status_code=400)
     talep = db.get(Talep, talep_id)
     if not talep:
         return HTMLResponse(status_code=404)
