@@ -23,7 +23,12 @@ def liste(request: Request, durum: str = "aktif", db: Session = Depends(get_db))
         "iptal": TalepDurum.IPTAL,
     }
     selected = durum_map.get(durum, TalepDurum.AKTIF)
-    rows = db.query(Talep).filter(Talep.durum == selected).all()
+    rows = (
+        db.query(Talep)
+        .filter(Talep.durum == selected)
+        .order_by(Talep.ifs_no.asc(), Talep.id.asc())
+        .all()
+    )
 
     return templates.TemplateResponse(
         "talepler.html",
