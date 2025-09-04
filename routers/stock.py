@@ -155,7 +155,15 @@ def stock_status_json(db: Session = Depends(get_db)):
 def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):
     is_license = payload.get("is_license")
     donanim_tipi = payload.get("donanim_tipi")
-    miktar = 1 if is_license else int(payload.get("miktar") or 0)
+    if is_license:
+        miktar = 1
+    else:
+        try:
+            miktar = int(payload.get("miktar"))
+        except (TypeError, ValueError):
+            return {"ok": False, "error": "Miktar 0'dan büyük olmalı"}
+        if miktar <= 0:
+            return {"ok": False, "error": "Miktar 0'dan büyük olmalı"}
     islem = payload.get("islem") or "girdi"
 
     total = db.get(StockTotal, donanim_tipi) or StockTotal(
