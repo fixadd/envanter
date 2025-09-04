@@ -32,12 +32,14 @@
         </tr>
       </thead>
       <tbody>
-        {% set groups = rows|groupby('ifs_no') %}
-        {% for g in groups %}
-        <tr class="table-light">
-          <td colspan="{{ 13 if show_actions else 12 }}">IFS No: {{ g.grouper or '-' }}</td>
-        </tr>
-          {% for t in g.list %}
+        {% set last_ifs = None %}
+        {% for t in rows %}
+          {% if t.ifs_no != last_ifs %}
+          <tr class="table-light">
+            <td colspan="{{ 13 if show_actions else 12 }}">IFS No: {{ t.ifs_no or '-' }}</td>
+          </tr>
+          {% set last_ifs = t.ifs_no %}
+          {% endif %}
           <tr>
             <td>{{ t.id }}</td>
             <td>{{ t.tur }}</td>
@@ -63,7 +65,6 @@
             </td>
             {% endif %}
           </tr>
-          {% endfor %}
         {% endfor %}
         {% if rows|length == 0 %}
         <tr>
