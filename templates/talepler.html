@@ -26,8 +26,8 @@
     <table class="table table-striped table-hover table-sm align-middle">
       <thead>
         <tr>
-          <th>#</th><th>Tür</th><th>Donanım Tipi</th><th>Marka</th><th>Model</th><th>Miktar</th>
-          <th>IFS No</th><th>Envanter No</th><th>Lisans Adı</th><th>Sorumlu</th><th>Açıklama</th><th>Tarih</th>
+          <th>#</th><th>Donanım Tipi</th><th>Marka</th><th>Model</th><th>Miktar</th>
+          <th>Açıklama</th><th>Tarih</th>
           {% if show_actions %}<th>İşlem</th>{% endif %}
         </tr>
       </thead>
@@ -36,21 +36,16 @@
         {% for t in rows %}
           {% if t.ifs_no != last_ifs %}
           <tr class="table-light">
-            <td colspan="{{ 13 if show_actions else 12 }}">IFS No: {{ t.ifs_no or '-' }}</td>
+            <td colspan="{{ 8 if show_actions else 7 }}">IFS No: {{ t.ifs_no or '-' }}</td>
           </tr>
           {% set last_ifs = t.ifs_no %}
           {% endif %}
           <tr>
             <td>{{ t.id }}</td>
-            <td>{{ t.tur }}</td>
             <td>{{ t.donanim_tipi or '-' }}</td>
             <td>{{ t.marka or '-' }}</td>
             <td>{{ t.model or '-' }}</td>
             <td>{{ t.miktar or '-' }}</td>
-            <td>{{ t.ifs_no or '-' }}</td>
-            <td>{{ t.envanter_no or t.bagli_envanter_no or '-' }}</td>
-            <td>{{ t.lisans_adi or '-' }}</td>
-            <td>{{ t.sorumlu_personel or '-' }}</td>
             <td>{{ t.aciklama or '-' }}</td>
             <td>{{ t.olusturma_tarihi.strftime('%Y-%m-%d %H:%M') }}</td>
             {% if show_actions %}
@@ -68,7 +63,7 @@
         {% endfor %}
         {% if rows|length == 0 %}
         <tr>
-          <td colspan="{{ 13 if show_actions else 12 }}" class="text-center text-muted">{{ empty_msg }}</td>
+          <td colspan="{{ 8 if show_actions else 7 }}" class="text-center text-muted">{{ empty_msg }}</td>
         </tr>
         {% endif %}
       </tbody>
@@ -194,6 +189,30 @@
       }
       location.reload();
       return false;
+    }
+
+    async function talepIptal(id, adet){
+      const fd = new FormData();
+      fd.append('adet', adet);
+      const res = await fetch(`/talepler/${id}/cancel`, { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.ok) {
+        location.reload();
+      } else {
+        alert(data.error || 'İşlem başarısız');
+      }
+    }
+
+    async function talepKapat(id, adet){
+      const fd = new FormData();
+      fd.append('adet', adet);
+      const res = await fetch(`/talepler/${id}/close`, { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.ok) {
+        location.reload();
+      } else {
+        alert(data.error || 'İşlem başarısız');
+      }
     }
   </script>
 {% endblock %}
