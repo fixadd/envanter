@@ -9,7 +9,7 @@ os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
 import models
 from routes.talepler import cancel_request, close_request
-from models import Talep, TalepTuru
+from models import Talep, TalepTuru, TalepDurum
 
 
 @pytest.fixture()
@@ -50,3 +50,17 @@ def test_close_request_zero_adet(db_session, talep):
 def test_close_request_negative_adet(db_session, talep):
     res = close_request(talep.id, adet=-3, db=db_session)
     assert res.status_code == 400
+
+
+def test_kapanma_tarihi_set_on_cancel(db_session, talep):
+    cancel_request(talep.id, adet=5, db=db_session)
+    refreshed = db_session.get(Talep, talep.id)
+    assert refreshed.durum == TalepDurum.IPTAL
+    assert refreshed.kapanma_tarihi is not None
+
+
+def test_kapanma_tarihi_set_on_close(db_session, talep):
+    close_request(talep.id, adet=5, db=db_session)
+    refreshed = db_session.get(Talep, talep.id)
+    assert refreshed.durum == TalepDurum.TAMAMLANDI
+    assert refreshed.kapanma_tarihi is not None

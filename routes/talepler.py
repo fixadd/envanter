@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from io import BytesIO
 from openpyxl import Workbook
+from datetime import datetime
 
 from models import Talep, TalepTuru, TalepDurum
 from database import get_db
@@ -78,6 +79,7 @@ def cancel_request(talep_id: int, adet: int = Form(1), db: Session = Depends(get
     else:
         talep.durum = TalepDurum.IPTAL
         talep.miktar = 0
+        talep.kapanma_tarihi = datetime.utcnow()
     db.commit()
     return {"ok": True}
 
@@ -95,6 +97,7 @@ def close_request(talep_id: int, adet: int = Form(1), db: Session = Depends(get_
     else:
         talep.durum = TalepDurum.TAMAMLANDI
         talep.miktar = 0
+        talep.kapanma_tarihi = datetime.utcnow()
     db.commit()
     return {"ok": True}
 

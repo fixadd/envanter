@@ -33,7 +33,7 @@
           <td>{{ t.lisans_adi or '-' }}</td>
           <td>{{ t.sorumlu_personel or '-' }}</td>
           <td>{{ t.aciklama or '-' }}</td>
-          <td>{{ t.olusturma_tarihi.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>{{ (t.kapanma_tarihi if t.durum != 'aktif' and t.kapanma_tarihi else t.olusturma_tarihi).strftime('%Y-%m-%d %H:%M') }}</td>
         </tr>
         {% else %}
         <tr>
