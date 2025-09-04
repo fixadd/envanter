@@ -420,6 +420,7 @@ class Talep(Base):
     aciklama = Column(Text, nullable=True)
     durum = Column(Enum(TalepDurum), default=TalepDurum.AKTIF, nullable=False)
     olusturma_tarihi = Column(DateTime, default=datetime.utcnow, nullable=False)
+    kapanma_tarihi = Column(DateTime, nullable=True)
 
 
 class Lookup(Base):
