@@ -632,6 +632,10 @@ def init_db():
             conn.execute(
                 text("ALTER TABLE talepler ADD COLUMN donanim_tipi VARCHAR(150)")
             )
+        if "kapanma_tarihi" not in cols:
+            conn.execute(
+                text("ALTER TABLE talepler ADD COLUMN kapanma_tarihi DATETIME")
+            )
 
     # -- Printers --------------------------------------------------------------
     insp = inspect(engine)
