@@ -28,8 +28,17 @@ async function fillChoices({ endpoint, selectId, params={}, placeholder="Seçini
   const data = res.ok ? await res.json() : [];
   const current = keepValue ? el.value : null;
   inst.clearStore();
-  const map = mapFn || (r => ({ value: r.id, label: r.text ?? r.ad ?? r.name }));
-  inst.setChoices(data.map(map), 'value', 'label', true);
+  const map =
+    mapFn ||
+    (r => {
+      // Support both object and plain string responses
+      if (typeof r === "string") return { value: r, label: r };
+      return {
+        value: r.id ?? r.value ?? "",
+        label: r.name || r.text || r.ad || r.label || "",
+      };
+    });
+  inst.setChoices(data.map(map), "value", "label", true);
   if (keepValue && current) inst.setChoiceByValue(current);
 }
 
