@@ -166,7 +166,8 @@
       }
       if (markaSel && modelSel){
         modelSel.id = modelSel.id || `talep_model_${rowIdx}`;
-        _selects.bindMarkaModel(markaSel.id, modelSel.id);
+        modelSel.disabled = true;
+        await _selects.bindMarkaModel(markaSel.id, modelSel.id);
       }
       updateRemoveButtons();
     }
@@ -201,7 +202,7 @@
         const fd = new FormData();
         if (ifsNo) fd.append('ifs_no', ifsNo);
         row.querySelectorAll('input, select').forEach(el => {
-          const val = el._choices ? (el._choices.getValue()[0]?.label || '') : el.value;
+          const val = el._choices ? (el._choices.getValue()[0]?.value || '') : el.value;
           if (el.name && val) fd.append(el.name, val);
         });
         const res = await fetch('/talepler', { method: 'POST', body: fd });
