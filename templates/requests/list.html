@@ -80,7 +80,7 @@
 <!-- Talep Aç Modal -->
 <div class="modal fade" id="modalTalepAc" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
+    <form id="frmTalepAc" class="modal-content" method="post">
       <div class="modal-header">
         <h5 class="modal-title">Talep Aç</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
@@ -97,25 +97,25 @@
           <div class="row g-2 align-items-end talep-row">
             <div class="col-md-3">
               <label class="form-label">Donanım Tipi</label>
-              <select class="form-select" data-lookup="donanim_tipi"></select>
+              <select class="form-select" name="donanim_tipi" data-lookup="donanim_tipi"></select>
             </div>
             <div class="col-md-2">
               <label class="form-label">Miktar</label>
-              <input type="number" min="1" value="1" class="form-control" name="miktar[]">
+              <input type="number" min="1" value="1" class="form-control" name="miktar">
             </div>
             <div class="col-md-3">
               <label class="form-label">Marka</label>
-              <select class="form-select" data-lookup="marka" id="talep_marka_1"></select>
+              <select class="form-select" name="marka" data-lookup="marka"></select>
             </div>
             <div class="col-md-3">
               <label class="form-label">Model</label>
-              <select class="form-select" data-lookup="model" data-depends="#talep_marka_1"></select>
+              <select class="form-select" name="model" data-lookup="model" data-depends="[data-lookup='marka']"></select>
             </div>
             <div class="col-md-1">
               <button type="button" class="btn btn-outline-danger" data-action="row-remove">✕</button>
             </div>
             <div class="col-12 mt-2">
-              <input type="text" class="form-control" name="aciklama[]" placeholder="Açıklama">
+              <input type="text" class="form-control" name="aciklama" placeholder="Açıklama">
             </div>
           </div>
         </div>
@@ -127,9 +127,9 @@
 
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-        <button class="btn btn-primary">Gönder</button>
+        <button type="submit" class="btn btn-primary">Gönder</button>
       </div>
-    </div>
+    </form>
   </div>
 </div>
 
@@ -138,25 +138,25 @@
   <div class="row g-2 align-items-end talep-row mt-2">
     <div class="col-md-3">
       <label class="form-label">Donanım Tipi</label>
-      <select class="form-select" data-lookup="donanim_tipi"></select>
+      <select class="form-select" name="donanim_tipi" data-lookup="donanim_tipi"></select>
     </div>
     <div class="col-md-2">
       <label class="form-label">Miktar</label>
-      <input type="number" min="1" value="1" class="form-control" name="miktar[]">
+      <input type="number" min="1" value="1" class="form-control" name="miktar">
     </div>
     <div class="col-md-3">
       <label class="form-label">Marka</label>
-      <select class="form-select" data-lookup="marka"></select>
+      <select class="form-select" name="marka" data-lookup="marka"></select>
     </div>
     <div class="col-md-3">
       <label class="form-label">Model</label>
-      <select class="form-select" data-lookup="model" data-depends="[data-lookup='marka']"></select>
+      <select class="form-select" name="model" data-lookup="model" data-depends="[data-lookup='marka']"></select>
     </div>
     <div class="col-md-1">
       <button type="button" class="btn btn-outline-danger" data-action="row-remove">✕</button>
     </div>
     <div class="col-12 mt-2">
-      <input type="text" class="form-control" name="aciklama[]" placeholder="Açıklama">
+      <input type="text" class="form-control" name="aciklama" placeholder="Açıklama">
     </div>
   </div>
 </template>
@@ -178,6 +178,34 @@ document.addEventListener('click', (ev) => {
     const row = rm.closest('.talep-row');
     if (row) row.remove();
   }
+});
+
+document.addEventListener('submit', async (ev) => {
+  const form = ev.target.closest('#frmTalepAc');
+  if (!form) return;
+  ev.preventDefault();
+
+  const modal = document.getElementById('modalTalepAc');
+  const ifsNo = form.querySelector('[name="ifs_no"]')?.value || '';
+  const rows = form.querySelectorAll('.talep-row');
+
+  for (const row of rows) {
+    const fd = new FormData();
+    if (ifsNo) fd.append('ifs_no', ifsNo);
+    row.querySelectorAll('input, select').forEach(el => {
+      const val = el._choices ? (el._choices.getValue()[0]?.value || '') : el.value;
+      if (el.name && val) fd.append(el.name, val);
+    });
+    const res = await fetch('/requests', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!data.ok) {
+      alert('Kayıt hatası');
+      return;
+    }
+  }
+
+  bootstrap.Modal.getInstance(modal).hide();
+  location.reload();
 });
 </script>
 {% endblock %}
