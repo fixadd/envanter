@@ -189,7 +189,8 @@
         const fd = new FormData();
         if (ifsNo) fd.append('ifs_no', ifsNo);
         row.querySelectorAll('input, select').forEach(el => {
-          if (el.name && el.value) fd.append(el.name, el.value);
+          const val = el._choices ? el._choices.getValue(true) : el.value;
+          if (el.name && val) fd.append(el.name, val);
         });
         const res = await fetch('/talepler', { method: 'POST', body: fd });
         const data = await res.json();
