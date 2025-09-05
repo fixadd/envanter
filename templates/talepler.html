@@ -88,7 +88,7 @@
 <!-- Talep Aç Modal -->
 <div class="modal fade" id="talepModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <form id="frmTalep" class="modal-content" onsubmit="return talepGonder(event)">
+    <form id="frmTalep" class="modal-content" method="post">
       <div class="modal-header">
         <h5 class="modal-title">Talep Aç</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -175,6 +175,8 @@
     document.addEventListener('DOMContentLoaded', () => {
       initRow(rowContainer.firstElementChild);
       updateRemoveButtons();
+      const frm = document.getElementById('frmTalep');
+      frm.addEventListener('submit', talepGonder);
     });
 
     document.addEventListener('click', async (ev) => {
@@ -182,7 +184,13 @@
       if (addBtn) {
         const clone = templateRow.cloneNode(true);
         clone.querySelectorAll('input').forEach(i => i.value = '');
-        clone.querySelectorAll('select').forEach(sel => sel.value = '');
+        clone.querySelectorAll('select').forEach(sel => {
+          sel.value = '';
+          if (sel._choices) {
+            sel._choices.destroy();
+            delete sel._choices;
+          }
+        });
         rowContainer.appendChild(clone);
         await initRow(clone);
         updateRemoveButtons();
