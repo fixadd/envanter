@@ -109,7 +109,7 @@
               <label class="form-label">Miktar</label>
               <input name="miktar" type="number" min="1" class="form-control" placeholder="Miktar">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
               <label class="form-label">Marka</label>
               <select name="marka" class="form-select" data-lookup="marka"></select>
             </div>
@@ -117,14 +117,14 @@
               <label class="form-label">Model</label>
               <select name="model" class="form-select" data-lookup="model" data-depends="[data-lookup='marka']"></select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
               <label class="form-label">Açıklama</label>
-              <input name="aciklama" class="form-control" placeholder="Açıklama">
-            </div>
-            <div class="col-md-1 text-end">
-              <button type="button" class="btn btn-outline-danger" data-action="row-remove">
-                <i class="bi bi-x"></i>
-              </button>
+              <div class="input-group">
+                <input name="aciklama" class="form-control" placeholder="Açıklama">
+                <button type="button" class="btn btn-outline-danger" data-action="row-remove">
+                  <i class="bi bi-x"></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -141,6 +141,14 @@
   <script>
     const rowContainer = document.getElementById('talepRows');
     let templateRow = rowContainer.firstElementChild.cloneNode(true);
+
+    function updateRemoveButtons(){
+      const rows = rowContainer.querySelectorAll('.talep-row');
+      rows.forEach(r => {
+        const btn = r.querySelector('[data-action="row-remove"]');
+        if (btn) btn.classList.toggle('d-none', rows.length <= 1);
+      });
+    }
 
     let rowIdx = 0;
     async function initRow(row){
@@ -160,10 +168,12 @@
         modelSel.id = modelSel.id || `talep_model_${rowIdx}`;
         _selects.bindMarkaModel(markaSel.id, modelSel.id);
       }
+      updateRemoveButtons();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       initRow(rowContainer.firstElementChild);
+      updateRemoveButtons();
     });
 
     document.addEventListener('click', async (ev) => {
@@ -174,10 +184,12 @@
         clone.querySelectorAll('select').forEach(sel => sel.value = '');
         rowContainer.appendChild(clone);
         await initRow(clone);
+        updateRemoveButtons();
       }
       const rmBtn = ev.target.closest('[data-action="row-remove"]');
       if (rmBtn && rowContainer.children.length > 1) {
         rmBtn.closest('.talep-row').remove();
+        updateRemoveButtons();
       }
     });
 
@@ -189,7 +201,7 @@
         const fd = new FormData();
         if (ifsNo) fd.append('ifs_no', ifsNo);
         row.querySelectorAll('input, select').forEach(el => {
-          const val = el._choices ? el._choices.getValue(true) : el.value;
+          const val = el._choices ? (el._choices.getValue()[0]?.label || '') : el.value;
           if (el.name && val) fd.append(el.name, val);
         });
         const res = await fetch('/talepler', { method: 'POST', body: fd });
