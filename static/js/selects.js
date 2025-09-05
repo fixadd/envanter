@@ -42,8 +42,12 @@ async function bindMarkaModel(markaSelectId, modelSelectId) {
 
   async function updateModels() {
     const m = markaEl.value;
-    if (!m) { modelInst.clearStore(); modelEl.disabled = true; return; }
-    modelEl.disabled = false;
+    if (!m) {
+      modelInst.clearStore();
+      modelInst.disable();
+      return;
+    }
+    modelInst.enable();
     await fillChoices({ endpoint: "/api/lookup/model", selectId: modelSelectId, params: { marka_id: m }, placeholder: "Model seçiniz…" });
   }
   markaEl.addEventListener("change", updateModels);
