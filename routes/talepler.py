@@ -102,6 +102,62 @@ def close_request(talep_id: int, adet: int = Form(1), db: Session = Depends(get_
     return {"ok": True}
 
 
+@router.post("/{talep_id}/stock", response_class=JSONResponse)
+def convert_request_to_stock(
+    talep_id: int,
+    adet: int = Form(1),
+    islem_yapan: str = Form("Sistem"),
+    db: Session = Depends(get_db),
+):
+    """Convert an active request into a stock entry.
+
+    Creates a ``StockLog`` record using the information stored on the
+    ``Talep`` and decreases the remaining quantity on the request.  When the
+    request is fully processed its status is marked as closed.
+    """
+
+    if adet <= 0:
+        return JSONResponse(
+            {"ok": False, "error": "Adet 0'dan büyük olmalı"}, status_code=400
+        )
+
+    talep = db.get(Talep, talep_id)
+    if not talep:
+        return JSONResponse({"ok": False}, status_code=404)
+
+    mevcut = talep.miktar or 1
+    if mevcut < adet:
+        return JSONResponse(
+            {"ok": False, "error": "Yetersiz talep miktarı"}, status_code=400
+        )
+
+    from routers.stock import stock_add
+
+    payload = {
+        "is_license": talep.tur == TalepTuru.LISANS,
+        "donanim_tipi": talep.donanim_tipi,
+        "miktar": adet,
+        "marka": talep.marka,
+        "model": talep.model,
+        "ifs_no": talep.ifs_no,
+        "islem_yapan": islem_yapan,
+    }
+
+    result = stock_add(payload, db)
+    if not result.get("ok"):
+        return JSONResponse(result, status_code=400)
+
+    if mevcut > adet:
+        talep.miktar = mevcut - adet
+    else:
+        talep.durum = TalepDurum.TAMAMLANDI
+        talep.miktar = 0
+        talep.kapanma_tarihi = datetime.utcnow()
+
+    db.commit()
+    return {"ok": True, "stock_id": result.get("id")}
+
+
 @router.get("/convert/{talep_id}", response_class=HTMLResponse)
 def convert_request(talep_id: int, request: Request, adet: int = 1, db: Session = Depends(get_db)):
     if adet <= 0:
