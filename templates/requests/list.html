@@ -79,133 +79,45 @@
 </div>
 <!-- Talep Aç Modal -->
 <div class="modal fade" id="modalTalepAc" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <form id="frmTalepAc" class="modal-content" method="post">
+  <div class="modal-dialog modal-dialog-centered">
+    <form id="talepForm" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Talep Aç</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
       </div>
-
       <div class="modal-body">
         <div class="mb-3">
           <label class="form-label">IFS No</label>
-          <input type="text" class="form-control" name="ifs_no" placeholder="IFS No">
+          <input id="ifs_no" name="ifs_no" class="form-control" />
         </div>
-
-        <div class="talep-rows">
-          <!-- İlk satır -->
-          <div class="row g-2 align-items-end talep-row">
-            <div class="col-md-3">
-              <label class="form-label">Donanım Tipi</label>
-              <select class="form-select" name="donanim_tipi" data-lookup="donanim_tipi"></select>
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">Miktar</label>
-              <input type="number" min="1" value="1" class="form-control" name="miktar">
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Marka</label>
-              <select class="form-select" name="marka" data-lookup="marka"></select>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Model</label>
-              <select class="form-select" name="model" data-lookup="model" data-depends="[data-lookup='marka']"></select>
-            </div>
-            <div class="col-md-1">
-              <button type="button" class="btn btn-outline-danger" data-action="row-remove">✕</button>
-            </div>
-            <div class="col-12 mt-2">
-              <input type="text" class="form-control" name="aciklama" placeholder="Açıklama">
-            </div>
-          </div>
+        <div class="mb-3">
+          <label class="form-label">Donanım Tipi</label>
+          <select id="donanim_tipi" name="donanim_tipi" class="form-select"></select>
         </div>
-
-        <div class="mt-3">
-          <button type="button" class="btn btn-light" data-action="row-add">Satır Ekle</button>
+        <div class="mb-3">
+          <label class="form-label">Miktar</label>
+          <input id="miktar" name="miktar" type="number" class="form-control" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Marka</label>
+          <select id="marka" name="marka" class="form-select"></select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Model</label>
+          <select id="model" name="model" class="form-select"></select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Açıklama</label>
+          <input id="aciklama" name="aciklama" class="form-control" />
         </div>
       </div>
-
       <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
         <button type="submit" class="btn btn-primary">Gönder</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- Satır template'i -->
-<template id="talep-row-template">
-  <div class="row g-2 align-items-end talep-row mt-2">
-    <div class="col-md-3">
-      <label class="form-label">Donanım Tipi</label>
-      <select class="form-select" name="donanim_tipi" data-lookup="donanim_tipi"></select>
-    </div>
-    <div class="col-md-2">
-      <label class="form-label">Miktar</label>
-      <input type="number" min="1" value="1" class="form-control" name="miktar">
-    </div>
-    <div class="col-md-3">
-      <label class="form-label">Marka</label>
-      <select class="form-select" name="marka" data-lookup="marka"></select>
-    </div>
-    <div class="col-md-3">
-      <label class="form-label">Model</label>
-      <select class="form-select" name="model" data-lookup="model" data-depends="[data-lookup='marka']"></select>
-    </div>
-    <div class="col-md-1">
-      <button type="button" class="btn btn-outline-danger" data-action="row-remove">✕</button>
-    </div>
-    <div class="col-12 mt-2">
-      <input type="text" class="form-control" name="aciklama" placeholder="Açıklama">
-    </div>
-  </div>
-</template>
-
-<script>
-document.addEventListener('click', (ev) => {
-  const modal = document.getElementById('modalTalepAc');
-  if (!modal) return;
-  const addBtn = ev.target.closest('[data-action="row-add"]');
-  if (addBtn) {
-    const container = modal.querySelector('.talep-rows');
-    const tpl = document.getElementById('talep-row-template');
-    if (container && tpl) {
-      container.appendChild(document.importNode(tpl.content, true));
-    }
-  }
-  const rm = ev.target.closest('[data-action="row-remove"]');
-  if (rm) {
-    const row = rm.closest('.talep-row');
-    if (row) row.remove();
-  }
-});
-
-document.addEventListener('submit', async (ev) => {
-  const form = ev.target.closest('#frmTalepAc');
-  if (!form) return;
-  ev.preventDefault();
-
-  const modal = document.getElementById('modalTalepAc');
-  const ifsNo = form.querySelector('[name="ifs_no"]')?.value || '';
-  const rows = form.querySelectorAll('.talep-row');
-
-  for (const row of rows) {
-    const fd = new FormData();
-    if (ifsNo) fd.append('ifs_no', ifsNo);
-    row.querySelectorAll('input, select').forEach(el => {
-      const val = el._choices ? (el._choices.getValue()[0]?.value || '') : el.value;
-      if (el.name && val) fd.append(el.name, val);
-    });
-    const res = await fetch('/requests', { method: 'POST', body: fd });
-    const data = await res.json();
-    if (!data.ok) {
-      alert('Kayıt hatası');
-      return;
-    }
-  }
-
-  bootstrap.Modal.getInstance(modal).hide();
-  location.reload();
-});
-</script>
+<script src="/static/js/talep.js"></script>
 {% endblock %}
