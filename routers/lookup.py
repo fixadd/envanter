@@ -3,9 +3,33 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 
 from database import get_db  # projedeki mevcut get_db
-from models import Lookup
+from models import Lookup, Model as ModelTbl, Brand, HardwareType
 
 router = APIRouter(prefix="/api/lookup", tags=["lookup"])
+
+# Basit ORM tabanlı lookup'lar
+
+@router.get("/donanim_tipi")
+def lookup_donanim_tipi(db: Session = Depends(get_db)):
+    rows = db.query(HardwareType).order_by(HardwareType.name.asc()).all()
+    return [{"id": r.id, "adi": r.name} for r in rows]
+
+
+@router.get("/marka")
+def lookup_marka(db: Session = Depends(get_db)):
+    rows = db.query(Brand).order_by(Brand.name.asc()).all()
+    return [{"id": r.id, "adi": r.name} for r in rows]
+
+
+@router.get("/model")
+def lookup_model(marka_id: int = Query(...), db: Session = Depends(get_db)):
+    rows = (
+        db.query(ModelTbl)
+        .filter(ModelTbl.brand_id == marka_id)
+        .order_by(ModelTbl.name.asc())
+        .all()
+    )
+    return [{"id": r.id, "adi": r.name} for r in rows]
 
 # Ürün Ekle sayfasındaki kartlara karşılık gelen tablolar:
 # (Gerekirse tablo adlarını birebir DB'nizdeki adlarla düzeltin.)
