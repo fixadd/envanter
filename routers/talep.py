@@ -1,27 +1,49 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import cast, Integer
+from pydantic import BaseModel, conint
+from typing import List, Optional
 
 from database import get_db
-from models import Talep, TalepTuru, TalepDurum, HardwareType, Brand, Model
+from models import Talep, TalepTuru, HardwareType, Brand, Model
 
 router = APIRouter(prefix="/api/talep", tags=["Talep"])
 
+
+class TalepLine(BaseModel):
+    donanim_tipi_id: conint(gt=0)
+    miktar: conint(gt=0)
+    marka_id: Optional[int] = 0
+    model_id: Optional[int] = 0
+    aciklama: Optional[str] = None
+
+
+class TalepIn(BaseModel):
+    ifs_no: Optional[str] = None
+    lines: List[TalepLine]
+
+
 @router.post("/ekle")
-def talep_ekle(item: dict, db: Session = Depends(get_db)):
-    rec = Talep(
-        tur=TalepTuru.AKSESUAR,
-        ifs_no=item.get("ifs_no"),
-        donanim_tipi=item.get("donanim_tipi_id"),
-        marka=item.get("marka_id"),
-        model=item.get("model_id"),
-        miktar=item.get("miktar"),
-        aciklama=item.get("aciklama"),
-    )
-    db.add(rec)
+def talep_ekle(item: TalepIn, db: Session = Depends(get_db)):
+    if not item.lines:
+        raise HTTPException(400, "Boş talep")
+
+    ids = []
+    for ln in item.lines:
+        rec = Talep(
+            tur=TalepTuru.AKSESUAR,
+            ifs_no=item.ifs_no,
+            donanim_tipi=ln.donanim_tipi_id,
+            marka=ln.marka_id or None,
+            model=ln.model_id or None,
+            miktar=ln.miktar,
+            aciklama=ln.aciklama,
+        )
+        db.add(rec)
+        db.flush()
+        ids.append(rec.id)
     db.commit()
-    db.refresh(rec)
-    return {"ok": True, "id": rec.id}
+    return {"ok": True, "ids": ids}
 
 @router.get("/liste")
 def talep_liste(db: Session = Depends(get_db)):
