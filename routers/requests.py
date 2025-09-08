@@ -7,10 +7,11 @@ from fastapi.responses import (
     JSONResponse,
 )
 from sqlalchemy.orm import Session
+from sqlalchemy import cast, Integer
 from typing import Optional
 from database import get_db
 from fastapi.templating import Jinja2Templates
-from models import Talep, TalepTuru, TalepDurum
+from models import Talep, TalepTuru, TalepDurum, HardwareType, Brand, Model
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -80,13 +81,36 @@ async def import_requests(file: UploadFile = File(...)):
     return f"Received {file.filename}, but import is not implemented."
 
 
+def _list_by_status(db: Session, durum: TalepDurum):
+    q = (
+        db.query(
+            Talep,
+            HardwareType.name.label("donanim_tipi_name"),
+            Brand.name.label("marka_name"),
+            Model.name.label("model_name"),
+        )
+        .outerjoin(HardwareType, HardwareType.id == cast(Talep.donanim_tipi, Integer))
+        .outerjoin(Brand, Brand.id == cast(Talep.marka, Integer))
+        .outerjoin(Model, Model.id == cast(Talep.model, Integer))
+        .filter(Talep.durum == durum)
+        .order_by(Talep.id.desc())
+    )
+    rows = []
+    for t, dt_name, marka_name, model_name in q.all():
+        t.donanim_tipi = dt_name or t.donanim_tipi
+        t.marka = marka_name or t.marka
+        t.model = model_name or t.model
+        rows.append(t)
+    return rows
+
+
 @router.get("/", response_class=HTMLResponse)
 async def list_requests(request: Request, db: Session = Depends(get_db)):
     """Display requests grouped by status."""
 
-    aktif = db.query(Talep).filter(Talep.durum == TalepDurum.AKTIF).all()
-    kapali = db.query(Talep).filter(Talep.durum == TalepDurum.TAMAMLANDI).all()
-    iptal = db.query(Talep).filter(Talep.durum == TalepDurum.IPTAL).all()
+    aktif = _list_by_status(db, TalepDurum.AKTIF)
+    kapali = _list_by_status(db, TalepDurum.TAMAMLANDI)
+    iptal = _list_by_status(db, TalepDurum.IPTAL)
 
     return templates.TemplateResponse(
         "requests/list.html",
