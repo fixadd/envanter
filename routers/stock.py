@@ -180,6 +180,7 @@ def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):
         mail_adresi=payload.get("mail_adresi") if is_license else None,
         miktar=miktar,
         ifs_no=payload.get("ifs_no") or None,
+        aciklama=payload.get("aciklama"),
         islem=islem,
         tarih=datetime.utcnow(),
         actor=payload.get("islem_yapan") or "Sistem",

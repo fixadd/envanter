@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Request, Form
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from sqlalchemy.orm import Session
 from typing import Optional
+from fastapi.params import Form as FormParam
 from io import BytesIO
 from openpyxl import Workbook
 from datetime import datetime
@@ -122,6 +123,10 @@ def convert_request_to_stock(
     talep_id: int,
     adet: int = Form(1),
     islem_yapan: str = Form("Sistem"),
+    marka: Optional[str] = Form(None),
+    model: Optional[str] = Form(None),
+    ifs_no: Optional[str] = Form(None),
+    aciklama: Optional[str] = Form(None),
     db: Session = Depends(get_db),
 ):
     """Convert an active request into a stock entry.
@@ -148,13 +153,34 @@ def convert_request_to_stock(
 
     from routers.stock import stock_add
 
+    def _val(x):
+        return getattr(x, "default", x)
+
+    marka = _val(marka) or talep.marka
+    model = _val(model) or talep.model
+    ifs_no = _val(ifs_no) or talep.ifs_no
+    aciklama = _val(aciklama)
+    islem_yapan = _val(islem_yapan) or "Sistem"
+    if not marka or not model:
+        return JSONResponse(
+            {"ok": False, "error": "Marka ve model gerekli"}, status_code=400
+        )
+
+    # persist provided details back to request
+    talep.marka = marka
+    talep.model = model
+    talep.ifs_no = ifs_no
+    if aciklama:
+        talep.aciklama = aciklama
+
     payload = {
         "is_license": talep.tur == TalepTuru.LISANS,
         "donanim_tipi": talep.donanim_tipi,
         "miktar": adet,
-        "marka": talep.marka,
-        "model": talep.model,
-        "ifs_no": talep.ifs_no,
+        "marka": marka,
+        "model": model,
+        "ifs_no": ifs_no,
+        "aciklama": aciklama,
         "islem_yapan": islem_yapan,
     }
 
