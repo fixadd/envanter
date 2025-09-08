@@ -5,22 +5,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (window._selects) {
     _selects.fillChoices({ endpoint: "/api/lookup/donanim_tipi", selectId: "donanim_tipi", placeholder: "Donanım tipi" });
     _selects.fillChoices({ endpoint: "/api/lookup/marka", selectId: "marka", placeholder: "Marka" });
+    _selects.bindMarkaModel("marka", "model");
   }
 
   const markaSel = document.getElementById("marka");
   const modelSel = document.getElementById("model");
-
-  markaSel?.addEventListener("change", async function () {
-    const markaId = this.value;
-    modelSel.innerHTML = '<option value="">Yükleniyor...</option>';
-    try {
-      const r = await fetch(`/api/lookup/model?marka_id=${encodeURIComponent(markaId)}`);
-      const data = await r.json();
-      modelSel.innerHTML = data.map(m => `<option value="${m.id}">${m.name || m.adi}</option>`).join("");
-    } catch {
-      modelSel.innerHTML = '<option value="">Model bulunamadı</option>';
-    }
-  });
 
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
