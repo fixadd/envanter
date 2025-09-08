@@ -356,6 +356,7 @@ class StockLog(Base):
     model = Column(String(150), nullable=True)
     lisans_anahtari = Column(String(500), nullable=True)
     mail_adresi = Column(String(200), nullable=True)
+    aciklama = Column(Text, nullable=True)
     tarih = Column(DateTime, default=datetime.utcnow)
     islem = Column(
         Enum("girdi", "cikti", "hurda", "atama", name="stock_islem"), nullable=False
