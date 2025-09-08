@@ -87,162 +87,61 @@
 
 <!-- Talep Aç Modal -->
 <div class="modal fade" id="talepModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <form id="frmTalep" class="modal-content" method="post">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Talep Aç</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
       </div>
 
-      <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label">IFS No</label>
-          <input id="ifsNoGlobal" class="form-control" placeholder="IFS No">
-        </div>
-        <div id="talepRows">
-          <div class="row g-2 align-items-end talep-row">
+      <!-- TEK FORM ve sabit id -->
+      <form id="talepForm" autocomplete="off">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">IFS No</label>
+            <input id="ifs_no" name="ifs_no" class="form-control" placeholder="IFS No">
+          </div>
+
+          <div class="row g-3 align-items-end">
             <div class="col-md-3">
               <label class="form-label">Donanım Tipi</label>
-              <select name="donanim_tipi" class="form-select" data-lookup="donanim_tipi"></select>
+              <select id="donanim_tipi" name="donanim_tipi_id" class="form-select" required></select>
             </div>
+
             <div class="col-md-2">
               <label class="form-label">Miktar</label>
-              <input name="miktar" type="number" min="1" class="form-control" placeholder="Miktar">
+              <input id="miktar" name="miktar" type="number" min="1" value="1" class="form-control" required>
             </div>
-            <div class="col-md-2">
-              <label class="form-label">Marka</label>
-              <select name="marka" class="form-select" data-lookup="marka"></select>
-            </div>
+
             <div class="col-md-3">
-              <label class="form-label">Model</label>
-              <select name="model" class="form-select" data-lookup="model" data-depends="[data-lookup='marka']"></select>
+              <label class="form-label">Marka</label>
+              <select id="marka" name="marka_id" class="form-select"></select>
             </div>
-            <div class="col-md-2">
-              <label class="form-label">Açıklama</label>
-              <div class="input-group">
-                <input name="aciklama" class="form-control" placeholder="Açıklama">
-                <button type="button" class="btn btn-outline-danger" data-action="row-remove">
-                  <i class="bi bi-x"></i>
-                </button>
-              </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Model</label>
+              <select id="model" name="model_id" class="form-select" disabled>
+                <option value="">Seçiniz…</option>
+              </select>
             </div>
           </div>
-        </div>
-        <button type="button" class="btn btn-outline-secondary" data-action="row-add">Satır Ekle</button>
-      </div>
 
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-        <button type="submit" class="btn btn-primary">Gönder</button>
-      </div>
-    </form>
+          <div class="mt-3">
+            <label class="form-label">Açıklama</label>
+            <input id="aciklama" name="aciklama" class="form-control" placeholder="Açıklama">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+          <!-- DİKKAT: submit -->
+          <button type="submit" class="btn btn-primary">Gönder</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
-  <script>
-    const rowContainer = document.getElementById('talepRows');
-    let templateRow = rowContainer.firstElementChild.cloneNode(true);
 
-    function updateRemoveButtons(){
-      const rows = rowContainer.querySelectorAll('.talep-row');
-      rows.forEach(r => {
-        const btn = r.querySelector('[data-action="row-remove"]');
-        if (btn) btn.classList.toggle('d-none', rows.length <= 1);
-      });
-    }
-
-    let rowIdx = 0;
-    async function initRow(row){
-      rowIdx++;
-      const donSel = row.querySelector("[data-lookup='donanim_tipi']");
-      const markaSel = row.querySelector("[data-lookup='marka']");
-      const modelSel = row.querySelector("[data-lookup='model']");
-      if (donSel){
-        donSel.id = donSel.id || `talep_donanim_${rowIdx}`;
-        await _selects.fillChoices({ endpoint: '/api/lookup/donanim_tipi', selectId: donSel.id, placeholder: 'Donanım tipi seçiniz…' });
-      }
-      if (markaSel){
-        markaSel.id = markaSel.id || `talep_marka_${rowIdx}`;
-        await _selects.fillChoices({ endpoint: '/api/lookup/marka', selectId: markaSel.id, placeholder: 'Marka seçiniz…' });
-      }
-      if (markaSel && modelSel){
-        modelSel.id = modelSel.id || `talep_model_${rowIdx}`;
-        modelSel.disabled = true;
-        await _selects.bindMarkaModel(markaSel.id, modelSel.id);
-      }
-      updateRemoveButtons();
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      initRow(rowContainer.firstElementChild);
-      updateRemoveButtons();
-      const frm = document.getElementById('frmTalep');
-      frm.addEventListener('submit', talepGonder);
-    });
-
-    document.addEventListener('click', async (ev) => {
-      const addBtn = ev.target.closest('[data-action="row-add"]');
-      if (addBtn) {
-        const clone = templateRow.cloneNode(true);
-        clone.querySelectorAll('input').forEach(i => i.value = '');
-        clone.querySelectorAll('select').forEach(sel => {
-          sel.value = '';
-          if (sel._choices) {
-            sel._choices.destroy();
-            delete sel._choices;
-          }
-        });
-        rowContainer.appendChild(clone);
-        await initRow(clone);
-        updateRemoveButtons();
-      }
-      const rmBtn = ev.target.closest('[data-action="row-remove"]');
-      if (rmBtn && rowContainer.children.length > 1) {
-        rmBtn.closest('.talep-row').remove();
-        updateRemoveButtons();
-      }
-    });
-
-    async function talepGonder(e) {
-      e.preventDefault();
-      const ifsNo = document.getElementById('ifsNoGlobal').value;
-      const rows = rowContainer.querySelectorAll('.talep-row');
-      for (const row of rows) {
-        const fd = new FormData();
-        if (ifsNo) fd.append('ifs_no', ifsNo);
-        row.querySelectorAll('input, select').forEach(el => {
-          const val = el._choices ? (el._choices.getValue()[0]?.value || '') : el.value;
-          if (el.name && val) fd.append(el.name, val);
-        });
-        const res = await fetch('/talepler', { method: 'POST', body: fd });
-        const data = await res.json();
-        if (!data.ok) { alert('Kayıt hatası'); return false; }
-      }
-      location.reload();
-      return false;
-    }
-
-    async function talepIptal(id, adet){
-      const fd = new FormData();
-      fd.append('adet', adet);
-      const res = await fetch(`/talepler/${id}/cancel`, { method: 'POST', body: fd });
-      const data = await res.json();
-      if (data.ok) {
-        location.reload();
-      } else {
-        alert(data.error || 'İşlem başarısız');
-      }
-    }
-
-    async function talepKapat(id, adet){
-      const fd = new FormData();
-      fd.append('adet', adet);
-      const res = await fetch(`/talepler/${id}/close`, { method: 'POST', body: fd });
-      const data = await res.json();
-      if (data.ok) {
-        location.reload();
-      } else {
-        alert(data.error || 'İşlem başarısız');
-      }
-    }
-  </script>
+<!-- Sayfanın EN ALTINDA (modal şablonundan sonra) -->
+<script src="/static/js/talep.js"></script>
 {% endblock %}

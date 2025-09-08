@@ -6,9 +6,10 @@ from io import BytesIO
 from openpyxl import Workbook
 from datetime import datetime
 
-from models import Talep, TalepTuru, TalepDurum
+from models import Talep, TalepTuru, TalepDurum, HardwareType, Brand, Model
 from database import get_db
 from fastapi.templating import Jinja2Templates
+from sqlalchemy import cast, Integer
 
 templates = Jinja2Templates(directory="templates")
 router = APIRouter(prefix="/talepler", tags=["Talepler"])
@@ -24,12 +25,26 @@ def liste(request: Request, durum: str = "aktif", db: Session = Depends(get_db))
         "iptal": TalepDurum.IPTAL,
     }
     selected = durum_map.get(durum, TalepDurum.AKTIF)
-    rows = (
-        db.query(Talep)
+    q = (
+        db.query(
+            Talep,
+            HardwareType.name.label("dt_name"),
+            Brand.name.label("marka_name"),
+            Model.name.label("model_name"),
+        )
+        .outerjoin(HardwareType, HardwareType.id == cast(Talep.donanim_tipi, Integer))
+        .outerjoin(Brand, Brand.id == cast(Talep.marka, Integer))
+        .outerjoin(Model, Model.id == cast(Talep.model, Integer))
         .filter(Talep.durum == selected)
         .order_by(Talep.ifs_no.asc(), Talep.id.asc())
-        .all()
     )
+
+    rows = []
+    for t, dt_name, marka_name, model_name in q.all():
+        t.donanim_tipi = dt_name or t.donanim_tipi
+        t.marka = marka_name or t.marka
+        t.model = model_name or t.model
+        rows.append(t)
 
     return templates.TemplateResponse(
         "talepler.html",

@@ -41,7 +41,7 @@ from routers.api import router as api_router
 from routes.admin import router as admin_router
 from routes.scrap import router as scrap_router
 from routes.talepler import router as talepler_router
-from routes.talep_api import router as talep_api_router
+from routers.talep import router as talep_router
 from utils.template_filters import register_filters
 from security import current_user, require_roles
 
@@ -135,7 +135,7 @@ app.include_router(profile.router, prefix="/profile", tags=["Profile"], dependen
 app.include_router(api_router)
 app.include_router(picker_router)
 app.include_router(lookup_router)
-app.include_router(talep_api_router)
+app.include_router(talep_router)
 app.include_router(refdata.router, dependencies=[Depends(current_user)])
 
 @app.get("/licenses", include_in_schema=False)
