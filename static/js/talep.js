@@ -158,3 +158,63 @@
   });
 })();
 
+// Talep iptal
+window.talepIptal = async function(id, mevcut){
+  let adet = 1;
+  if(mevcut > 1){
+    const inp = prompt(`Kaç adet iptal edilecek? (1-${mevcut})`, mevcut);
+    if(!inp) return;
+    adet = Number(inp);
+    if(!adet || adet < 1 || adet > mevcut){ alert('Geçersiz adet'); return; }
+  }
+  const fd = new FormData();
+  fd.append('adet', String(adet));
+  try{
+    const r = await fetch(`/talepler/${id}/cancel`, {method:'POST', body: fd});
+    if(!r.ok){ alert('İşlem başarısız'); return; }
+    location.reload();
+  }catch(err){
+    console.error(err); alert('İşlem başarısız');
+  }
+}
+
+// Talep kapat ve stoğa aktar
+window.talepKapat = async function(id, mevcut){
+  let adet = 1;
+  if(mevcut > 1){
+    const inp = prompt(`Kaç adet stok gireceksiniz? (1-${mevcut})`, mevcut);
+    if(!inp) return;
+    adet = Number(inp);
+    if(!adet || adet < 1 || adet > mevcut){ alert('Geçersiz adet'); return; }
+  }
+
+  // Satırdan marka/model al, yoksa iste
+  const row = Array.from(document.querySelectorAll('tbody tr'))
+    .find(tr => tr.firstElementChild?.textContent.trim() === String(id));
+  let marka = row?.children[2]?.textContent.trim();
+  if(!marka || marka === '-'){
+    marka = prompt('Marka girin');
+    if(!marka) return;
+  }
+  let model = row?.children[3]?.textContent.trim();
+  if(!model || model === '-'){
+    model = prompt('Model girin');
+    if(!model) return;
+  }
+  const note = prompt('Not (opsiyonel)');
+
+  const fd = new FormData();
+  fd.append('adet', String(adet));
+  fd.append('marka', marka);
+  fd.append('model', model);
+  if(note) fd.append('aciklama', note);
+  try{
+    const r = await fetch(`/talepler/${id}/stock`, {method:'POST', body: fd});
+    if(!r.ok){ alert('İşlem başarısız'); return; }
+    location.reload();
+  }catch(err){
+    console.error(err); alert('İşlem başarısız');
+  }
+}
+
+

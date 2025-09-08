@@ -10,6 +10,7 @@ os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 import models
 from routes.talepler import convert_request_to_stock
 from models import Talep, TalepTuru, TalepDurum, StockLog, StockTotal
+from fastapi.responses import JSONResponse
 
 
 @pytest.fixture()
@@ -36,7 +37,13 @@ def test_convert_request_to_stock_creates_log_and_closes(db_session):
     db_session.commit()
     db_session.refresh(talep)
 
-    res = convert_request_to_stock(talep.id, adet=5, islem_yapan="tester", db=db_session)
+    res = convert_request_to_stock(
+        talep.id,
+        adet=5,
+        islem_yapan="tester",
+        aciklama="Not",
+        db=db_session,
+    )
     assert res["ok"] is True
 
     log = db_session.query(StockLog).first()
@@ -47,6 +54,7 @@ def test_convert_request_to_stock_creates_log_and_closes(db_session):
     assert log.model == "M185"
     assert log.islem == "girdi"
     assert log.actor == "tester"
+    assert log.aciklama == "Not"
 
     total = db_session.get(StockTotal, "mouse")
     assert total.toplam == 5
@@ -55,3 +63,31 @@ def test_convert_request_to_stock_creates_log_and_closes(db_session):
     assert refreshed.durum == TalepDurum.TAMAMLANDI
     assert refreshed.miktar == 0
     assert refreshed.kapanma_tarihi is not None
+
+
+def test_convert_request_requires_brand_model(db_session):
+    talep = Talep(
+        tur=TalepTuru.AKSESUAR,
+        donanim_tipi="klavye",
+        miktar=1,
+    )
+    db_session.add(talep)
+    db_session.commit()
+    db_session.refresh(talep)
+
+    res = convert_request_to_stock(talep.id, adet=1, db=db_session)
+    assert isinstance(res, JSONResponse)
+    assert res.status_code == 400
+
+    res2 = convert_request_to_stock(
+        talep.id,
+        adet=1,
+        marka="ABC",
+        model="XYZ",
+        db=db_session,
+    )
+    assert res2["ok"] is True
+
+    log = db_session.query(StockLog).order_by(StockLog.id.desc()).first()
+    assert log.marka == "ABC"
+    assert log.model == "XYZ"
