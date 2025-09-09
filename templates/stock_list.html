@@ -14,6 +14,7 @@
         <i class="bi bi-plus-lg"></i>
         <span>Ekle</span>
       </button>
+      <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#stokGirModal">Stok Gir</button>
       <div class="dropdown">
         <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
           Excel
@@ -63,6 +64,48 @@
         {% endfor %}
       </tbody>
     </table>
+  </div>
+</div>
+
+<!-- Küçük Stok Giriş Modal -->
+<div class="modal fade" id="stokGirModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title">Stok Girişi</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="stokGirForm" autocomplete="off">
+          <div class="mb-2">
+            <label class="form-label">Donanım Tipi</label>
+            <select class="form-select form-select-sm" name="donanim_tipi_id" id="donanim_tipi" required></select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Marka (boşsa iste)</label>
+            <input class="form-control form-control-sm" name="marka" id="marka" placeholder="Opsiyonel">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Model (boşsa iste)</label>
+            <input class="form-control form-control-sm" name="model" id="model" placeholder="Opsiyonel">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Miktar</label>
+            <input type="number" class="form-control form-control-sm" name="miktar" min="1" value="1" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">IFS No (opsiyonel)</label>
+            <input class="form-control form-control-sm" name="ifs_no" id="ifs_no" placeholder="Boş bırakılabilir">
+            <div class="form-text">Boşsa, mevcut güncel IFS no çekilir.</div>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Not</label>
+            <textarea class="form-control form-control-sm" name="not" rows="2"></textarea>
+          </div>
+          <button class="btn btn-primary w-100 btn-sm" type="submit">Kaydet</button>
+        </form>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -323,6 +366,46 @@ document.addEventListener('DOMContentLoaded', () => {
     await _selects.fillChoices({ endpoint: '/api/lookup/lisans_adi', selectId: 'lisans_adi', placeholder: 'Lisans adı seçiniz…' });
     _selects.bindMarkaModel('stok_marka', 'stok_model');
   });
+});
+</script>
+<script>
+// Donanım Tiplerini doldur
+(async function fillDonanimTipi() {
+  try {
+    const r = await fetch('/api/lookup/donanim_tipi');
+    const list = await r.json();
+    const sel = document.getElementById('donanim_tipi');
+    if (!sel) return;
+    sel.innerHTML = '';
+    (list || []).forEach(x => {
+      const opt = document.createElement('option');
+      opt.value = x.id ?? x.value ?? x.code ?? x;
+      opt.textContent = x.ad ?? x.name ?? x.label ?? x;
+      sel.appendChild(opt);
+    });
+  } catch (e) {
+    console.error(e);
+  }
+})();
+
+document.getElementById('stokGirForm').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const fd = new FormData(ev.currentTarget);
+  if (!(fd.get('marka') || '').trim() || !(fd.get('model') || '').trim()) {
+    if (!confirm('Marka/Model boş. Yine de devam edilsin mi?')) return;
+  }
+  const payload = Object.fromEntries(fd.entries());
+  const res = await fetch('/api/stock/enter', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  });
+  if (res.ok) {
+    location.reload();
+  } else {
+    const msg = await res.text();
+    alert('Hata: ' + msg);
+  }
 });
 </script>
 {% endblock %}
