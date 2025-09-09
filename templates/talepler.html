@@ -32,13 +32,14 @@
         </tr>
       </thead>
       <tbody>
-        {% set last_ifs = None %}
+        {% set last_ifs = '' %}
         {% for t in rows %}
-          {% if t.ifs_no != last_ifs %}
+          {% set current_ifs = t.ifs_no or '-' %}
+          {% if current_ifs != last_ifs %}
           <tr class="table-light">
-            <td colspan="{{ 8 if show_actions else 7 }}">IFS No: {{ t.ifs_no or '-' }}</td>
+            <td colspan="{{ 8 if show_actions else 7 }}">IFS No: {{ current_ifs }}</td>
           </tr>
-          {% set last_ifs = t.ifs_no %}
+          {% set last_ifs = current_ifs %}
           {% endif %}
           <tr>
             <td>{{ t.id }}</td>
@@ -61,8 +62,8 @@
               <div class="btn-group">
                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">İşlem</button>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#" onclick="talepIptal({{ t.id }}, {{ t.miktar or 1 }})">İptal Et</a></li>
-                  <li><a class="dropdown-item" href="#" onclick="talepKapat({{ t.id }}, {{ t.miktar or 1 }})">Stok Gir</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="talepIptal({{ t.id }}, {{ t.miktar or 1 }}); return false;">İptal Et</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="talepKapat({{ t.id }}, {{ t.miktar or 1 }}); return false;">Stok Gir</a></li>
                 </ul>
               </div>
             </td>
