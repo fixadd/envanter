@@ -11,7 +11,7 @@
     if (cache[name]) return cache[name];
     const r = await fetch(`/api/lookup/${name}`);
     if (!r.ok) return [];
-    const data = await r.json(); // [{id, adi}]
+    const data = await r.json(); // [{id, name}]
     cache[name] = data;
     return data;
   }
@@ -21,7 +21,7 @@
     if (cache[key]) return cache[key];
     const r = await fetch(`/api/lookup/model?marka_id=${encodeURIComponent(brandId)}`);
     if (!r.ok) return [];
-    const data = await r.json(); // [{id, adi}]
+    const data = await r.json(); // [{id, name}]
     cache[key] = data;
     return data;
   }
@@ -29,7 +29,7 @@
   function optionHtml(arr, placeholder = "Seçiniz…") {
     const head = `<option value="">${placeholder}</option>`;
     if (!Array.isArray(arr) || !arr.length) return head + `<option value="">Seçenek yok</option>`;
-    return head + arr.map(x => `<option value="${x.id}">${x.adi}</option>`).join("");
+    return head + arr.map(x => `<option value="${x.id}">${x.name || x.adi || ""}</option>`).join("");
   }
 
   function rowTemplate() {
