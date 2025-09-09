@@ -176,7 +176,7 @@ window.talepIptal = async function(id, mevcut){
   }catch(err){
     console.error(err); alert('İşlem başarısız');
   }
-}
+};
 
 // Talep kapat ve stoğa aktar (modal ile)
 (() => {
