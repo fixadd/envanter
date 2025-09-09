@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import cast, Integer
 from pydantic import BaseModel, conint
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 from database import get_db
 from models import Talep, TalepTuru, HardwareType, Brand, Model
@@ -74,3 +74,36 @@ def talep_liste(db: Session = Depends(get_db)):
             }
         )
     return rows
+
+
+@router.get("/list-grouped")
+def talep_list_grouped(db: Session = Depends(get_db)):
+    q = (
+        db.query(
+            Talep,
+            HardwareType.name.label("donanim_tipi_name"),
+            Brand.name.label("marka_name"),
+            Model.name.label("model_name"),
+        )
+        .outerjoin(HardwareType, HardwareType.id == cast(Talep.donanim_tipi, Integer))
+        .outerjoin(Brand, Brand.id == cast(Talep.marka, Integer))
+        .outerjoin(Model, Model.id == cast(Talep.model, Integer))
+        .order_by(Talep.ifs_no.asc(), Talep.id.asc())
+    )
+
+    groups: Dict[str, Dict[str, Any]] = {}
+    for t, dt_name, marka_name, model_name in q.all():
+        key = t.ifs_no or "IFS Yok"
+        item = {
+            "id": t.id,
+            "donanim_tipi": dt_name or t.donanim_tipi,
+            "marka": marka_name or t.marka,
+            "model": model_name or t.model,
+            "miktar": t.miktar,
+            "aciklama": t.aciklama,
+            "tarih": t.olusturma_tarihi,
+            "durum": t.durum,
+        }
+        groups.setdefault(key, {"ifs_no": key, "items": []})["items"].append(item)
+
+    return list(groups.values())
