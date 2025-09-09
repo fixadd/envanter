@@ -93,7 +93,7 @@ def _list_by_status(db: Session, durum: TalepDurum):
         .outerjoin(Brand, Brand.id == cast(Talep.marka, Integer))
         .outerjoin(Model, Model.id == cast(Talep.model, Integer))
         .filter(Talep.durum == durum)
-        .order_by(Talep.id.desc())
+        .order_by(Talep.ifs_no.asc(), Talep.id.asc())
     )
     rows = []
     for t, dt_name, marka_name, model_name in q.all():
