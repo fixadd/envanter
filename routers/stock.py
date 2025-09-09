@@ -22,7 +22,6 @@ from models import (
 from routers.api import stock_status
 
 router = APIRouter(prefix="/stock", tags=["Stock"])
-api_router = APIRouter(prefix="/api/stock", tags=["Stock"])
 templates = Jinja2Templates(directory="templates")
 
 @router.get("/export")
@@ -192,49 +191,6 @@ def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):
     db.merge(total)
     db.commit()
     return {"ok": True, "id": log.id}
-
-
-class StockEnterIn(BaseModel):
-    donanim_tipi_id: int
-    marka: Optional[str] = None
-    model: Optional[str] = None
-    miktar: int = Field(gt=0)
-    ifs_no: Optional[str] = None
-    aciklama: Optional[str] = Field(None, alias="not")
-
-
-@api_router.post("/enter")
-def stock_enter(payload: StockEnterIn, db: Session = Depends(get_db)):
-    ifs_no = payload.ifs_no
-    if not ifs_no:
-        last_ifs = (
-            db.query(StockLog.ifs_no)
-            .filter(StockLog.ifs_no.isnot(None))
-            .order_by(StockLog.id.desc())
-            .first()
-        )
-        ifs_no = last_ifs[0] if last_ifs else None
-
-    log = StockLog(
-        donanim_tipi=str(payload.donanim_tipi_id),
-        marka=(payload.marka or "").strip() or None,
-        model=(payload.model or "").strip() or None,
-        miktar=payload.miktar,
-        islem="girdi",
-        ifs_no=ifs_no,
-        aciklama=payload.aciklama,
-        tarih=datetime.utcnow(),
-    )
-    db.add(log)
-
-    total = db.get(StockTotal, str(payload.donanim_tipi_id)) or StockTotal(
-        donanim_tipi=str(payload.donanim_tipi_id), toplam=0
-    )
-    total.toplam = (total.toplam or 0) + payload.miktar
-    db.merge(total)
-
-    db.commit()
-    return {"ok": True, "id": log.id, "ifs_no": ifs_no}
 
 class StockOption(BaseModel):
     """UI'daki stok seçenekleri için DTO."""
