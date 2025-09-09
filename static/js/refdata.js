@@ -46,7 +46,7 @@ async function fetchList(entity, extraParams = {}) {
       (rows && rows.length)
         ? rows.map(r =>
             `<li class="list-group-item d-flex justify-content-between align-items-center">
-               <span>${r.name ?? r.ad ?? r.text ?? ''}</span>
+             <span>${r.name ?? r.ad ?? r.adi ?? r.text ?? ''}</span>
                <button class="btn btn-sm btn-danger ref-delete" data-id="${r.id}">Sil</button>
              </li>`
           ).join('')
@@ -57,7 +57,7 @@ async function fetchList(entity, extraParams = {}) {
 async function fillBrandSelect(selectEl) {
   const rows = await fetchList('marka');
   const opts = [`<option value="">Marka seçiniz…</option>`]
-    .concat(rows.map(r => `<option value="${r.id}">${r.name ?? r.ad ?? r.text}</option>`));
+    .concat(rows.map(r => `<option value="${r.id}">${r.name ?? r.ad ?? r.adi ?? r.text}</option>`));
   selectEl.innerHTML = opts.join('');
 
   // Choices.js ile aramalı hale getir
@@ -77,7 +77,7 @@ async function fillBrandSelect(selectEl) {
       const inst = selectEl._choicesInstance;
       inst.clearStore();
       inst.setChoices(
-        rows.map(r => ({value: r.id, label: r.name ?? r.ad ?? r.text})),
+        rows.map(r => ({value: r.id, label: r.name ?? r.ad ?? r.adi ?? r.text})),
         'value','label', true
       );
     }
