@@ -45,7 +45,7 @@ async function fillChoices({ endpoint, selectId, params = {}, placeholder = "SeÃ
 
   const choices = data.map(x => ({
     value: x.id,
-    label: x.name ?? x.ad ?? x.text
+    label: x.name ?? x.ad ?? x.adi ?? x.text
   }));
   setChoicesSafe(sel, choices, true, { placeholderValue: placeholder });
 }
