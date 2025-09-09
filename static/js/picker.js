@@ -34,7 +34,7 @@
     const r = await fetch(`/api/lookup/${current.entity}?` + params.toString());
     const data = r.ok ? await r.json() : [];
     list.innerHTML = data.map(x =>
-      `<button type="button" class="list-group-item list-group-item-action" data-id="${x.id}" data-ad="${x.text ?? x.ad ?? x.name}">${x.text ?? x.ad ?? x.name}</button>`
+      `<button type="button" class="list-group-item list-group-item-action" data-id="${x.id}" data-ad="${x.text ?? x.ad ?? x.adi ?? x.name}">${x.text ?? x.ad ?? x.adi ?? x.name}</button>`
     ).join("");
     [...list.children].forEach(btn=>{
       btn.addEventListener("click", ()=>{
@@ -62,7 +62,7 @@
     });
     if (!r.ok){ alert("Kaydedilemedi"); return; }
     const data = await r.json();
-    current.targetText.value = data.text ?? data.ad ?? data.name;
+    current.targetText.value = data.text ?? data.ad ?? data.adi ?? data.name;
     if (current.targetId) current.targetId.value   = data.id;
     closeModal();
   });
