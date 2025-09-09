@@ -16,38 +16,43 @@
       <thead>
         <tr>
           <th>#</th><th>Tür</th><th>Donanım Tipi</th><th>Marka</th><th>Model</th><th>Miktar</th>
-          <th>IFS No</th><th>Envanter No</th><th>Lisans Adı</th><th>Sorumlu</th><th>Açıklama</th><th>Tarih</th>
+          <th>Envanter No</th><th>Lisans Adı</th><th>Sorumlu</th><th>Açıklama</th><th>Tarih</th>
         </tr>
       </thead>
       <tbody>
+        {% set last_ifs = None %}
         {% for t in rows %}
-        <tr>
-          <td>{{ t.id }}</td>
-          <td>{{ t.tur }}</td>
-          <td>{{ t.donanim_tipi or '-' }}</td>
-          <td>{{ t.marka or '-' }}</td>
-          <td>{{ t.model or '-' }}</td>
-          <td>{{ t.miktar or '-' }}</td>
-          <td>{{ t.ifs_no or '-' }}</td>
-          <td>{{ t.envanter_no or t.bagli_envanter_no or '-' }}</td>
-          <td>{{ t.lisans_adi or '-' }}</td>
-          <td>{{ t.sorumlu_personel or '-' }}</td>
-          <td>{{ t.aciklama or '-' }}</td>
-          <td>
-            {{ t.olusturma_tarihi.strftime('%Y-%m-%d %H:%M') }}
-            {% if t.durum != 'aktif' and t.kapanma_tarihi %}
-              <br>
-              <small class="text-muted">
-                {{ 'Kapanma: ' if t.durum == 'tamamlandi' else 'İptal: ' }}{{ t.kapanma_tarihi.strftime('%Y-%m-%d %H:%M') }}
-              </small>
-            {% endif %}
-          </td>
-        </tr>
-        {% else %}
-        <tr>
-          <td colspan="12" class="text-center text-muted">{{ empty_msg }}</td>
-        </tr>
+          {% if t.ifs_no != last_ifs %}
+          <tr class="table-light"><td colspan="11">IFS No: {{ t.ifs_no or '-' }}</td></tr>
+          {% set last_ifs = t.ifs_no %}
+          {% endif %}
+          <tr>
+            <td>{{ t.id }}</td>
+            <td>{{ t.tur }}</td>
+            <td>{{ t.donanim_tipi or '-' }}</td>
+            <td>{{ t.marka or '-' }}</td>
+            <td>{{ t.model or '-' }}</td>
+            <td>{{ t.miktar or '-' }}</td>
+            <td>{{ t.envanter_no or t.bagli_envanter_no or '-' }}</td>
+            <td>{{ t.lisans_adi or '-' }}</td>
+            <td>{{ t.sorumlu_personel or '-' }}</td>
+            <td>{{ t.aciklama or '-' }}</td>
+            <td>
+              {{ t.olusturma_tarihi.strftime('%Y-%m-%d %H:%M') }}
+              {% if t.durum != 'aktif' and t.kapanma_tarihi %}
+                <br>
+                <small class="text-muted">
+                  {{ 'Kapanma: ' if t.durum == 'tamamlandi' else 'İptal: ' }}{{ t.kapanma_tarihi.strftime('%Y-%m-%d %H:%M') }}
+                </small>
+              {% endif %}
+            </td>
+          </tr>
         {% endfor %}
+        {% if rows|length == 0 %}
+        <tr>
+          <td colspan="11" class="text-center text-muted">{{ empty_msg }}</td>
+        </tr>
+        {% endif %}
       </tbody>
     </table>
   </div>
