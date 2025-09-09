@@ -12,13 +12,15 @@ router = APIRouter(prefix="/api/lookup", tags=["lookup"])
 @router.get("/donanim_tipi")
 def lookup_donanim_tipi(db: Session = Depends(get_db)):
     rows = db.query(HardwareType).order_by(HardwareType.name.asc()).all()
-    return [{"id": r.id, "adi": r.name} for r in rows]
+    # `adi` yerine tutarlı biçimde `name` anahtarını döndür
+    return [{"id": r.id, "name": r.name} for r in rows]
 
 
 @router.get("/marka")
 def lookup_marka(db: Session = Depends(get_db)):
     rows = db.query(Brand).order_by(Brand.name.asc()).all()
-    return [{"id": r.id, "adi": r.name} for r in rows]
+    # İstemcilerin beklediği alan adı `name` olduğundan bu alanı döndür
+    return [{"id": r.id, "name": r.name} for r in rows]
 
 
 @router.get("/model")
@@ -29,7 +31,8 @@ def lookup_model(marka_id: int = Query(...), db: Session = Depends(get_db)):
         .order_by(ModelTbl.name.asc())
         .all()
     )
-    return [{"id": r.id, "adi": r.name} for r in rows]
+    # Tüm lookup uç noktaları aynı yapıda `id` ve `name` döndürsün
+    return [{"id": r.id, "name": r.name} for r in rows]
 
 # Ürün Ekle sayfasındaki kartlara karşılık gelen tablolar:
 # (Gerekirse tablo adlarını birebir DB'nizdeki adlarla düzeltin.)
