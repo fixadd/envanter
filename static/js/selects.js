@@ -35,7 +35,7 @@ async function fillChoices({ endpoint, selectId, params={}, placeholder="Seçini
       if (typeof r === "string") return { value: r, label: r };
       return {
         value: r.id ?? r.value ?? "",
-        label: r.name || r.text || r.ad || r.label || "",
+        label: r.name || r.text || r.ad || r.adi || r.label || "",
       };
     });
   inst.setChoices(data.map(map), "value", "label", true);
