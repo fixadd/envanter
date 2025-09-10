@@ -1,0 +1,123 @@
+<div id="stok-container" class="container-xxl">
+
+  <style>
+    /* Sekmeler grafik üstünde ve beyaz zemin */
+    #stok-container .nav-tabs,
+    #stok-container .nav-tabs .nav-link {
+      position: relative;
+      z-index: 30;
+      background: #fff;
+    }
+    #stok-container .nav-tabs { margin-bottom: 12px !important; }
+    #stok-container .nav-tabs .nav-link.active {
+      border-color: #dee2e6 #dee2e6 #fff !important;
+      background: #fff !important;
+    }
+
+    /* İçerik paneli */
+    #stok-container .tab-content {
+      position: relative;
+      z-index: 20;
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-top: none;
+      border-radius: 0 0 .5rem .5rem;
+      padding: 8px 12px;
+    }
+
+    /* Grafik kapsayıcısı en altta kalsın */
+    #stok-container .chart-wrapper,
+    #stok-container .chart-wrapper canvas,
+    #stok-container .chart-wrapper svg {
+      position: relative;
+      z-index: 0 !important;
+    }
+    #stok-container .chart-wrapper { margin-bottom: 16px; }
+
+    /* Grafik kütüphaneleri için güvenlik */
+    #stok-container .apexcharts-canvas,
+    #stok-container .chartjs-render-monitor {
+      z-index: 0 !important;
+    }
+
+    #stok-container .table-responsive { overflow-x: auto; }
+    #stok-container .section-title { margin-bottom: 6px; }
+  </style>
+
+  <h5 class="section-title">Stok Takibi</h5>
+
+  <!-- Grafiği istersen burada render ediyorsun -->
+  <div class="chart-wrapper">
+    <div id="stokChart"><!-- optional --></div>
+  </div>
+
+  <!-- Sekmeler -->
+  <ul class="nav nav-tabs" id="stokTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="durum-tab" data-bs-toggle="tab" data-bs-target="#durum"
+              type="button" role="tab" aria-controls="durum" aria-selected="true">
+        Stok Durumu
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="log-tab" data-bs-toggle="tab" data-bs-target="#log"
+              type="button" role="tab" aria-controls="log" aria-selected="false">
+        Log
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+    <div class="tab-pane fade show active" id="durum" role="tabpanel" aria-labelledby="durum-tab">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr>
+              <th>Donanım Tipi</th>
+              <th class="text-end">Stok</th>
+            </tr>
+          </thead>
+          <tbody id="stok-tbody">
+            <!-- JS dolduracak -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="log" role="tabpanel" aria-labelledby="log-tab">
+      <div id="logList" class="small text-muted">Log yüklenmedi.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function loadStokDurumu() {
+  const tbody = document.getElementById('stok-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = `<tr><td colspan="2">Yükleniyor…</td></tr>`;
+
+  try {
+    const res = await fetch('/api/stock/status', { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) throw new Error('API hata: ' + res.status);
+    const data = await res.json();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="2">Kayıt bulunamadı</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = data.map(item => `
+      <tr>
+        <td>${item.donanim_tipi || '-'}</td>
+        <td class="text-end">${item.stok ?? 0}</td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    console.error(e);
+    tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Veri alınamadı</td></tr>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadStokDurumu);
+</script>
+

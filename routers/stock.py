@@ -3,7 +3,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Body
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import func, text, select
+from sqlalchemy import func, text, select, case
 from sqlalchemy.orm import Session
 from typing import Optional, Literal
 from pydantic import BaseModel, Field
@@ -22,6 +22,7 @@ from models import (
 from routers.api import stock_status_detail
 
 router = APIRouter(prefix="/stock", tags=["Stock"])
+api_router = APIRouter(prefix="/api/stock", tags=["stock"])
 templates = Jinja2Templates(directory="templates")
 
 @router.get("/export")
@@ -143,7 +144,7 @@ def stock_list(request: Request, db: Session = Depends(get_db)):
 @router.get("/durum", response_class=HTMLResponse)
 def stock_status_page(request: Request):
     """Stok durumunu HTML olarak göster."""
-    return templates.TemplateResponse("stock_status.html", {"request": request})
+    return templates.TemplateResponse("stock.html", {"request": request})
 
 
 @router.get("/durum/json")
@@ -151,6 +152,37 @@ def stock_status_json(db: Session = Depends(get_db)):
     """Stok durumunu JSON olarak döndür."""
     data = stock_status_detail(db)
     return JSONResponse({"ok": True, "totals": data["totals"], "detail": data["detail"]})
+
+
+@api_router.get("/status")
+def stock_status(db: Session = Depends(get_db)):
+    """Her donanım tipi için net stok: girdi - çıktı - hurda."""
+    net_expr = func.coalesce(
+        func.sum(
+            case(
+                (StockLog.islem == "girdi", StockLog.miktar),
+                (StockLog.islem == "cikti", -StockLog.miktar),
+                (StockLog.islem == "hurda", -StockLog.miktar),
+                else_=0,
+            )
+        ),
+        0,
+    )
+
+    rows = (
+        db.query(
+            StockLog.donanim_tipi.label("donanim_tipi"),
+            net_expr.label("stok"),
+        )
+        .group_by(StockLog.donanim_tipi)
+        .order_by(StockLog.donanim_tipi.asc())
+        .all()
+    )
+
+    return [
+        {"donanim_tipi": r.donanim_tipi or "-", "stok": int(r.stok or 0)}
+        for r in rows
+    ]
 
 @router.post("/add")
 def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):
