@@ -3,6 +3,11 @@ CREATE TABLE IF NOT EXISTS stock_logs (
   donanim_tipi TEXT NOT NULL,
   miktar INTEGER NOT NULL,
   ifs_no TEXT,
+  marka TEXT,
+  model TEXT,
+  lisans_anahtari TEXT,
+  mail_adresi TEXT,
+  aciklama TEXT,
   tarih TEXT,
   islem TEXT NOT NULL,
   actor TEXT
