@@ -709,5 +709,7 @@ def init_db():
             conn.execute(
                 text("ALTER TABLE stock_logs ADD COLUMN mail_adresi VARCHAR(200)")
             )
+        if "aciklama" not in cols:
+            conn.execute(text("ALTER TABLE stock_logs ADD COLUMN aciklama TEXT"))
         if "actor" not in cols:
             conn.execute(text("ALTER TABLE stock_logs ADD COLUMN actor VARCHAR(150)"))
