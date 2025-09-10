@@ -161,8 +161,8 @@ def inventory_list(
 
 
 # === STOCK API ===
-@router.get("/stock/status")
-def stock_status(db: Session = Depends(get_db)):
+@router.get("/stock/detail")
+def stock_status_detail(db: Session = Depends(get_db)):
     totals = {t.donanim_tipi: t.toplam for t in db.query(models.StockTotal).all()}
     q = (
         db.query(
@@ -182,6 +182,39 @@ def stock_status(db: Session = Depends(get_db)):
         if ifs and qty and qty > 0:
             detail.setdefault(dt, {})[ifs] = qty
     return {"totals": totals, "detail": detail}
+
+
+@router.get("/stock/status")
+def stock_status(db: Session = Depends(get_db)):
+    """Her donanım tipi için net stok: girdi - çıktı - hurda (- atama)."""
+    net_expr = func.coalesce(
+        func.sum(
+            case(
+                (models.StockLog.islem == "girdi", models.StockLog.miktar),
+                (
+                    models.StockLog.islem.in_(["cikti", "hurda", "atama"]),
+                    -models.StockLog.miktar,
+                ),
+                else_=0,
+            )
+        ),
+        0,
+    )
+
+    rows = (
+        db.query(
+            models.StockLog.donanim_tipi.label("donanim_tipi"),
+            net_expr.label("stok"),
+        )
+        .group_by(models.StockLog.donanim_tipi)
+        .order_by(models.StockLog.donanim_tipi.asc())
+        .all()
+    )
+
+    return [
+        {"donanim_tipi": r.donanim_tipi or "-", "stok": int(r.stok or 0)}
+        for r in rows
+    ]
 
 
 @router.post("/stock/logs")
@@ -230,7 +263,7 @@ def stock_assign(
 ):
     if hedef_tur not in ("envanter", "lisans", "yazici"):
         raise HTTPException(400, "Geçersiz hedef_tur")
-    status = stock_status(db)
+    status = stock_status_detail(db)
     mevcut = status["totals"].get(donanim_tipi, 0)
     if mevcut < miktar:
         raise HTTPException(400, "Yetersiz stok")

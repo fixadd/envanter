@@ -3,48 +3,37 @@
 
 {% block content %}
 <div class="container-fluid p-3">
-  <h5>Stok Durumu</h5>
-  <div class="table-responsive">
-    <table class="table table-striped table-hover table-sm align-middle" id="tblStockStatus">
-      <thead class="table-light">
-        <tr>
-          <th>Donanım Tipi</th>
-          <th>Stok</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for dt, qty in totals.items() %}
-        <tr>
-          <td>{{ dt }}</td>
-          <td>{{ qty }}</td>
-          <td>
-            {% if detail.get(dt) %}
-            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#det{{ loop.index }}">
-              <i class="bi bi-list"></i>
-            </button>
-            {% endif %}
-          </td>
-        </tr>
-        {% if detail.get(dt) %}
-        <tr id="det{{ loop.index }}" class="collapse">
-          <td colspan="3">
-            <table class="table table-sm mb-0">
-              <thead class="table-light">
-                <tr><th>IFS No</th><th>Stok</th></tr>
+  <div class="card">
+    <div class="card-header">
+      <ul class="nav nav-tabs" id="stokTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="durum-tab" data-bs-toggle="tab" data-bs-target="#durum" type="button" role="tab" aria-controls="durum" aria-selected="true">Stok Durumu</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="log-tab" data-bs-toggle="tab" data-bs-target="#log" type="button" role="tab" aria-controls="log" aria-selected="false">Log</button>
+        </li>
+      </ul>
+    </div>
+    <div class="card-body">
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="durum" role="tabpanel" aria-labelledby="durum-tab">
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>Donanım Tipi</th>
+                  <th class="text-end">Stok</th>
+                </tr>
               </thead>
-              <tbody>
-                {% for ifs, q in detail.get(dt).items() %}
-                <tr><td>{{ ifs }}</td><td>{{ q }}</td></tr>
-                {% endfor %}
-              </tbody>
+              <tbody id="stok-tbody"></tbody>
             </table>
-          </td>
-        </tr>
-        {% endif %}
-        {% endfor %}
-      </tbody>
-    </table>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="log" role="tabpanel" aria-labelledby="log-tab">
+          <!-- Log içeriği -->
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
@@ -52,32 +41,31 @@
 {% block scripts %}
 {{ super() }}
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  fetch('/api/stock/status')
-    .then(r => r.json())
-    .then(d => {
-      const tbody = document.querySelector('#tblStockStatus tbody');
-      if (!tbody) return;
-      const detail = d.detail || {};
-      const rows = Object.entries(d.totals || {}).map(([dt, qty], idx) => {
-        const det = detail[dt];
-        const id = 'det' + idx;
-        const btn = det ? `<button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#${id}"><i class="bi bi-list"></i></button>` : '';
-        const detailRows = det ? `<tr id="${id}" class="collapse"><td colspan="3"><table class="table table-sm mb-0"><thead class="table-light"><tr><th>IFS No</th><th>Stok</th></tr></thead><tbody>${Object.entries(det).map(([ifs, q]) => `<tr><td>${ifs}</td><td>${q}</td></tr>`).join('')}</tbody></table></td></tr>` : '';
-        return `<tr><td>${dt}</td><td>${qty}</td><td>${btn}</td></tr>${detailRows}`;
-      }).join('');
-      if (rows) {
-        tbody.innerHTML = rows;
-      } else {
-        tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Stok bulunamadı</td></tr>';
-      }
-    })
-    .catch(() => {
-      const tbody = document.querySelector('#tblStockStatus tbody');
-      if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Veri alınamadı</td></tr>';
-      }
-    });
-});
+async function loadStokDurumu() {
+  const tbody = document.getElementById('stok-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = `<tr><td colspan="2">Yükleniyor…</td></tr>`;
+  try {
+    const res = await fetch('/api/stock/status');
+    if (!res.ok) throw new Error('API hata durumu: ' + res.status);
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="2">Kayıt bulunamadı</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = data.map(item => `
+      <tr>
+        <td>${item.donanim_tipi || '-'}</td>
+        <td class="text-end">${item.stok}</td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Veri alınamadı</td></tr>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadStokDurumu);
 </script>
 {% endblock %}
+

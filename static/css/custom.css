@@ -67,10 +67,36 @@
 }
 
 /* Tablo ve kart içinde kesilmesin */
-.table-responsive,
 .card-body,
 .collapse {
   overflow: visible !important;
+}
+
+/* Sekme içeriği ve tablolar */
+.nav-tabs {
+  list-style: none;
+  padding-left: 0;
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 12px;
+}
+
+.tab-content {
+  padding-top: 4px;
+}
+
+.card-header {
+  z-index: 1;
+  position: relative;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.chart-wrapper {
+  padding-top: 8px;
+  position: relative;
+  z-index: 0;
 }
 
 /* Popper hesaplaması için bazen transform alan ebeveynler sorun çıkarır */
@@ -93,12 +119,6 @@
 .nav-tabs .nav-item {
   margin-left: 0 !important;
   margin-right: 0 !important;
-}
-/* Ensure nav tabs render correctly even without Bootstrap */
-.nav-tabs {
-  list-style: none;
-  padding-left: 0;
-  border-bottom: 1px solid #dee2e6;
 }
 
 .nav-tabs .nav-link {

@@ -260,7 +260,7 @@ async function sa_submit(){
 
 // Stok durumu sekmesini yükle
 function loadStockStatus() {
-  fetch('/api/stock/status')
+  fetch('/api/stock/detail')
     .then(r => r.json())
     .then(d => {
       const tbody = document.querySelector('#tblStockStatus tbody');
