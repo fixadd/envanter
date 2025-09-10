@@ -258,9 +258,8 @@ async function sa_submit(){
   document.getElementById("sa_submit")?.addEventListener("click", sa_submit);
 })();
 
-// Stok durumu sekmesi
-const stockStatusTab = document.getElementById('tab-status');
-stockStatusTab?.addEventListener('shown.bs.tab', () => {
+// Stok durumu sekmesini yükle
+function loadStockStatus() {
   fetch('/api/stock/status')
     .then(r => r.json())
     .then(d => {
@@ -274,5 +273,13 @@ stockStatusTab?.addEventListener('shown.bs.tab', () => {
         const detailRows = det ? `<tr id="${id}" class="collapse"><td colspan="3"><table class="table table-sm mb-0">${Object.entries(det).map(([ifs, q]) => `<tr><td>${ifs}</td><td>${q}</td></tr>`).join('')}</table></td></tr>` : '';
         return `<tr><td>${dt}</td><td>${qty}</td><td>${btn}</td></tr>${detailRows}`;
       }).join('');
-    });
-});
+    })
+    .catch(err => console.error('stock status load failed', err));
+}
+
+// Tab gösterildiğinde yükle
+const stockStatusTab = document.getElementById('tab-status');
+stockStatusTab?.addEventListener('shown.bs.tab', loadStockStatus);
+
+// Sayfa yüklenirken de bir kez dene
+loadStockStatus();
