@@ -1,15 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Stok Logları{% endblock %}
+{% block title %}Stok Takibi{% endblock %}
 
 {% block content %}
 <div class="container-fluid p-3">
   <div class="d-flex align-items-center justify-content-between mb-3">
-    <h5 class="mb-0">Stok Logları (En Güncel)</h5>
+    <h5 class="mb-0">Stok Takibi</h5>
     <div class="d-flex gap-2">
-      <button class="btn btn-outline-info btn-sm" type="button"
-              data-bs-toggle="modal" data-bs-target="#stockStatusModal">
-        Stok Durumu
-      </button>
       <button class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#modalStockAdd">
         <i class="bi bi-plus-lg"></i>
         <span>Ekle</span>
@@ -32,61 +28,61 @@
     </div>
   </div>
 
-  <div class="table-responsive">
-    <table class="table table-sm align-middle">
-      <thead class="table-light">
-        <tr>
-          <th style="width:72px;">ID</th>
-          <th>Donanım Tipi</th>
-          <th>Miktar</th>
-          <th>IFS No</th>
-          <th>Tarih</th>
-          <th>İşlem</th>
-          <th>İşlem Yapan</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for r in logs %}
-        <tr>
-          <td>#{{ r.id }}</td>
-          <td>{{ hardware_map.get(r.donanim_tipi) or license_map.get(r.donanim_tipi) or r.donanim_tipi }}</td>
-          <td>{{ r.miktar }}</td>
-          <td>{{ r.ifs_no or '-' }}</td>
-          <td>{{ (r.tarih).strftime("%d.%m.%Y %H:%M") if r.tarih else '-' }}</td>
-          <td>
-            {% if r.islem == 'girdi' %}<span class="badge text-bg-success">Girdi</span>
-            {% elif r.islem == 'cikti' %}<span class="badge text-bg-warning">Çıktı</span>
-            {% else %}<span class="badge text-bg-secondary">Atama</span>{% endif %}
-          </td>
-          <td>{{ r.actor or '-' }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- STOK DURUMU MODALI -->
-<div class="modal fade" id="stockStatusModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Stok Durumu</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+  <ul class="nav nav-tabs mb-3" id="stockTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="tab-log" data-bs-toggle="tab" data-bs-target="#pane-log" type="button" role="tab">Log</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-status" data-bs-toggle="tab" data-bs-target="#pane-status" type="button" role="tab">Stok Durumu</button>
+    </li>
+  </ul>
+  <div class="tab-content" id="stockTabContent">
+    <div class="tab-pane fade show active" id="pane-log" role="tabpanel">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead class="table-light">
+            <tr>
+              <th style="width:72px;">ID</th>
+              <th>Donanım Tipi</th>
+              <th>Miktar</th>
+              <th>IFS No</th>
+              <th>Tarih</th>
+              <th>İşlem</th>
+              <th>İşlem Yapan</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in logs %}
+            <tr>
+              <td>#{{ r.id }}</td>
+              <td>{{ hardware_map.get(r.donanim_tipi) or license_map.get(r.donanim_tipi) or r.donanim_tipi }}</td>
+              <td>{{ r.miktar }}</td>
+              <td>{{ r.ifs_no or '-' }}</td>
+              <td>{{ (r.tarih).strftime("%d.%m.%Y %H:%M") if r.tarih else '-' }}</td>
+              <td>
+                {% if r.islem == 'girdi' %}<span class="badge text-bg-success">Girdi</span>
+                {% elif r.islem == 'cikti' %}<span class="badge text-bg-warning">Çıktı</span>
+                {% else %}<span class="badge text-bg-secondary">Atama</span>{% endif %}
+              </td>
+              <td>{{ r.actor or '-' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
-      <div class="modal-body">
-        <div class="table-responsive">
-          <table class="table table-sm" id="tblStockStatus">
-            <thead class="table-light">
-              <tr>
-                <th>Donanım Tipi</th>
-                <th>Stok</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
+    </div>
+    <div class="tab-pane fade" id="pane-status" role="tabpanel">
+      <div class="table-responsive">
+        <table class="table table-sm" id="tblStockStatus">
+          <thead class="table-light">
+            <tr>
+              <th>Donanım Tipi</th>
+              <th>Stok</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
       </div>
     </div>
   </div>

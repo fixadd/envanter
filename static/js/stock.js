@@ -258,9 +258,9 @@ async function sa_submit(){
   document.getElementById("sa_submit")?.addEventListener("click", sa_submit);
 })();
 
-// Stok durumu modalı
-const stockStatusModal = document.getElementById('stockStatusModal');
-stockStatusModal?.addEventListener('show.bs.modal', () => {
+// Stok durumu sekmesi
+const stockStatusTab = document.getElementById('tab-status');
+stockStatusTab?.addEventListener('shown.bs.tab', () => {
   fetch('/api/stock/status')
     .then(r => r.json())
     .then(d => {
