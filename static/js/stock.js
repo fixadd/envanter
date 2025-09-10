@@ -260,22 +260,22 @@ async function sa_submit(){
 
 // Stok durumu sekmesini yükle
 function loadStockStatus() {
-  fetch('/stock/durum/json')
-    .then(r => r.json())
-    .then(d => {
+  fetch('/api/stock/status', { headers: { Accept: 'application/json' } })
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(data => {
       const tbody = document.querySelector('#tblStockStatus tbody');
       if (!tbody) return;
-      const detail = d.detail || {};
-      const rows = Object.entries(d.totals || {}).map(([dt, qty]) => {
-        const det = detail[dt];
-        const id = 'det' + dt.replace(/[^a-zA-Z0-9]/g, '');
-        const btn = det ? `<button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#${id}"><i class="bi bi-list"></i></button>` : '';
-        const detailRows = det
-          ? `<tr id="${id}" class="collapse"><td colspan="3"><table class="table table-sm mb-0"><thead class="table-light"><tr><th>IFS No</th><th>Stok</th></tr></thead><tbody>${Object.entries(det).map(([ifs, q]) => `<tr><td>${ifs}</td><td>${q}</td></tr>`).join('')}</tbody></table></td></tr>`
-          : '';
-        return `<tr><td>${dt}</td><td>${qty}</td><td>${btn}</td></tr>${detailRows}`;
-      }).join('');
-      tbody.innerHTML = rows || '<tr><td colspan="3" class="text-center text-muted">Stok bulunamadı</td></tr>';
+      if (!Array.isArray(data) || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Stok bulunamadı</td></tr>';
+        return;
+      }
+      const rows = data
+        .map(item => `<tr><td>${item.donanim_tipi || '-'}</td><td>${item.stok}</td><td></td></tr>`)
+        .join('');
+      tbody.innerHTML = rows;
     })
     .catch(err => {
       console.error('stock status load failed', err);
