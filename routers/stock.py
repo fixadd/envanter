@@ -19,7 +19,7 @@ from models import (
     License,
     Printer,
 )
-from routers.api import stock_status
+from routers.api import stock_status_detail
 
 router = APIRouter(prefix="/stock", tags=["Stock"])
 templates = Jinja2Templates(directory="templates")
@@ -141,19 +141,15 @@ def stock_list(request: Request, db: Session = Depends(get_db)):
     )
 
 @router.get("/durum", response_class=HTMLResponse)
-def stock_status_page(request: Request, db: Session = Depends(get_db)):
+def stock_status_page(request: Request):
     """Stok durumunu HTML olarak göster."""
-    data = stock_status(db)
-    return templates.TemplateResponse(
-        "stock_status.html",
-        {"request": request, "totals": data["totals"], "detail": data["detail"]},
-    )
+    return templates.TemplateResponse("stock_status.html", {"request": request})
 
 
 @router.get("/durum/json")
 def stock_status_json(db: Session = Depends(get_db)):
     """Stok durumunu JSON olarak döndür."""
-    data = stock_status(db)
+    data = stock_status_detail(db)
     return JSONResponse({"ok": True, "totals": data["totals"], "detail": data["detail"]})
 
 @router.post("/add")
@@ -223,7 +219,7 @@ class AssignPayload(BaseModel):
 def stock_options(db: Session = Depends(get_db), q: Optional[str] = None):
     """Miktarı > 0 olan stokları döndür."""
 
-    status = stock_status(db)
+    status = stock_status_detail(db)
     items: list[StockOption] = []
     q_lower = q.lower() if q else None
 
@@ -268,7 +264,7 @@ def stock_assign(payload: AssignPayload, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Geçersiz stok kimliği.")
     ifs_no = ifs_no or None
 
-    status = stock_status(db)
+    status = stock_status_detail(db)
     mevcut = status["detail"].get(donanim_tipi, {}).get(ifs_no)
     if mevcut is None:
         mevcut = status["totals"].get(donanim_tipi, 0)
