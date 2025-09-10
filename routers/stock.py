@@ -142,14 +142,19 @@ def stock_list(request: Request, db: Session = Depends(get_db)):
 
 @router.get("/durum", response_class=HTMLResponse)
 def stock_status_page(request: Request, db: Session = Depends(get_db)):
-    rows = current_stock(db)
+    """Stok durumunu HTML olarak göster."""
+    data = stock_status(db)
     return templates.TemplateResponse(
-        "stock_status.html", {"request": request, "rows": rows}
+        "stock_status.html",
+        {"request": request, "totals": data["totals"], "detail": data["detail"]},
     )
+
 
 @router.get("/durum/json")
 def stock_status_json(db: Session = Depends(get_db)):
-    return JSONResponse({"ok": True, "rows": current_stock(db)})
+    """Stok durumunu JSON olarak döndür."""
+    data = stock_status(db)
+    return JSONResponse({"ok": True, "totals": data["totals"], "detail": data["detail"]})
 
 @router.post("/add")
 def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):
