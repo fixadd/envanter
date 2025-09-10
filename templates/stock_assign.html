@@ -37,7 +37,7 @@
 let STATUS={totals:{},detail:{}};
 const el=(id)=>document.getElementById(id);
 function loadStatus(){
-  return fetch('/api/stock/status').then(r=>r.json()).then(s=>{ STATUS=s;
+  return fetch('/api/stock/detail').then(r=>r.json()).then(s=>{ STATUS=s;
     const sel=el('saDonanim'); sel.innerHTML='';
     Object.keys(s.totals).forEach(dt=>{
       const o=document.createElement('option'); o.value=o.textContent=`${dt} (stok: ${s.totals[dt]})`; sel.appendChild(o);
