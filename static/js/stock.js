@@ -266,15 +266,24 @@ function loadStockStatus() {
       const tbody = document.querySelector('#tblStockStatus tbody');
       if (!tbody) return;
       const detail = d.detail || {};
-      tbody.innerHTML = Object.entries(d.totals || {}).map(([dt, qty]) => {
+      const rows = Object.entries(d.totals || {}).map(([dt, qty]) => {
         const det = detail[dt];
         const id = 'det' + dt.replace(/[^a-zA-Z0-9]/g, '');
         const btn = det ? `<button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#${id}"><i class="bi bi-list"></i></button>` : '';
-        const detailRows = det ? `<tr id="${id}" class="collapse"><td colspan="3"><table class="table table-sm mb-0">${Object.entries(det).map(([ifs, q]) => `<tr><td>${ifs}</td><td>${q}</td></tr>`).join('')}</table></td></tr>` : '';
+        const detailRows = det
+          ? `<tr id="${id}" class="collapse"><td colspan="3"><table class="table table-sm mb-0"><thead class="table-light"><tr><th>IFS No</th><th>Stok</th></tr></thead><tbody>${Object.entries(det).map(([ifs, q]) => `<tr><td>${ifs}</td><td>${q}</td></tr>`).join('')}</tbody></table></td></tr>`
+          : '';
         return `<tr><td>${dt}</td><td>${qty}</td><td>${btn}</td></tr>${detailRows}`;
       }).join('');
+      tbody.innerHTML = rows || '<tr><td colspan="3" class="text-center text-muted">Stok bulunamadı</td></tr>';
     })
-    .catch(err => console.error('stock status load failed', err));
+    .catch(err => {
+      console.error('stock status load failed', err);
+      const tbody = document.querySelector('#tblStockStatus tbody');
+      if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Veri alınamadı</td></tr>';
+      }
+    });
 }
 
 // Tab gösterildiğinde yükle
