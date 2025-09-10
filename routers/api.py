@@ -164,6 +164,21 @@ def inventory_list(
 @router.get("/stock/detail")
 def stock_status_detail(db: Session = Depends(get_db)):
     totals = {t.donanim_tipi: t.toplam for t in db.query(models.StockTotal).all()}
+    if not totals:
+        totals_q = (
+            db.query(
+                models.StockLog.donanim_tipi,
+                func.sum(
+                    case(
+                        (models.StockLog.islem == "girdi", models.StockLog.miktar),
+                        else_=-models.StockLog.miktar,
+                    )
+                ).label("qty"),
+            )
+            .group_by(models.StockLog.donanim_tipi)
+            .all()
+        )
+        totals = {dt: int(qty or 0) for dt, qty in totals_q}
     q = (
         db.query(
             models.StockLog.donanim_tipi,
