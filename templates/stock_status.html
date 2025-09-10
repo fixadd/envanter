@@ -2,47 +2,82 @@
 {% block title %}Stok Durumu{% endblock %}
 
 {% block content %}
-<h5>Stok Durumu</h5>
-<div class="table-responsive">
-  <table class="table table-sm">
-    <thead class="table-light">
-      <tr>
-        <th>Donanım Tipi</th>
-        <th>Stok</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-    {% for dt, qty in totals.items() %}
-      <tr>
-        <td>{{ dt }}</td>
-        <td>{{ qty }}</td>
-        <td>
-          {% if detail.get(dt) %}
-          <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#det{{ loop.index }}">
-            <i class="bi bi-list"></i>
-          </button>
-          {% endif %}
-        </td>
-      </tr>
-      {% if detail.get(dt) %}
-      <tr id="det{{ loop.index }}" class="collapse">
-        <td colspan="3">
-          <table class="table table-sm mb-0">
-            <thead class="table-light">
-              <tr><th>IFS No</th><th>Stok</th></tr>
-            </thead>
-            <tbody>
-              {% for ifs, q in detail.get(dt).items() %}
-              <tr><td>{{ ifs }}</td><td>{{ q }}</td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </td>
-      </tr>
-      {% endif %}
-    {% endfor %}
-    </tbody>
-  </table>
+<div class="container-fluid p-3">
+  <h5>Stok Durumu</h5>
+  <div class="table-responsive">
+    <table class="table table-striped table-hover table-sm align-middle" id="tblStockStatus">
+      <thead class="table-light">
+        <tr>
+          <th>Donanım Tipi</th>
+          <th>Stok</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dt, qty in totals.items() %}
+        <tr>
+          <td>{{ dt }}</td>
+          <td>{{ qty }}</td>
+          <td>
+            {% if detail.get(dt) %}
+            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#det{{ loop.index }}">
+              <i class="bi bi-list"></i>
+            </button>
+            {% endif %}
+          </td>
+        </tr>
+        {% if detail.get(dt) %}
+        <tr id="det{{ loop.index }}" class="collapse">
+          <td colspan="3">
+            <table class="table table-sm mb-0">
+              <thead class="table-light">
+                <tr><th>IFS No</th><th>Stok</th></tr>
+              </thead>
+              <tbody>
+                {% for ifs, q in detail.get(dt).items() %}
+                <tr><td>{{ ifs }}</td><td>{{ q }}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  fetch('/api/stock/status')
+    .then(r => r.json())
+    .then(d => {
+      const tbody = document.querySelector('#tblStockStatus tbody');
+      if (!tbody) return;
+      const detail = d.detail || {};
+      const rows = Object.entries(d.totals || {}).map(([dt, qty], idx) => {
+        const det = detail[dt];
+        const id = 'det' + idx;
+        const btn = det ? `<button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#${id}"><i class="bi bi-list"></i></button>` : '';
+        const detailRows = det ? `<tr id="${id}" class="collapse"><td colspan="3"><table class="table table-sm mb-0"><thead class="table-light"><tr><th>IFS No</th><th>Stok</th></tr></thead><tbody>${Object.entries(det).map(([ifs, q]) => `<tr><td>${ifs}</td><td>${q}</td></tr>`).join('')}</tbody></table></td></tr>` : '';
+        return `<tr><td>${dt}</td><td>${qty}</td><td>${btn}</td></tr>${detailRows}`;
+      }).join('');
+      if (rows) {
+        tbody.innerHTML = rows;
+      } else {
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Stok bulunamadı</td></tr>';
+      }
+    })
+    .catch(() => {
+      const tbody = document.querySelector('#tblStockStatus tbody');
+      if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Veri alınamadı</td></tr>';
+      }
+    });
+});
+</script>
 {% endblock %}
