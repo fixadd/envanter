@@ -278,6 +278,8 @@ def stock_license(lic_id: int, db: Session = Depends(get_db), user=Depends(curre
         mail_adresi=lic.mail_adresi,
         islem="girdi",
         actor=actor,
+        source_type="lisans",
+        source_id=lic.id,
     )
     db.add(log)
 

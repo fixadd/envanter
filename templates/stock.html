@@ -60,6 +60,18 @@ function detailFormatter(value, row) {
 
 function showStockDetail(encoded) {
   const row = JSON.parse(decodeURIComponent(encoded));
+  let url = '';
+  if (row.source_type === 'envanter' && row.source_id) {
+    url = `/inventory/${row.source_id}`;
+  } else if (row.source_type === 'lisans' && row.source_id) {
+    url = `/lisans/${row.source_id}`;
+  } else if (row.source_type === 'yazici' && row.source_id) {
+    url = `/printers/${row.source_id}`;
+  }
+  if (url) {
+    window.open(url, '_blank');
+    return;
+  }
   const lines = [
     `Donanım Tipi: ${row.donanim_tipi ?? '-'}`,
     `Marka: ${row.marka ?? '-'}`,

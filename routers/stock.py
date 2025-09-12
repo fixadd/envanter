@@ -199,6 +199,7 @@ def stock_status(db: Session = Depends(get_db)):
                 "net_miktar": r.get("net"),
                 "son_islem_ts": r.get("last_tarih"),
                 "source_type": r.get("source_type"),
+                "source_id": r.get("source_id"),
             }
         )
     return items
