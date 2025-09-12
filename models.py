@@ -346,6 +346,18 @@ class ScrapPrinter(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+# Yeni stok hareketi tablosu
+class StockTransaction(Base):
+    __tablename__ = "stock_transactions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    donanim_tipi: Mapped[str] = mapped_column(String(120), index=True)
+    islem: Mapped[str] = mapped_column(String(16))
+    miktar: Mapped[int] = mapped_column(Integer, default=0)
+    ifs_no: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    created_at: Mapped[str] = mapped_column(DateTime, server_default=func.now())
+
+
 class StockLog(Base):
     __tablename__ = "stock_logs"
     id = Column(Integer, primary_key=True, index=True)
