@@ -182,11 +182,11 @@ def stock_status(db: Session = Depends(get_db)):
         elif donanim in license_map:
             donanim = license_map[donanim]
 
-        marka = r.get("marka")
+        marka = r.get("marka") or None
         if marka and marka in brand_map:
             marka = brand_map[marka]
 
-        model = r.get("model")
+        model = r.get("model") or None
         if model and model in model_map:
             model = model_map[model]
 
@@ -195,7 +195,7 @@ def stock_status(db: Session = Depends(get_db)):
                 "donanim_tipi": donanim,
                 "marka": marka,
                 "model": model,
-                "ifs_no": r.get("ifs_no"),
+                "ifs_no": r.get("ifs_no") or "",
                 "net_miktar": r.get("net"),
                 "son_islem_ts": r.get("last_tarih"),
                 "source_type": r.get("source_type"),
