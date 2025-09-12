@@ -275,7 +275,7 @@ function loadStockStatus() {
     .then(data => {
       const tbody = document.querySelector('#tblStockStatus tbody');
       if (!tbody) return;
-      const items = Array.isArray(data) ? data : data.rows;
+      const items = Array.isArray(data) ? data : (data.items || data.rows);
       if (!Array.isArray(items) || items.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Stok bulunamadı</td></tr>';
         return;
@@ -287,7 +287,7 @@ function loadStockStatus() {
           <td>${item.model || '-'}</td>
           <td>${item.ifs_no || '-'}</td>
           <td class="text-end">${item.net_miktar}</td>
-          <td>${item.son_islem_ts ? new Date(item.son_islem_ts).toLocaleString() : '-'}</td>
+          <td>${item.son_islem_ts ? new Date(item.son_islem_ts).toLocaleString('tr-TR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false }) : '-'}</td>
         </tr>`)
         .join('');
       tbody.innerHTML = rows;

@@ -56,7 +56,7 @@ async function loadStokDurumu() {
     tbody.innerHTML = data.map(item => `
       <tr>
         <td>${item.donanim_tipi || '-'}</td>
-        <td class="text-end">${item.stok}</td>
+        <td class="text-end">${item.net_miktar}</td>
       </tr>
     `).join('');
   } catch (err) {

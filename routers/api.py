@@ -243,8 +243,6 @@ def stock_status_detail(db: Session = Depends(get_db)):
     return {"totals": totals, "items": items}
 
 
-@router.get("/stock/status")
-
 @router.post("/stock/logs")
 def stock_log_create(
     donanim_tipi: str,
