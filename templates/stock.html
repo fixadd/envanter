@@ -14,15 +14,16 @@
              data-url="/api/stock/status"
              data-pagination="false"
              data-search="false"
-             class="table table-striped">
+            class="table table-striped">
         <thead>
           <tr>
             <th data-field="donanim_tipi">Donanım Tipi</th>
-            <th data-field="marka">Marka</th>
-            <th data-field="model">Model</th>
-            <th data-field="ifs_no">IFS No</th>
+            <th data-field="marka" data-formatter="emptyFormatter">Marka</th>
+            <th data-field="model" data-formatter="emptyFormatter">Model</th>
+            <th data-field="ifs_no" data-formatter="emptyFormatter">IFS No</th>
             <th data-field="net_miktar" data-align="right">Stok</th>
-            <th data-field="son_islem_ts">Son İşlem</th>
+            <th data-field="son_islem_ts" data-formatter="emptyFormatter">Son İşlem</th>
+            <th data-formatter="detailFormatter" data-align="center"></th>
           </tr>
         </thead>
       </table>
@@ -34,6 +35,29 @@
 </div>
 
 <script>
+function emptyFormatter(value) {
+  return value ?? '-';
+}
+
+function detailFormatter(value, row) {
+  if (!['lisans', 'envanter', 'yazici'].includes(row.source_type)) return '';
+  const payload = encodeURIComponent(JSON.stringify(row));
+  return `<button class="btn btn-outline-secondary btn-sm" onclick="showStockDetail('${payload}')" title="Detay">&#8801;</button>`;
+}
+
+function showStockDetail(encoded) {
+  const row = JSON.parse(decodeURIComponent(encoded));
+  const lines = [
+    `Donanım Tipi: ${row.donanim_tipi ?? '-'}`,
+    `Marka: ${row.marka ?? '-'}`,
+    `Model: ${row.model ?? '-'}`,
+    `IFS No: ${row.ifs_no ?? '-'}`,
+    `Stok: ${row.net_miktar}`,
+    `Son İşlem: ${row.son_islem_ts ?? '-'}`,
+  ];
+  alert(lines.join('\n'));
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   // sayfa yüklenince bir kez yenile
   setTimeout(() => {
