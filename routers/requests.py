@@ -31,9 +31,11 @@ async def export_requests(db: Session = Depends(get_db)):
             "Tür",
             "Donanım Tipi",
             "IFS No",
+            "İstenen",
+            "Karşılanan",
+            "Kalan",
             "Marka",
             "Model",
-            "Miktar",
             "Envanter No",
             "Bağlı Envanter",
             "Lisans Adı",
@@ -51,9 +53,11 @@ async def export_requests(db: Session = Depends(get_db)):
                 t.tur.value,
                 t.donanim_tipi or "",
                 t.ifs_no or "",
+                t.miktar or "",
+                t.karsilanan_miktar or "",
+                t.kalan_miktar or "",
                 t.marka or "",
                 t.model or "",
-                t.miktar or "",
                 t.envanter_no or "",
                 t.bagli_envanter_no or "",
                 t.lisans_adi or "",
@@ -108,7 +112,8 @@ def _list_by_status(db: Session, durum: TalepDurum):
 async def list_requests(request: Request, db: Session = Depends(get_db)):
     """Display requests grouped by status."""
 
-    aktif = _list_by_status(db, TalepDurum.AKTIF)
+    acik = _list_by_status(db, TalepDurum.ACIK)
+    kismi = _list_by_status(db, TalepDurum.KISMI)
     kapali = _list_by_status(db, TalepDurum.TAMAMLANDI)
     iptal = _list_by_status(db, TalepDurum.IPTAL)
 
@@ -116,7 +121,8 @@ async def list_requests(request: Request, db: Session = Depends(get_db)):
         "requests/list.html",
         {
             "request": request,
-            "aktif": aktif,
+            "acik": acik,
+            "kismi": kismi,
             "kapali": kapali,
             "iptal": iptal,
         },
@@ -137,7 +143,9 @@ async def create_request(
         tur=TalepTuru.AKSESUAR,
         donanim_tipi=donanim_tipi,
         ifs_no=ifs_no,
-        miktar=miktar,
+        miktar=miktar or 1,
+        karsilanan_miktar=0,
+        kalan_miktar=miktar or 1,
         marka=marka,
         model=model,
         aciklama=aciklama,

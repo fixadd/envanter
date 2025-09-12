@@ -25,7 +25,7 @@ def db_session():
 
 @pytest.fixture()
 def talep(db_session):
-    t = Talep(tur=TalepTuru.AKSESUAR, miktar=5)
+    t = Talep(tur=TalepTuru.AKSESUAR, miktar=5, karsilanan_miktar=0, kalan_miktar=5)
     db_session.add(t)
     db_session.commit()
     db_session.refresh(t)
