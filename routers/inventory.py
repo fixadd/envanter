@@ -476,12 +476,17 @@ def stock_entry(
             source_id=item.id,
         )
     )
+    after_data = item.to_dict() if hasattr(item, "to_dict") else None
+    if after_data:
+        for k, v in list(after_data.items()):
+            if isinstance(v, datetime):
+                after_data[k] = v.isoformat()
     db.add(
         InventoryLog(
             inventory_id=item.id,
             action="stock",
             before_json=None,
-            after_json=item.to_dict() if hasattr(item, "to_dict") else None,
+            after_json=after_data,
             note="Stok girişi yapıldı",
             created_at=datetime.utcnow(),
             actor=actor,
