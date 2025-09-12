@@ -13,7 +13,6 @@
     {{ tabs(
         items=[
           {"label":"Açık","href": url_for('talep_list') ~ "?durum=acik", "key":"acik"},
-          {"label":"Kısmi","href": url_for('talep_list') ~ "?durum=kismi","key":"kismi"},
           {"label":"Tamamlandı","href": url_for('talep_list') ~ "?durum=tamamlandi","key":"tamamlandi"},
           {"label":"İptal","href": url_for('talep_list') ~ "?durum=iptal","key":"iptal"},
         ],
@@ -81,9 +80,9 @@
   </div>
   {% endmacro %}
 
-  {% set msg_map = {'acik':'Açık talep bulunamadı.','kismi':'Kısmi talep bulunamadı.','tamamlandi':'Tamamlanan talep bulunamadı.','iptal':'İptal talep bulunamadı.'} %}
+  {% set msg_map = {'acik':'Açık talep bulunamadı.','tamamlandi':'Tamamlanan talep bulunamadı.','iptal':'İptal talep bulunamadı.'} %}
   <div class="page-section">
-    {{ render_table(rows, msg_map.get(active_key), active_key in ['acik','kismi']) }}
+    {{ render_table(rows, msg_map.get(active_key), active_key == 'acik') }}
   </div>
 </div>
 
