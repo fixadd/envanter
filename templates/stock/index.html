@@ -1,0 +1,46 @@
+{% extends "base.html" %}{% block title %}Stok Durumu{% endblock %}
+{% block content %}
+<table id="stokTable" class="table table-striped">
+  <thead>
+    <tr>
+      <th>Donanım Tipi</th>
+      <th>Stok</th>
+      <th>Hurda</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td colspan="3" class="text-center text-muted">Yükleniyor…</td></tr>
+  </tbody>
+</table>
+
+<script>
+async function loadStockState(){
+  const tbody = document.querySelector('#stokTable tbody');
+  try{
+    const res = await fetch('/api/stock/state');
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    tbody.innerHTML = '';
+    if(!data.items || data.items.length === 0){
+      tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Stok bulunamadı</td></tr>';
+      return;
+    }
+
+    for(const row of data.items){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row.donanim_tipi ?? '-'}</td>
+        <td>${row.stok ?? 0}</td>
+        <td>${row.hurda ?? 0}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+  }catch(e){
+    console.error(e);
+    tbody.innerHTML = '<tr><td colspan="3" class="text-danger text-center">Stok verisi alınamadı</td></tr>';
+  }
+}
+document.addEventListener('DOMContentLoaded', loadStockState);
+</script>
+{% endblock %}

@@ -41,6 +41,7 @@ from routers.api import router as api_router
 from routes.admin import router as admin_router
 from routes.scrap import router as scrap_router
 from routes.talepler import router as talepler_router
+from routes.stock import router as stock_router
 from routers.talep import router as talep_router
 from utils.template_filters import register_filters
 from security import current_user, require_roles
@@ -129,6 +130,7 @@ app.include_router(catalog_router.router, dependencies=[Depends(current_user)])
 app.include_router(reqs.router, prefix="/requests", tags=["Requests"], dependencies=[Depends(current_user)])
 app.include_router(stock.router, dependencies=[Depends(current_user)])
 app.include_router(stock.api_router, dependencies=[Depends(current_user)])
+app.include_router(stock_router, dependencies=[Depends(current_user)])
 app.include_router(scrap_router, dependencies=[Depends(current_user)])
 app.include_router(talepler_router, dependencies=[Depends(current_user)])
 app.include_router(trash.router, prefix="/trash", tags=["Trash"], dependencies=[Depends(current_user)])
