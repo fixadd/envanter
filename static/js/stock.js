@@ -268,11 +268,12 @@ function loadStockStatus() {
     .then(data => {
       const tbody = document.querySelector('#tblStockStatus tbody');
       if (!tbody) return;
-      if (!Array.isArray(data) || data.length === 0) {
+      const items = Array.isArray(data) ? data : data.rows;
+      if (!Array.isArray(items) || items.length === 0) {
         tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Stok bulunamadı</td></tr>';
         return;
       }
-      const rows = data
+      const rows = items
         .map(item => `<tr><td>${item.donanim_tipi || '-'}</td><td>${item.stok}</td><td></td></tr>`)
         .join('');
       tbody.innerHTML = rows;
