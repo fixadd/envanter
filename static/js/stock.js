@@ -70,6 +70,7 @@ const API_PREFIX = ""; // Örn: "/api"
 const URL_STOCK_OPTIONS = `${API_PREFIX}/stock/options`;
 const URL_ASSIGN_SOURCES = `${API_PREFIX}/inventory/assign/sources`;
 const URL_STOCK_ASSIGN  = `${API_PREFIX}/stock/assign`;
+window.sa_preselectStockId = null;
 
 /* ============== Yardımcılar/Toast ============== */
 const $ = (s) => document.querySelector(s);
@@ -111,6 +112,11 @@ async function sa_loadStocks(){
       opt.dataset.qty = Number(o.mevcut_miktar??0);
       sel.appendChild(opt);
     });
+    if(window.sa_preselectStockId){
+      sel.value = window.sa_preselectStockId;
+      sel.dispatchEvent(new Event('change'));
+      window.sa_preselectStockId = null;
+    }
   }catch(e){
     showBanner("Stok listesi yüklenemedi. Konsolu kontrol edin."); console.error(e);
   }
@@ -265,6 +271,40 @@ async function sa_submit(){
   document.getElementById("sa_submit")?.addEventListener("click", sa_submit);
 })();
 
+function assignFromStatus(encoded){
+  const item = JSON.parse(decodeURIComponent(encoded));
+  window.sa_preselectStockId = [item.donanim_tipi, item.marka || '', item.model || '', item.ifs_no || ''].join('|');
+  const modalEl = document.getElementById('stokAtamaModal');
+  if(modalEl){
+    const m = new bootstrap.Modal(modalEl);
+    m.show();
+  }
+}
+
+async function scrapFromStatus(encoded){
+  const item = JSON.parse(decodeURIComponent(encoded));
+  const qtyStr = prompt('Miktar', '1');
+  if(qtyStr===null) return;
+  const qty = Number(qtyStr);
+  if(!qty || qty<=0){ alert('Geçersiz miktar'); return; }
+  if(!confirm(`${qty} adet hurdaya ayrılacak. Onaylıyor musunuz?`)) return;
+  const payload = { donanim_tipi:item.donanim_tipi, marka:item.marka, model:item.model, ifs_no:item.ifs_no, miktar:qty, islem:'hurda', islem_yapan:'UI'};
+  try{
+    const res = await fetch('/stock/add', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+    const j = await res.json();
+    if(j.ok){ loadStockStatus(); sa_loadStocks(); }
+    else{ alert(j.error || 'İşlem başarısız'); }
+  }catch(e){ console.error('scrap failed', e); alert('İşlem başarısız'); }
+}
+
+function filterStockTable(){
+  const q = document.getElementById('stockSearch')?.value.toLowerCase() || '';
+  document.querySelectorAll('#tblStockStatus tbody tr').forEach(tr=>{
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+document.getElementById('stockSearch')?.addEventListener('input', filterStockTable);
+
 // Stok durumu sekmesini yükle
 function loadStockStatus() {
   fetch('/api/stock/status', { headers: { Accept: 'application/json' } })
@@ -277,26 +317,34 @@ function loadStockStatus() {
       if (!tbody) return;
       const items = Array.isArray(data) ? data : (data.items || data.rows);
       if (!Array.isArray(items) || items.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Stok bulunamadı</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Stok bulunamadı</td></tr>';
         return;
       }
       const rows = items
-        .map(item => `<tr>
-          <td>${item.donanim_tipi || '-'}</td>
-          <td>${item.marka || '-'}</td>
-          <td>${item.model || '-'}</td>
-          <td>${item.ifs_no || '-'}</td>
-          <td class="text-end">${item.net_miktar}</td>
-          <td>${item.son_islem_ts ? new Date(item.son_islem_ts).toLocaleString('tr-TR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false }) : '-'}</td>
-        </tr>`)
+        .map(item => {
+          const payload = encodeURIComponent(JSON.stringify(item));
+          return `<tr>
+            <td>${item.donanim_tipi || '-'}</td>
+            <td>${item.marka || '-'}</td>
+            <td>${item.model || '-'}</td>
+            <td>${item.ifs_no || '-'}</td>
+            <td class="text-end">${item.net_miktar}</td>
+            <td>${item.son_islem_ts ? new Date(item.son_islem_ts).toLocaleString('tr-TR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false }) : '-'}</td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-primary me-1" onclick="assignFromStatus('${payload}')">Atama</button>
+              <button class="btn btn-sm btn-outline-danger" onclick="scrapFromStatus('${payload}')">Hurda</button>
+            </td>
+          </tr>`;
+        })
         .join('');
       tbody.innerHTML = rows;
+      filterStockTable();
     })
     .catch(err => {
       console.error('stock status load failed', err);
       const tbody = document.querySelector('#tblStockStatus tbody');
       if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Veri alınamadı</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Veri alınamadı</td></tr>';
       }
     });
 }
