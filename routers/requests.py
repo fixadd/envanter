@@ -113,7 +113,6 @@ async def list_requests(request: Request, db: Session = Depends(get_db)):
     """Display requests grouped by status."""
 
     acik = _list_by_status(db, TalepDurum.ACIK)
-    kismi = _list_by_status(db, TalepDurum.KISMI)
     kapali = _list_by_status(db, TalepDurum.TAMAMLANDI)
     iptal = _list_by_status(db, TalepDurum.IPTAL)
 
@@ -122,7 +121,6 @@ async def list_requests(request: Request, db: Session = Depends(get_db)):
         {
             "request": request,
             "acik": acik,
-            "kismi": kismi,
             "kapali": kapali,
             "iptal": iptal,
         },

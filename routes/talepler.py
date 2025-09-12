@@ -22,7 +22,6 @@ def liste(request: Request, durum: str = "acik", db: Session = Depends(get_db)):
 
     durum_map = {
         "acik": TalepDurum.ACIK,
-        "kismi": TalepDurum.KISMI,
         "tamamlandi": TalepDurum.TAMAMLANDI,
         "iptal": TalepDurum.IPTAL,
     }
@@ -92,11 +91,13 @@ def cancel_request(talep_id: int, adet: int = Form(1), db: Session = Depends(get
     talep = db.get(Talep, talep_id)
     if not talep:
         return JSONResponse({"ok": False}, status_code=404)
+    if talep.durum != TalepDurum.ACIK:
+        return JSONResponse({"ok": False, "error": "Talep kapalı"}, status_code=400)
     kalan = talep.kalan_miktar
     if kalan > adet:
         talep.miktar -= adet
         talep.kalan_miktar = kalan - adet
-        talep.durum = TalepDurum.KISMI if talep.karsilanan_miktar else TalepDurum.ACIK
+        talep.durum = TalepDurum.ACIK
     else:
         talep.miktar -= kalan
         talep.kalan_miktar = 0
@@ -113,11 +114,13 @@ def close_request(talep_id: int, adet: int = Form(1), db: Session = Depends(get_
     talep = db.get(Talep, talep_id)
     if not talep:
         return JSONResponse({"ok": False}, status_code=404)
+    if talep.durum != TalepDurum.ACIK:
+        return JSONResponse({"ok": False, "error": "Talep kapalı"}, status_code=400)
     kalan = talep.kalan_miktar
     if kalan > adet:
         talep.karsilanan_miktar += adet
         talep.kalan_miktar = kalan - adet
-        talep.durum = TalepDurum.KISMI if talep.kalan_miktar else TalepDurum.TAMAMLANDI
+        talep.durum = TalepDurum.ACIK
     else:
         talep.karsilanan_miktar += kalan
         talep.kalan_miktar = 0
@@ -191,6 +194,8 @@ def convert_request_to_stock(
         "ifs_no": ifs_no,
         "aciklama": aciklama,
         "islem_yapan": islem_yapan,
+        "source_type": "talep",
+        "source_id": talep.id,
     }
 
     result = stock_add(payload, db)
@@ -200,7 +205,7 @@ def convert_request_to_stock(
     talep.karsilanan_miktar += adet
     talep.kalan_miktar = kalan - adet
     if talep.kalan_miktar > 0:
-        talep.durum = TalepDurum.KISMI
+        talep.durum = TalepDurum.ACIK
     else:
         talep.durum = TalepDurum.TAMAMLANDI
         talep.kapanma_tarihi = datetime.utcnow()

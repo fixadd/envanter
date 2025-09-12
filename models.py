@@ -374,6 +374,9 @@ class StockLog(Base):
         Enum("girdi", "cikti", "hurda", "atama", name="stock_islem"), nullable=False
     )
     actor = Column(String(150), nullable=True)
+    # new fields to track where stock movements originate from
+    source_type = Column(String(50), nullable=True)
+    source_id = Column(Integer, nullable=True)
 
 
 class StockAssignment(Base):
@@ -397,7 +400,6 @@ class StockTotal(Base):
 
 class TalepDurum(str, enum.Enum):
     ACIK = "acik"
-    KISMI = "kismi"
     TAMAMLANDI = "tamamlandi"
     IPTAL = "iptal"
 
@@ -740,3 +742,7 @@ def init_db():
             conn.execute(text("ALTER TABLE stock_logs ADD COLUMN aciklama TEXT"))
         if "actor" not in cols:
             conn.execute(text("ALTER TABLE stock_logs ADD COLUMN actor VARCHAR(150)"))
+        if "source_type" not in cols:
+            conn.execute(text("ALTER TABLE stock_logs ADD COLUMN source_type VARCHAR(50)"))
+        if "source_id" not in cols:
+            conn.execute(text("ALTER TABLE stock_logs ADD COLUMN source_id INTEGER"))
