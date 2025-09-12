@@ -36,9 +36,12 @@ document.getElementById('frmStockAdd')?.addEventListener('submit', async (e)=>{
   if(chkIsLicense?.checked){
     fd.set('miktar','1');
     fd.set('donanim_tipi', fd.get('lisans_adi')||'');
-    fd.set('is_license','1');
+    fd.set('is_lisans','1');
+    fd.delete('is_license');
   }
   const payload = Object.fromEntries(fd.entries());
+  const miktar = Number(payload.miktar);
+  if(!miktar || miktar <= 0){ alert('Miktar 0\'dan büyük olmalı'); return; }
   try{
     const res = await fetch('/stock/add', {
       method:'POST',
@@ -270,11 +273,18 @@ function loadStockStatus() {
       if (!tbody) return;
       const items = Array.isArray(data) ? data : data.rows;
       if (!Array.isArray(items) || items.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Stok bulunamadı</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Stok bulunamadı</td></tr>';
         return;
       }
       const rows = items
-        .map(item => `<tr><td>${item.donanim_tipi || '-'}</td><td>${item.stok}</td><td></td></tr>`)
+        .map(item => `<tr>
+          <td>${item.donanim_tipi || '-'}</td>
+          <td>${item.marka || '-'}</td>
+          <td>${item.model || '-'}</td>
+          <td>${item.ifs_no || '-'}</td>
+          <td class="text-end">${item.net_miktar}</td>
+          <td>${item.son_islem_ts ? new Date(item.son_islem_ts).toLocaleString() : '-'}</td>
+        </tr>`)
         .join('');
       tbody.innerHTML = rows;
     })
@@ -282,7 +292,7 @@ function loadStockStatus() {
       console.error('stock status load failed', err);
       const tbody = document.querySelector('#tblStockStatus tbody');
       if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Veri alınamadı</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Veri alınamadı</td></tr>';
       }
     });
 }

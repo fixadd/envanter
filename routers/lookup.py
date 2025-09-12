@@ -24,7 +24,32 @@ def lookup_marka(db: Session = Depends(get_db)):
 
 
 @router.get("/model")
-def lookup_model(marka_id: int = Query(...), db: Session = Depends(get_db)):
+def lookup_model(
+    marka_id: int | None = None,
+    marka: str | None = None,
+    db: Session = Depends(get_db),
+):
+    """Belirli bir markaya ait modelleri döndür.
+
+    ``marka_id`` parametresi tercih edilir. Geriye dönük uyumluluk için
+    ``marka`` parametresi de kabul edilir ve mümkünse ilgili ID'ye
+    dönüştürülür. Hiçbiri sağlanmazsa 422 döneriz ki istemci bunu
+    yakalayıp uyarı gösterebilsin.
+    """
+
+    if marka_id is None and marka:
+        try:
+            marka_id = int(marka)
+        except (TypeError, ValueError):
+            row = db.execute(
+                text("SELECT id FROM brands WHERE name = :name LIMIT 1"),
+                {"name": marka},
+            ).mappings().first()
+            marka_id = row["id"] if row else None
+
+    if marka_id is None:
+        raise HTTPException(status_code=422, detail="marka_id gerekli")
+
     rows = (
         db.query(ModelTbl)
         .filter(ModelTbl.brand_id == marka_id)
