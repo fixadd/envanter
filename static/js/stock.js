@@ -43,6 +43,7 @@ document.getElementById('frmStockAdd')?.addEventListener('submit', async (e)=>{
     const res = await fetch('/stock/add', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
+      credentials:'same-origin',
       body: JSON.stringify(payload)
     });
     const j = await res.json();
