@@ -161,35 +161,29 @@ def stock_status(
     page: int = 1,
     limit: int = 1000,
 ):
+    """Bootstrap-table uyumlu stok durumu.
+
+    Bu uç nokta önceki sürümlerde ``stock_transactions`` tablosundan
+    verileri topluyordu. Ancak stok ekleme işlemi bu tabloya kayıt
+    oluşturmadığından sonuç her zaman boş dönüyordu. Artık stok
+    bilgisi ``stock_status_detail`` fonksiyonundan alınarak toplam
+    miktarlar döndürülüyor.
     """
-    bootstrap-table beklediği format:
-    { "total": <int>, "rows": [ {donanim_tipi: "...", stok: 12}, ... ] }
-    """
 
-    stok_expr = func.sum(
-        case(
-            (StockTransaction.islem == "girdi", StockTransaction.miktar),
-            (StockTransaction.islem == "cikti", -StockTransaction.miktar),
-            (StockTransaction.islem == "hurda", -StockTransaction.miktar),
-            else_=0,
-        )
-    ).label("stok")
+    status = stock_status_detail(db)
+    rows_all = [
+        {"donanim_tipi": dt, "stok": int(qty)}
+        for dt, qty in sorted(status["totals"].items())
+        if qty
+    ]
 
-    q = (
-        db.query(StockTransaction.donanim_tipi.label("donanim_tipi"), stok_expr)
-        .group_by(StockTransaction.donanim_tipi)
-        .having(stok_expr != 0)
-        .order_by(StockTransaction.donanim_tipi.asc())
-    )
-
-    total = q.count()
-    rows = q.offset((page - 1) * limit).limit(limit).all()
+    total = len(rows_all)
+    start = (page - 1) * limit
+    end = start + limit
 
     return {
         "total": total,
-        "rows": [
-            {"donanim_tipi": r.donanim_tipi, "stok": int(r.stok or 0)} for r in rows
-        ],
+        "rows": rows_all[start:end],
     }
 
 @router.post("/add")
