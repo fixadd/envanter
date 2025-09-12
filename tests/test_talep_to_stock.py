@@ -29,6 +29,8 @@ def test_convert_request_to_stock_creates_log_and_closes(db_session):
         tur=TalepTuru.AKSESUAR,
         donanim_tipi="mouse",
         miktar=5,
+        karsilanan_miktar=0,
+        kalan_miktar=5,
         marka="Logi",
         model="M185",
         ifs_no="123",
@@ -61,7 +63,8 @@ def test_convert_request_to_stock_creates_log_and_closes(db_session):
 
     refreshed = db_session.get(Talep, talep.id)
     assert refreshed.durum == TalepDurum.TAMAMLANDI
-    assert refreshed.miktar == 0
+    assert refreshed.karsilanan_miktar == 5
+    assert refreshed.kalan_miktar == 0
     assert refreshed.kapanma_tarihi is not None
 
 
@@ -70,6 +73,8 @@ def test_convert_request_requires_brand_model(db_session):
         tur=TalepTuru.AKSESUAR,
         donanim_tipi="klavye",
         miktar=1,
+        karsilanan_miktar=0,
+        kalan_miktar=1,
     )
     db_session.add(talep)
     db_session.commit()
