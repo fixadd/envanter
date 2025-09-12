@@ -19,6 +19,8 @@ from models import (
     Inventory,
     License,
     Printer,
+    Brand,
+    Model,
 )
 from routers.api import stock_status_detail
 
@@ -167,16 +169,36 @@ def stock_status(db: Session = Depends(get_db)):
     """
 
     status = stock_status_detail(db)
+    hardware_map = {str(h.id): h.name for h in db.query(HardwareType).all()}
+    license_map = {str(l.id): l.name for l in db.query(LicenseName).all()}
+    brand_map = {str(b.id): b.name for b in db.query(Brand).all()}
+    model_map = {str(m.id): m.name for m in db.query(Model).all()}
+
     items = []
     for r in status["items"]:
+        donanim = r["donanim_tipi"]
+        if donanim in hardware_map:
+            donanim = hardware_map[donanim]
+        elif donanim in license_map:
+            donanim = license_map[donanim]
+
+        marka = r.get("marka")
+        if marka and marka in brand_map:
+            marka = brand_map[marka]
+
+        model = r.get("model")
+        if model and model in model_map:
+            model = model_map[model]
+
         items.append(
             {
-                "donanim_tipi": r["donanim_tipi"],
-                "marka": r.get("marka"),
-                "model": r.get("model"),
+                "donanim_tipi": donanim,
+                "marka": marka,
+                "model": model,
                 "ifs_no": r.get("ifs_no"),
                 "net_miktar": r.get("net"),
                 "son_islem_ts": r.get("last_tarih"),
+                "source_type": r.get("source_type"),
             }
         )
     return items
@@ -187,6 +209,27 @@ def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):
     # kalmak için her ikisini de kontrol ediyoruz.
     is_license = payload.get("is_lisans") or payload.get("is_license")
     donanim_tipi = payload.get("donanim_tipi")
+    if donanim_tipi and donanim_tipi.isdigit():
+        ht = db.get(HardwareType, int(donanim_tipi))
+        if ht:
+            donanim_tipi = ht.name
+        else:
+            ln = db.get(LicenseName, int(donanim_tipi))
+            if ln:
+                donanim_tipi = ln.name
+
+    marka = None if is_license else payload.get("marka")
+    if marka and marka.isdigit():
+        b = db.get(Brand, int(marka))
+        if b:
+            marka = b.name
+
+    model = None if is_license else payload.get("model")
+    if model and model.isdigit():
+        m = db.get(Model, int(model))
+        if m:
+            model = m.name
+
     if is_license:
         miktar = 1
     else:
@@ -206,8 +249,8 @@ def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):
 
     log = StockLog(
         donanim_tipi=donanim_tipi,
-        marka=None if is_license else payload.get("marka"),
-        model=None if is_license else payload.get("model"),
+        marka=marka,
+        model=model,
         lisans_anahtari=payload.get("lisans_anahtari") if is_license else None,
         mail_adresi=payload.get("mail_adresi") if is_license else None,
         miktar=miktar,
