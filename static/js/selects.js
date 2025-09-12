@@ -18,13 +18,27 @@ function makeSearchableSelect(el, placeholder="Seçiniz…") {
   return inst;
 }
 
-async function fillChoices({ endpoint, selectId, params={}, placeholder="Seçiniz…", keepValue=false, mapFn }) {
+async function fillChoices({ endpoint, selectId, params={}, placeholder="Seçiniz…", keepValue=false, mapFn, signal }) {
   const el = document.getElementById(selectId);
   if (!el) return;
   let inst = selects[selectId];
   if (!inst) { inst = makeSearchableSelect(el, placeholder); selects[selectId] = inst; }
-  const usp = new URLSearchParams(params);
-  const res = await fetch(`${endpoint}?${usp.toString()}`);
+
+  const p = { ...params };
+  if (endpoint.includes('/api/lookup/model')) delete p.marka; // tek parametre marka_id
+
+  // Boş parametreleri filtrele
+  const usp = new URLSearchParams();
+  Object.entries(p).forEach(([k,v])=>{ if(v!==undefined && v!==null && v!=='') usp.append(k,v); });
+
+  // Model lookup'larında marka seçimi yoksa istek gönderme
+  if (endpoint.includes('/api/lookup/model') && !usp.has('marka_id')) {
+    return;
+  }
+
+  const res = await fetch(`${endpoint}?${usp.toString()}`, { signal }).catch(e=>{ if(e.name!=='AbortError') throw e; });
+  if(!res) return; // abort edilmiş olabilir
+  if (res.status === 422) { alert('Marka seçiniz'); return; }
   const data = res.ok ? await res.json() : [];
   const current = keepValue ? el.value : null;
   inst.clearStore();
@@ -49,15 +63,20 @@ async function bindMarkaModel(markaSelectId, modelSelectId) {
   const modelInst = selects[modelSelectId] || makeSearchableSelect(modelEl, "Model seçiniz…");
   selects[modelSelectId] = modelInst;
 
+  let aborter;
   async function updateModels() {
     const m = markaEl.value;
+    if (aborter) aborter.abort();
     if (!m) {
       modelInst.clearStore();
       modelInst.disable();
       return;
     }
     modelInst.enable();
-    await fillChoices({ endpoint: "/api/lookup/model", selectId: modelSelectId, params: { marka_id: m }, placeholder: "Model seçiniz…" });
+    aborter = new AbortController();
+    try {
+      await fillChoices({ endpoint: "/api/lookup/model", selectId: modelSelectId, params: { marka_id: m }, placeholder: "Model seçiniz…", signal: aborter.signal });
+    } catch(e){ if(e.name!=='AbortError') console.error(e); }
   }
   markaEl.addEventListener("change", updateModels);
   await updateModels();
