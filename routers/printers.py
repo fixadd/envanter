@@ -363,6 +363,8 @@ def stock_printer(printer_id: int, db: Session = Depends(get_db), user=Depends(c
             model=p.model,
             islem="girdi",
             actor=actor,
+            source_type="yazici",
+            source_id=p.id,
         )
     )
     db.add(

@@ -199,6 +199,7 @@ def stock_status_detail(db: Session = Depends(get_db)):
             models.StockLog.model,
             models.StockLog.ifs_no,
             models.StockLog.source_type,
+            models.StockLog.source_id,
             models.StockLog.tarih,
             models.StockLog.id,
         )
@@ -212,11 +213,13 @@ def stock_status_detail(db: Session = Depends(get_db)):
         )
     ).all()
 
-    last_source: dict[tuple[str, str | None, str | None, str | None], str | None] = {}
+    last_source: dict[
+        tuple[str, str | None, str | None, str | None], tuple[str | None, int | None]
+    ] = {}
     for r in last_logs:
         key = (r.donanim_tipi, r.marka, r.model, r.ifs_no)
         if key not in last_source:
-            last_source[key] = r.source_type
+            last_source[key] = (r.source_type, r.source_id)
 
     items: list[dict] = []
     totals_calc: dict[str, int] = {}
@@ -226,6 +229,7 @@ def stock_status_detail(db: Session = Depends(get_db)):
         if qty <= 0:
             continue
         key = (r.donanim_tipi, r.marka, r.model, r.ifs_no)
+        src = last_source.get(key, (None, None))
         items.append(
             {
                 "donanim_tipi": r.donanim_tipi,
@@ -234,7 +238,8 @@ def stock_status_detail(db: Session = Depends(get_db)):
                 "ifs_no": r.ifs_no,
                 "net": qty,
                 "last_tarih": r.last_tarih,
-                "source_type": last_source.get(key),
+                "source_type": src[0],
+                "source_id": src[1],
             }
         )
         totals_calc[r.donanim_tipi] = totals_calc.get(r.donanim_tipi, 0) + qty
