@@ -17,15 +17,16 @@ router = APIRouter(prefix="/talepler", tags=["Talepler"])
 
 
 @router.get("", response_class=HTMLResponse, name="talep_list")
-def liste(request: Request, durum: str = "aktif", db: Session = Depends(get_db)):
+def liste(request: Request, durum: str = "acik", db: Session = Depends(get_db)):
     """Talep kayıtlarını duruma göre tablo halinde göster."""
 
     durum_map = {
-        "aktif": TalepDurum.AKTIF,
-        "kapali": TalepDurum.TAMAMLANDI,
+        "acik": TalepDurum.ACIK,
+        "kismi": TalepDurum.KISMI,
+        "tamamlandi": TalepDurum.TAMAMLANDI,
         "iptal": TalepDurum.IPTAL,
     }
-    selected = durum_map.get(durum, TalepDurum.AKTIF)
+    selected = durum_map.get(durum, TalepDurum.ACIK)
     q = (
         db.query(
             Talep,
@@ -71,7 +72,9 @@ def olustur(
         tur=TalepTuru.AKSESUAR,
         donanim_tipi=donanim_tipi,
         ifs_no=ifs_no,
-        miktar=miktar,
+        miktar=miktar or 1,
+        karsilanan_miktar=0,
+        kalan_miktar=miktar or 1,
         marka=marka,
         model=model,
         aciklama=aciklama,
@@ -89,12 +92,15 @@ def cancel_request(talep_id: int, adet: int = Form(1), db: Session = Depends(get
     talep = db.get(Talep, talep_id)
     if not talep:
         return JSONResponse({"ok": False}, status_code=404)
-    mevcut = talep.miktar or 1
-    if mevcut > adet:
-        talep.miktar = mevcut - adet
+    kalan = talep.kalan_miktar
+    if kalan > adet:
+        talep.miktar -= adet
+        talep.kalan_miktar = kalan - adet
+        talep.durum = TalepDurum.KISMI if talep.karsilanan_miktar else TalepDurum.ACIK
     else:
+        talep.miktar -= kalan
+        talep.kalan_miktar = 0
         talep.durum = TalepDurum.IPTAL
-        talep.miktar = 0
         talep.kapanma_tarihi = datetime.utcnow()
     db.commit()
     return {"ok": True}
@@ -107,12 +113,15 @@ def close_request(talep_id: int, adet: int = Form(1), db: Session = Depends(get_
     talep = db.get(Talep, talep_id)
     if not talep:
         return JSONResponse({"ok": False}, status_code=404)
-    mevcut = talep.miktar or 1
-    if mevcut > adet:
-        talep.miktar = mevcut - adet
+    kalan = talep.kalan_miktar
+    if kalan > adet:
+        talep.karsilanan_miktar += adet
+        talep.kalan_miktar = kalan - adet
+        talep.durum = TalepDurum.KISMI if talep.kalan_miktar else TalepDurum.TAMAMLANDI
     else:
+        talep.karsilanan_miktar += kalan
+        talep.kalan_miktar = 0
         talep.durum = TalepDurum.TAMAMLANDI
-        talep.miktar = 0
         talep.kapanma_tarihi = datetime.utcnow()
     db.commit()
     return {"ok": True}
@@ -145,8 +154,8 @@ def convert_request_to_stock(
     if not talep:
         return JSONResponse({"ok": False}, status_code=404)
 
-    mevcut = talep.miktar or 1
-    if mevcut < adet:
+    kalan = talep.kalan_miktar
+    if kalan < adet:
         return JSONResponse(
             {"ok": False, "error": "Yetersiz talep miktarı"}, status_code=400
         )
@@ -188,11 +197,12 @@ def convert_request_to_stock(
     if not result.get("ok"):
         return JSONResponse(result, status_code=400)
 
-    if mevcut > adet:
-        talep.miktar = mevcut - adet
+    talep.karsilanan_miktar += adet
+    talep.kalan_miktar = kalan - adet
+    if talep.kalan_miktar > 0:
+        talep.durum = TalepDurum.KISMI
     else:
         talep.durum = TalepDurum.TAMAMLANDI
-        talep.miktar = 0
         talep.kapanma_tarihi = datetime.utcnow()
 
     db.commit()
@@ -235,13 +245,16 @@ def export_excel(db: Session = Depends(get_db)):
             "Tür",
             "Donanım Tipi",
             "IFS No",
-            "Miktar",
+            "İstenen",
+            "Karşılanan",
+            "Kalan",
             "Marka",
             "Model",
             "Envanter No",
             "Lisans Adı",
             "Sorumlu",
             "Açıklama",
+            "Durum",
             "Tarih",
         ]
     )
@@ -254,12 +267,15 @@ def export_excel(db: Session = Depends(get_db)):
                 t.donanim_tipi,
                 t.ifs_no,
                 t.miktar,
+                t.karsilanan_miktar,
+                t.kalan_miktar,
                 t.marka,
                 t.model,
                 t.envanter_no or t.bagli_envanter_no,
                 t.lisans_adi,
                 t.sorumlu_personel,
                 t.aciklama,
+                t.durum.value,
                 t.olusturma_tarihi.strftime("%Y-%m-%d %H:%M"),
             ]
         )

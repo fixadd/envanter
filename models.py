@@ -396,7 +396,8 @@ class StockTotal(Base):
 
 
 class TalepDurum(str, enum.Enum):
-    AKTIF = "aktif"
+    ACIK = "acik"
+    KISMI = "kismi"
     TAMAMLANDI = "tamamlandi"
     IPTAL = "iptal"
 
@@ -421,7 +422,9 @@ class Talep(Base):
     donanim_tipi = Column(String(150), nullable=True)
 
     ifs_no = Column(String(100), index=True, nullable=True)
-    miktar = Column(Integer, nullable=True)
+    miktar = Column(Integer, nullable=False)
+    karsilanan_miktar = Column(Integer, default=0, nullable=False)
+    kalan_miktar = Column(Integer, default=0, nullable=False)
     marka = Column(String(150), nullable=True)
     model = Column(String(150), nullable=True)
 
@@ -431,7 +434,7 @@ class Talep(Base):
     lisans_adi = Column(String(200), nullable=True)
 
     aciklama = Column(Text, nullable=True)
-    durum = Column(Enum(TalepDurum), default=TalepDurum.AKTIF, nullable=False)
+    durum = Column(Enum(TalepDurum), default=TalepDurum.ACIK, nullable=False)
     olusturma_tarihi = Column(DateTime, default=datetime.utcnow, nullable=False)
     kapanma_tarihi = Column(DateTime, nullable=True)
 
@@ -648,6 +651,18 @@ def init_db():
         if "kapanma_tarihi" not in cols:
             conn.execute(
                 text("ALTER TABLE talepler ADD COLUMN kapanma_tarihi DATETIME")
+            )
+        if "karsilanan_miktar" not in cols:
+            conn.execute(
+                text(
+                    "ALTER TABLE talepler ADD COLUMN karsilanan_miktar INTEGER DEFAULT 0"
+                )
+            )
+        if "kalan_miktar" not in cols:
+            conn.execute(
+                text(
+                    "ALTER TABLE talepler ADD COLUMN kalan_miktar INTEGER DEFAULT 0"
+                )
             )
 
     # -- Printers --------------------------------------------------------------

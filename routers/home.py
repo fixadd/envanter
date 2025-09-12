@@ -53,7 +53,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
 
     try:
         bekleyen_talep = db.execute(
-            text("SELECT COUNT(*) FROM requests WHERE durum='aktif'")
+            text("SELECT COUNT(*) FROM requests WHERE durum='acik'")
         ).scalar()
     except Exception:
         bekleyen_talep = 0
