@@ -76,9 +76,6 @@
       <button class="nav-link active" id="acik-tab" data-bs-toggle="tab" data-bs-target="#acik" type="button" role="tab">Açık</button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="kismi-tab" data-bs-toggle="tab" data-bs-target="#kismi" type="button" role="tab">Kısmi</button>
-    </li>
-    <li class="nav-item" role="presentation">
       <button class="nav-link" id="kapali-tab" data-bs-toggle="tab" data-bs-target="#kapali" type="button" role="tab">Tamamlandı</button>
     </li>
     <li class="nav-item" role="presentation">
@@ -89,9 +86,6 @@
   <div class="tab-content mt-3" id="talepTabsContent">
     <div class="tab-pane fade show active" id="acik" role="tabpanel" aria-labelledby="acik-tab">
       {{ render_table(acik, "Açık talep bulunamadı.", True) }}
-    </div>
-    <div class="tab-pane fade" id="kismi" role="tabpanel" aria-labelledby="kismi-tab">
-      {{ render_table(kismi, "Kısmi talep bulunamadı.", True) }}
     </div>
     <div class="tab-pane fade" id="kapali" role="tabpanel" aria-labelledby="kapali-tab">
       {{ render_table(kapali, "Tamamlanan talep bulunamadı.") }}

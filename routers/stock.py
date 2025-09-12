@@ -152,7 +152,7 @@ def stock_status_page(request: Request):
 def stock_status_json(db: Session = Depends(get_db)):
     """Stok durumunu JSON olarak döndür."""
     data = stock_status_detail(db)
-    return JSONResponse({"ok": True, "totals": data["totals"], "detail": data["detail"]})
+    return JSONResponse({"ok": True, "totals": data["totals"], "items": data["items"]})
 
 
 @api_router.get("/status")
@@ -219,6 +219,8 @@ def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):
         islem=islem,
         tarih=datetime.utcnow(),
         actor=payload.get("islem_yapan") or "Sistem",
+        source_type=payload.get("source_type"),
+        source_id=payload.get("source_id"),
     )
     db.add(log)
 
@@ -257,34 +259,25 @@ def stock_options(db: Session = Depends(get_db), q: Optional[str] = None):
     items: list[StockOption] = []
     q_lower = q.lower() if q else None
 
-    for dt, total in status["totals"].items():
-        detail = status["detail"].get(dt, {})
-        if detail:
-            for ifs, qty in detail.items():
-                if qty <= 0:
-                    continue
-                if q_lower and q_lower not in dt.lower() and q_lower not in (ifs or "").lower():
-                    continue
-                items.append(
-                    StockOption(
-                        id=f"{dt}|{ifs}",
-                        label=f"{dt or 'Donanım'} | IFS:{ifs or '-'} | Mevcut:{qty}",
-                        donanim_tipi=dt,
-                        ifs_no=ifs,
-                        mevcut_miktar=qty,
-                    )
-                )
-        elif total > 0:
-            if q_lower and q_lower not in dt.lower():
-                continue
-            items.append(
-                StockOption(
-                    id=f"{dt}|",
-                    label=f"{dt or 'Donanım'} | IFS:- | Mevcut:{total}",
-                    donanim_tipi=dt,
-                    mevcut_miktar=total,
-                )
+    for row in status["items"]:
+        qty = row["net"]
+        if qty <= 0:
+            continue
+        parts = [row["donanim_tipi"], row.get("marka"), row.get("model"), row.get("ifs_no")]
+        label_parts = [p for p in parts if p]
+        if q_lower and all(q_lower not in (p or "").lower() for p in label_parts):
+            continue
+        label = " | ".join(label_parts + [f"Mevcut:{qty}"])
+        stock_id = "|".join([row["donanim_tipi"], row.get("marka") or "", row.get("model") or "", row.get("ifs_no") or ""])
+        items.append(
+            StockOption(
+                id=stock_id,
+                label=label,
+                donanim_tipi=row["donanim_tipi"],
+                ifs_no=row.get("ifs_no"),
+                mevcut_miktar=qty,
             )
+        )
 
     return items
 
@@ -299,9 +292,21 @@ def stock_assign(payload: AssignPayload, db: Session = Depends(get_db)):
     ifs_no = ifs_no or None
 
     status = stock_status_detail(db)
-    mevcut = status["detail"].get(donanim_tipi, {}).get(ifs_no)
-    if mevcut is None:
-        mevcut = status["totals"].get(donanim_tipi, 0)
+    item = None
+    if ifs_no:
+        for r in status["items"]:
+            if r["donanim_tipi"] == donanim_tipi and r.get("ifs_no") == ifs_no:
+                item = r
+                break
+    else:
+        adaylar = [r for r in status["items"] if r["donanim_tipi"] == donanim_tipi]
+        if len(adaylar) == 1:
+            item = adaylar[0]
+            ifs_no = item.get("ifs_no")
+        elif len(adaylar) > 1:
+            raise HTTPException(status_code=400, detail="Birden fazla IFS bulundu, seçim gerekli")
+
+    mevcut = item["net"] if item else status["totals"].get(donanim_tipi, 0)
 
     if payload.miktar <= 0:
         raise HTTPException(status_code=400, detail="Miktar 0'dan büyük olmalı.")
@@ -371,6 +376,12 @@ def stock_assign(payload: AssignPayload, db: Session = Depends(get_db)):
                 ifs_no=ifs_no,
                 islem="cikti",
                 actor=personel,
+                source_type=payload.atama_turu,
+                source_id=(
+                    payload.hedef_envanter_id
+                    or payload.hedef_yazici_id
+                    or payload.lisans_id
+                ),
             )
         )
 

@@ -163,25 +163,15 @@ def inventory_list(
 # === STOCK API ===
 @router.get("/stock/detail")
 def stock_status_detail(db: Session = Depends(get_db)):
-    totals = {t.donanim_tipi: t.toplam for t in db.query(models.StockTotal).all()}
-    if not totals:
-        totals_q = (
-            db.query(
-                models.StockLog.donanim_tipi,
-                func.sum(
-                    case(
-                        (models.StockLog.islem == "girdi", models.StockLog.miktar),
-                        else_=-models.StockLog.miktar,
-                    )
-                ).label("qty"),
-            )
-            .group_by(models.StockLog.donanim_tipi)
-            .all()
-        )
-        totals = {dt: int(qty or 0) for dt, qty in totals_q}
+    """Return current stock grouped by item details."""
+
+    totals_db = {t.donanim_tipi: t.toplam for t in db.query(models.StockTotal).all()}
+
     q = (
         db.query(
             models.StockLog.donanim_tipi,
+            models.StockLog.marka,
+            models.StockLog.model,
             models.StockLog.ifs_no,
             func.sum(
                 case(
@@ -189,14 +179,68 @@ def stock_status_detail(db: Session = Depends(get_db)):
                     else_=-models.StockLog.miktar,
                 )
             ).label("qty"),
+            func.max(models.StockLog.tarih).label("last_tarih"),
         )
-        .group_by(models.StockLog.donanim_tipi, models.StockLog.ifs_no)
+        .group_by(
+            models.StockLog.donanim_tipi,
+            models.StockLog.marka,
+            models.StockLog.model,
+            models.StockLog.ifs_no,
+        )
     )
-    detail: dict[str, dict[str, int]] = {}
-    for dt, ifs, qty in q:
-        if ifs and qty and qty > 0:
-            detail.setdefault(dt, {})[ifs] = qty
-    return {"totals": totals, "detail": detail}
+
+    rows = q.all()
+
+    # Determine the source of the last movement for each item
+    last_logs = (
+        db.query(
+            models.StockLog.donanim_tipi,
+            models.StockLog.marka,
+            models.StockLog.model,
+            models.StockLog.ifs_no,
+            models.StockLog.source_type,
+            models.StockLog.tarih,
+            models.StockLog.id,
+        )
+        .order_by(
+            models.StockLog.donanim_tipi,
+            models.StockLog.marka,
+            models.StockLog.model,
+            models.StockLog.ifs_no,
+            models.StockLog.tarih.desc(),
+            models.StockLog.id.desc(),
+        )
+    ).all()
+
+    last_source: dict[tuple[str, str | None, str | None, str | None], str | None] = {}
+    for r in last_logs:
+        key = (r.donanim_tipi, r.marka, r.model, r.ifs_no)
+        if key not in last_source:
+            last_source[key] = r.source_type
+
+    items: list[dict] = []
+    totals_calc: dict[str, int] = {}
+
+    for r in rows:
+        qty = int(r.qty or 0)
+        if qty <= 0:
+            continue
+        key = (r.donanim_tipi, r.marka, r.model, r.ifs_no)
+        items.append(
+            {
+                "donanim_tipi": r.donanim_tipi,
+                "marka": r.marka,
+                "model": r.model,
+                "ifs_no": r.ifs_no,
+                "net": qty,
+                "last_tarih": r.last_tarih,
+                "source_type": last_source.get(key),
+            }
+        )
+        totals_calc[r.donanim_tipi] = totals_calc.get(r.donanim_tipi, 0) + qty
+
+    totals = totals_db or totals_calc
+    return {"totals": totals, "items": items}
 
 
 @router.get("/stock/status")
@@ -249,14 +293,20 @@ def stock_assign(
         raise HTTPException(400, "Geçersiz hedef_tur")
     status = stock_status_detail(db)
     mevcut = status["totals"].get(donanim_tipi, 0)
-    if mevcut < miktar:
-        raise HTTPException(400, "Yetersiz stok")
-    if not ifs_no:
-        adaylar = status["detail"].get(donanim_tipi, {})
+    if ifs_no:
+        for r in status["items"]:
+            if r["donanim_tipi"] == donanim_tipi and r.get("ifs_no") == ifs_no:
+                mevcut = r["net"]
+                break
+    else:
+        adaylar = [r for r in status["items"] if r["donanim_tipi"] == donanim_tipi]
         if len(adaylar) == 1:
-            ifs_no = next(iter(adaylar.keys()))
+            ifs_no = adaylar[0]["ifs_no"]
+            mevcut = adaylar[0]["net"]
         elif len(adaylar) > 1:
             raise HTTPException(400, "Birden fazla IFS bulundu, seçim gerekli")
+    if mevcut < miktar:
+        raise HTTPException(400, "Yetersiz stok")
     _ = stock_log_create(
         donanim_tipi,
         miktar,
