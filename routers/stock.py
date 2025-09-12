@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 from database import get_db
 from models import (
     StockLog,
+    StockTransaction,
     HardwareType,
     UsageArea,
     LicenseName,
@@ -155,34 +156,41 @@ def stock_status_json(db: Session = Depends(get_db)):
 
 
 @api_router.get("/status")
-def stock_status(db: Session = Depends(get_db)):
-    """Her donanım tipi için net stok: girdi - çıktı - hurda."""
-    net_expr = func.coalesce(
-        func.sum(
-            case(
-                (StockLog.islem == "girdi", StockLog.miktar),
-                (StockLog.islem == "cikti", -StockLog.miktar),
-                (StockLog.islem == "hurda", -StockLog.miktar),
-                else_=0,
-            )
-        ),
-        0,
-    )
+def stock_status(
+    db: Session = Depends(get_db),
+    page: int = 1,
+    limit: int = 1000,
+):
+    """
+    bootstrap-table beklediği format:
+    { "total": <int>, "rows": [ {donanim_tipi: "...", stok: 12}, ... ] }
+    """
 
-    rows = (
-        db.query(
-            StockLog.donanim_tipi.label("donanim_tipi"),
-            net_expr.label("stok"),
+    stok_expr = func.sum(
+        case(
+            (StockTransaction.islem == "girdi", StockTransaction.miktar),
+            (StockTransaction.islem == "cikti", -StockTransaction.miktar),
+            (StockTransaction.islem == "hurda", -StockTransaction.miktar),
+            else_=0,
         )
-        .group_by(StockLog.donanim_tipi)
-        .order_by(StockLog.donanim_tipi.asc())
-        .all()
+    ).label("stok")
+
+    q = (
+        db.query(StockTransaction.donanim_tipi.label("donanim_tipi"), stok_expr)
+        .group_by(StockTransaction.donanim_tipi)
+        .having(stok_expr != 0)
+        .order_by(StockTransaction.donanim_tipi.asc())
     )
 
-    return [
-        {"donanim_tipi": r.donanim_tipi or "-", "stok": int(r.stok or 0)}
-        for r in rows
-    ]
+    total = q.count()
+    rows = q.offset((page - 1) * limit).limit(limit).all()
+
+    return {
+        "total": total,
+        "rows": [
+            {"donanim_tipi": r.donanim_tipi, "stok": int(r.stok or 0)} for r in rows
+        ],
+    }
 
 @router.post("/add")
 def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):

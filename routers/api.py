@@ -200,37 +200,6 @@ def stock_status_detail(db: Session = Depends(get_db)):
 
 
 @router.get("/stock/status")
-def stock_status(db: Session = Depends(get_db)):
-    """Her donanım tipi için net stok: girdi - çıktı - hurda (- atama)."""
-    net_expr = func.coalesce(
-        func.sum(
-            case(
-                (models.StockLog.islem == "girdi", models.StockLog.miktar),
-                (
-                    models.StockLog.islem.in_(["cikti", "hurda", "atama"]),
-                    -models.StockLog.miktar,
-                ),
-                else_=0,
-            )
-        ),
-        0,
-    )
-
-    rows = (
-        db.query(
-            models.StockLog.donanim_tipi.label("donanim_tipi"),
-            net_expr.label("stok"),
-        )
-        .group_by(models.StockLog.donanim_tipi)
-        .order_by(models.StockLog.donanim_tipi.asc())
-        .all()
-    )
-
-    return [
-        {"donanim_tipi": r.donanim_tipi or "-", "stok": int(r.stok or 0)}
-        for r in rows
-    ]
-
 
 @router.post("/stock/logs")
 def stock_log_create(
