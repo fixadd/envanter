@@ -376,6 +376,7 @@ def stock_assign(payload: AssignPayload, db: Session = Depends(get_db)):
                 ifs_no=ifs_no,
                 islem="cikti",
                 actor=personel,
+                aciklama=payload.notlar,
                 source_type=payload.atama_turu,
                 source_id=(
                     payload.hedef_envanter_id
