@@ -252,6 +252,7 @@ def stock_log_create(
     islem: str,
     ifs_no: str | None = None,
     islem_yapan: str | None = None,
+    aciklama: str | None = None,
     db: Session = Depends(get_db),
 ):
     if islem not in ("girdi", "cikti", "hurda"):
@@ -269,6 +270,7 @@ def stock_log_create(
         islem=islem,
         ifs_no=ifs_no,
         actor=islem_yapan,
+        aciklama=aciklama,
     )
     db.add(log)
     total.toplam = total.toplam + miktar if islem == "girdi" else total.toplam - miktar
@@ -287,6 +289,7 @@ def stock_assign(
     sorumlu_personel: str | None = None,
     kullanim_alani: str | None = None,
     islem_yapan: str | None = None,
+    aciklama: str | None = None,
     db: Session = Depends(get_db),
 ):
     if hedef_tur not in ("envanter", "lisans", "yazici"):
@@ -313,6 +316,7 @@ def stock_assign(
         "cikti",
         ifs_no=ifs_no,
         islem_yapan=islem_yapan,
+        aciklama=aciklama,
         db=db,
     )
     assign = models.StockAssignment(
