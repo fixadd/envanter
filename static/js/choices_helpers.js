@@ -1,9 +1,13 @@
 // static/js/choices_helpers.js
 
 // -------- Helpers ----------
-async function getJSON(url) {
-  const r = await fetch(url);
-  if (!r.ok) throw new Error(await r.text());
+async function getJSON(url, opts={}) {
+  const r = await fetch(url, opts);
+  if (!r.ok) {
+    const err = new Error(await r.text());
+    err.status = r.status;
+    throw err;
+  }
   return r.json();
 }
 
@@ -37,11 +41,23 @@ function setChoicesSafe(selectEl, items, replaceAll = true, placeholderOpt) {
   inst.setChoices(Array.isArray(items) ? items : [], 'value', 'label', replaceAll);
 }
 
-async function fillChoices({ endpoint, selectId, params = {}, placeholder = "Seçiniz…" }) {
+async function fillChoices({ endpoint, selectId, params = {}, placeholder = "Seçiniz…", signal }) {
   const sel = document.getElementById(selectId);
   if (!sel) return;
-  const usp = new URLSearchParams(params);
-  const data = await getJSON(endpoint + (usp.toString() ? "?" + usp : ""));
+  const p = { ...params };
+  if (endpoint.includes('/api/lookup/model')) delete p.marka;
+  const usp = new URLSearchParams();
+  Object.entries(p).forEach(([k,v])=>{ if(v!==undefined && v!==null && v!=='') usp.append(k,v); });
+  if (endpoint.includes('/api/lookup/model') && !usp.has('marka_id')) return;
+  const url = endpoint + (usp.toString() ? "?" + usp : "");
+  let data = [];
+  try {
+    data = await getJSON(url, { signal });
+  } catch (e) {
+    if (e.status === 422) { alert('Marka seçiniz'); return; }
+    if (e.name === 'AbortError') return;
+    throw e;
+  }
 
   const choices = data.map(x => ({
     value: x.id,
@@ -59,19 +75,23 @@ function bindBrandToModel(brandSelectId, modelSelectId) {
     [{ value: "", label: "Önce marka seçiniz…", disabled: true }],
     true, { placeholderValue: "Önce marka seçiniz…" });
 
+  let aborter;
   brandSel.addEventListener("change", async () => {
     const brandId = brandSel.value;
+    if (aborter) aborter.abort();
     if (!brandId) {
       setChoicesSafe(modelSel,
         [{ value: "", label: "Önce marka seçiniz…", disabled: true }],
         true, { placeholderValue: "Önce marka seçiniz…" });
       return;
     }
+    aborter = new AbortController();
     await fillChoices({
       endpoint: "/api/lookup/model",
       selectId: modelSelectId,
       params: { marka_id: brandId },
-      placeholder: "Model seçiniz…"
+      placeholder: "Model seçiniz…",
+      signal: aborter.signal,
     });
   });
 }
