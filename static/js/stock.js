@@ -1,63 +1,67 @@
-let donanimSel, markaSel, modelSel, lisansSel;
+document.addEventListener('DOMContentLoaded', () => {
+  let donanimSel, markaSel, modelSel, lisansSel;
 
-document.getElementById('modalStockAdd')?.addEventListener('shown.bs.modal', () => {
-  donanimSel = document.getElementById('stok_donanim_tipi');
-  markaSel    = document.getElementById('stok_marka');
-  modelSel    = document.getElementById('stok_model');
-  lisansSel   = document.getElementById('lisans_adi');
-});
+  const modal = document.getElementById('modalStockAdd');
+  modal?.addEventListener('shown.bs.modal', () => {
+    donanimSel = document.getElementById('stok_donanim_tipi');
+    markaSel   = document.getElementById('stok_marka');
+    modelSel   = document.getElementById('stok_model');
+    lisansSel  = document.getElementById('lisans_adi');
+  });
 
-// Ekle form submit
-const chkIsLicense = document.getElementById('chkIsLicense');
-const hardwareFields = document.getElementById('hardwareFields');
-const licenseFields  = document.getElementById('licenseFields');
-const miktarInput    = document.getElementById('miktar');
-const rowMiktar      = document.getElementById('rowMiktar');
+  const chkIsLicense   = document.getElementById('chkIsLicense');
+  const hardwareFields = document.getElementById('hardwareFields');
+  const licenseFields  = document.getElementById('licenseFields');
+  const miktarInput    = document.getElementById('miktar');
+  const rowMiktar      = document.getElementById('rowMiktar');
 
-chkIsLicense?.addEventListener('change', e=>{
-  const isLic = e.target.checked;
-  hardwareFields?.classList.toggle('d-none', isLic);
-  licenseFields?.classList.toggle('d-none', !isLic);
-  donanimSel?.toggleAttribute('required', !isLic);
-  rowMiktar?.classList.toggle('d-none', isLic);
-  hardwareFields?.querySelectorAll('input,select').forEach(el=> el.disabled = isLic);
-  licenseFields?.querySelectorAll('input,select').forEach(el=> el.disabled = !isLic);
-  if(isLic){
-    miktarInput.value = 1;
-    miktarInput.readOnly = true;
-  }else{
-    miktarInput.readOnly = false;
-  }
-});
-
-document.getElementById('frmStockAdd')?.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  if(chkIsLicense?.checked){
-    fd.set('miktar','1');
-    fd.set('donanim_tipi', fd.get('lisans_adi')||'');
-    fd.set('is_lisans','1');
-    fd.delete('is_license');
-  }
-  const payload = Object.fromEntries(fd.entries());
-  const miktar = Number(payload.miktar);
-  if(!miktar || miktar <= 0){ alert('Miktar 0\'dan büyük olmalı'); return; }
-  try{
-    const res = await fetch('/stock/add', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-    const j = await res.json();
-    if(j.ok){
-      location.reload();
-    } else {
-      alert(j.error || 'Kayıt başarısız');
+  chkIsLicense?.addEventListener('change', e => {
+    const isLic = e.target.checked;
+    hardwareFields?.classList.toggle('d-none', isLic);
+    licenseFields?.classList.toggle('d-none', !isLic);
+    donanimSel?.toggleAttribute('required', !isLic);
+    rowMiktar?.classList.toggle('d-none', isLic);
+    hardwareFields?.querySelectorAll('input,select').forEach(el => el.disabled = isLic);
+    licenseFields?.querySelectorAll('input,select').forEach(el => el.disabled = !isLic);
+    if (isLic) {
+      if (miktarInput) {
+        miktarInput.value = 1;
+        miktarInput.readOnly = true;
+      }
+    } else if (miktarInput) {
+      miktarInput.readOnly = false;
     }
-  }catch(err){
-    console.error('stock add failed', err);
-    alert('Kayıt başarısız');
-  }
+  });
+
+  document.getElementById('frmStockAdd')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    if (chkIsLicense?.checked) {
+      fd.set('miktar', '1');
+      fd.set('donanim_tipi', fd.get('lisans_adi') || '');
+      fd.set('is_lisans', '1');
+      fd.delete('is_license');
+    }
+    const payload = Object.fromEntries(fd.entries());
+    const miktar = Number(payload.miktar);
+    if (!miktar || miktar <= 0) { alert('Miktar 0\'dan büyük olmalı'); return; }
+    try {
+      const res = await fetch('/stock/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const j = await res.json();
+      if (j.ok) {
+        location.reload();
+      } else {
+        alert(j.error || 'Kayıt başarısız');
+      }
+    } catch (err) {
+      console.error('stock add failed', err);
+      alert('Kayıt başarısız');
+    }
+  });
 });
 
 // --- Yeni stok atama modali -------------------------------------------------
