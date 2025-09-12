@@ -4,7 +4,7 @@ import importlib
 from sqlalchemy import inspect
 
 
-def test_init_db_adds_kapanma_tarihi_column(tmp_path):
+def test_init_db_adds_new_columns(tmp_path):
     db_file = tmp_path / "talepler.db"
     os.environ["DATABASE_URL"] = f"sqlite:///{db_file}"
     import models
@@ -25,6 +25,8 @@ def test_init_db_adds_kapanma_tarihi_column(tmp_path):
     insp = inspect(models.engine)
     cols = {c["name"] for c in insp.get_columns("talepler")}
     assert "kapanma_tarihi" in cols
+    assert "karsilanan_miktar" in cols
+    assert "kalan_miktar" in cols
 
     models.engine.dispose()
     os.environ["DATABASE_URL"] = "sqlite:///:memory:"

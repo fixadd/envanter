@@ -5,7 +5,7 @@ from pydantic import BaseModel, conint
 from typing import List, Optional
 
 from database import get_db
-from models import Talep, TalepTuru, HardwareType, Brand, Model
+from models import Talep, TalepTuru, HardwareType, Brand, Model, TalepDurum
 
 router = APIRouter(prefix="/api/talep", tags=["Talep"])
 
@@ -37,6 +37,8 @@ def talep_ekle(item: TalepIn, db: Session = Depends(get_db)):
             marka=ln.marka_id or None,
             model=ln.model_id or None,
             miktar=ln.miktar,
+            karsilanan_miktar=0,
+            kalan_miktar=ln.miktar,
             aciklama=ln.aciklama,
         )
         db.add(rec)
@@ -69,6 +71,9 @@ def talep_liste(db: Session = Depends(get_db)):
                 "marka": marka_name or t.marka,
                 "model": model_name or t.model,
                 "miktar": t.miktar,
+                "karsilanan": t.karsilanan_miktar,
+                "kalan": t.kalan_miktar,
+                "durum": t.durum.value,
                 "aciklama": t.aciklama,
                 "tarih": t.olusturma_tarihi,
             }
