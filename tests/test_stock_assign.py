@@ -41,6 +41,7 @@ def test_stock_assign_updates_license(db_session):
         ifs_no="IFS1",
         hedef_envanter_no="INV001",
         sorumlu_personel="Ali",
+        aciklama="Test notu",
         db=db,
     )
 
@@ -52,6 +53,7 @@ def test_stock_assign_updates_license(db_session):
     assert log.miktar == 1
     assert log.ifs_no == "IFS1"
     assert log.islem == "cikti"
+    assert log.aciklama == "Test notu"
     assign = db.query(models.StockAssignment).first()
     assert assign.hedef_envanter_no == "INV001"
 
