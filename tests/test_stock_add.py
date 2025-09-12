@@ -24,7 +24,7 @@ def db_session():
 
 def test_stock_add_zero_amount(db_session):
     payload = {
-        "is_license": False,
+        "is_lisans": False,
         "donanim_tipi": "cpu",
         "miktar": 0,
         "islem_yapan": "test",
@@ -35,7 +35,7 @@ def test_stock_add_zero_amount(db_session):
 
 def test_stock_add_negative_amount(db_session):
     payload = {
-        "is_license": False,
+        "is_lisans": False,
         "donanim_tipi": "cpu",
         "miktar": -5,
         "islem_yapan": "test",

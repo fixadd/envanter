@@ -156,39 +156,36 @@ def stock_status_json(db: Session = Depends(get_db)):
 
 
 @api_router.get("/status")
-def stock_status(
-    db: Session = Depends(get_db),
-    page: int = 1,
-    limit: int = 1000,
-):
-    """Bootstrap-table uyumlu stok durumu.
+def stock_status(db: Session = Depends(get_db)):
+    """Stok durumunu detaylı biçimde döndür.
 
-    Bu uç nokta önceki sürümlerde ``stock_transactions`` tablosundan
-    verileri topluyordu. Ancak stok ekleme işlemi bu tabloya kayıt
-    oluşturmadığından sonuç her zaman boş dönüyordu. Artık stok
-    bilgisi ``stock_status_detail`` fonksiyonundan alınarak toplam
-    miktarlar döndürülüyor.
+    Her satır donanım tipi, marka, model ve opsiyonel IFS numarasına göre
+    gruplanmış net miktarı içerir. ``net_miktar`` değeri tüm "girdi"
+    işlemlerinin toplamından "cikti", "hurda" ve "atama" işlemlerinin
+    toplamının çıkarılmasıyla hesaplanır. Son işlem zaman damgası
+    ``son_islem_ts`` alanında döner.
     """
 
     status = stock_status_detail(db)
-    rows_all = [
-        {"donanim_tipi": dt, "stok": int(qty)}
-        for dt, qty in sorted(status["totals"].items())
-        if qty
-    ]
-
-    total = len(rows_all)
-    start = (page - 1) * limit
-    end = start + limit
-
-    return {
-        "total": total,
-        "rows": rows_all[start:end],
-    }
+    items = []
+    for r in status["items"]:
+        items.append(
+            {
+                "donanim_tipi": r["donanim_tipi"],
+                "marka": r.get("marka"),
+                "model": r.get("model"),
+                "ifs_no": r.get("ifs_no"),
+                "net_miktar": r.get("net"),
+                "son_islem_ts": r.get("last_tarih"),
+            }
+        )
+    return items
 
 @router.post("/add")
 def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):
-    is_license = payload.get("is_license")
+    # UI yeni adla `is_lisans` gönderiyor; eski `is_license` ile de uyumlu
+    # kalmak için her ikisini de kontrol ediyoruz.
+    is_license = payload.get("is_lisans") or payload.get("is_license")
     donanim_tipi = payload.get("donanim_tipi")
     if is_license:
         miktar = 1

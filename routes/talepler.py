@@ -186,7 +186,7 @@ def convert_request_to_stock(
         talep.aciklama = aciklama
 
     payload = {
-        "is_license": talep.tur == TalepTuru.LISANS,
+        "is_lisans": talep.tur == TalepTuru.LISANS,
         "donanim_tipi": talep.donanim_tipi,
         "miktar": adet,
         "marka": marka,
