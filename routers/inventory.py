@@ -472,6 +472,8 @@ def stock_entry(
             model=item.model,
             islem="girdi",
             actor=actor,
+            source_type="envanter",
+            source_id=item.id,
         )
     )
     db.add(

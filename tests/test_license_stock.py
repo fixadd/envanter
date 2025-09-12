@@ -45,3 +45,5 @@ def test_stock_license_updates_total(db_session):
     assert log.miktar == 1
     assert log.islem == "girdi"
     assert log.ifs_no == "IFS-L1"
+    assert log.source_type == "lisans"
+    assert log.source_id == lic.id
