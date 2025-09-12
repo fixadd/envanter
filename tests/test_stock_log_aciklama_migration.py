@@ -41,6 +41,8 @@ def test_init_db_adds_aciklama_column(tmp_path, monkeypatch):
     insp = inspect(models.engine)
     cols = {c["name"] for c in insp.get_columns("stock_logs")}
     assert "aciklama" in cols
+    assert "source_type" in cols
+    assert "source_id" in cols
 
     db = models.SessionLocal()
     log = models.StockLog(donanim_tipi="mouse", miktar=1, islem="girdi", aciklama="test")

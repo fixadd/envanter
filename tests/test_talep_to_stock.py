@@ -96,3 +96,30 @@ def test_convert_request_requires_brand_model(db_session):
     log = db_session.query(StockLog).order_by(StockLog.id.desc()).first()
     assert log.marka == "ABC"
     assert log.model == "XYZ"
+
+
+def test_partial_convert_keeps_open(db_session):
+    talep = Talep(
+        tur=TalepTuru.AKSESUAR,
+        donanim_tipi="klavye",
+        miktar=5,
+        karsilanan_miktar=0,
+        kalan_miktar=5,
+        marka="ABC",
+        model="XYZ",
+    )
+    db_session.add(talep)
+    db_session.commit()
+    db_session.refresh(talep)
+
+    res = convert_request_to_stock(talep.id, adet=2, db=db_session)
+    assert res["ok"] is True
+
+    refreshed = db_session.get(Talep, talep.id)
+    assert refreshed.durum == TalepDurum.ACIK
+    assert refreshed.karsilanan_miktar == 2
+    assert refreshed.kalan_miktar == 3
+
+    log = db_session.query(StockLog).order_by(StockLog.id.desc()).first()
+    assert log.source_type == "talep"
+    assert log.source_id == talep.id
