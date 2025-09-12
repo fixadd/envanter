@@ -22,7 +22,7 @@
             <th data-field="model" data-formatter="emptyFormatter">Model</th>
             <th data-field="ifs_no" data-formatter="emptyFormatter">IFS No</th>
             <th data-field="net_miktar" data-align="right">Stok</th>
-            <th data-field="son_islem_ts" data-formatter="emptyFormatter">Son İşlem</th>
+            <th data-field="son_islem_ts" data-formatter="dateFormatter">Son İşlem</th>
             <th data-formatter="detailFormatter" data-align="center"></th>
           </tr>
         </thead>
@@ -36,7 +36,20 @@
 
 <script>
 function emptyFormatter(value) {
-  return value ?? '-';
+  return value === null || value === undefined || value === '' ? '-' : value;
+}
+
+function dateFormatter(value) {
+  if (!value) return '-';
+  const d = new Date(value);
+  return d.toLocaleString('tr-TR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
 }
 
 function detailFormatter(value, row) {
@@ -53,7 +66,7 @@ function showStockDetail(encoded) {
     `Model: ${row.model ?? '-'}`,
     `IFS No: ${row.ifs_no ?? '-'}`,
     `Stok: ${row.net_miktar}`,
-    `Son İşlem: ${row.son_islem_ts ?? '-'}`,
+    `Son İşlem: ${dateFormatter(row.son_islem_ts)}`,
   ];
   alert(lines.join('\n'));
 }
