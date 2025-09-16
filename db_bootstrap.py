@@ -1,4 +1,3 @@
-from sqlalchemy import text
 from models import engine
 
 
