@@ -76,21 +76,53 @@
         </div>
       </div>
       <div class="tab-pane fade" id="pane-status" role="tabpanel">
-        <div class="table-responsive">
-          <table class="table table-sm" id="tblStockStatus">
-            <thead class="table-light">
-              <tr>
-                <th>Donanım Tipi</th>
-                <th>Marka</th>
-                <th>Model</th>
-                <th>IFS No</th>
-                <th class="text-end">Stok</th>
-                <th>Son İşlem</th>
-                <th class="text-center">İşlemler</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+        <div class="tabs-wrap mt-3">
+          <ul class="nav nav-tabs" id="stockStatusTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="status-tab-inventory" data-bs-toggle="tab" data-bs-target="#stock-status-inventory" type="button" role="tab" aria-controls="stock-status-inventory" aria-selected="true">Envanter</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="status-tab-license" data-bs-toggle="tab" data-bs-target="#stock-status-license" type="button" role="tab" aria-controls="stock-status-license" aria-selected="false">Lisans</button>
+            </li>
+          </ul>
+        </div>
+        <div class="tab-content mt-3" id="stockStatusTabContent">
+          <div class="tab-pane fade show active" id="stock-status-inventory" role="tabpanel" aria-labelledby="status-tab-inventory">
+            <div class="table-responsive">
+              <table class="table table-sm stock-status-table" id="tblStockStatusInventory">
+                <thead class="table-light">
+                  <tr>
+                    <th>Donanım Tipi</th>
+                    <th>Marka</th>
+                    <th>Model</th>
+                    <th>IFS No</th>
+                    <th class="text-end">Stok</th>
+                    <th>Son İşlem</th>
+                    <th class="text-center">İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="stock-status-license" role="tabpanel" aria-labelledby="status-tab-license">
+            <div class="table-responsive">
+              <table class="table table-sm stock-status-table" id="tblStockStatusLicense">
+                <thead class="table-light">
+                  <tr>
+                    <th>Donanım Tipi</th>
+                    <th>Marka</th>
+                    <th>Model</th>
+                    <th>IFS No</th>
+                    <th class="text-end">Stok</th>
+                    <th>Son İşlem</th>
+                    <th class="text-center">İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -124,10 +156,14 @@
       </div>
       <div class="modal-body row g-3">
         <div class="col-12">
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="chkIsLicense" name="is_lisans">
-            <label class="form-check-label" for="chkIsLicense">Lisans</label>
-          </div>
+          <ul class="nav nav-pills" id="stockAddType" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" type="button" data-stock-add-type="inventory" aria-selected="true">Envanter</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" type="button" data-stock-add-type="license" aria-selected="false">Lisans</button>
+            </li>
+          </ul>
         </div>
 
         <div id="hardwareFields" class="col-12">
