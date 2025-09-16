@@ -5,7 +5,7 @@ from pydantic import BaseModel, conint
 from typing import List, Optional
 
 from database import get_db
-from models import Talep, TalepTuru, HardwareType, Brand, Model, TalepDurum
+from models import Talep, TalepTuru, HardwareType, Brand, Model
 
 router = APIRouter(prefix="/api/talep", tags=["Talep"])
 
