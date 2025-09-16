@@ -7,40 +7,78 @@ document.addEventListener('DOMContentLoaded', () => {
     markaSel   = document.getElementById('stok_marka');
     modelSel   = document.getElementById('stok_model');
     lisansSel  = document.getElementById('lisans_adi');
+    applyStockAddType(currentStockAddType);
   });
 
-  const chkIsLicense   = document.getElementById('chkIsLicense');
   const hardwareFields = document.getElementById('hardwareFields');
   const licenseFields  = document.getElementById('licenseFields');
   const miktarInput    = document.getElementById('miktar');
   const rowMiktar      = document.getElementById('rowMiktar');
+  const stockAddTypeButtons = document.querySelectorAll('[data-stock-add-type]');
+  const initialStockTypeButton = document.querySelector('[data-stock-add-type].active');
+  let currentStockAddType = initialStockTypeButton?.dataset.stockAddType || 'inventory';
 
-  chkIsLicense?.addEventListener('change', e => {
-    const isLic = e.target.checked;
-    hardwareFields?.classList.toggle('d-none', isLic);
-    licenseFields?.classList.toggle('d-none', !isLic);
-    donanimSel?.toggleAttribute('required', !isLic);
-    rowMiktar?.classList.toggle('d-none', isLic);
-    hardwareFields?.querySelectorAll('input,select').forEach(el => el.disabled = isLic);
-    licenseFields?.querySelectorAll('input,select').forEach(el => el.disabled = !isLic);
-    if (isLic) {
-      if (miktarInput) {
+  function applyStockAddType(type) {
+    currentStockAddType = type === 'license' ? 'license' : 'inventory';
+    const isLicense = currentStockAddType === 'license';
+    hardwareFields?.classList.toggle('d-none', isLicense);
+    licenseFields?.classList.toggle('d-none', !isLicense);
+    rowMiktar?.classList.toggle('d-none', isLicense);
+
+    hardwareFields?.querySelectorAll('input,select').forEach(el => {
+      el.disabled = isLicense;
+      if (!isLicense) {
+        el.removeAttribute('disabled');
+      }
+    });
+    licenseFields?.querySelectorAll('input,select').forEach(el => {
+      el.disabled = !isLicense;
+    });
+
+    if (donanimSel) {
+      if (isLicense) {
+        donanimSel.removeAttribute('required');
+      } else {
+        donanimSel.setAttribute('required', 'required');
+      }
+    }
+
+    if (miktarInput) {
+      if (isLicense) {
         miktarInput.value = 1;
         miktarInput.readOnly = true;
+      } else {
+        miktarInput.readOnly = false;
       }
-    } else if (miktarInput) {
-      miktarInput.readOnly = false;
     }
+
+    stockAddTypeButtons.forEach(btn => {
+      const isActive = (btn.dataset.stockAddType || 'inventory') === currentStockAddType;
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+  }
+
+  stockAddTypeButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      applyStockAddType(btn.dataset.stockAddType || 'inventory');
+    });
   });
+
+  applyStockAddType(currentStockAddType);
 
   document.getElementById('frmStockAdd')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
-    if (chkIsLicense?.checked) {
+    const activeType = document.querySelector('[data-stock-add-type].active');
+    const isLicense = (activeType?.dataset.stockAddType || 'inventory') === 'license';
+    if (isLicense) {
       fd.set('miktar', '1');
       fd.set('donanim_tipi', fd.get('lisans_adi') || '');
       fd.set('is_lisans', '1');
       fd.delete('is_license');
+    } else {
+      fd.delete('is_lisans');
     }
     const payload = Object.fromEntries(fd.entries());
     const miktar = Number(payload.miktar);
@@ -323,60 +361,112 @@ async function scrapFromStatus(encoded){
   }catch(e){ console.error('scrap failed', e); alert('İşlem başarısız'); }
 }
 
+function setStockStatusMessage(tbody, message) {
+  if (!tbody) return;
+  tbody.innerHTML = `<tr data-empty-row="1"><td colspan="7" class="text-center text-muted">${message}</td></tr>`;
+}
+
+function createStockStatusRow(item) {
+  const encoded = encodeURIComponent(JSON.stringify(item));
+  const hasDetail = Boolean(item?.source_type || item?.source_id);
+  const detailButton = hasDetail
+    ? `<button type="button" class="btn btn-sm btn-outline-secondary" data-stock-detail="${encoded}" title="Detay"><span aria-hidden="true">&#9776;</span><span class="visually-hidden">Detay</span></button>`
+    : '';
+  const actionsMenu = `
+    <div class="btn-group">
+      <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        İşlemler
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><button class="dropdown-item" type="button" onclick="assignFromStatus('${encoded}')">Atama</button></li>
+        <li><button class="dropdown-item text-danger" type="button" onclick="scrapFromStatus('${encoded}')">Hurda</button></li>
+      </ul>
+    </div>`;
+  return `<tr>
+    <td>${item.donanim_tipi || '-'}</td>
+    <td>${item.marka || '-'}</td>
+    <td>${item.model || '-'}</td>
+    <td>${item.ifs_no || '-'}</td>
+    <td class="text-end">${item.net_miktar}</td>
+    <td>${item.son_islem_ts ? new Date(item.son_islem_ts).toLocaleString('tr-TR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false }) : '-'}</td>
+    <td class="text-center">
+      <div class="d-inline-flex align-items-center gap-1">
+        ${detailButton}
+        ${actionsMenu}
+      </div>
+    </td>
+  </tr>`;
+}
+
+function renderStockStatusTable(tbody, items) {
+  if (!tbody) return;
+  if (!Array.isArray(items) || items.length === 0) {
+    setStockStatusMessage(tbody, 'Stok bulunamadı');
+    return;
+  }
+  tbody.innerHTML = items.map(createStockStatusRow).join('');
+}
+
 function filterStockTable(){
   const q = document.getElementById('stockSearch')?.value.toLowerCase() || '';
-  document.querySelectorAll('#tblStockStatus tbody tr').forEach(tr=>{
+  const activePane = document.querySelector('#stockStatusTabContent .tab-pane.active');
+  if (!activePane) return;
+  activePane.querySelectorAll('tbody tr').forEach(tr=>{
+    if (tr.dataset.emptyRow === '1') {
+      tr.style.display = '';
+      return;
+    }
     tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
   });
 }
 document.getElementById('stockSearch')?.addEventListener('input', filterStockTable);
+document.querySelectorAll('#stockStatusTabs [data-bs-toggle="tab"]').forEach(btn => {
+  btn.addEventListener('shown.bs.tab', filterStockTable);
+});
 
 // Stok durumu sekmesini yükle
 function loadStockStatus() {
+  setStockStatusMessage(document.querySelector('#tblStockStatusInventory tbody'), 'Yükleniyor…');
+  setStockStatusMessage(document.querySelector('#tblStockStatusLicense tbody'), 'Yükleniyor…');
+
   fetch('/api/stock/status', { headers: { Accept: 'application/json' } })
     .then(r => {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
     })
     .then(data => {
-      const tbody = document.querySelector('#tblStockStatus tbody');
-      if (!tbody) return;
+      const inventoryTbody = document.querySelector('#tblStockStatusInventory tbody');
+      const licenseTbody = document.querySelector('#tblStockStatusLicense tbody');
+      if (!inventoryTbody || !licenseTbody) return;
       const items = Array.isArray(data) ? data : (data.items || data.rows);
-      if (!Array.isArray(items) || items.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Stok bulunamadı</td></tr>';
+      if (!Array.isArray(items)) {
+        setStockStatusMessage(inventoryTbody, 'Veri alınamadı');
+        setStockStatusMessage(licenseTbody, 'Veri alınamadı');
         return;
       }
-      const rows = items
-        .map(item => {
-          const encoded = encodeURIComponent(JSON.stringify(item));
-          const hasDetail = Boolean(item?.source_type || item?.source_id);
-          const detailButton = hasDetail
-            ? `<button type="button" class="btn btn-sm btn-outline-secondary me-1" data-stock-detail="${encoded}" title="Detay"><span aria-hidden="true">&#9776;</span><span class="visually-hidden">Detay</span></button>`
-            : '';
-          return `<tr>
-            <td>${item.donanim_tipi || '-'}</td>
-            <td>${item.marka || '-'}</td>
-            <td>${item.model || '-'}</td>
-            <td>${item.ifs_no || '-'}</td>
-            <td class="text-end">${item.net_miktar}</td>
-            <td>${item.son_islem_ts ? new Date(item.son_islem_ts).toLocaleString('tr-TR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false }) : '-'}</td>
-            <td class="text-center">
-              ${detailButton}
-              <button class="btn btn-sm btn-outline-primary me-1" onclick="assignFromStatus('${encoded}')">Atama</button>
-              <button class="btn btn-sm btn-outline-danger" onclick="scrapFromStatus('${encoded}')">Hurda</button>
-            </td>
-          </tr>`;
-        })
-        .join('');
-      tbody.innerHTML = rows;
+
+      const inventoryItems = [];
+      const licenseItems = [];
+      items.forEach(item => {
+        const typeRaw = item?.source_type;
+        const type = typeof typeRaw === 'string' ? typeRaw.toLowerCase() : '';
+        if (type === 'lisans') {
+          licenseItems.push(item);
+        } else {
+          inventoryItems.push(item);
+        }
+      });
+
+      renderStockStatusTable(inventoryTbody, inventoryItems);
+      renderStockStatusTable(licenseTbody, licenseItems);
       filterStockTable();
     })
     .catch(err => {
       console.error('stock status load failed', err);
-      const tbody = document.querySelector('#tblStockStatus tbody');
-      if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Veri alınamadı</td></tr>';
-      }
+      const inventoryTbody = document.querySelector('#tblStockStatusInventory tbody');
+      const licenseTbody = document.querySelector('#tblStockStatusLicense tbody');
+      setStockStatusMessage(inventoryTbody, 'Veri alınamadı');
+      setStockStatusMessage(licenseTbody, 'Veri alınamadı');
     });
 }
 
