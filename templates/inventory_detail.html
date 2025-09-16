@@ -101,12 +101,12 @@
   <h6 class="mt-4">Bağlı Lisanslar</h6>
   <ul class="list-group">
     {% if lisanslar and lisanslar|length %}
-      {% for l in lisanslar %}
+      {% for license_obj in lisanslar %}
       <li class="list-group-item d-flex justify-content-between align-items-center">
-        <span>{{ l.lisans_adi }}{% if l.lisans_anahtari %} - {{ l.lisans_anahtari }}{% endif %}</span>
+        <span>{{ license_obj.lisans_adi }}{% if license_obj.lisans_anahtari %} - {{ license_obj.lisans_anahtari }}{% endif %}</span>
         <div class="d-flex align-items-center gap-2">
-          <span class="text-muted">{{ l.durum or 'Aktif' }}</span>
-          <button class="btn btn-sm btn-outline-secondary license-detail-btn" data-id="{{ l.id }}" title="Detayları Göster">
+          <span class="text-muted">{{ license_obj.durum or 'Aktif' }}</span>
+          <button class="btn btn-sm btn-outline-secondary license-detail-btn" data-id="{{ license_obj.id }}" title="Detayları Göster">
             <i class="bi bi-eye"></i>
           </button>
         </div>
