@@ -37,7 +37,7 @@ def list_factories(db: Session = Depends(get_db)):
 @router.get("/license-names")
 def list_license_names(db: Session = Depends(get_db)):
     items = db.query(LicenseName).order_by(LicenseName.name.asc()).all()
-    return [{"id": l.id, "name": l.name} for l in items]
+    return [{"id": license_name.id, "name": license_name.name} for license_name in items]
 
 
 @router.get("/hardware-types")
@@ -115,10 +115,10 @@ def create_license_name(name: str, db: Session = Depends(get_db)):
     exists = db.query(LicenseName).filter(LicenseName.name.ilike(name)).first()
     if exists:
         return {"ok": True, "id": exists.id}
-    l = LicenseName(name=name)
-    db.add(l)
+    license_name = LicenseName(name=name)
+    db.add(license_name)
     db.commit()
-    return {"ok": True, "id": l.id}
+    return {"ok": True, "id": license_name.id}
 
 
 @router.post("/hardware-types")
