@@ -149,37 +149,37 @@ async function sa_loadStocks(){
 }
 
 async function sa_loadSources(){
-  const fill = (id, arr, v="id", l="ad")=>{
+  const fill = (id, arr, valueKey="id", labelKey="ad")=>{
     const el = $(id); if(!el) return;
     el.innerHTML = `<option value="">Seçiniz...</option>`;
     (arr||[]).forEach(x=>{
       const o = document.createElement("option");
-      o.value = x[v]; o.textContent = x[l] ?? x[v];
+      o.value = x[valueKey]; o.textContent = x[labelKey] ?? x[valueKey];
       el.appendChild(o);
     });
   };
 
   try{
-    const [u,l,e,y] = await Promise.all([
+    const [userResponse, licenseResponse, inventoryResponse, printerResponse] = await Promise.all([
       fetch(`${URL_ASSIGN_SOURCES}?type=users`),
       fetch(`${URL_ASSIGN_SOURCES}?type=licenses`),
       fetch(`${URL_ASSIGN_SOURCES}?type=envanter`),
       fetch(`${URL_ASSIGN_SOURCES}?type=yazici`)
     ]);
-    if(!u.ok||!l.ok||!e.ok||!y.ok){
-      showBanner("Atama kaynakları alınamadı. URL prefix doğru mu?"); 
+    if(!userResponse.ok||!licenseResponse.ok||!inventoryResponse.ok||!printerResponse.ok){
+      showBanner("Atama kaynakları alınamadı. URL prefix doğru mu?");
     }
-    const users = u.ok? await u.json():[];
-    const lic   = l.ok? await l.json():[];
-    const env   = e.ok? await e.json():[];
-    const yaz   = y.ok? await y.json():[];
+    const users       = userResponse.ok? await userResponse.json():[];
+    const licenses    = licenseResponse.ok? await licenseResponse.json():[];
+    const inventories = inventoryResponse.ok? await inventoryResponse.json():[];
+    const printers    = printerResponse.ok? await printerResponse.json():[];
 
     fill("#sa_user", users, "id", "ad");
     fill("#sa_user2", users, "id", "ad");
-    fill("#sa_lisans", lic, "id", "lisans_adi");
-    fill("#sa_envanter", env, "id", "envanter_no");
-    fill("#sa_envanter_for_lic", env, "id", "envanter_no");
-    fill("#sa_yazici", yaz, "id", "model");
+    fill("#sa_lisans", licenses, "id", "lisans_adi");
+    fill("#sa_envanter", inventories, "id", "envanter_no");
+    fill("#sa_envanter_for_lic", inventories, "id", "envanter_no");
+    fill("#sa_yazici", printers, "id", "model");
   }catch(e){
     showBanner("Atama kaynakları yüklenemedi. Konsolu kontrol edin."); console.error(e);
   }
