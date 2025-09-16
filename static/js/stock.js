@@ -348,7 +348,11 @@ function loadStockStatus() {
       }
       const rows = items
         .map(item => {
-          const payload = encodeURIComponent(JSON.stringify(item));
+          const encoded = encodeURIComponent(JSON.stringify(item));
+          const hasDetail = Boolean(item?.source_type || item?.source_id);
+          const detailButton = hasDetail
+            ? `<button type="button" class="btn btn-sm btn-outline-secondary me-1" data-stock-detail="${encoded}" title="Detay"><span aria-hidden="true">&#9776;</span><span class="visually-hidden">Detay</span></button>`
+            : '';
           return `<tr>
             <td>${item.donanim_tipi || '-'}</td>
             <td>${item.marka || '-'}</td>
@@ -357,8 +361,9 @@ function loadStockStatus() {
             <td class="text-end">${item.net_miktar}</td>
             <td>${item.son_islem_ts ? new Date(item.son_islem_ts).toLocaleString('tr-TR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false }) : '-'}</td>
             <td class="text-center">
-              <button class="btn btn-sm btn-outline-primary me-1" onclick="assignFromStatus('${payload}')">Atama</button>
-              <button class="btn btn-sm btn-outline-danger" onclick="scrapFromStatus('${payload}')">Hurda</button>
+              ${detailButton}
+              <button class="btn btn-sm btn-outline-primary me-1" onclick="assignFromStatus('${encoded}')">Atama</button>
+              <button class="btn btn-sm btn-outline-danger" onclick="scrapFromStatus('${encoded}')">Hurda</button>
             </td>
           </tr>`;
         })
@@ -374,6 +379,122 @@ function loadStockStatus() {
       }
     });
 }
+
+const STOCK_DETAIL_SOURCE_LABELS = {
+  envanter: 'Envanter',
+  lisans: 'Lisans',
+  yazici: 'Yazıcı',
+};
+
+function formatStockDetailValue(value) {
+  return value === undefined || value === null || value === '' ? '-' : `${value}`;
+}
+
+function formatStockDetailDate(value) {
+  if (!value) return '-';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '-';
+  return date.toLocaleString('tr-TR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
+
+function stockDetailUrl(item) {
+  if (!item || !item.source_id) return '';
+  if (item.source_type === 'envanter') return `/inventory/${item.source_id}`;
+  if (item.source_type === 'lisans') return `/lisans/${item.source_id}`;
+  if (item.source_type === 'yazici') return `/printers/${item.source_id}`;
+  return '';
+}
+
+function getStockDetailRows(item) {
+  const rows = [
+    ['Donanım Tipi', formatStockDetailValue(item?.donanim_tipi)],
+    ['Marka', formatStockDetailValue(item?.marka)],
+    ['Model', formatStockDetailValue(item?.model)],
+    ['IFS No', formatStockDetailValue(item?.ifs_no)],
+    ['Stok', formatStockDetailValue(item?.net_miktar)],
+    ['Son İşlem', formatStockDetailDate(item?.son_islem_ts)],
+  ];
+
+  if (item?.source_type || item?.source_id) {
+    const label = item?.source_type
+      ? (STOCK_DETAIL_SOURCE_LABELS[item.source_type] || item.source_type)
+      : '';
+    let value = label;
+    if (item?.source_id) {
+      value = value ? `${value} (#${item.source_id})` : `#${item.source_id}`;
+    }
+    if (value) {
+      rows.push(['Kaynak', value]);
+    }
+  }
+
+  return rows;
+}
+
+function openStockDetailModal(item) {
+  const rows = getStockDetailRows(item);
+  const modalEl = document.getElementById('stokDetailModal');
+  const listEl = modalEl?.querySelector('#stokDetailList');
+  const linkWrap = modalEl?.querySelector('#stokDetailLinkWrap');
+  const linkEl = modalEl?.querySelector('#stokDetailLink');
+
+  if (!modalEl || !listEl) {
+    alert(rows.map(([label, value]) => `${label}: ${value}`).join('\n'));
+    return;
+  }
+
+  listEl.innerHTML = '';
+  rows.forEach(([label, value]) => {
+    const dt = document.createElement('dt');
+    dt.className = 'col-5 fw-semibold';
+    dt.textContent = label;
+    const dd = document.createElement('dd');
+    dd.className = 'col-7 text-break';
+    dd.textContent = value;
+    listEl.appendChild(dt);
+    listEl.appendChild(dd);
+  });
+
+  if (linkWrap && linkEl) {
+    const url = stockDetailUrl(item);
+    if (url) {
+      linkEl.href = url;
+      linkWrap.classList.remove('d-none');
+    } else {
+      linkEl.removeAttribute('href');
+      linkWrap.classList.add('d-none');
+    }
+  }
+
+  try {
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modal.show();
+  } catch (err) {
+    console.error('stock detail modal failed', err);
+    alert(rows.map(([label, value]) => `${label}: ${value}`).join('\n'));
+  }
+}
+
+document.addEventListener('click', event => {
+  const btn = event.target.closest('[data-stock-detail]');
+  if (!btn) return;
+  const encoded = btn.getAttribute('data-stock-detail');
+  if (!encoded) return;
+  event.preventDefault();
+  try {
+    const item = JSON.parse(decodeURIComponent(encoded));
+    openStockDetailModal(item);
+  } catch (err) {
+    console.error('stock detail decode failed', err);
+  }
+});
 
 // Tab gösterildiğinde yükle
 const stockStatusTab = document.getElementById('tab-status');
