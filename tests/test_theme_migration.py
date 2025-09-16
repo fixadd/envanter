@@ -3,7 +3,6 @@ import sys
 import importlib
 from pathlib import Path
 
-import pytest
 from sqlalchemy import inspect
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
