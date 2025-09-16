@@ -3,7 +3,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Body
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import func, text, select, case
+from sqlalchemy import func, text, select
 from sqlalchemy.orm import Session
 from typing import Optional, Literal
 from pydantic import BaseModel, Field
@@ -11,7 +11,6 @@ from pydantic import BaseModel, Field
 from database import get_db
 from models import (
     StockLog,
-    StockTransaction,
     HardwareType,
     UsageArea,
     LicenseName,
@@ -39,15 +38,15 @@ async def export_stock(db: Session = Depends(get_db)):
     ws.append(["ID", "Donanım Tipi", "Miktar", "IFS No", "Tarih", "İşlem", "İşlem Yapan"])
 
     logs = db.query(StockLog).order_by(StockLog.id.asc()).all()
-    for l in logs:
+    for log_entry in logs:
         ws.append([
-            l.id,
-            l.donanim_tipi,
-            l.miktar,
-            l.ifs_no,
-            l.tarih,
-            l.islem,
-            l.actor,
+            log_entry.id,
+            log_entry.donanim_tipi,
+            log_entry.miktar,
+            log_entry.ifs_no,
+            log_entry.tarih,
+            log_entry.islem,
+            log_entry.actor,
         ])
 
     stream = BytesIO()
@@ -128,7 +127,9 @@ def stock_list(request: Request, db: Session = Depends(get_db)):
     hardware_types = db.query(HardwareType).order_by(HardwareType.name).all()
     license_names = db.query(LicenseName).order_by(LicenseName.name).all()
     hardware_map = {str(h.id): h.name for h in hardware_types}
-    license_map = {str(l.id): l.name for l in license_names}
+    license_map = {
+        str(license_name.id): license_name.name for license_name in license_names
+    }
     users = [r[0] for r in db.execute(text("SELECT full_name FROM users ORDER BY full_name")).fetchall()]
     usage_areas = db.query(UsageArea).order_by(UsageArea.name).all()
     return templates.TemplateResponse(
@@ -170,7 +171,10 @@ def stock_status(db: Session = Depends(get_db)):
 
     status = stock_status_detail(db)
     hardware_map = {str(h.id): h.name for h in db.query(HardwareType).all()}
-    license_map = {str(l.id): l.name for l in db.query(LicenseName).all()}
+    license_map = {
+        str(license_name.id): license_name.name
+        for license_name in db.query(LicenseName).all()
+    }
     brand_map = {str(b.id): b.name for b in db.query(Brand).all()}
     model_map = {str(m.id): m.name for m in db.query(Model).all()}
 
