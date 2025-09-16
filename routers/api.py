@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 import models
-from sqlalchemy import func, case, and_, or_
+from sqlalchemy import func, case, or_
 from typing import List
 
 router = APIRouter(prefix="/api", tags=["API"])
