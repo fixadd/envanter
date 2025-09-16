@@ -51,7 +51,33 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      const j = await res.json();
+
+      if (!res.ok) {
+        let errMsg = `HTTP ${res.status}`;
+        if (res.statusText) {
+          errMsg += ` ${res.statusText}`;
+        }
+        try {
+          const bodyText = await res.text();
+          if (bodyText) {
+            errMsg += `\n${bodyText}`;
+          }
+        } catch (bodyErr) {
+          console.error('stock add response read failed', bodyErr);
+        }
+        alert(`Kayıt başarısız: ${errMsg}`);
+        return;
+      }
+
+      let j;
+      try {
+        j = await res.json();
+      } catch (jsonErr) {
+        console.error('stock add response parse failed', jsonErr);
+        alert('Sunucudan geçerli JSON alınamadı.');
+        return;
+      }
+
       if (j.ok) {
         location.reload();
       } else {
