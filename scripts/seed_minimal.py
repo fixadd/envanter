@@ -2,7 +2,6 @@
 # Hızlı demo verileri: kullanıcılar + referans tablolar (marka, model, fabrika, kullanım alanı, donanım tipi, lisans adı)
 # python -m scripts.seed_minimal
 
-from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from database import SessionLocal  # repo mevcut dosyalar
@@ -22,6 +21,7 @@ def upsert_one(db: Session, model, where: dict, values: dict):
 
 
 def main():
+    models.init_db()
     db = SessionLocal()
     try:
         # 1) Kullanıcılar (full_name dolu olmalı)
@@ -73,7 +73,7 @@ def main():
 
         db.commit()
         print("✅ Seed tamam: kullanıcılar ve referanslar eklendi/güncellendi.")
-    except Exception as e:
+    except Exception:
         db.rollback()
         raise
     finally:
