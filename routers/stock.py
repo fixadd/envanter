@@ -227,7 +227,13 @@ def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):
     # UI yeni adla `is_lisans` gönderiyor; eski `is_license` ile de uyumlu
     # kalmak için her ikisini de kontrol ediyoruz.
     is_license = payload.get("is_lisans") or payload.get("is_license")
-    donanim_tipi = payload.get("donanim_tipi")
+
+    # Donanım tipi zorunlu; boş veya None gelirse 500 yerine anlamlı hata döndür.
+    donanim_tipi_raw = payload.get("donanim_tipi")
+    if donanim_tipi_raw is None:
+        donanim_tipi_raw = ""
+    donanim_tipi = str(donanim_tipi_raw).strip()
+
     if donanim_tipi and donanim_tipi.isdigit():
         ht = db.get(HardwareType, int(donanim_tipi))
         if ht:
@@ -236,6 +242,9 @@ def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):
             ln = db.get(LicenseName, int(donanim_tipi))
             if ln:
                 donanim_tipi = ln.name
+
+    if not donanim_tipi:
+        return {"ok": False, "error": "Donanım tipi seçiniz"}
 
     marka = None if is_license else payload.get("marka")
     if marka and marka.isdigit():
