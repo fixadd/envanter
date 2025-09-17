@@ -8,7 +8,7 @@ from fastapi.responses import (
 )
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, date
 from fastapi.templating import Jinja2Templates
 from io import BytesIO
 from utils.template_filters import register_filters
@@ -548,6 +548,20 @@ def hurdalar_listesi(
     db: Session = Depends(get_db),
     user=Depends(current_user),
 ):
+    def to_datetime(value):
+        if isinstance(value, datetime):
+            return value
+        if isinstance(value, date):
+            return datetime.combine(value, datetime.min.time())
+        return None
+
+    def format_display_date(value):
+        if isinstance(value, datetime):
+            return value.strftime("%d.%m.%Y %H:%M")
+        if isinstance(value, date):
+            return value.strftime("%d.%m.%Y")
+        return "-"
+
     hurdalar = db.query(Inventory).filter(Inventory.durum == "hurda").all()
     logs_map = {
         item.id: (
@@ -564,14 +578,183 @@ def hurdalar_listesi(
         db.query(ScrapPrinter).order_by(ScrapPrinter.created_at.desc()).all()
     )
 
+    combined_scraps = []
+
+    for item in hurdalar:
+        display_title = " ".join(filter(None, [item.marka, item.model])).strip() or "-"
+        details = [
+            {"label": "Envanter No", "value": item.no or "-"},
+            {"label": "Seri No", "value": item.seri_no or "-"},
+            {
+                "label": "Departman",
+                "value": item.departman or item.fabrika or "-",
+            },
+            {"label": "Sorumlu", "value": item.sorumlu_personel or "-"},
+            {"label": "Bağlı Envanter", "value": item.bagli_envanter_no or "-"},
+            {
+                "label": "Kullanım Alanı",
+                "value": item.kullanim_alani or "-",
+            },
+        ]
+
+        if item.not_:
+            details.append({"label": "Not", "value": item.not_})
+
+        search_text = " ".join(
+            filter(
+                None,
+                [
+                    "envanter",
+                    item.no,
+                    item.marka,
+                    item.model,
+                    item.seri_no,
+                    item.departman,
+                    item.sorumlu_personel,
+                    item.bagli_envanter_no,
+                    item.kullanim_alani,
+                    item.not_,
+                ],
+            )
+        ).lower()
+
+        combined_scraps.append(
+            {
+                "type": "envanter",
+                "type_label": "Envanter",
+                "title": display_title,
+                "subtitle": f"Envanter No: {item.no}",
+                "details": details,
+                "logs": logs_map[item.id],
+                "display_date": format_display_date(item.tarih),
+                "sort_date": to_datetime(item.tarih),
+                "detail_url": f"/scrap/inventory/{item.id}",
+                "search": search_text,
+            }
+        )
+
+    for row in license_scraps:
+        details = [
+            {"label": "Lisans ID", "value": row.id},
+            {"label": "Lisans Key", "value": row.lisans_key or "-"},
+            {"label": "Sorumlu", "value": row.sorumlu_personel or "-"},
+            {"label": "Bağlı Envanter", "value": row.bagli_envanter_no or "-"},
+            {"label": "IFS No", "value": row.ifs_no or "-"},
+        ]
+
+        if row.notlar:
+            details.append({"label": "Not", "value": row.notlar})
+
+        title = row.lisans_adi or f"Lisans #{row.id}"
+        subtitle = f"Lisans ID: {row.id}"
+
+        search_text = " ".join(
+            filter(
+                None,
+                [
+                    "lisans",
+                    str(row.id),
+                    row.lisans_adi,
+                    row.lisans_key,
+                    row.sorumlu_personel,
+                    row.bagli_envanter_no,
+                    row.ifs_no,
+                    row.notlar,
+                ],
+            )
+        ).lower()
+
+        combined_scraps.append(
+            {
+                "type": "lisans",
+                "type_label": "Lisans",
+                "title": title,
+                "subtitle": subtitle,
+                "details": details,
+                "logs": [],
+                "display_date": format_display_date(row.tarih),
+                "sort_date": to_datetime(row.tarih),
+                "detail_url": f"/lisans/detail/{row.id}",
+                "search": search_text,
+            }
+        )
+
+    for scrap in printer_scraps:
+        snapshot = scrap.snapshot or {}
+        marka = snapshot.get("marka")
+        model = snapshot.get("model")
+        seri = snapshot.get("seri_no")
+        title = " ".join(filter(None, [marka, model])).strip()
+        if not title:
+            title = f"Yazıcı #{scrap.printer_id}"
+
+        subtitle = f"Seri No: {seri or '-'}"
+
+        details = [
+            {"label": "Yazıcı ID", "value": f"#{scrap.printer_id}"},
+            {"label": "Seri No", "value": seri or "-"},
+            {"label": "Fabrika", "value": snapshot.get("fabrika") or "-"},
+            {
+                "label": "Kullanım Alanı",
+                "value": snapshot.get("kullanim_alani") or "-",
+            },
+            {
+                "label": "Sorumlu",
+                "value": snapshot.get("sorumlu_personel") or "-",
+            },
+            {
+                "label": "Bağlı Envanter",
+                "value": snapshot.get("bagli_envanter_no") or "-",
+            },
+        ]
+
+        reason = scrap.reason or snapshot.get("notlar") or snapshot.get("not")
+        if reason:
+            details.append({"label": "Sebep", "value": reason})
+
+        search_text = " ".join(
+            filter(
+                None,
+                [
+                    "yazici",
+                    str(scrap.printer_id),
+                    marka,
+                    model,
+                    seri,
+                    snapshot.get("fabrika"),
+                    snapshot.get("kullanim_alani"),
+                    snapshot.get("sorumlu_personel"),
+                    snapshot.get("bagli_envanter_no"),
+                    reason,
+                ],
+            )
+        ).lower()
+
+        combined_scraps.append(
+            {
+                "type": "yazici",
+                "type_label": "Yazıcı",
+                "title": title,
+                "subtitle": subtitle,
+                "details": details,
+                "logs": [],
+                "display_date": format_display_date(scrap.created_at),
+                "sort_date": to_datetime(scrap.created_at),
+                "detail_url": f"/printers/{scrap.printer_id}",
+                "search": search_text,
+            }
+        )
+
+    combined_scraps.sort(
+        key=lambda item: item["sort_date"] or datetime.min,
+        reverse=True,
+    )
+
     return templates.TemplateResponse(
         "hurdalar.html",
         {
             "request": request,
-            "hurdalar": hurdalar,
-            "logs_map": logs_map,
-            "license_scraps": license_scraps,
-            "printer_scraps": printer_scraps,
+            "combined_scraps": combined_scraps,
             "tur": tur,
         },
     )
