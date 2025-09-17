@@ -42,3 +42,9 @@ def test_stock_add_negative_amount(db_session):
     }
     result = stock_add(payload, db_session)
     assert result == {"ok": False, "error": "Miktar 0'dan büyük olmalı"}
+
+
+def test_stock_add_requires_type(db_session):
+    payload = {"is_lisans": False, "miktar": 1, "islem_yapan": "tester"}
+    result = stock_add(payload, db_session)
+    assert result == {"ok": False, "error": "Donanım tipi seçiniz"}
