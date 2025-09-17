@@ -134,8 +134,11 @@ const API_PREFIX = ""; // Örn: "/api"
 const URL_STOCK_OPTIONS = `${API_PREFIX}/stock/options`;
 const URL_ASSIGN_SOURCES = `${API_PREFIX}/inventory/assign/sources`;
 const URL_STOCK_ASSIGN  = `${API_PREFIX}/stock/assign`;
+const URL_ASSIGN_SOURCE_DETAIL = `${API_PREFIX}/stock/assign/source-detail`;
 window.sa_preselectStockId = null;
 let SA_SELECTED_STOCK_META = null;
+const SA_SOURCE_CACHE = new Map();
+let SA_SOURCE_REQUEST_ID = 0;
 
 /* ============== Yardımcılar/Toast ============== */
 const $ = (s) => document.querySelector(s);
@@ -229,6 +232,7 @@ async function sa_loadSources(){
     fill('#sa_inv_department', departments, 'id', 'text');
     fill('#sa_inv_usage', usageAreas, 'id', 'name');
     fill('#sa_prn_usage', usageAreas, 'id', 'name');
+    sa_updateAutoFields();
   } catch (e) {
     showBanner("Atama kaynakları yüklenemedi. Konsolu kontrol edin.");
     console.error(e);
@@ -244,6 +248,18 @@ function sa_bindStockMeta(){
     if(!opt || !opt.value){
       SA_SELECTED_STOCK_META = null;
       metaBox?.classList.add("d-none");
+      $("#sa_meta_tip")?.textContent = '-';
+      $("#sa_meta_ifs")?.textContent = '-';
+      $("#sa_meta_qty")?.textContent = '0';
+      $("#sa_meta_brand")?.textContent = '-';
+      $("#sa_meta_model")?.textContent = '-';
+      $("#sa_meta_license")?.textContent = '-';
+      $("#sa_meta_mail")?.textContent = '-';
+      $("#sa_meta_brand_wrap")?.classList.add('d-none');
+      $("#sa_meta_model_wrap")?.classList.add('d-none');
+      $("#sa_meta_license_wrap")?.classList.add('d-none');
+      $("#sa_meta_mail_wrap")?.classList.add('d-none');
+      $("#sa_meta_license_row")?.classList.add('d-none');
       sa_updateAutoFields();
       return;
     }
@@ -265,6 +281,27 @@ function sa_bindStockMeta(){
     $("#sa_meta_tip").textContent = SA_SELECTED_STOCK_META?.donanim_tipi || "-";
     $("#sa_meta_ifs").textContent = SA_SELECTED_STOCK_META?.ifs_no || "-";
     $("#sa_meta_qty").textContent = opt.dataset.qty || "0";
+    const brand = SA_SELECTED_STOCK_META?.marka || '';
+    const model = SA_SELECTED_STOCK_META?.model || '';
+    const licenseKey = SA_SELECTED_STOCK_META?.lisans_anahtari || '';
+    const mail = SA_SELECTED_STOCK_META?.mail_adresi || '';
+    const brandWrap = $("#sa_meta_brand_wrap");
+    const modelWrap = $("#sa_meta_model_wrap");
+    const licenseWrap = $("#sa_meta_license_wrap");
+    const mailWrap = $("#sa_meta_mail_wrap");
+    const licenseRow = $("#sa_meta_license_row");
+    if (brandWrap) brandWrap.classList.toggle('d-none', !brand);
+    if (modelWrap) modelWrap.classList.toggle('d-none', !model);
+    if (licenseWrap) licenseWrap.classList.toggle('d-none', !licenseKey);
+    if (mailWrap) mailWrap.classList.toggle('d-none', !mail);
+    $("#sa_meta_brand")?.textContent = brand || '-';
+    $("#sa_meta_model")?.textContent = model || '-';
+    $("#sa_meta_license")?.textContent = licenseKey || '-';
+    $("#sa_meta_mail")?.textContent = mail || '-';
+    if (licenseRow) {
+      const hasLicenseInfo = Boolean(licenseKey || mail);
+      licenseRow.classList.toggle('d-none', !hasLicenseInfo);
+    }
     metaBox?.classList.remove("d-none");
     sa_updateAutoFields();
 
@@ -402,21 +439,143 @@ async function sa_submit(){
   document.getElementById("sa_submit")?.addEventListener("click", sa_submit);
 })();
 
-function sa_updateAutoFields(){
-  const meta = SA_SELECTED_STOCK_META || {};
+function sa_setFieldValue(input, value){
+  if (!input) return;
+  if (input.tagName === 'SELECT') {
+    const stringValue = value !== undefined && value !== null ? String(value) : '';
+    if (!stringValue) {
+      Array.from(input.querySelectorAll('option[data-auto-option="1"]')).forEach(opt => opt.remove());
+      input.value = '';
+      return;
+    }
+    let option = Array.from(input.options).find(opt => opt.value === stringValue);
+    if (!option) {
+      option = document.createElement('option');
+      option.value = stringValue;
+      option.textContent = stringValue;
+      option.dataset.autoOption = '1';
+      input.appendChild(option);
+    }
+    input.value = stringValue;
+  } else if (input.tagName === 'TEXTAREA') {
+    input.value = value ?? '';
+  } else if (input.type === 'checkbox' || input.type === 'radio') {
+    input.checked = Boolean(value);
+  } else {
+    input.value = value ?? '';
+  }
+}
+
+function sa_applyAutoData(data, options = {}){
+  const { source = null, clearMissing = false, onlySource = false, skipHide = false } = options;
   document.querySelectorAll('[data-auto-key]').forEach(input => {
     if (!input) return;
-    const key = input.dataset.autoKey;
-    const container = input.closest('[data-auto-field]');
-    const value = key ? meta[key] : undefined;
-    if (value !== undefined && value !== null && value !== "") {
-      input.value = value;
-      if (container) container.classList.add('d-none');
-    } else {
-      if (container) container.classList.remove('d-none');
-      input.value = '';
+    const keyAttr = input.dataset.autoKey || '';
+    const keys = keyAttr.split(/[|,]/).map(k => k.trim()).filter(Boolean);
+    const sources = (input.dataset.autoSource || '').split(',').map(s => s.trim()).filter(Boolean);
+    const hasSourceRestriction = sources.length > 0;
+    if (source) {
+      if (hasSourceRestriction) {
+        if (!sources.includes(source)) {
+          if (onlySource) return;
+          return;
+        }
+      } else if (onlySource) {
+        return;
+      }
+    } else if (onlySource) {
+      return;
+    }
+
+    let value;
+    for (const key of keys) {
+      if (data && Object.prototype.hasOwnProperty.call(data, key)) {
+        value = data[key];
+        break;
+      }
+    }
+    const hasValue = value !== undefined && value !== null && value !== '';
+    if (hasValue) {
+      sa_setFieldValue(input, value);
+    } else if (clearMissing) {
+      sa_setFieldValue(input, '');
+    }
+    if (!skipHide) {
+      const container = input.closest('[data-auto-field]');
+      if (container) {
+        container.classList.toggle('d-none', hasValue);
+      }
     }
   });
+}
+
+function sa_autoSelectTab(meta){
+  const type = (meta?.source_type || '').toLowerCase();
+  let target = '#sa_tab_envanter';
+  if (type === 'lisans' || meta?.lisans_anahtari) {
+    target = '#sa_tab_lisans';
+  } else if (type === 'yazici') {
+    target = '#sa_tab_yazici';
+  }
+  const button = document.querySelector(`#sa_tabs [data-bs-target="${target}"]`);
+  if (button && !button.classList.contains('active')) {
+    try {
+      bootstrap.Tab.getOrCreateInstance(button).show();
+    } catch (err) {
+      console.warn('tab switch failed', err);
+    }
+  }
+}
+
+function sa_resetSourceSpecificFields(){
+  ['envanter', 'lisans', 'yazici'].forEach(type => {
+    sa_applyAutoData({}, { source: type, clearMissing: true, onlySource: true });
+  });
+}
+
+function sa_fetchSourceDetail(sourceType, sourceId){
+  const cacheKey = `${sourceType}:${sourceId}`;
+  if (SA_SOURCE_CACHE.has(cacheKey)) {
+    return Promise.resolve(SA_SOURCE_CACHE.get(cacheKey));
+  }
+  const url = `${URL_ASSIGN_SOURCE_DETAIL}?type=${encodeURIComponent(sourceType)}&id=${encodeURIComponent(sourceId)}`;
+  return fetch(url, { headers: { Accept: 'application/json' } })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      return res.json();
+    })
+    .then(data => {
+      SA_SOURCE_CACHE.set(cacheKey, data);
+      return data;
+    });
+}
+
+function sa_fillSourceDetails(meta){
+  sa_resetSourceSpecificFields();
+  if (!meta || !meta.source_type || !meta.source_id) {
+    return;
+  }
+  const requestId = ++SA_SOURCE_REQUEST_ID;
+  sa_fetchSourceDetail(meta.source_type, meta.source_id)
+    .then(detail => {
+      if (requestId !== SA_SOURCE_REQUEST_ID) return;
+      if (detail && detail.data) {
+        sa_applyAutoData(detail.data, { source: detail.type, clearMissing: true });
+      }
+    })
+    .catch(err => {
+      if (requestId !== SA_SOURCE_REQUEST_ID) return;
+      console.error('source detail load failed', err);
+    });
+}
+
+function sa_updateAutoFields(){
+  const meta = SA_SELECTED_STOCK_META || {};
+  sa_applyAutoData(meta, { clearMissing: true });
+  sa_autoSelectTab(meta);
+  sa_fillSourceDetails(meta);
 }
 
 function assignFromStatus(encoded){
