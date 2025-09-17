@@ -1,6 +1,15 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Body
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Query,
+    Request,
+    UploadFile,
+    File,
+    Body,
+)
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, text, select
@@ -291,6 +300,8 @@ class StockOption(BaseModel):
     lisans_anahtari: Optional[str] = None
     mail_adresi: Optional[str] = None
     mevcut_miktar: int
+    source_type: Optional[str] = None
+    source_id: Optional[int] = None
 
 
 class InventoryAssignForm(BaseModel):
@@ -374,10 +385,75 @@ def stock_options(db: Session = Depends(get_db), q: Optional[str] = None):
                 lisans_anahtari=row.get("lisans_anahtari"),
                 mail_adresi=row.get("mail_adresi"),
                 mevcut_miktar=qty,
+                source_type=row.get("source_type"),
+                source_id=row.get("source_id"),
             )
         )
 
     return items
+
+
+@api_router.get("/assign/source-detail")
+def stock_assign_source_detail(
+    source_type: Literal["envanter", "lisans", "yazici"] = Query(..., alias="type"),
+    source_id: int = Query(..., alias="id"),
+    db: Session = Depends(get_db),
+):
+    """Seçilen stok kaynağının temel bilgilerini döndür."""
+
+    if source_type == "envanter":
+        item = db.get(Inventory, source_id)
+        if not item:
+            raise HTTPException(status_code=404, detail="Envanter kaydı bulunamadı.")
+        data = {
+            "envanter_no": item.no,
+            "bilgisayar_adi": item.bilgisayar_adi,
+            "fabrika": item.fabrika,
+            "departman": item.departman,
+            "sorumlu_personel": item.sorumlu_personel,
+            "kullanim_alani": item.kullanim_alani,
+            "seri_no": item.seri_no,
+            "bagli_envanter_no": item.bagli_envanter_no,
+            "ifs_no": item.ifs_no,
+            "donanim_tipi": item.donanim_tipi,
+            "marka": item.marka,
+            "model": item.model,
+            "notlar": item.not_,
+        }
+    elif source_type == "lisans":
+        item = db.get(License, source_id)
+        if not item:
+            raise HTTPException(status_code=404, detail="Lisans kaydı bulunamadı.")
+        data = {
+            "lisans_adi": item.lisans_adi,
+            "lisans_anahtari": item.lisans_anahtari,
+            "mail_adresi": item.mail_adresi,
+            "sorumlu_personel": item.sorumlu_personel,
+            "bagli_envanter_no": item.bagli_envanter_no
+            or (item.inventory.no if item.inventory else None),
+            "ifs_no": item.ifs_no,
+            "donanim_tipi": item.lisans_adi,
+        }
+    else:  # yazici
+        item = db.get(Printer, source_id)
+        if not item:
+            raise HTTPException(status_code=404, detail="Yazıcı kaydı bulunamadı.")
+        data = {
+            "envanter_no": item.envanter_no,
+            "marka": item.marka,
+            "model": item.model,
+            "kullanim_alani": item.kullanim_alani,
+            "ip_adresi": item.ip_adresi,
+            "mac": item.mac,
+            "hostname": item.hostname,
+            "ifs_no": item.ifs_no,
+            "bagli_envanter_no": item.bagli_envanter_no,
+            "sorumlu_personel": item.sorumlu_personel,
+            "fabrika": item.fabrika,
+            "notlar": item.notlar,
+        }
+
+    return {"type": source_type, "data": data}
 
 @router.post("/assign")
 def stock_assign(
