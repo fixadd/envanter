@@ -5,8 +5,10 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
+from datetime import datetime
+
 import models
-from routers.api import stock_assign
+from routers.stock import stock_assign, AssignPayload
 
 import pytest
 
@@ -22,97 +24,130 @@ def db_session():
         models.Base.metadata.drop_all(models.engine)
 
 
-def _setup_stock(db, donanim_tipi, toplam=5):
+def _setup_stock(
+    db,
+    donanim_tipi,
+    toplam=1,
+    marka=None,
+    model=None,
+    ifs_no=None,
+    lisans_anahtari=None,
+    mail=None,
+):
     db.add(models.StockTotal(donanim_tipi=donanim_tipi, toplam=toplam))
+    db.add(
+        models.StockLog(
+            donanim_tipi=donanim_tipi,
+            marka=marka,
+            model=model,
+            ifs_no=ifs_no,
+            lisans_anahtari=lisans_anahtari,
+            mail_adresi=mail,
+            miktar=toplam,
+            islem="girdi",
+            tarih=datetime.utcnow(),
+            actor="tester",
+        )
+    )
     db.commit()
+
+
+def _make_user():
+    return type("User", (), {"full_name": "Tester", "username": "tester"})()
 
 
 def test_stock_assign_updates_license(db_session):
     db = db_session
-    _setup_stock(db, "cpu")
-    lic = models.License(ifs_no="IFS1")
-    db.add(lic)
-    db.commit()
+    _setup_stock(db, "Ofis", toplam=1, ifs_no="IFS1", lisans_anahtari="KEY-123", mail="user@example.com")
 
-    stock_assign(
-        "cpu",
-        1,
-        "lisans",
-        ifs_no="IFS1",
-        hedef_envanter_no="INV001",
-        sorumlu_personel="Ali",
-        aciklama="Test notu",
-        db=db,
+    payload = AssignPayload(
+        stock_id="Ofis|||IFS1",
+        atama_turu="lisans",
+        miktar=1,
+        license_form={
+            "lisans_adi": "Office",
+            "sorumlu_personel": "Ali",
+            "bagli_envanter_no": "INV001",
+            "mail_adresi": "destek@example.com",
+        },
+        notlar="Test notu",
     )
 
-    lic = db.query(models.License).filter_by(ifs_no="IFS1").one()
+    stock_assign(payload, db=db, user=_make_user())
+
+    lic = db.query(models.License).filter_by(bagli_envanter_no="INV001").one()
     assert lic.sorumlu_personel == "Ali"
-    assert lic.bagli_envanter_no == "INV001"
+    assert lic.mail_adresi == "destek@example.com"
+    assert lic.lisans_anahtari == "KEY-123"
+    assert lic.ifs_no == "IFS1"
     log = db.query(models.StockLog).order_by(models.StockLog.id.desc()).first()
-    assert log.donanim_tipi == "cpu"
+    assert log.donanim_tipi == "Ofis"
     assert log.miktar == 1
     assert log.ifs_no == "IFS1"
     assert log.islem == "cikti"
     assert log.aciklama == "Test notu"
     assign = db.query(models.StockAssignment).first()
     assert assign.hedef_envanter_no == "INV001"
+    assert assign.sorumlu_personel == "Ali"
 
 
 def test_stock_assign_updates_inventory(db_session):
     db = db_session
-    _setup_stock(db, "ram")
-    inv = models.Inventory(no="INV100")
-    db.add(inv)
-    db.commit()
+    _setup_stock(db, "Laptop", toplam=1, marka="Dell", model="Latitude")
 
-    stock_assign(
-        "ram",
-        2,
-        "envanter",
-        ifs_no="IFS2",
-        hedef_envanter_no="INV100",
-        sorumlu_personel="Veli",
-        kullanim_alani="Ofis",
-        db=db,
+    payload = AssignPayload(
+        stock_id="Laptop|Dell|Latitude|",
+        atama_turu="envanter",
+        miktar=1,
+        envanter_form={
+            "envanter_no": "INV100",
+            "bilgisayar_adi": "PC-100",
+            "sorumlu_personel": "Veli",
+            "kullanim_alani": "Ofis",
+        },
+        notlar="Ofis envanter",
     )
 
+    stock_assign(payload, db=db, user=_make_user())
+
     inv = db.query(models.Inventory).filter_by(no="INV100").one()
-    assert inv.ifs_no == "IFS2"
+    assert inv.ifs_no is None
     assert inv.sorumlu_personel == "Veli"
     assert inv.kullanim_alani == "Ofis"
+    assert inv.marka == "Dell"
+    assert inv.model == "Latitude"
     log = db.query(models.StockLog).order_by(models.StockLog.id.desc()).first()
-    assert log.donanim_tipi == "ram"
-    assert log.miktar == 2
+    assert log.donanim_tipi == "Laptop"
+    assert log.miktar == 1
     assert log.islem == "cikti"
-    assign = db.query(models.StockAssignment).filter_by(donanim_tipi="ram").first()
-    assert assign.miktar == 2
+    assign = db.query(models.StockAssignment).filter_by(donanim_tipi="Laptop").first()
+    assert assign.hedef_envanter_no == "INV100"
 
 
 def test_stock_assign_updates_printer(db_session):
     db = db_session
-    _setup_stock(db, "kartus")
-    prn = models.Printer(ifs_no="IFS3")
-    db.add(prn)
-    db.commit()
+    _setup_stock(db, "Kartus", toplam=1, marka="HP", model="1234", ifs_no="IFS3")
 
-    stock_assign(
-        "kartus",
-        1,
-        "yazici",
-        ifs_no="IFS3",
-        hedef_envanter_no="INV200",
-        sorumlu_personel="Mehmet",
-        kullanim_alani="Depo",
-        db=db,
+    payload = AssignPayload(
+        stock_id="Kartus|HP|1234|IFS3",
+        atama_turu="yazici",
+        miktar=1,
+        printer_form={
+            "envanter_no": "INV200",
+            "kullanim_alani": "Depo",
+        },
     )
 
-    prn = db.query(models.Printer).filter_by(ifs_no="IFS3").one()
-    assert prn.sorumlu_personel == "Mehmet"
+    stock_assign(payload, db=db, user=_make_user())
+
+    prn = db.query(models.Printer).filter_by(envanter_no="INV200").one()
     assert prn.kullanim_alani == "Depo"
-    assert prn.envanter_no == "INV200"
+    assert prn.ifs_no == "IFS3"
+    assert prn.marka == "HP"
+    assert prn.model == "1234"
     log = db.query(models.StockLog).order_by(models.StockLog.id.desc()).first()
-    assert log.donanim_tipi == "kartus"
+    assert log.donanim_tipi == "Kartus"
     assert log.miktar == 1
     assert log.islem == "cikti"
-    assign = db.query(models.StockAssignment).filter_by(donanim_tipi="kartus").first()
+    assign = db.query(models.StockAssignment).filter_by(donanim_tipi="Kartus").first()
     assert assign.hedef_envanter_no == "INV200"
