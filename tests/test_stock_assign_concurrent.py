@@ -1,5 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from sqlalchemy import create_engine
@@ -29,16 +30,25 @@ def test_concurrent_assignments():
 
     with SessionLocal() as db:
         db.add(models.StockTotal(donanim_tipi="cpu", toplam=1))
-        inv = models.Inventory(no="INV1")
-        db.add(inv)
+        db.add(
+            models.StockLog(
+                donanim_tipi="cpu",
+                miktar=1,
+                islem="girdi",
+                tarih=datetime.utcnow(),
+                actor="test",
+            )
+        )
         db.commit()
-        inv_id = inv.id
 
     payload_kwargs = {
-        "stock_id": "cpu|",
+        "stock_id": "cpu|||",
         "atama_turu": "envanter",
         "miktar": 1,
-        "hedef_envanter_id": inv_id,
+        "envanter_form": {
+            "envanter_no": "INV-TEST",
+            "bilgisayar_adi": "PC-TEST",
+        },
     }
 
     def worker():
@@ -67,5 +77,6 @@ def test_concurrent_assignments():
     with SessionLocal() as db:
         total = db.get(models.StockTotal, "cpu")
         assert total.toplam == 0
-        assert db.query(models.StockLog).count() == 1
+        # one giriş, one çıkış logu olmalı
+        assert db.query(models.StockLog).count() == 2
 
