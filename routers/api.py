@@ -200,6 +200,8 @@ def stock_status_detail(db: Session = Depends(get_db)):
             models.StockLog.ifs_no,
             models.StockLog.source_type,
             models.StockLog.source_id,
+            models.StockLog.lisans_anahtari,
+            models.StockLog.mail_adresi,
             models.StockLog.tarih,
             models.StockLog.id,
         )
@@ -214,12 +216,18 @@ def stock_status_detail(db: Session = Depends(get_db)):
     ).all()
 
     last_source: dict[
-        tuple[str, str | None, str | None, str | None], tuple[str | None, int | None]
+        tuple[str, str | None, str | None, str | None],
+        dict[str, str | int | None],
     ] = {}
     for r in last_logs:
         key = (r.donanim_tipi, r.marka, r.model, r.ifs_no)
         if key not in last_source:
-            last_source[key] = (r.source_type, r.source_id)
+            last_source[key] = {
+                "source_type": r.source_type,
+                "source_id": r.source_id,
+                "lisans_anahtari": r.lisans_anahtari,
+                "mail_adresi": r.mail_adresi,
+            }
 
     items: list[dict] = []
     totals_calc: dict[str, int] = {}
@@ -229,7 +237,7 @@ def stock_status_detail(db: Session = Depends(get_db)):
         if qty <= 0:
             continue
         key = (r.donanim_tipi, r.marka, r.model, r.ifs_no)
-        src = last_source.get(key, (None, None))
+        src = last_source.get(key, {})
         items.append(
             {
                 "donanim_tipi": r.donanim_tipi,
@@ -238,8 +246,10 @@ def stock_status_detail(db: Session = Depends(get_db)):
                 "ifs_no": r.ifs_no,
                 "net": qty,
                 "last_tarih": r.last_tarih,
-                "source_type": src[0],
-                "source_id": src[1],
+                "source_type": src.get("source_type"),
+                "source_id": src.get("source_id"),
+                "lisans_anahtari": src.get("lisans_anahtari"),
+                "mail_adresi": src.get("mail_adresi"),
             }
         )
         totals_calc[r.donanim_tipi] = totals_calc.get(r.donanim_tipi, 0) + qty

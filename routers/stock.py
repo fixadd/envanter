@@ -16,12 +16,17 @@ from models import (
     LicenseName,
     StockTotal,
     Inventory,
+    InventoryLog,
     License,
+    LicenseLog,
     Printer,
+    PrinterHistory,
+    StockAssignment,
     Brand,
     Model,
 )
 from routers.api import stock_status_detail
+from security import current_user
 
 router = APIRouter(prefix="/stock", tags=["Stock"])
 api_router = APIRouter(prefix="/api/stock", tags=["stock"])
@@ -280,21 +285,65 @@ class StockOption(BaseModel):
     id: str
     label: str
     donanim_tipi: Optional[str] = None
+    marka: Optional[str] = None
+    model: Optional[str] = None
     ifs_no: Optional[str] = None
+    lisans_anahtari: Optional[str] = None
+    mail_adresi: Optional[str] = None
     mevcut_miktar: int
+
+
+class InventoryAssignForm(BaseModel):
+    envanter_no: str
+    bilgisayar_adi: Optional[str] = None
+    fabrika: Optional[str] = None
+    departman: Optional[str] = None
+    sorumlu_personel: Optional[str] = None
+    kullanim_alani: Optional[str] = None
+    seri_no: Optional[str] = None
+    bagli_envanter_no: Optional[str] = None
+    notlar: Optional[str] = None
+    ifs_no: Optional[str] = None
+    marka: Optional[str] = None
+    model: Optional[str] = None
+    donanim_tipi: Optional[str] = None
+
+
+class LicenseAssignForm(BaseModel):
+    lisans_adi: Optional[str] = None
+    lisans_anahtari: Optional[str] = None
+    sorumlu_personel: Optional[str] = None
+    bagli_envanter_no: Optional[str] = None
+    mail_adresi: Optional[str] = None
+    ifs_no: Optional[str] = None
+
+
+class PrinterAssignForm(BaseModel):
+    envanter_no: str
+    marka: Optional[str] = None
+    model: Optional[str] = None
+    kullanim_alani: Optional[str] = None
+    ip_adresi: Optional[str] = None
+    mac: Optional[str] = None
+    hostname: Optional[str] = None
+    ifs_no: Optional[str] = None
+    bagli_envanter_no: Optional[str] = None
+    sorumlu_personel: Optional[str] = None
+    fabrika: Optional[str] = None
+    notlar: Optional[str] = None
+
 
 class AssignPayload(BaseModel):
     """Stok atama isteği."""
 
-    stock_id: str = Field(..., description="donanim_tipi|ifs_no biçiminde kimlik")
+    stock_id: str = Field(..., description="donanim|marka|model|ifs biçiminde kimlik")
     atama_turu: Literal["lisans", "envanter", "yazici"]
     miktar: int = 1
-
-    hedef_envanter_id: Optional[int] = None
-    hedef_yazici_id: Optional[int] = None
-    lisans_id: Optional[int] = None
-    sorumlu_personel_id: Optional[str] = None
     notlar: Optional[str] = None
+
+    envanter_form: Optional[InventoryAssignForm] = None
+    license_form: Optional[LicenseAssignForm] = None
+    printer_form: Optional[PrinterAssignForm] = None
 
 @router.get("/options", response_model=list[StockOption])
 def stock_options(db: Session = Depends(get_db), q: Optional[str] = None):
@@ -319,7 +368,11 @@ def stock_options(db: Session = Depends(get_db), q: Optional[str] = None):
                 id=stock_id,
                 label=label,
                 donanim_tipi=row["donanim_tipi"],
+                marka=row.get("marka"),
+                model=row.get("model"),
                 ifs_no=row.get("ifs_no"),
+                lisans_anahtari=row.get("lisans_anahtari"),
+                mail_adresi=row.get("mail_adresi"),
                 mevcut_miktar=qty,
             )
         )
@@ -327,31 +380,44 @@ def stock_options(db: Session = Depends(get_db), q: Optional[str] = None):
     return items
 
 @router.post("/assign")
-def stock_assign(payload: AssignPayload, db: Session = Depends(get_db)):
-    """Stoktaki bir kaydı lisans/envanter/yazıcıya atar."""
+def stock_assign(
+    payload: AssignPayload,
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
+):
+    """Stoktaki bir kaydı ilgili modülde yeni kayıt oluşturarak atar."""
 
     try:
-        donanim_tipi, ifs_no = payload.stock_id.split("|", 1)
+        parts = payload.stock_id.split("|", 3)
+        donanim_tipi, marka_key, model_key, ifs_no = (
+            parts[0],
+            parts[1] if len(parts) > 1 else "",
+            parts[2] if len(parts) > 2 else "",
+            parts[3] if len(parts) > 3 else "",
+        )
     except ValueError:  # pragma: no cover - validation
         raise HTTPException(status_code=400, detail="Geçersiz stok kimliği.")
+
+    marka_key = marka_key or None
+    model_key = model_key or None
     ifs_no = ifs_no or None
 
     status = stock_status_detail(db)
     item = None
-    if ifs_no:
-        for r in status["items"]:
-            if r["donanim_tipi"] == donanim_tipi and r.get("ifs_no") == ifs_no:
-                item = r
-                break
-    else:
-        adaylar = [r for r in status["items"] if r["donanim_tipi"] == donanim_tipi]
-        if len(adaylar) == 1:
-            item = adaylar[0]
-            ifs_no = item.get("ifs_no")
-        elif len(adaylar) > 1:
-            raise HTTPException(status_code=400, detail="Birden fazla IFS bulundu, seçim gerekli")
+    for r in status["items"]:
+        if (
+            r["donanim_tipi"] == donanim_tipi
+            and (marka_key or "") == (r.get("marka") or "")
+            and (model_key or "") == (r.get("model") or "")
+            and (ifs_no or "") == (r.get("ifs_no") or "")
+        ):
+            item = r
+            break
 
-    mevcut = item["net"] if item else status["totals"].get(donanim_tipi, 0)
+    if not item:
+        raise HTTPException(status_code=404, detail="Stok kaydı bulunamadı.")
+
+    mevcut = item["net"]
 
     if payload.miktar <= 0:
         raise HTTPException(status_code=400, detail="Miktar 0'dan büyük olmalı.")
@@ -361,43 +427,237 @@ def stock_assign(payload: AssignPayload, db: Session = Depends(get_db)):
             detail="Stoktaki mevcut miktardan fazla atayamazsınız.",
         )
 
-    personel = payload.sorumlu_personel_id
-
-    # stock_status sorgusu otomatik olarak bir transaction başlatabilir.
-    # Yeni işlem başlatmadan önce mevcut durumu sonlandır.
     db.rollback()
 
-    with db.begin():
+    actor = (
+        getattr(user, "full_name", None)
+        or getattr(user, "username", None)
+        or "system"
+    )
+
+    def _normalize_json(value):
+        if isinstance(value, dict):
+            return {k: _normalize_json(v) for k, v in value.items()}
+        if isinstance(value, list):
+            return [_normalize_json(v) for v in value]
+        if isinstance(value, datetime):
+            return value.isoformat()
+        return value
+
+    log_query = db.query(StockLog).filter(StockLog.donanim_tipi == donanim_tipi)
+    if marka_key:
+        log_query = log_query.filter(StockLog.marka == marka_key)
+    else:
+        log_query = log_query.filter(StockLog.marka.is_(None))
+    if model_key:
+        log_query = log_query.filter(StockLog.model == model_key)
+    else:
+        log_query = log_query.filter(StockLog.model.is_(None))
+    if ifs_no:
+        log_query = log_query.filter(StockLog.ifs_no == ifs_no)
+    else:
+        log_query = log_query.filter(StockLog.ifs_no.is_(None))
+    last_log = (
+        log_query.order_by(StockLog.tarih.desc(), StockLog.id.desc()).first()
+    )
+
+    created_id: Optional[int] = None
+    assignment_target: Optional[str] = None
+    assignment_person: Optional[str] = None
+    assignment_usage: Optional[str] = None
+    remaining = mevcut
+
+    ctx = db.begin_nested if db.in_transaction() else db.begin
+
+    with ctx():
         if payload.atama_turu == "envanter":
-            if not payload.hedef_envanter_id:
-                raise HTTPException(status_code=422, detail="Hedef envanter seçiniz.")
-            hedef = db.get(Inventory, payload.hedef_envanter_id)
-            if not hedef:
-                raise HTTPException(status_code=404, detail="Hedef envanter bulunamadı.")
-            if ifs_no:
-                hedef.ifs_no = ifs_no
-            if personel:
-                hedef.sorumlu_personel = personel
-        elif payload.atama_turu == "yazici":
-            if not payload.hedef_yazici_id:
-                raise HTTPException(status_code=422, detail="Hedef yazıcı seçiniz.")
-            hedef = db.get(Printer, payload.hedef_yazici_id)
-            if not hedef:
-                raise HTTPException(status_code=404, detail="Hedef yazıcı bulunamadı.")
-            if personel:
-                hedef.sorumlu_personel = personel
+            if payload.miktar != 1:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Envanter atamalarında miktar 1 olmalıdır.",
+                )
+            form = payload.envanter_form
+            if not form:
+                raise HTTPException(
+                    status_code=422, detail="Envanter bilgileri eksik."
+                )
+
+            donanim_value = form.donanim_tipi or donanim_tipi
+            marka_value = (
+                form.marka
+                or item.get("marka")
+                or (last_log.marka if last_log else None)
+            )
+            model_value = (
+                form.model
+                or item.get("model")
+                or (last_log.model if last_log else None)
+            )
+
+            if donanim_value and donanim_value.isdigit():
+                hw = db.get(HardwareType, int(donanim_value))
+                if hw:
+                    donanim_value = hw.name
+            if marka_value and marka_value.isdigit():
+                brand_obj = db.get(Brand, int(marka_value))
+                if brand_obj:
+                    marka_value = brand_obj.name
+            if model_value and model_value.isdigit():
+                model_obj = db.get(Model, int(model_value))
+                if model_obj:
+                    model_value = model_obj.name
+
+            inv = Inventory(
+                no=form.envanter_no,
+                bilgisayar_adi=form.bilgisayar_adi or None,
+                fabrika=form.fabrika or None,
+                departman=form.departman or None,
+                donanim_tipi=donanim_value,
+                marka=marka_value,
+                model=model_value,
+                seri_no=form.seri_no or None,
+                sorumlu_personel=form.sorumlu_personel or None,
+                bagli_envanter_no=form.bagli_envanter_no or None,
+                kullanim_alani=form.kullanim_alani or None,
+                ifs_no=form.ifs_no or ifs_no or (last_log.ifs_no if last_log else None),
+                not_=form.notlar or None,
+                tarih=datetime.utcnow(),
+                islem_yapan=actor,
+            )
+            db.add(inv)
+            db.flush()
+            db.refresh(inv)
+            db.add(
+                InventoryLog(
+                    inventory_id=inv.id,
+                    action="create",
+                    before_json=None,
+                    after_json=_normalize_json(inv.to_dict()) if hasattr(inv, "to_dict") else None,
+                    note="Stok ataması ile oluşturuldu",
+                    actor=actor,
+                    created_at=datetime.utcnow(),
+                )
+            )
+            created_id = inv.id
+            assignment_target = inv.no
+            assignment_person = form.sorumlu_personel or None
+            assignment_usage = form.kullanim_alani or None
         elif payload.atama_turu == "lisans":
-            if not payload.lisans_id:
-                raise HTTPException(status_code=422, detail="Lisans seçiniz.")
-            hedef = db.get(License, payload.lisans_id)
-            if not hedef:
-                raise HTTPException(status_code=404, detail="Lisans bulunamadı.")
-            if personel:
-                hedef.sorumlu_personel = personel
-            if payload.hedef_envanter_id:
-                env = db.get(Inventory, payload.hedef_envanter_id)
-                if env:
-                    hedef.bagli_envanter_no = env.no
+            if payload.miktar != 1:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Lisans atamalarında miktar 1 olmalıdır.",
+                )
+            form = payload.license_form
+            if not form:
+                raise HTTPException(
+                    status_code=422, detail="Lisans bilgileri eksik."
+                )
+            lisans_adi = form.lisans_adi or donanim_tipi
+            if lisans_adi and lisans_adi.isdigit():
+                lic_name = db.get(LicenseName, int(lisans_adi))
+                if lic_name:
+                    lisans_adi = lic_name.name
+
+            env = None
+            if form.bagli_envanter_no:
+                env = (
+                    db.query(Inventory)
+                    .filter(Inventory.no == form.bagli_envanter_no)
+                    .first()
+                )
+
+            lic = License(
+                lisans_adi=lisans_adi,
+                lisans_anahtari=
+                    form.lisans_anahtari
+                    or (last_log.lisans_anahtari if last_log else None),
+                sorumlu_personel=form.sorumlu_personel or None,
+                bagli_envanter_no=form.bagli_envanter_no or getattr(env, "no", None),
+                inventory_id=env.id if env else None,
+                ifs_no=form.ifs_no or ifs_no or (last_log.ifs_no if last_log else None),
+                mail_adresi=form.mail_adresi
+                or (last_log.mail_adresi if last_log else None),
+                tarih=datetime.utcnow(),
+                islem_yapan=actor,
+            )
+            db.add(lic)
+            db.flush()
+            db.refresh(lic)
+            db.add(
+                LicenseLog(
+                    license_id=lic.id,
+                    islem="EKLE",
+                    detay="Stok ataması ile oluşturuldu",
+                    islem_yapan=actor,
+                )
+            )
+            created_id = lic.id
+            assignment_target = lic.bagli_envanter_no
+            assignment_person = form.sorumlu_personel or None
+        elif payload.atama_turu == "yazici":
+            if payload.miktar != 1:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Yazıcı atamalarında miktar 1 olmalıdır.",
+                )
+            form = payload.printer_form
+            if not form:
+                raise HTTPException(
+                    status_code=422, detail="Yazıcı bilgileri eksik."
+                )
+
+            marka_value = (
+                form.marka
+                or item.get("marka")
+                or (last_log.marka if last_log else None)
+            )
+            model_value = (
+                form.model
+                or item.get("model")
+                or (last_log.model if last_log else None)
+            )
+            if marka_value and marka_value.isdigit():
+                brand_obj = db.get(Brand, int(marka_value))
+                if brand_obj:
+                    marka_value = brand_obj.name
+            if model_value and model_value.isdigit():
+                model_obj = db.get(Model, int(model_value))
+                if model_obj:
+                    model_value = model_obj.name
+
+            printer = Printer(
+                envanter_no=form.envanter_no,
+                marka=marka_value,
+                model=model_value,
+                kullanim_alani=form.kullanim_alani or None,
+                ip_adresi=form.ip_adresi or None,
+                mac=form.mac or None,
+                hostname=form.hostname or None,
+                ifs_no=form.ifs_no or ifs_no or (last_log.ifs_no if last_log else None),
+                bagli_envanter_no=form.bagli_envanter_no or None,
+                sorumlu_personel=form.sorumlu_personel or None,
+                fabrika=form.fabrika or None,
+                notlar=form.notlar or None,
+                tarih=datetime.utcnow(),
+                islem_yapan=actor,
+            )
+            db.add(printer)
+            db.flush()
+            db.refresh(printer)
+            db.add(
+                PrinterHistory(
+                    printer_id=printer.id,
+                    action="create",
+                    changes={},
+                    actor=actor,
+                    created_at=datetime.utcnow(),
+                )
+            )
+            created_id = printer.id
+            assignment_target = printer.envanter_no
+            assignment_person = form.sorumlu_personel or None
+            assignment_usage = form.kullanim_alani or None
         else:  # pragma: no cover - validation
             raise HTTPException(status_code=400, detail="Geçersiz atama türü.")
 
@@ -412,27 +672,38 @@ def stock_assign(payload: AssignPayload, db: Session = Depends(get_db)):
             raise HTTPException(status_code=400, detail="Yetersiz stok.")
 
         total.toplam -= payload.miktar
+        remaining = total.toplam
         db.merge(total)
+
+        db.add(
+            StockAssignment(
+                donanim_tipi=donanim_tipi,
+                miktar=payload.miktar,
+                ifs_no=ifs_no,
+                hedef_envanter_no=assignment_target,
+                sorumlu_personel=assignment_person,
+                kullanim_alani=assignment_usage,
+                actor=actor,
+            )
+        )
 
         db.add(
             StockLog(
                 donanim_tipi=donanim_tipi,
+                marka=item.get("marka") if item else None,
+                model=item.get("model") if item else None,
                 miktar=payload.miktar,
                 ifs_no=ifs_no,
                 islem="cikti",
-                actor=personel,
+                actor=actor,
                 aciklama=payload.notlar,
                 source_type=payload.atama_turu,
-                source_id=(
-                    payload.hedef_envanter_id
-                    or payload.hedef_yazici_id
-                    or payload.lisans_id
-                ),
+                source_id=created_id,
             )
         )
 
     return {
         "ok": True,
         "message": "Atama tamamlandı.",
-        "kalan_miktar": total.toplam,
+        "kalan_miktar": remaining,
     }
