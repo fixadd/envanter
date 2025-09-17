@@ -135,6 +135,7 @@ const URL_STOCK_OPTIONS = `${API_PREFIX}/stock/options`;
 const URL_ASSIGN_SOURCES = `${API_PREFIX}/inventory/assign/sources`;
 const URL_STOCK_ASSIGN  = `${API_PREFIX}/stock/assign`;
 window.sa_preselectStockId = null;
+let SA_SELECTED_STOCK_META = null;
 
 /* ============== Yardımcılar/Toast ============== */
 const $ = (s) => document.querySelector(s);
@@ -174,6 +175,7 @@ async function sa_loadStocks(){
       opt.dataset.tip = o.donanim_tipi||"";
       opt.dataset.ifs = o.ifs_no||"";
       opt.dataset.qty = Number(o.mevcut_miktar??0);
+      opt.dataset.meta = encodeURIComponent(JSON.stringify(o));
       sel.appendChild(opt);
     });
     if(window.sa_preselectStockId){
@@ -187,39 +189,49 @@ async function sa_loadStocks(){
 }
 
 async function sa_loadSources(){
-  const fill = (id, arr, valueKey="id", labelKey="ad")=>{
-    const el = $(id); if(!el) return;
+  const fill = (selector, data, valueKey = "id", labelKey = "text") => {
+    const el = document.querySelector(selector);
+    if (!el) return;
     el.innerHTML = `<option value="">Seçiniz...</option>`;
-    (arr||[]).forEach(x=>{
-      const o = document.createElement("option");
-      o.value = x[valueKey]; o.textContent = x[labelKey] ?? x[valueKey];
-      el.appendChild(o);
+    (data || []).forEach(item => {
+      const opt = document.createElement("option");
+      const value = item[valueKey] ?? item.id ?? item.value ?? "";
+      const label = item[labelKey] ?? item.name ?? item.text ?? value;
+      opt.value = value || "";
+      opt.textContent = label || value || "";
+      el.appendChild(opt);
     });
   };
 
-  try{
-    const [userResponse, licenseResponse, inventoryResponse, printerResponse] = await Promise.all([
+  try {
+    const [userRes, inventoryRes, factoryRes, deptRes, usageRes] = await Promise.all([
       fetch(`${URL_ASSIGN_SOURCES}?type=users`),
-      fetch(`${URL_ASSIGN_SOURCES}?type=licenses`),
       fetch(`${URL_ASSIGN_SOURCES}?type=envanter`),
-      fetch(`${URL_ASSIGN_SOURCES}?type=yazici`)
+      fetch(`/api/lookup/fabrika`),
+      fetch(`${URL_ASSIGN_SOURCES}?type=departman`),
+      fetch(`/api/lookup/kullanim_alani`),
     ]);
-    if(!userResponse.ok||!licenseResponse.ok||!inventoryResponse.ok||!printerResponse.ok){
+
+    if (!userRes.ok || !inventoryRes.ok || !factoryRes.ok || !deptRes.ok || !usageRes.ok) {
       showBanner("Atama kaynakları alınamadı. URL prefix doğru mu?");
     }
-    const users       = userResponse.ok? await userResponse.json():[];
-    const licenses    = licenseResponse.ok? await licenseResponse.json():[];
-    const inventories = inventoryResponse.ok? await inventoryResponse.json():[];
-    const printers    = printerResponse.ok? await printerResponse.json():[];
 
-    fill("#sa_user", users, "id", "ad");
-    fill("#sa_user2", users, "id", "ad");
-    fill("#sa_lisans", licenses, "id", "lisans_adi");
-    fill("#sa_envanter", inventories, "id", "envanter_no");
-    fill("#sa_envanter_for_lic", inventories, "id", "envanter_no");
-    fill("#sa_yazici", printers, "id", "model");
-  }catch(e){
-    showBanner("Atama kaynakları yüklenemedi. Konsolu kontrol edin."); console.error(e);
+    const users = userRes.ok ? await userRes.json() : [];
+    const inventories = inventoryRes.ok ? await inventoryRes.json() : [];
+    const factories = factoryRes.ok ? await factoryRes.json() : [];
+    const departments = deptRes.ok ? await deptRes.json() : [];
+    const usageAreas = usageRes.ok ? await usageRes.json() : [];
+
+    fill('#sa_license_person', users, 'id', 'text');
+    fill('#sa_inv_person', users, 'id', 'text');
+    fill('#sa_license_inventory', inventories, 'id', 'text');
+    fill('#sa_inv_factory', factories, 'id', 'name');
+    fill('#sa_inv_department', departments, 'id', 'text');
+    fill('#sa_inv_usage', usageAreas, 'id', 'name');
+    fill('#sa_prn_usage', usageAreas, 'id', 'name');
+  } catch (e) {
+    showBanner("Atama kaynakları yüklenemedi. Konsolu kontrol edin.");
+    console.error(e);
   }
 }
 
@@ -228,12 +240,33 @@ function sa_bindStockMeta(){
   const sel = $("#sa_stock"); if(!sel) return;
   sel.addEventListener("change", ()=>{
     const opt = sel.selectedOptions[0];
-    const meta = $("#sa_stock_meta");
-    if(!opt || !opt.value){ meta?.classList.add("d-none"); return; }
-    $("#sa_meta_tip").textContent = opt.dataset.tip || "-";
-    $("#sa_meta_ifs").textContent = opt.dataset.ifs || "-";
+    const metaBox = $("#sa_stock_meta");
+    if(!opt || !opt.value){
+      SA_SELECTED_STOCK_META = null;
+      metaBox?.classList.add("d-none");
+      sa_updateAutoFields();
+      return;
+    }
+
+    let parsedMeta = null;
+    if (opt.dataset.meta) {
+      try {
+        parsedMeta = JSON.parse(decodeURIComponent(opt.dataset.meta));
+      } catch (err) {
+        console.warn('meta parse failed', err);
+      }
+    }
+    SA_SELECTED_STOCK_META = parsedMeta || {
+      donanim_tipi: opt.dataset.tip || '',
+      ifs_no: opt.dataset.ifs || '',
+      mevcut_miktar: Number(opt.dataset.qty || 0)
+    };
+
+    $("#sa_meta_tip").textContent = SA_SELECTED_STOCK_META?.donanim_tipi || "-";
+    $("#sa_meta_ifs").textContent = SA_SELECTED_STOCK_META?.ifs_no || "-";
     $("#sa_meta_qty").textContent = opt.dataset.qty || "0";
-    meta?.classList.remove("d-none");
+    metaBox?.classList.remove("d-none");
+    sa_updateAutoFields();
 
     const miktar = $("#sa_miktar");
     if(miktar){
@@ -250,14 +283,9 @@ function sa_applyFieldRules(){
   const isLic = active?.dataset.bsTarget?.includes("lisans");
   const isEnv = active?.dataset.bsTarget?.includes("envanter");
   const isYaz = active?.dataset.bsTarget?.includes("yazici");
-
-  show($("#sa_tab_lisans"),   !!isLic);
-  show($("#sa_tab_envanter"), !!isEnv);
-  show($("#sa_tab_yazici"),   !!isYaz);
-
-  req($("#sa_lisans"),   !!isLic);
-  req($("#sa_envanter"), !!isEnv);
-  req($("#sa_yazici"),   !!isYaz);
+  req($("#sa_license_name"), !!isLic);
+  req($("#sa_inv_no"), !!isEnv);
+  req($("#sa_prn_no"), !!isYaz);
 }
 function sa_bindTabChange(){
   $$("#sa_tabs .nav-link").forEach(b=> b.addEventListener("shown.bs.tab", sa_applyFieldRules));
@@ -265,35 +293,70 @@ function sa_bindTabChange(){
 
 /* ============== Gönder ============== */
 async function sa_submit(){
-  const stockId = Number($("#sa_stock")?.value||0);
-  if(!stockId){ showBanner("Lütfen stok seçiniz.", "warning"); return; }
+  const stockValue = $("#sa_stock")?.value || "";
+  if(!stockValue){ showBanner("Lütfen stok seçiniz.", "warning"); return; }
 
   let atama_turu = "lisans";
   const active = $("#sa_tabs .nav-link.active");
   if(active?.dataset.bsTarget?.includes("envanter")) atama_turu = "envanter";
   else if(active?.dataset.bsTarget?.includes("yazici")) atama_turu = "yazici";
 
-  const payload = {
-    stock_id: stockId,
-    atama_turu,
-    miktar: Number($("#sa_miktar")?.value||1),
-    notlar: $("#sa_not")?.value||null,
-    lisans_id: null,
-    hedef_envanter_id: null,
-    hedef_yazici_id: null,
-    sorumlu_personel_id: null,
+  const val = el => (el?.value || "").trim();
+  const valOrNull = el => {
+    const v = val(el);
+    return v ? v : null;
   };
 
-  if(atama_turu==="lisans"){
-    payload.lisans_id = Number($("#sa_lisans")?.value||0) || null;
-    payload.sorumlu_personel_id = Number($("#sa_user")?.value||0) || null;
-    const eforlic = Number($("#sa_envanter_for_lic")?.value||0);
-    if(eforlic) payload.hedef_envanter_id = eforlic;
-  }else if(atama_turu==="envanter"){
-    payload.hedef_envanter_id = Number($("#sa_envanter")?.value||0) || null;
-    payload.sorumlu_personel_id = Number($("#sa_user2")?.value||0) || null;
-  }else{
-    payload.hedef_yazici_id = Number($("#sa_yazici")?.value||0) || null;
+  const payload = {
+    stock_id: stockValue,
+    atama_turu,
+    miktar: Number($("#sa_miktar")?.value||1) || 1,
+    notlar: valOrNull($("#sa_not")),
+  };
+
+  if(atama_turu === "lisans"){
+    const lisansAdi = val($("#sa_license_name"));
+    if(!lisansAdi){ showBanner("Lisans adı giriniz.", "warning"); return; }
+    payload.license_form = {
+      lisans_adi: lisansAdi,
+      lisans_anahtari: valOrNull($("#sa_license_key")),
+      sorumlu_personel: valOrNull($("#sa_license_person")),
+      bagli_envanter_no: valOrNull($("#sa_license_inventory")),
+      mail_adresi: valOrNull($("#sa_license_mail")),
+      ifs_no: valOrNull($("#sa_license_ifs")),
+    };
+  } else if(atama_turu === "envanter"){
+    const envNo = val($("#sa_inv_no"));
+    if(!envNo){ showBanner("Envanter numarası giriniz.", "warning"); return; }
+    payload.envanter_form = {
+      envanter_no: envNo,
+      bilgisayar_adi: valOrNull($("#sa_inv_pc")),
+      fabrika: valOrNull($("#sa_inv_factory")),
+      departman: valOrNull($("#sa_inv_department")),
+      sorumlu_personel: valOrNull($("#sa_inv_person")),
+      kullanim_alani: valOrNull($("#sa_inv_usage")),
+      seri_no: valOrNull($("#sa_inv_serial")),
+      bagli_envanter_no: valOrNull($("#sa_inv_machine")),
+      notlar: valOrNull($("#sa_inv_note")),
+      ifs_no: valOrNull($("#sa_inv_ifs")),
+      marka: valOrNull($("#sa_inv_brand")),
+      model: valOrNull($("#sa_inv_model")),
+      donanim_tipi: valOrNull($("#sa_inv_hardware")),
+    };
+  } else {
+    const prnNo = val($("#sa_prn_no"));
+    if(!prnNo){ showBanner("Yazıcı envanter numarası giriniz.", "warning"); return; }
+    payload.printer_form = {
+      envanter_no: prnNo,
+      marka: valOrNull($("#sa_prn_brand")),
+      model: valOrNull($("#sa_prn_model")),
+      kullanim_alani: valOrNull($("#sa_prn_usage")),
+      ip_adresi: valOrNull($("#sa_prn_ip")),
+      mac: valOrNull($("#sa_prn_mac")),
+      hostname: valOrNull($("#sa_prn_host")),
+      ifs_no: valOrNull($("#sa_prn_ifs")),
+      notlar: valOrNull($("#sa_prn_note")),
+    };
   }
 
   try{
@@ -305,6 +368,10 @@ async function sa_submit(){
     if(!res.ok){ showBanner(out?.detail || "Atama başarısız.", "danger"); return; }
     showBanner(out?.message || "Atama tamamlandı.", "success");
     document.querySelector('#stokAtamaModal .btn-close')?.click();
+    if (typeof loadStockStatus === "function") {
+      loadStockStatus();
+    }
+    await sa_loadStocks();
   }catch(e){
     showBanner("Atama gönderilemedi. Konsolu kontrol edin."); console.error(e);
   }
@@ -334,6 +401,23 @@ async function sa_submit(){
   // Submit
   document.getElementById("sa_submit")?.addEventListener("click", sa_submit);
 })();
+
+function sa_updateAutoFields(){
+  const meta = SA_SELECTED_STOCK_META || {};
+  document.querySelectorAll('[data-auto-key]').forEach(input => {
+    if (!input) return;
+    const key = input.dataset.autoKey;
+    const container = input.closest('[data-auto-field]');
+    const value = key ? meta[key] : undefined;
+    if (value !== undefined && value !== null && value !== "") {
+      input.value = value;
+      if (container) container.classList.add('d-none');
+    } else {
+      if (container) container.classList.remove('d-none');
+      input.value = '';
+    }
+  });
+}
 
 function assignFromStatus(encoded){
   const item = JSON.parse(decodeURIComponent(encoded));
