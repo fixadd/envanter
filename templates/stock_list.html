@@ -232,10 +232,20 @@
             <select id="sa_stock" class="form-select" required>
               <option value="">Seçiniz...</option>
             </select>
-            <div id="sa_stock_meta" class="small text-muted mt-1 d-none">
-              <span id="sa_meta_tip"></span> ·
-              IFS: <span id="sa_meta_ifs"></span> ·
-              Mevcut: <span id="sa_meta_qty"></span>
+            <div id="sa_stock_meta" class="mt-2 d-none">
+              <div class="border rounded p-2 small bg-light-subtle">
+                <div class="d-flex flex-wrap gap-3 align-items-center mb-1">
+                  <span class="fw-semibold" id="sa_meta_tip">-</span>
+                  <span id="sa_meta_brand_wrap" class="d-none"><span class="text-muted">Marka:</span> <span id="sa_meta_brand">-</span></span>
+                  <span id="sa_meta_model_wrap" class="d-none"><span class="text-muted">Model:</span> <span id="sa_meta_model">-</span></span>
+                  <span><span class="text-muted">IFS:</span> <span id="sa_meta_ifs">-</span></span>
+                  <span><span class="text-muted">Mevcut:</span> <span id="sa_meta_qty">0</span></span>
+                </div>
+                <div class="d-flex flex-wrap gap-3" id="sa_meta_license_row">
+                  <span id="sa_meta_license_wrap" class="d-none"><span class="text-muted">Lisans:</span> <span id="sa_meta_license">-</span></span>
+                  <span id="sa_meta_mail_wrap" class="d-none"><span class="text-muted">Mail:</span> <span id="sa_meta_mail">-</span></span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -260,31 +270,31 @@
                 <div class="row g-3" id="sa_license_form">
                   <div class="col-md-6" data-auto-field>
                     <label class="form-label">Lisans Adı</label>
-                    <input id="sa_license_name" class="form-control" data-auto-key="donanim_tipi" placeholder="Lisans adı" required>
+                    <input id="sa_license_name" class="form-control" data-auto-key="lisans_adi|donanim_tipi" data-auto-source="lisans" placeholder="Lisans adı" required>
                   </div>
                   <div class="col-md-6" data-auto-field>
                     <label class="form-label">Lisans Anahtarı</label>
-                    <input id="sa_license_key" class="form-control" data-auto-key="lisans_anahtari" placeholder="Lisans anahtarı">
+                    <input id="sa_license_key" class="form-control" data-auto-key="lisans_anahtari" data-auto-source="lisans" placeholder="Lisans anahtarı">
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Sorumlu Personel</label>
-                    <select id="sa_license_person" class="form-select" data-no-search>
+                    <select id="sa_license_person" class="form-select" data-no-search data-auto-key="sorumlu_personel" data-auto-source="lisans">
                       <option value="">Seçiniz...</option>
                     </select>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Bağlı Envanter (opsiyonel)</label>
-                    <select id="sa_license_inventory" class="form-select" data-no-search>
+                    <select id="sa_license_inventory" class="form-select" data-no-search data-auto-key="bagli_envanter_no" data-auto-source="lisans">
                       <option value="">Seçiniz...</option>
                     </select>
                   </div>
                   <div class="col-md-6" data-auto-field>
                     <label class="form-label">IFS No</label>
-                    <input id="sa_license_ifs" class="form-control" data-auto-key="ifs_no" placeholder="IFS No">
+                    <input id="sa_license_ifs" class="form-control" data-auto-key="ifs_no" data-auto-source="lisans" placeholder="IFS No">
                   </div>
                   <div class="col-md-6" data-auto-field>
                     <label class="form-label">Mail Adresi</label>
-                    <input id="sa_license_mail" type="email" class="form-control" data-auto-key="mail_adresi" placeholder="ornek@firma.com">
+                    <input id="sa_license_mail" type="email" class="form-control" data-auto-key="mail_adresi" data-auto-source="lisans" placeholder="ornek@firma.com">
                   </div>
                 </div>
               </div>
@@ -294,33 +304,33 @@
                 <div class="row g-3" id="sa_inventory_form">
                   <div class="col-md-6">
                     <label class="form-label">Envanter No</label>
-                    <input id="sa_inv_no" class="form-control" placeholder="ENV-000123" required>
+                    <input id="sa_inv_no" class="form-control" data-auto-key="envanter_no" data-auto-source="envanter" placeholder="ENV-000123" required>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Bilgisayar Adı</label>
-                    <input id="sa_inv_pc" class="form-control" placeholder="PC-OFIS-01">
+                    <input id="sa_inv_pc" class="form-control" data-auto-key="bilgisayar_adi" data-auto-source="envanter" placeholder="PC-OFIS-01">
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Fabrika</label>
-                    <select id="sa_inv_factory" class="form-select" data-no-search>
+                    <select id="sa_inv_factory" class="form-select" data-no-search data-auto-key="fabrika" data-auto-source="envanter">
                       <option value="">Seçiniz...</option>
                     </select>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Departman</label>
-                    <select id="sa_inv_department" class="form-select" data-no-search>
+                    <select id="sa_inv_department" class="form-select" data-no-search data-auto-key="departman" data-auto-source="envanter">
                       <option value="">Seçiniz...</option>
                     </select>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Kullanım Alanı</label>
-                    <select id="sa_inv_usage" class="form-select" data-no-search>
+                    <select id="sa_inv_usage" class="form-select" data-no-search data-auto-key="kullanim_alani" data-auto-source="envanter">
                       <option value="">Seçiniz...</option>
                     </select>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Sorumlu Personel</label>
-                    <select id="sa_inv_person" class="form-select" data-no-search>
+                    <select id="sa_inv_person" class="form-select" data-no-search data-auto-key="sorumlu_personel" data-auto-source="envanter">
                       <option value="">Seçiniz...</option>
                     </select>
                   </div>
@@ -338,7 +348,7 @@
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Seri No</label>
-                    <input id="sa_inv_serial" class="form-control" placeholder="Seri no">
+                    <input id="sa_inv_serial" class="form-control" data-auto-key="seri_no" data-auto-source="envanter" placeholder="Seri no">
                   </div>
                   <div class="col-md-6" data-auto-field>
                     <label class="form-label">IFS No</label>
@@ -346,11 +356,11 @@
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Bağlı Makina No</label>
-                    <input id="sa_inv_machine" class="form-control" placeholder="Makina no">
+                    <input id="sa_inv_machine" class="form-control" data-auto-key="bagli_envanter_no" data-auto-source="envanter" placeholder="Makina no">
                   </div>
                   <div class="col-12">
                     <label class="form-label">Notlar (opsiyonel)</label>
-                    <textarea id="sa_inv_note" class="form-control" rows="2" placeholder="Ek bilgi"></textarea>
+                    <textarea id="sa_inv_note" class="form-control" rows="2" data-auto-key="notlar" data-auto-source="envanter" placeholder="Ek bilgi"></textarea>
                   </div>
                 </div>
               </div>
@@ -360,7 +370,7 @@
                 <div class="row g-3" id="sa_printer_form">
                   <div class="col-md-6">
                     <label class="form-label">Envanter No</label>
-                    <input id="sa_prn_no" class="form-control" placeholder="PRN-000123" required>
+                    <input id="sa_prn_no" class="form-control" data-auto-key="envanter_no" data-auto-source="yazici" placeholder="PRN-000123" required>
                   </div>
                   <div class="col-md-6" data-auto-field>
                     <label class="form-label">Marka</label>
@@ -372,21 +382,21 @@
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Kullanım Alanı</label>
-                    <select id="sa_prn_usage" class="form-select" data-no-search>
+                    <select id="sa_prn_usage" class="form-select" data-no-search data-auto-key="kullanim_alani" data-auto-source="yazici">
                       <option value="">Seçiniz...</option>
                     </select>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">IP Adresi</label>
-                    <input id="sa_prn_ip" class="form-control" placeholder="192.168.x.x">
+                    <input id="sa_prn_ip" class="form-control" data-auto-key="ip_adresi" data-auto-source="yazici" placeholder="192.168.x.x">
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">MAC</label>
-                    <input id="sa_prn_mac" class="form-control" placeholder="AA:BB:CC:DD:EE:FF">
+                    <input id="sa_prn_mac" class="form-control" data-auto-key="mac" data-auto-source="yazici" placeholder="AA:BB:CC:DD:EE:FF">
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Hostname</label>
-                    <input id="sa_prn_host" class="form-control" placeholder="Yazıcı adı">
+                    <input id="sa_prn_host" class="form-control" data-auto-key="hostname" data-auto-source="yazici" placeholder="Yazıcı adı">
                   </div>
                   <div class="col-md-6" data-auto-field>
                     <label class="form-label">IFS No</label>
@@ -394,7 +404,7 @@
                   </div>
                   <div class="col-12">
                     <label class="form-label">Notlar (opsiyonel)</label>
-                    <textarea id="sa_prn_note" class="form-control" rows="2" placeholder="Ek bilgi"></textarea>
+                    <textarea id="sa_prn_note" class="form-control" rows="2" data-auto-key="notlar" data-auto-source="yazici" placeholder="Ek bilgi"></textarea>
                   </div>
                 </div>
               </div>
