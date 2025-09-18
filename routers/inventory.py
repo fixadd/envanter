@@ -28,6 +28,7 @@ from models import (
     LicenseLog,
     ScrapPrinter,
     StockLog,
+    StockTotal,
 )
 from security import current_user
 
@@ -463,9 +464,17 @@ def stock_entry(
     if not item:
         raise HTTPException(404)
     actor = getattr(user, "full_name", None) or user.username
+    donanim_tipi = item.donanim_tipi or "Envanter"
+
+    # Stoka alınan envanter için ilişkili personel/makina bilgilerini sıfırla
+    item.sorumlu_personel = None
+    item.bagli_envanter_no = None
+    item.fabrika = "Baylan 3"
+    item.departman = "Bilgi İşlem"
+
     db.add(
         StockLog(
-            donanim_tipi=item.donanim_tipi or "Envanter",
+            donanim_tipi=donanim_tipi,
             miktar=1,
             ifs_no=item.ifs_no,
             marka=item.marka,
@@ -476,6 +485,13 @@ def stock_entry(
             source_id=item.id,
         )
     )
+
+    total = db.get(StockTotal, donanim_tipi) or StockTotal(
+        donanim_tipi=donanim_tipi, toplam=0
+    )
+    total.toplam += 1
+    db.merge(total)
+
     after_data = item.to_dict() if hasattr(item, "to_dict") else None
     if after_data:
         for k, v in list(after_data.items()):
