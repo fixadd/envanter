@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 import models
-from sqlalchemy import func, case, or_
+from sqlalchemy import func, case, or_, inspect, literal
 from typing import List
 
 router = APIRouter(prefix="/api", tags=["API"])
@@ -167,12 +167,31 @@ def stock_status_detail(db: Session = Depends(get_db)):
 
     totals_db = {t.donanim_tipi: t.toplam for t in db.query(models.StockTotal).all()}
 
+    available_columns: set[str] = set()
+    bind = db.get_bind()
+    if bind is not None:
+        try:
+            inspector = inspect(bind)
+            available_columns = {
+                col["name"] for col in inspector.get_columns("stock_logs")
+            }
+        except Exception:  # pragma: no cover - inspector may fail on some DBs
+            available_columns = set()
+
+    has_marka = "marka" in available_columns
+    has_model = "model" in available_columns
+    has_ifs_no = "ifs_no" in available_columns
+    has_source_type = "source_type" in available_columns
+    has_source_id = "source_id" in available_columns
+    has_lisans_key = "lisans_anahtari" in available_columns
+    has_mail = "mail_adresi" in available_columns
+
     q = (
         db.query(
             models.StockLog.donanim_tipi,
-            models.StockLog.marka,
-            models.StockLog.model,
-            models.StockLog.ifs_no,
+            (models.StockLog.marka if has_marka else literal(None)).label("marka"),
+            (models.StockLog.model if has_model else literal(None)).label("model"),
+            (models.StockLog.ifs_no if has_ifs_no else literal(None)).label("ifs_no"),
             func.sum(
                 case(
                     (models.StockLog.islem == "girdi", models.StockLog.miktar),
@@ -181,39 +200,55 @@ def stock_status_detail(db: Session = Depends(get_db)):
             ).label("qty"),
             func.max(models.StockLog.tarih).label("last_tarih"),
         )
-        .group_by(
-            models.StockLog.donanim_tipi,
-            models.StockLog.marka,
-            models.StockLog.model,
-            models.StockLog.ifs_no,
-        )
     )
+
+    group_cols = [models.StockLog.donanim_tipi]
+    if has_marka:
+        group_cols.append(models.StockLog.marka)
+    if has_model:
+        group_cols.append(models.StockLog.model)
+    if has_ifs_no:
+        group_cols.append(models.StockLog.ifs_no)
+
+    q = q.group_by(*group_cols)
 
     rows = q.all()
 
     # Determine the source of the last movement for each item
-    last_logs = (
-        db.query(
-            models.StockLog.donanim_tipi,
-            models.StockLog.marka,
-            models.StockLog.model,
-            models.StockLog.ifs_no,
-            models.StockLog.source_type,
-            models.StockLog.source_id,
-            models.StockLog.lisans_anahtari,
-            models.StockLog.mail_adresi,
-            models.StockLog.tarih,
-            models.StockLog.id,
-        )
-        .order_by(
-            models.StockLog.donanim_tipi,
-            models.StockLog.marka,
-            models.StockLog.model,
-            models.StockLog.ifs_no,
-            models.StockLog.tarih.desc(),
-            models.StockLog.id.desc(),
-        )
-    ).all()
+    last_logs_query = db.query(
+        models.StockLog.donanim_tipi,
+        (models.StockLog.marka if has_marka else literal(None)).label("marka"),
+        (models.StockLog.model if has_model else literal(None)).label("model"),
+        (models.StockLog.ifs_no if has_ifs_no else literal(None)).label("ifs_no"),
+        (
+            models.StockLog.source_type if has_source_type else literal(None)
+        ).label("source_type"),
+        (
+            models.StockLog.source_id if has_source_id else literal(None)
+        ).label("source_id"),
+        (
+            models.StockLog.lisans_anahtari
+            if has_lisans_key
+            else literal(None)
+        ).label("lisans_anahtari"),
+        (
+            models.StockLog.mail_adresi if has_mail else literal(None)
+        ).label("mail_adresi"),
+        models.StockLog.tarih,
+        models.StockLog.id,
+    )
+
+    order_cols = [models.StockLog.donanim_tipi]
+    if has_marka:
+        order_cols.append(models.StockLog.marka)
+    if has_model:
+        order_cols.append(models.StockLog.model)
+    if has_ifs_no:
+        order_cols.append(models.StockLog.ifs_no)
+    order_cols.extend([models.StockLog.tarih.desc(), models.StockLog.id.desc()])
+
+    last_logs = last_logs_query.order_by(*order_cols).all()
+
 
     last_source: dict[
         tuple[str, str | None, str | None, str | None],
