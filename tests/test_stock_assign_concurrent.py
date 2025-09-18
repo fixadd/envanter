@@ -15,10 +15,11 @@ from fastapi import HTTPException
 
 
 def _setup_engine():
+    database_url = "sqlite://"
     engine = create_engine(
-        "sqlite://",
-        connect_args={"check_same_thread": False},
+        database_url,
         poolclass=StaticPool,
+        **models.engine_kwargs_for_url(database_url),
     )
     TestingSession = sessionmaker(bind=engine, autocommit=False, autoflush=False)
     models.Base.metadata.create_all(engine)

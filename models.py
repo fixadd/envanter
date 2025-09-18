@@ -1,27 +1,29 @@
 # models.py (ilgili kısımları güncelle)
 from __future__ import annotations
 import os
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 import enum
+from typing import Any
 
 from dotenv import load_dotenv
 from sqlalchemy import (
-    create_engine,
-    Integer,
-    String,
-    DateTime,
+    Column,
     Date,
-    func,
+    DateTime,
+    Enum,
     ForeignKey,
+    Integer,
+    JSON,
+    String,
     Text,
     UniqueConstraint,
+    create_engine,
+    func,
     inspect,
     text,
-    JSON,
-    Column,
-    Enum,
 )
+from sqlalchemy.engine import URL, make_url
 from sqlalchemy.dialects.sqlite import JSON as SQLITE_JSON
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -35,16 +37,26 @@ from sqlalchemy.orm import (
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/app.db")
-if DATABASE_URL.startswith("sqlite"):
-    db_path = DATABASE_URL.split("sqlite:///")[-1]
-    Path(db_path).parent.mkdir(parents=True, exist_ok=True)
 
-engine = create_engine(
-    DATABASE_URL,
-    connect_args=(
-        {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
-    ),
-)
+
+def _is_sqlite_url(url: str | URL) -> bool:
+    parsed = url if isinstance(url, URL) else make_url(url)
+    return parsed.get_backend_name() == "sqlite"
+
+
+def engine_kwargs_for_url(url: str | URL) -> dict[str, Any]:
+    if _is_sqlite_url(url):
+        return {"connect_args": {"check_same_thread": False}}
+    return {}
+
+
+database_url = make_url(DATABASE_URL)
+if _is_sqlite_url(database_url):
+    db_path = database_url.database
+    if db_path and db_path != ":memory:":
+        Path(db_path).parent.mkdir(parents=True, exist_ok=True)
+
+engine = create_engine(DATABASE_URL, **engine_kwargs_for_url(database_url))
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 
