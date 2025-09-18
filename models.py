@@ -4,6 +4,8 @@ import os
 from pathlib import Path
 from datetime import datetime
 import enum
+
+from dotenv import load_dotenv
 from sqlalchemy import (
     create_engine,
     Integer,
@@ -29,6 +31,8 @@ from sqlalchemy.orm import (
     relationship,
     synonym,
 )
+
+load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/app.db")
 if DATABASE_URL.startswith("sqlite"):
