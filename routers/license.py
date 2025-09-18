@@ -270,6 +270,12 @@ def stock_license(lic_id: int, db: Session = Depends(get_db), user=Depends(curre
     if not lic:
         raise HTTPException(status_code=404, detail="Lisans bulunamadı")
     actor = getattr(user, "full_name", None) or user.username
+
+    # Stoka alınan lisansın mevcut bağlantısını temizle
+    lic.sorumlu_personel = None
+    lic.bagli_envanter_no = None
+    lic.inventory_id = None
+
     log = StockLog(
         donanim_tipi=lic.lisans_adi,
         miktar=1,

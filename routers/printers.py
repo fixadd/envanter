@@ -13,7 +13,16 @@ from datetime import datetime
 
 from database import get_db
 from security import current_user
-from models import Printer, PrinterHistory, ScrapPrinter, Brand, Model, UsageArea, StockLog
+from models import (
+    Printer,
+    PrinterHistory,
+    ScrapPrinter,
+    Brand,
+    Model,
+    UsageArea,
+    StockLog,
+    StockTotal,
+)
 from sqlalchemy import text
 
 templates = Jinja2Templates(directory="templates")
@@ -354,9 +363,16 @@ def stock_printer(printer_id: int, db: Session = Depends(get_db), user=Depends(c
     if not p:
         raise HTTPException(404, "Yazıcı bulunamadı")
     actor = getattr(user, "full_name", None) or user.username
+    donanim_tipi = "Yazıcı"
+
+    # Yazıcı stok girişinde sorumluluk bilgilerini sıfırla
+    p.sorumlu_personel = None
+    p.bagli_envanter_no = None
+    p.fabrika = "Baylan 3"
+
     db.add(
         StockLog(
-            donanim_tipi="Yazıcı",
+            donanim_tipi=donanim_tipi,
             miktar=1,
             ifs_no=p.ifs_no,
             marka=p.marka,
@@ -367,6 +383,12 @@ def stock_printer(printer_id: int, db: Session = Depends(get_db), user=Depends(c
             source_id=p.id,
         )
     )
+
+    total = db.get(StockTotal, donanim_tipi) or StockTotal(
+        donanim_tipi=donanim_tipi, toplam=0
+    )
+    total.toplam += 1
+    db.merge(total)
     db.add(
         PrinterHistory(
             printer_id=p.id,
