@@ -43,31 +43,90 @@ templates = Jinja2Templates(directory="templates")
 
 @router.get("/export")
 async def export_stock(db: Session = Depends(get_db)):
-    """Export stock logs as an Excel file."""
-    from openpyxl import Workbook
+    """Export current stock status (with summary) as an Excel file."""
     from io import BytesIO
+    from openpyxl import Workbook
+
+    items = stock_status(db)
+    detail = stock_status_detail(db)
+    totals = detail.get("totals") or {}
 
     wb = Workbook()
     ws = wb.active
-    ws.append(["ID", "Donanım Tipi", "Miktar", "IFS No", "Tarih", "İşlem", "İşlem Yapan"])
+    ws.title = "Stok Durumu"
 
-    logs = db.query(StockLog).order_by(StockLog.id.asc()).all()
-    for log_entry in logs:
-        ws.append([
-            log_entry.id,
-            log_entry.donanim_tipi,
-            log_entry.miktar,
-            log_entry.ifs_no,
-            log_entry.tarih,
-            log_entry.islem,
-            log_entry.actor,
-        ])
+    ws.append(
+        [
+            "Donanım Tipi",
+            "Marka",
+            "Model",
+            "IFS No",
+            "Stok",
+            "Son İşlem",
+            "Kaynak Türü",
+            "Kaynak ID",
+        ]
+    )
+
+    def format_ts(value):
+        if isinstance(value, datetime):
+            return value.strftime("%d.%m.%Y %H:%M")
+        return value or ""
+
+    source_labels = {
+        "envanter": "Envanter",
+        "lisans": "Lisans",
+        "yazici": "Yazıcı",
+    }
+
+    sorted_items = sorted(
+        items,
+        key=lambda row: (
+            row.get("donanim_tipi") or "",
+            row.get("marka") or "",
+            row.get("model") or "",
+            row.get("ifs_no") or "",
+        ),
+    )
+
+    for row in sorted_items:
+        source_type = row.get("source_type") or ""
+        source_label = source_labels.get(str(source_type).lower(), source_type)
+        ws.append(
+            [
+                row.get("donanim_tipi") or "",
+                row.get("marka") or "",
+                row.get("model") or "",
+                row.get("ifs_no") or "",
+                row.get("net_miktar") or 0,
+                format_ts(row.get("son_islem_ts")),
+                source_label,
+                row.get("source_id") or "",
+            ]
+        )
+
+    if not sorted_items:
+        ws.append(["-", "-", "-", "-", 0, "-", "", ""])
+
+    summary_data: dict[str, int] = {}
+    for row in items:
+        key = row.get("donanim_tipi") or "-"
+        summary_data[key] = summary_data.get(key, 0) + int(row.get("net_miktar") or 0)
+
+    if not summary_data and totals:
+        summary_data = {str(k): int(v) for k, v in totals.items()}
+
+    if summary_data:
+        summary_ws = wb.create_sheet(title="Özet")
+        summary_ws.append(["Donanım Tipi", "Toplam Stok"])
+        for name, value in sorted(summary_data.items()):
+            summary_ws.append([name, value])
 
     stream = BytesIO()
     wb.save(stream)
     stream.seek(0)
 
-    headers = {"Content-Disposition": "attachment; filename=stock_logs.xlsx"}
+    headers = {"Content-Disposition": "attachment; filename=stock_status.xlsx"}
     return StreamingResponse(
         stream,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -168,8 +227,9 @@ def stock_status_page(request: Request):
 @router.get("/durum/json")
 def stock_status_json(db: Session = Depends(get_db)):
     """Stok durumunu JSON olarak döndür."""
-    data = stock_status_detail(db)
-    return JSONResponse({"ok": True, "totals": data["totals"], "items": data["items"]})
+    detail = stock_status_detail(db)
+    items = stock_status(db)
+    return {"ok": True, "totals": detail["totals"], "items": items}
 
 
 @api_router.get("/status")
