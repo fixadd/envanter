@@ -2,7 +2,7 @@
 {% block title %}Stok Durumu{% endblock %}
 
 {% block content %}
-<div class="container-fluid p-3">
+<div class="soft-card p-3">
   <div class="tabs-wrap">
     <ul class="nav nav-tabs" id="stockStatusTabs" role="tablist">
       <li class="nav-item" role="presentation">
@@ -19,10 +19,6 @@
       <div class="tab-pane fade show active" id="stok-durumu" role="tabpanel" aria-labelledby="stok-durumu-tab">
         <div class="table-responsive">
           <table id="stock-table"
-                 data-toggle="table"
-                 data-url="/api/stock/status"
-                 data-pagination="false"
-                 data-search="false"
                  class="table table-sm table-striped align-middle">
             <thead class="table-light">
               <tr>
@@ -35,6 +31,11 @@
                 <th data-formatter="detailFormatter" data-align="center" class="text-center"></th>
               </tr>
             </thead>
+            <tbody id="stockTableBody">
+              <tr>
+                <td colspan="7" class="text-center text-muted">Yükleniyor…</td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </div>
@@ -49,8 +50,21 @@
 {% block scripts %}
 {{ super() }}
 <script>
+function escapeHtml(value) {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function emptyFormatter(value) {
-  return value === null || value === undefined || value === '' ? '-' : value;
+  if (value === null || value === undefined || value === '') {
+    return '-';
+  }
+  return escapeHtml(String(value));
 }
 
 function dateFormatter(value) {
@@ -66,8 +80,9 @@ function dateFormatter(value) {
   });
 }
 
-function detailFormatter(value, row) {
-  if (!['lisans', 'envanter', 'yazici'].includes(row.source_type)) return '';
+function detailFormatter(row) {
+  const type = (row?.source_type || '').toLowerCase();
+  if (!['lisans', 'envanter', 'yazici'].includes(type)) return '';
   const payload = encodeURIComponent(JSON.stringify(row));
   return `<button class="btn btn-outline-secondary btn-sm" onclick="showStockDetail('${payload}')" title="Detay">&#8801;</button>`;
 }
@@ -97,22 +112,60 @@ function showStockDetail(encoded) {
   alert(lines.join('\n'));
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  // sayfa yüklenince bir kez yenile
-  setTimeout(() => {
-    if (window.$ && $('#stock-table').bootstrapTable) {
-      $('#stock-table').bootstrapTable('refresh', { silent: true });
-    }
-  }, 200);
+function setStockTableMessage(message) {
+  const tbody = document.getElementById('stockTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">${escapeHtml(message)}</td></tr>`;
+}
 
-  // bootstrap tab değişiminde "stok-durumu" sekmesi görünür olunca yenile
+function renderStockTable(items) {
+  const tbody = document.getElementById('stockTableBody');
+  if (!tbody) return;
+  if (!Array.isArray(items) || items.length === 0) {
+    setStockTableMessage('Stok bulunamadı');
+    return;
+  }
+
+  const rows = items.map(row => {
+    const detailButton = detailFormatter(row);
+    return `<tr>
+      <td>${emptyFormatter(row.donanim_tipi)}</td>
+      <td>${emptyFormatter(row.marka)}</td>
+      <td>${emptyFormatter(row.model)}</td>
+      <td>${emptyFormatter(row.ifs_no)}</td>
+      <td class="text-end">${emptyFormatter(row.net_miktar)}</td>
+      <td>${dateFormatter(row.son_islem_ts)}</td>
+      <td class="text-center">${detailButton}</td>
+    </tr>`;
+  }).join('');
+
+  tbody.innerHTML = rows;
+}
+
+async function loadStockStatusTable() {
+  setStockTableMessage('Yükleniyor…');
+  try {
+    const res = await fetch('/api/stock/status', { headers: { Accept: 'application/json' } });
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    const items = Array.isArray(data) ? data : (data.items || data.rows || []);
+    renderStockTable(items);
+  } catch (err) {
+    console.error('stock status load failed', err);
+    setStockTableMessage('Veri alınamadı');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadStockStatusTable();
+
   document.querySelectorAll('[data-bs-toggle="tab"]').forEach(link => {
-    link.addEventListener('shown.bs.tab', function (e) {
+    link.addEventListener('shown.bs.tab', (e) => {
       const target = e.target.getAttribute('data-bs-target') || e.target.getAttribute('href');
       if (target && target.includes('stok-durumu')) {
-        if (window.$ && $('#stock-table').bootstrapTable) {
-          $('#stock-table').bootstrapTable('refresh', { silent: true });
-        }
+        loadStockStatusTable();
       }
     });
   });
