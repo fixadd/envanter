@@ -1,39 +1,53 @@
-<div class="container-xxl">
-  <ul class="nav nav-tabs" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="stok-durumu-tab" data-bs-toggle="tab" data-bs-target="#stok-durumu" type="button" role="tab" aria-controls="stok-durumu" aria-selected="true">Stok Durumu</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="log-tab" data-bs-toggle="tab" data-bs-target="#log" type="button" role="tab" aria-controls="log" aria-selected="false">Log</button>
-    </li>
-  </ul>
-  <div class="tab-content mt-3">
-    <div class="tab-pane fade show active" id="stok-durumu" role="tabpanel" aria-labelledby="stok-durumu-tab">
-      <table id="stock-table"
-             data-toggle="table"
-             data-url="/api/stock/status"
-             data-pagination="false"
-             data-search="false"
-            class="table table-striped">
-        <thead>
-          <tr>
-            <th data-field="donanim_tipi">Donanım Tipi</th>
-            <th data-field="marka" data-formatter="emptyFormatter">Marka</th>
-            <th data-field="model" data-formatter="emptyFormatter">Model</th>
-            <th data-field="ifs_no" data-formatter="emptyFormatter">IFS No</th>
-            <th data-field="net_miktar" data-align="right">Stok</th>
-            <th data-field="son_islem_ts" data-formatter="dateFormatter">Son İşlem</th>
-            <th data-formatter="detailFormatter" data-align="center"></th>
-          </tr>
-        </thead>
-      </table>
-    </div>
-    <div class="tab-pane fade" id="log" role="tabpanel" aria-labelledby="log-tab">
-      <div id="logList" class="small text-muted">Log yüklenmedi.</div>
+{% extends "base.html" %}
+{% block title %}Stok Durumu{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-3">
+  <div class="tabs-wrap">
+    <ul class="nav nav-tabs" id="stockStatusTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="stok-durumu-tab" data-bs-toggle="tab" data-bs-target="#stok-durumu" type="button" role="tab" aria-controls="stok-durumu" aria-selected="true">Stok Durumu</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="log-tab" data-bs-toggle="tab" data-bs-target="#log" type="button" role="tab" aria-controls="log" aria-selected="false">Log</button>
+      </li>
+    </ul>
+  </div>
+
+  <div class="page-section">
+    <div class="tab-content" id="stockStatusTabContent">
+      <div class="tab-pane fade show active" id="stok-durumu" role="tabpanel" aria-labelledby="stok-durumu-tab">
+        <div class="table-responsive">
+          <table id="stock-table"
+                 data-toggle="table"
+                 data-url="/api/stock/status"
+                 data-pagination="false"
+                 data-search="false"
+                 class="table table-sm table-striped align-middle">
+            <thead class="table-light">
+              <tr>
+                <th data-field="donanim_tipi">Donanım Tipi</th>
+                <th data-field="marka" data-formatter="emptyFormatter">Marka</th>
+                <th data-field="model" data-formatter="emptyFormatter">Model</th>
+                <th data-field="ifs_no" data-formatter="emptyFormatter">IFS No</th>
+                <th data-field="net_miktar" data-align="right" class="text-end">Stok</th>
+                <th data-field="son_islem_ts" data-formatter="dateFormatter">Son İşlem</th>
+                <th data-formatter="detailFormatter" data-align="center" class="text-center"></th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="log" role="tabpanel" aria-labelledby="log-tab">
+        <div id="logList" class="small text-muted">Log yüklenmedi.</div>
+      </div>
     </div>
   </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
+{{ super() }}
 <script>
 function emptyFormatter(value) {
   return value === null || value === undefined || value === '' ? '-' : value;
@@ -104,3 +118,4 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 </script>
+{% endblock %}
