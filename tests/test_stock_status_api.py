@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 from openpyxl import load_workbook
+from sqlalchemy import text
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
@@ -75,3 +76,36 @@ def test_export_stock_uses_status_rows(db_session):
     assert rows[0] == ('Donanım Tipi', 'Marka', 'Model', 'IFS No', 'Stok', 'Son İşlem', 'Kaynak Türü', 'Kaynak ID')
     assert rows[1][0:5] == ('laptop', 'asus', 'a110', 'ifs', 3)
     assert isinstance(rows[1][5], str) and rows[1][5]
+
+
+def test_stock_status_handles_missing_optional_columns(db_session):
+    # simulate an older schema where extended columns do not exist
+    db_session.execute(text('DROP TABLE stock_logs'))
+    db_session.execute(text(
+        """
+        CREATE TABLE stock_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            donanim_tipi TEXT NOT NULL,
+            miktar INTEGER NOT NULL,
+            ifs_no TEXT,
+            tarih DATETIME,
+            islem TEXT NOT NULL,
+            actor TEXT
+        )
+        """
+    ))
+    db_session.execute(text(
+        """
+        INSERT INTO stock_logs (donanim_tipi, miktar, ifs_no, tarih, islem, actor)
+        VALUES ('monitor', 2, 'IFS-123', CURRENT_TIMESTAMP, 'girdi', 'test')
+        """
+    ))
+    db_session.commit()
+
+    payload = stock_status_json(db_session)
+
+    assert payload['items']
+    item = payload['items'][0]
+    assert item['donanim_tipi'] == 'monitor'
+    assert item['net_miktar'] == 2
+    assert item['marka'] is None
