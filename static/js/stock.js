@@ -130,6 +130,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- Yeni stok atama modali -------------------------------------------------
 /* ================== AYAR ================== */
+function getMetaApiRoot() {
+  if (typeof document === 'undefined') return '/api';
+  const meta = document.querySelector('meta[name="api-root"]');
+  if (!meta) return '/api';
+  const content = (meta.getAttribute('content') || '').trim();
+  return content ? content.replace(/\/$/, '') : '/api';
+}
+
+const API_ROOT_META = getMetaApiRoot();
+const STOCK_STATUS_URL = `${API_ROOT_META}/stock/status`;
+
 const API_PREFIX = ""; // Örn: "/api"
 const URL_STOCK_OPTIONS = `${API_PREFIX}/stock/options`;
 const URL_ASSIGN_SOURCES = `${API_PREFIX}/inventory/assign/sources`;
@@ -672,7 +683,10 @@ function loadStockStatus() {
   setStockStatusMessage(document.querySelector('#tblStockStatusInventory tbody'), 'Yükleniyor…');
   setStockStatusMessage(document.querySelector('#tblStockStatusLicense tbody'), 'Yükleniyor…');
 
-  fetch('/api/stock/status', { headers: { Accept: 'application/json' } })
+  fetch(STOCK_STATUS_URL, {
+    headers: { Accept: 'application/json' },
+    credentials: 'same-origin',
+  })
     .then(r => {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();

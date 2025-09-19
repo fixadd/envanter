@@ -142,10 +142,21 @@ function renderStockTable(items) {
   tbody.innerHTML = rows;
 }
 
+function getApiRoot() {
+  const meta = document.querySelector('meta[name="api-root"]');
+  const content = meta ? (meta.getAttribute('content') || '').trim() : '';
+  return content ? content.replace(/\/$/, '') : '/api';
+}
+
+const STOCK_STATUS_URL = `${getApiRoot()}/stock/status`;
+
 async function loadStockStatusTable() {
   setStockTableMessage('Yükleniyor…');
   try {
-    const res = await fetch('/api/stock/status', { headers: { Accept: 'application/json' } });
+    const res = await fetch(STOCK_STATUS_URL, {
+      headers: { Accept: 'application/json' },
+      credentials: 'same-origin',
+    });
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}`);
     }
