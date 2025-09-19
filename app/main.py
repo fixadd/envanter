@@ -12,14 +12,10 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette import status as st_status
 from sqlalchemy.orm import Session
 
-from models import init_db
-from db_bootstrap import bootstrap_schema
 from database import get_db
-from auth import (
-    get_user_by_username,
-    verify_password,
-    hash_password,
-)
+from auth import get_user_by_username
+from app.core.security import hash_password, verify_password
+from app.db.init import bootstrap_schema, init_db
 from routers import (
     home as home_router,
     inventory as inventory_router,
@@ -46,7 +42,6 @@ from utils.template_filters import register_filters
 from security import current_user, require_roles
 
 load_dotenv()
-bootstrap_schema()
 
 # --- Secrets & Config ---------------------------------------------------------
 SESSION_SECRET = os.getenv("SESSION_SECRET")
@@ -169,6 +164,10 @@ app.include_router(admin_router, dependencies=[Depends(require_roles("admin"))])
 @app.on_event("startup")
 def on_startup():
     from models import SessionLocal, User
+
+    # Ensure environment variables are available before running any migrations
+    load_dotenv()
+    bootstrap_schema()
     init_db()
     db = SessionLocal()
     try:
