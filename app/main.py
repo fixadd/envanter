@@ -1,45 +1,21 @@
 from __future__ import annotations
-import os, secrets
-from typing import Optional
+
+import os
+import secrets
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request, Form, Depends, status, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.exception_handlers import http_exception_handler
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from starlette.middleware.sessions import SessionMiddleware
 from starlette import status as st_status
-from sqlalchemy.orm import Session
+from starlette.middleware.sessions import SessionMiddleware
 
-from database import get_db
-from auth import get_user_by_username
-from app.core.security import hash_password, verify_password
+from app.core.security import hash_password
 from app.db.init import bootstrap_schema, init_db
-from routers import (
-    home as home_router,
-    inventory as inventory_router,
-    license as license_router,
-    printers as printers_router,
-    printers_scrap_list,
-    catalog as catalog_router,
-    requests as reqs,
-    stock,
-    trash,
-    profile,
-    logs,
-    refdata,
-    panel as panel_router,
-)
-from routers.lookup import router as lookup_router
-from routers.picker import router as picker_router
-from routers.api import router as api_router
-from routes.admin import router as admin_router
-from routes.scrap import router as scrap_router
-from routes.talepler import router as talepler_router
-from routers.talep import router as talep_router
+from app.web import register_web_routes
 from utils.template_filters import register_filters
-from security import current_user, require_roles
 
 load_dotenv()
 
@@ -71,15 +47,10 @@ if not SESSION_HTTPS_ONLY:
 # --- App & Middleware ---------------------------------------------------------
 app = FastAPI(title="Envanter Takip – Login")
 
-@app.exception_handler(HTTPException)
-async def redirect_on_auth(request, exc: HTTPException):
-    """Handle custom redirect signals while delegating other errors.
 
-    `security.py` may raise an ``HTTPException`` whose ``detail`` begins with
-    ``"redirect:/"`` to indicate the user should be redirected. For all other
-    ``HTTPException`` instances we fall back to FastAPI's default behaviour
-    instead of re-raising, which previously resulted in a 500 response.
-    """
+@app.exception_handler(HTTPException)
+async def redirect_on_auth(request: Request, exc: HTTPException):
+    """Handle custom redirect signals while delegating other errors."""
 
     if isinstance(exc.detail, str) and exc.detail.startswith("redirect:/"):
         url = exc.detail.split(":", 1)[1]
@@ -88,6 +59,14 @@ async def redirect_on_auth(request, exc: HTTPException):
     # Delegate to FastAPI's standard HTTP exception handler for all other
     # errors so the appropriate status code (e.g. 404) is returned.
     return await http_exception_handler(request, exc)
+
+
+def _register_global_state() -> None:
+    """Initialise shared application state such as templates."""
+
+    templates = register_filters(Jinja2Templates(directory="templates"))
+    app.state.templates = templates
+
 
 app.add_middleware(
     SessionMiddleware,
@@ -99,66 +78,11 @@ app.add_middleware(
 
 # Statik dosyalar ve şablonlar
 app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = register_filters(Jinja2Templates(directory="templates"))
-app.state.templates = templates
+_register_global_state()
 
-# --- Public Routes -----------------------------------------------------------
-@app.get("/", response_class=HTMLResponse)
-def root(request: Request):
-    """Redirect base URL depending on authentication state."""
+# Web router'ları ve HTML sayfaları
+register_web_routes(app)
 
-    if request.session.get("user_id"):
-        return RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
-    return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
-
-# --- Routers (korumalı) -------------------------------------------------------
-app.include_router(
-    home_router.router, prefix="", dependencies=[Depends(current_user)]
-)
-app.include_router(panel_router.router, dependencies=[Depends(current_user)])
-app.include_router(inventory_router.router, dependencies=[Depends(current_user)])
-app.include_router(license_router.router, dependencies=[Depends(current_user)])
-app.include_router(printers_scrap_list.router, dependencies=[Depends(current_user)])
-app.include_router(printers_router.router, dependencies=[Depends(current_user)])
-app.include_router(catalog_router.router, dependencies=[Depends(current_user)])
-app.include_router(reqs.router, prefix="/requests", tags=["Requests"], dependencies=[Depends(current_user)])
-app.include_router(stock.router, dependencies=[Depends(current_user)])
-app.include_router(stock.api_router, dependencies=[Depends(current_user)])
-app.include_router(scrap_router, dependencies=[Depends(current_user)])
-app.include_router(talepler_router, dependencies=[Depends(current_user)])
-app.include_router(trash.router, prefix="/trash", tags=["Trash"], dependencies=[Depends(current_user)])
-app.include_router(profile.router, prefix="/profile", tags=["Profile"], dependencies=[Depends(current_user)])
-app.include_router(api_router)
-app.include_router(picker_router)
-app.include_router(lookup_router)
-app.include_router(talep_router)
-app.include_router(refdata.router, dependencies=[Depends(current_user)])
-
-@app.get("/licenses", include_in_schema=False)
-def licenses_list_alias(request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
-    return license_router.license_list(request, db, user)
-
-@app.get("/licenses/{lic_id}", include_in_schema=False)
-def licenses_detail_alias(lic_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
-    return license_router.license_detail(lic_id, request, db)
-
-
-@app.get("/licenses/{lic_id}/edit", include_in_schema=False)
-def licenses_edit_alias(lic_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
-    return license_router.edit_license_form(lic_id, request, db)
-
-
-@app.get("/licenses/{lic_id}/assign", include_in_schema=False)
-def licenses_assign_alias(lic_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
-    return license_router.assign_license_form(lic_id, request, db, user)
-
-@app.get("/licenses/{lic_id}/stock", include_in_schema=False)
-def licenses_stock_alias(lic_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
-    return license_router.stock_license(lic_id, db, user)
-
-# Sadece admin
-app.include_router(logs.router, prefix="/logs", tags=["Logs"], dependencies=[Depends(require_roles("admin"))])
-app.include_router(admin_router, dependencies=[Depends(require_roles("admin"))])
 
 # --- Startup: DB init & default admin ----------------------------------------
 @app.on_event("startup")
@@ -183,86 +107,3 @@ def on_startup():
             print(f"[*] Varsayılan admin oluşturuldu: {DEFAULT_ADMIN_USERNAME}")
     finally:
         db.close()
-
-# --- CSRF yardımcıları --------------------------------------------------------
-def _ensure_csrf(request: Request) -> str:
-    token = secrets.token_urlsafe(32)
-    request.session["csrf_token"] = token
-    return token
-
-def _check_csrf(request: Request, token_from_form: Optional[str]) -> bool:
-    return bool(token_from_form) and request.session.get("csrf_token") == token_from_form
-
-# --- Login/Logout -------------------------------------------------------------
-@app.get("/login", response_class=HTMLResponse)
-async def login_form(request: Request):
-    # Zaten girişliyse yönlendir
-    if request.session.get("user_id"):
-        return RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
-    csrf_token = _ensure_csrf(request)
-    saved_username = request.cookies.get("saved_username", "")
-    return templates.TemplateResponse(
-        "login.html",
-        {
-            "request": request,
-            "csrf_token": csrf_token,
-            "error": None,
-            "saved_username": saved_username,
-        },
-    )
-
-@app.post("/login", response_class=HTMLResponse)
-async def login_submit(
-    request: Request,
-    username: str = Form(...),
-    password: str = Form(...),
-    remember: Optional[str] = Form(None),
-    csrf_token: str = Form(""),
-    db: Session = Depends(get_db),
-):
-    saved_username = request.cookies.get("saved_username", "")
-    if not _check_csrf(request, csrf_token):
-        csrf_token = _ensure_csrf(request)
-        return templates.TemplateResponse(
-            "login.html",
-            {
-                "request": request,
-                "csrf_token": csrf_token,
-                "error": "Oturum süresi doldu. Lütfen tekrar deneyin.",
-                "saved_username": saved_username,
-            },
-            status_code=status.HTTP_400_BAD_REQUEST,
-        )
-
-    user = get_user_by_username(db, username.strip())
-    if not user or not verify_password(password, user.password_hash):
-        csrf_token = _ensure_csrf(request)
-        return templates.TemplateResponse(
-            "login.html",
-            {
-                "request": request,
-                "csrf_token": csrf_token,
-                "error": "Kullanıcı adı veya parola hatalı.",
-                "saved_username": saved_username,
-            },
-            status_code=status.HTTP_401_UNAUTHORIZED,
-        )
-
-    # Başarılı giriş
-    request.session["user_id"] = user.id
-    request.session["user_name"] = user.full_name or user.username
-    request.session["user_role"] = getattr(user, "role", "")
-    request.session["user_theme"] = getattr(user, "theme", "default")
-    request.session["user_anim"] = getattr(user, "animation", "none")
-    _ensure_csrf(request)  # token yenile
-    response = RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
-    if remember:
-        response.set_cookie("saved_username", username, max_age=60 * 60 * 24 * 30)
-    else:
-        response.delete_cookie("saved_username")
-    return response
-
-@app.get("/logout")
-async def logout(request: Request):
-    request.session.clear()
-    return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
