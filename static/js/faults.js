@@ -67,13 +67,43 @@
     }
     const content = items
       .map((item) => {
-        const title = item.device_no || item.title || '-';
+        const title = item.title || item.device_no || item.entity_key || '-';
         const reason = item.reason || '-';
         const destination = item.destination || '';
         const created = formatDate(item.created_at);
+        const meta = item.meta && typeof item.meta === 'object' ? item.meta : null;
+
+        const detailParts = [];
+        const addDetail = (label, value) => {
+          if (!value) return;
+          const text = `${label}: ${value}`;
+          if (!detailParts.includes(text)) detailParts.push(text);
+        };
+
+        if (item.entity_key && item.entity_key !== title) {
+          addDetail('Kayıt', item.entity_key);
+        }
+        if (item.device_no && item.device_no !== title) {
+          addDetail('Cihaz No', item.device_no);
+        }
+        if (meta && typeof meta === 'object') {
+          const lineValue = meta.line || meta.row || meta.satir || meta.line_no;
+          const deviceName =
+            meta.device_name || meta.deviceName || meta.device_label || meta.device || meta.cihaz_adi;
+          if (lineValue) addDetail('Satır', lineValue);
+          if (deviceName && deviceName !== item.device_no) {
+            addDetail('Cihaz', deviceName);
+          }
+        }
+
+        const details = detailParts.length
+          ? `<div class="small text-muted">${detailParts.join(' • ')}</div>`
+          : '';
+
         return `
           <div class="fault-summary-item">
             <h6 class="mb-1">${title}</h6>
+            ${details}
             <div class="small">${reason}</div>
             ${destination ? `<div class="small text-muted">Gönderildiği: ${destination}</div>` : ''}
             ${created ? `<div class="text-muted small">${created}</div>` : ''}

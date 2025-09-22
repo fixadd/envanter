@@ -9,9 +9,6 @@
         <i class="bi bi-plus-lg"></i>
         <span>Ekle</span>
       </a>
-      {% with fault_entity='license', fault_prefix='license', fault_label='Lisans Arızalı Durum' %}
-        {% include 'partials/_fault_controls.html' %}
-      {% endwith %}
       <div class="dropdown">
         <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
           Excel
@@ -66,11 +63,6 @@
           <td class="actions">
             {% set entity = 'lisans' %}
             {% set row_id = row.id %}
-            {% set fault_mode = True %}
-            {% set fault_device = row.lisans_key or ('Lisans #' ~ row.id) %}
-            {% set fault_title = row.lisans_adi %}
-            {% set fault_entity_key = row.id %}
-            {% set fault_status = row.durum %}
             {% include 'partials/_actions_menu.html' %}
           </td>
         </tr>
