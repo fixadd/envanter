@@ -12,7 +12,7 @@ from fastapi import (
 )
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import func, text, select
+from sqlalchemy import text, select
 from sqlalchemy.orm import Session
 from typing import Optional, Literal
 from pydantic import BaseModel, Field
@@ -138,62 +138,6 @@ async def export_stock(db: Session = Depends(get_db)):
 async def import_stock(file: UploadFile = File(...)):
     return f"Received {file.filename}, but import is not implemented."
 
-def current_stock(db: Session):
-    plus = (
-        db.query(
-            StockLog.donanim_tipi,
-            StockLog.ifs_no,
-            func.sum(StockLog.miktar).label("sum_plus"),
-        )
-        .filter(StockLog.islem == "girdi")
-        .group_by(StockLog.donanim_tipi, StockLog.ifs_no)
-        .subquery()
-    )
-
-    minus = (
-        db.query(
-            StockLog.donanim_tipi,
-            StockLog.ifs_no,
-            func.sum(StockLog.miktar).label("sum_minus"),
-        )
-        .filter(StockLog.islem.in_(["cikti", "atama", "hurda"]))
-        .group_by(StockLog.donanim_tipi, StockLog.ifs_no)
-        .subquery()
-    )
-
-    rows = (
-        db.query(
-            plus.c.donanim_tipi,
-            plus.c.ifs_no,
-            (func.coalesce(plus.c.sum_plus, 0) - func.coalesce(minus.c.sum_minus, 0)).label("stok"),
-        )
-        .outerjoin(
-            minus,
-            (minus.c.donanim_tipi == plus.c.donanim_tipi)
-            & (minus.c.ifs_no == plus.c.ifs_no),
-        )
-        .all()
-    )
-
-    orphan_minus = (
-        db.query(
-            minus.c.donanim_tipi,
-            minus.c.ifs_no,
-            (0 - func.coalesce(minus.c.sum_minus, 0)).label("stok"),
-        )
-        .outerjoin(
-            plus,
-            (plus.c.donanim_tipi == minus.c.donanim_tipi)
-            & (plus.c.ifs_no == minus.c.ifs_no),
-        )
-        .filter(plus.c.donanim_tipi.is_(None))
-        .all()
-    )
-
-    all_rows = rows + orphan_minus
-    return [
-        {"donanim_tipi": r[0], "ifs_no": r[1], "stok": int(r[2])} for r in all_rows
-    ]
 
 @router.get("", response_class=HTMLResponse)
 def stock_list(request: Request, db: Session = Depends(get_db)):
