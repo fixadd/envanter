@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "components/tabs.html" import tabs %}
+{% from "components/modal.html" import modal %}
 {% set active_key = request.query_params.get("durum") or "acik" %}
 {% block title %}Talep Takip{% endblock %}
 {% block content %}
@@ -87,89 +88,75 @@
 </div>
 
 <!-- Talep Aç Modal -->
-<div class="modal fade" id="talepModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Talep Aç</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-      </div>
-
-      <form id="talepForm" autocomplete="off">
-        <div class="modal-body">
-
-          <!-- IFS -->
-          <div class="mb-3">
-            <label class="form-label">IFS No</label>
-            <input id="ifs_no" name="ifs_no" class="form-control" placeholder="IFS No">
-          </div>
-
-          <!-- Kalemler tablosu -->
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <label class="form-label m-0">Kalemler</label>
-            <button type="button" id="btnAddRow" class="btn btn-outline-secondary btn-sm">Satır Ekle</button>
-          </div>
-
-          <div class="table-responsive">
-            <table class="table table-sm align-middle" id="rowsTable">
-              <thead>
-                <tr>
-                  <th style="width:20%">Donanım Tipi</th>
-                  <th style="width:8%">Miktar</th>
-                  <th style="width:18%">Marka</th>
-                  <th style="width:18%">Model</th>
-                  <th style="width:28%">Açıklama</th>
-                  <th style="width:8%"></th>
-                </tr>
-              </thead>
-              <tbody><!-- JS dolduracak --></tbody>
-            </table>
-          </div>
-
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-          <button type="submit" class="btn btn-primary">Gönder</button>
-        </div>
-      </form>
-    </div>
+{% set talep_modal_footer %}
+  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+  <button type="submit" class="btn btn-primary">Gönder</button>
+{% endset %}
+{% call modal(
+  "talepModal",
+  "Talep Aç",
+  dialog_class="modal-xl",
+  form_attrs={"id": "talepForm", "autocomplete": "off"},
+  footer=talep_modal_footer,
+) %}
+  <!-- IFS -->
+  <div class="mb-3">
+    <label class="form-label">IFS No</label>
+    <input id="ifs_no" name="ifs_no" class="form-control" placeholder="IFS No">
   </div>
- </div>
+
+  <!-- Kalemler tablosu -->
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <label class="form-label m-0">Kalemler</label>
+    <button type="button" id="btnAddRow" class="btn btn-outline-secondary btn-sm">Satır Ekle</button>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-sm align-middle" id="rowsTable">
+      <thead>
+        <tr>
+          <th style="width:20%">Donanım Tipi</th>
+          <th style="width:8%">Miktar</th>
+          <th style="width:18%">Marka</th>
+          <th style="width:18%">Model</th>
+          <th style="width:28%">Açıklama</th>
+          <th style="width:8%"></th>
+        </tr>
+      </thead>
+      <tbody><!-- JS dolduracak --></tbody>
+    </table>
+  </div>
+{% endcall %}
 
 <!-- Talep Kapat Modal -->
-<div class="modal fade" id="talepKapatModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <form id="talepKapatForm" class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Stok Girişi</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" id="tkTalepId">
-        <div class="mb-3">
-          <label class="form-label">Miktar</label>
-          <input type="number" id="tkAdet" class="form-control" min="1" value="1">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Marka</label>
-          <select id="tkMarka" class="form-select"></select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Model</label>
-          <select id="tkModel" class="form-select"></select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Not (opsiyonel)</label>
-          <input type="text" id="tkAciklama" class="form-control">
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-        <button type="submit" class="btn btn-primary">Kaydet</button>
-      </div>
-    </form>
+{% set talep_kapat_footer %}
+  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+  <button type="submit" class="btn btn-primary">Kaydet</button>
+{% endset %}
+{% call modal(
+  "talepKapatModal",
+  "Stok Girişi",
+  form_attrs={"id": "talepKapatForm"},
+  footer=talep_kapat_footer,
+) %}
+  <input type="hidden" id="tkTalepId">
+  <div class="mb-3">
+    <label class="form-label">Miktar</label>
+    <input type="number" id="tkAdet" class="form-control" min="1" value="1">
   </div>
-</div>
+  <div class="mb-3">
+    <label class="form-label">Marka</label>
+    <select id="tkMarka" class="form-select"></select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Model</label>
+    <select id="tkModel" class="form-select"></select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Not (opsiyonel)</label>
+    <input type="text" id="tkAciklama" class="form-control">
+  </div>
+{% endcall %}
 
 {% endblock %}
 
