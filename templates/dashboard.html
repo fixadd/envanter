@@ -2,44 +2,71 @@
 {% block title %}Ana Sayfa{% endblock %}
 {% block content %}
 
-<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center mb-3 gap-2">
-  <h2 class="h5 m-0">Ana Sayfa</h2>
+<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center mb-4 gap-2">
+  <div>
+    <span class="eyebrow d-block text-muted">Genel Bakış</span>
+    <h2 class="m-0">Ana Sayfa</h2>
+  </div>
 </div>
 
-  <div class="row g-3 mb-3">
+<div class="row g-3 mb-4">
   <div class="col-12 col-md-6 col-xl-3">
-    <div class="soft-card p-3 stat-card">
-      <div class="stat-title">Toplam Cihaz</div>
-      <div class="stat-value">{{ stats.toplam_cihaz }}</div>
-      <div class="stat-sub">Envanter: {{ stats.envanter_sayisi }} / Yazıcı: {{ stats.yazici_sayisi }}</div>
-    </div>
+    <article class="stat-card" data-variant="purple">
+      <div class="d-flex justify-content-between align-items-start">
+        <span class="stat-title">Toplam Cihaz</span>
+        <span class="stat-icon"><i class="bi bi-hdd-stack"></i></span>
+      </div>
+      <div class="stat-value" data-animate-count="{{ stats.toplam_cihaz }}">{{ stats.toplam_cihaz }}</div>
+      <div class="stat-sub">Envanter: {{ stats.envanter_sayisi }} · Yazıcı: {{ stats.yazici_sayisi }}</div>
+    </article>
   </div>
   <div class="col-12 col-md-6 col-xl-3">
-    <div class="soft-card p-3 stat-card">
-      <div class="stat-title">Lisans (aktif)</div>
-      <div class="stat-value">{{ stats.lisans_sayisi }}</div>
+    <article class="stat-card" data-variant="teal">
+      <div class="d-flex justify-content-between align-items-start">
+        <span class="stat-title">Lisans (aktif)</span>
+        <span class="stat-icon"><i class="bi bi-key"></i></span>
+      </div>
+      <div class="stat-value" data-animate-count="{{ stats.lisans_sayisi }}">{{ stats.lisans_sayisi }}</div>
       <div class="stat-sub">Boş Lisans: {{ stats.bos_lisans_sayisi }}</div>
-    </div>
+    </article>
   </div>
   <div class="col-12 col-md-6 col-xl-3">
-    <div class="soft-card p-3 stat-card">
-      <div class="stat-title">Arızalı Cihaz</div>
-      <div class="stat-value">{{ stats.arizali_cihaz_sayisi }}</div>
-      <div class="stat-sub"></div>
-    </div>
+    <article class="stat-card" data-variant="slate">
+      <div class="d-flex justify-content-between align-items-start">
+        <span class="stat-title">Arızalı Cihaz</span>
+        <span class="stat-icon"><i class="bi bi-exclamation-triangle"></i></span>
+      </div>
+      <div class="stat-value" data-animate-count="{{ stats.arizali_cihaz_sayisi }}">{{ stats.arizali_cihaz_sayisi }}</div>
+      <div class="stat-sub">Bakım bekleyenler dahil.</div>
+    </article>
   </div>
   <div class="col-12 col-md-6 col-xl-3">
-    <div class="soft-card p-3 stat-card">
-      <div class="stat-title">Açık Talep</div>
-      <div class="stat-value">{{ stats.bekleyen_talep }}</div>
-      <div class="stat-sub"></div>
-    </div>
+    <article class="stat-card" data-variant="amber">
+      <div class="d-flex justify-content-between align-items-start">
+        <span class="stat-title">Açık Talep</span>
+        <span class="stat-icon"><i class="bi bi-chat-left-dots"></i></span>
+      </div>
+      <div class="stat-value" data-animate-count="{{ stats.bekleyen_talep }}">{{ stats.bekleyen_talep }}</div>
+      <div class="stat-sub">İşleme alınmayı bekleyenler.</div>
+    </article>
   </div>
 </div>
 
-<div class="soft-card p-0">
-  <div class="px-3 py-2 border-bottom fw-semibold">Son İşlemler</div>
-  <div class="table-responsive p-3 pt-2">
+<div class="soft-card p-0" id="recentActivityCard" data-auto-skeleton>
+  <div class="px-3 py-2 border-bottom fw-semibold d-flex align-items-center justify-content-between">
+    <span class="d-flex align-items-center gap-2">
+      <i class="bi bi-activity text-primary"></i>
+      Son İşlemler
+    </span>
+    <span class="badge-dot text-success d-none d-md-inline">Güncel</span>
+  </div>
+  <div class="p-3 pt-2">
+    <div class="stack-sm mb-3" data-loading-skeleton>
+      <div class="skeleton skeleton-line" style="width: 45%;"></div>
+      <div class="skeleton skeleton-line"></div>
+      <div class="skeleton skeleton-line" style="width: 60%;"></div>
+    </div>
+    <div class="table-responsive" data-loading-hide>
     {% set islem_map = {
       "assign": "Atama",
       "create": "Oluşturma",
@@ -47,7 +74,7 @@
       "stock": "Stok",
       "scrap": "Hurdaya Ayır"
     } %}
-    <table class="table align-middle">
+    <table class="table align-middle table-hover">
       <thead>
         <tr>
           <th>Tarih</th>
@@ -64,7 +91,7 @@
           <td>{{ row.actor or '-' }}</td>
           <td>{{ islem_map.get(row.action, row.action) }}</td>
           <td>{{ row.no }}</td>
-          <td><span class="badge badge-soft-success">Başarılı</span></td>
+          <td><span class="badge-dot text-success">Başarılı</span></td>
         </tr>
         {% else %}
         <tr>
@@ -73,7 +100,59 @@
         {% endfor %}
       </tbody>
     </table>
+    </div>
   </div>
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    (function () {
+      const skeletonTargets = document.querySelectorAll('[data-auto-skeleton]');
+      skeletonTargets.forEach((el) => el.classList.add('is-loading'));
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const formatter = new Intl.NumberFormat('tr-TR');
+
+        document.querySelectorAll('[data-animate-count]').forEach((el) => {
+          const targetRaw = el.dataset.animateCount ?? el.textContent ?? '';
+          const target = Number(targetRaw);
+          if (!Number.isFinite(target)) return;
+
+          if (reduceMotion) {
+            el.textContent = formatter.format(target);
+            return;
+          }
+
+          const duration = 900;
+          const start = performance.now();
+
+          const step = (now) => {
+            const progress = Math.min((now - start) / duration, 1);
+            const value = Math.round(progress * target);
+            el.textContent = formatter.format(value);
+            if (progress < 1) {
+              requestAnimationFrame(step);
+            } else {
+              el.textContent = formatter.format(target);
+            }
+          };
+
+          requestAnimationFrame(step);
+        });
+
+        skeletonTargets.forEach((card) => {
+          const finish = () => card.classList.remove('is-loading');
+          if (reduceMotion) {
+            finish();
+          } else {
+            setTimeout(finish, 480);
+          }
+        });
+      });
+    })();
+  </script>
 {% endblock %}
