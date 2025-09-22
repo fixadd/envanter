@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, Request, Form
-from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+from fastapi import APIRouter, Depends, Request, Form, HTTPException
+from fastapi.responses import HTMLResponse, StreamingResponse
 from sqlalchemy.orm import Session
 from typing import Optional
 from io import BytesIO
@@ -11,8 +11,36 @@ from database import get_db
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import cast, Integer
 
+from utils.http import get_or_404, validate_adet
+
 templates = Jinja2Templates(directory="templates")
 router = APIRouter(prefix="/talepler", tags=["Talepler"])
+
+
+def process_talep(talep: Talep, adet: int, is_cancel: bool = False) -> Talep:
+    """Apply shared quantity handling logic for request operations."""
+
+    if talep.durum != TalepDurum.ACIK:
+        raise HTTPException(status_code=400, detail="Talep kapalı")
+
+    kalan = talep.kalan_miktar or 0
+    if adet > kalan:
+        raise HTTPException(status_code=400, detail="Yetersiz talep miktarı")
+
+    if is_cancel:
+        talep.miktar -= adet
+    else:
+        talep.karsilanan_miktar += adet
+
+    talep.kalan_miktar = kalan - adet
+
+    if talep.kalan_miktar == 0:
+        talep.durum = TalepDurum.IPTAL if is_cancel else TalepDurum.TAMAMLANDI
+        talep.kapanma_tarihi = datetime.utcnow()
+    else:
+        talep.durum = TalepDurum.ACIK
+
+    return talep
 
 
 @router.get("", response_class=HTMLResponse, name="talep_list")
@@ -56,7 +84,7 @@ def liste(request: Request, durum: str = "acik", db: Session = Depends(get_db)):
     )
 
 
-@router.post("", response_class=JSONResponse)
+@router.post("")
 def olustur(
     donanim_tipi: Optional[str] = Form(None),
     ifs_no: Optional[str] = Form(None),
@@ -83,53 +111,25 @@ def olustur(
     return {"ok": True, "ids": [talep.id]}
 
 
-@router.post("/{talep_id}/cancel", response_class=JSONResponse)
+@router.post("/{talep_id}/cancel")
 def cancel_request(talep_id: int, adet: int = Form(1), db: Session = Depends(get_db)):
-    if adet <= 0:
-        return JSONResponse({"ok": False, "error": "Adet 0'dan büyük olmalı"}, status_code=400)
-    talep = db.get(Talep, talep_id)
-    if not talep:
-        return JSONResponse({"ok": False}, status_code=404)
-    if talep.durum != TalepDurum.ACIK:
-        return JSONResponse({"ok": False, "error": "Talep kapalı"}, status_code=400)
-    kalan = talep.kalan_miktar
-    if kalan > adet:
-        talep.miktar -= adet
-        talep.kalan_miktar = kalan - adet
-        talep.durum = TalepDurum.ACIK
-    else:
-        talep.miktar -= kalan
-        talep.kalan_miktar = 0
-        talep.durum = TalepDurum.IPTAL
-        talep.kapanma_tarihi = datetime.utcnow()
+    validate_adet(adet)
+    talep = get_or_404(db, Talep, talep_id)
+    process_talep(talep, adet, is_cancel=True)
     db.commit()
     return {"ok": True}
 
 
-@router.post("/{talep_id}/close", response_class=JSONResponse)
+@router.post("/{talep_id}/close")
 def close_request(talep_id: int, adet: int = Form(1), db: Session = Depends(get_db)):
-    if adet <= 0:
-        return JSONResponse({"ok": False, "error": "Adet 0'dan büyük olmalı"}, status_code=400)
-    talep = db.get(Talep, talep_id)
-    if not talep:
-        return JSONResponse({"ok": False}, status_code=404)
-    if talep.durum != TalepDurum.ACIK:
-        return JSONResponse({"ok": False, "error": "Talep kapalı"}, status_code=400)
-    kalan = talep.kalan_miktar
-    if kalan > adet:
-        talep.karsilanan_miktar += adet
-        talep.kalan_miktar = kalan - adet
-        talep.durum = TalepDurum.ACIK
-    else:
-        talep.karsilanan_miktar += kalan
-        talep.kalan_miktar = 0
-        talep.durum = TalepDurum.TAMAMLANDI
-        talep.kapanma_tarihi = datetime.utcnow()
+    validate_adet(adet)
+    talep = get_or_404(db, Talep, talep_id)
+    process_talep(talep, adet, is_cancel=False)
     db.commit()
     return {"ok": True}
 
 
-@router.post("/{talep_id}/stock", response_class=JSONResponse)
+@router.post("/{talep_id}/stock")
 def convert_request_to_stock(
     talep_id: int,
     adet: int = Form(1),
@@ -147,20 +147,16 @@ def convert_request_to_stock(
     request is fully processed its status is marked as closed.
     """
 
-    if adet <= 0:
-        return JSONResponse(
-            {"ok": False, "error": "Adet 0'dan büyük olmalı"}, status_code=400
-        )
+    validate_adet(adet)
 
-    talep = db.get(Talep, talep_id)
-    if not talep:
-        return JSONResponse({"ok": False}, status_code=404)
+    talep = get_or_404(db, Talep, talep_id)
 
-    kalan = talep.kalan_miktar
+    if talep.durum != TalepDurum.ACIK:
+        raise HTTPException(status_code=400, detail="Talep kapalı")
+
+    kalan = talep.kalan_miktar or 0
     if kalan < adet:
-        return JSONResponse(
-            {"ok": False, "error": "Yetersiz talep miktarı"}, status_code=400
-        )
+        raise HTTPException(status_code=400, detail="Yetersiz talep miktarı")
 
     from routers.stock import stock_add
 
@@ -173,9 +169,7 @@ def convert_request_to_stock(
     aciklama = _val(aciklama)
     islem_yapan = _val(islem_yapan) or "Sistem"
     if not marka or not model:
-        return JSONResponse(
-            {"ok": False, "error": "Marka ve model gerekli"}, status_code=400
-        )
+        raise HTTPException(status_code=400, detail="Marka ve model gerekli")
 
     # persist provided details back to request
     talep.marka = marka
@@ -199,15 +193,9 @@ def convert_request_to_stock(
 
     result = stock_add(payload, db)
     if not result.get("ok"):
-        return JSONResponse(result, status_code=400)
+        raise HTTPException(status_code=400, detail=result.get("error", "İşlem başarısız"))
 
-    talep.karsilanan_miktar += adet
-    talep.kalan_miktar = kalan - adet
-    if talep.kalan_miktar > 0:
-        talep.durum = TalepDurum.ACIK
-    else:
-        talep.durum = TalepDurum.TAMAMLANDI
-        talep.kapanma_tarihi = datetime.utcnow()
+    process_talep(talep, adet, is_cancel=False)
 
     db.commit()
     return {"ok": True, "stock_id": result.get("id")}

@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from fastapi import HTTPException
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
@@ -33,23 +34,27 @@ def talep(db_session):
 
 
 def test_cancel_request_zero_adet(db_session, talep):
-    res = cancel_request(talep.id, adet=0, db=db_session)
-    assert res.status_code == 400
+    with pytest.raises(HTTPException) as exc:
+        cancel_request(talep.id, adet=0, db=db_session)
+    assert exc.value.status_code == 400
 
 
 def test_cancel_request_negative_adet(db_session, talep):
-    res = cancel_request(talep.id, adet=-1, db=db_session)
-    assert res.status_code == 400
+    with pytest.raises(HTTPException) as exc:
+        cancel_request(talep.id, adet=-1, db=db_session)
+    assert exc.value.status_code == 400
 
 
 def test_close_request_zero_adet(db_session, talep):
-    res = close_request(talep.id, adet=0, db=db_session)
-    assert res.status_code == 400
+    with pytest.raises(HTTPException) as exc:
+        close_request(talep.id, adet=0, db=db_session)
+    assert exc.value.status_code == 400
 
 
 def test_close_request_negative_adet(db_session, talep):
-    res = close_request(talep.id, adet=-3, db=db_session)
-    assert res.status_code == 400
+    with pytest.raises(HTTPException) as exc:
+        close_request(talep.id, adet=-3, db=db_session)
+    assert exc.value.status_code == 400
 
 
 def test_kapanma_tarihi_set_on_cancel(db_session, talep):
