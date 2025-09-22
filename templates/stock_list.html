@@ -249,10 +249,10 @@
         <form id="stockAssignForm" class="vstack gap-3">
           <!-- 1) STOK SEÇ (Stok Durumu'ndan) -->
           <div>
-            <label class="form-label fw-semibold">Stok Seç</label>
-            <select id="sa_stock" class="form-select" required>
-              <option value="">Seçiniz...</option>
-            </select>
+            <p class="form-label fw-semibold mb-2">Seçilen Stok</p>
+            <div id="sa_stock_alert" class="alert alert-warning py-2 px-3 small mb-0" role="alert">
+              Atama yapmak için stok durumu tablosundaki <strong>Atama</strong> düğmesini kullanınız.
+            </div>
             <div id="sa_stock_meta" class="mt-2 d-none">
               <div class="border rounded p-2 small bg-light-subtle">
                 <div class="d-flex flex-wrap gap-3 align-items-center mb-1">
