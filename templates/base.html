@@ -19,48 +19,6 @@
     nav.navbar { z-index:1; }
   </style>
   <title>{% block title %}{% endblock %}</title>
-  <style>
-/* SEKME + TABLO BİRLEŞTİRME — ÇAKIŞMA KESİN DÜZELTME */
-.tabs-wrap .nav.nav-tabs,
-.tabs-wrap .nav.nav-pills { border-bottom: 0 !important; gap: .25rem; }
-
-/* Tüm sekmeler (tabs/pills) aynı görünüm */
-.tabs-wrap .nav .nav-link{
-  border: 1px solid #dee2e6 !important;
-  border-bottom: 0 !important;
-  background: #f3f4f6 !important;
-  color: #444 !important;
-  text-decoration: none !important;
-  border-radius: .9rem .9rem 0 0 !important; /* pill değil, sekme */
-  padding: .5rem .9rem !important;
-  margin-bottom: 0 !important;
-  line-height: 1.2 !important;
-}
-.tabs-wrap .nav .nav-link:hover{ background:#e9ecef !important; color:#222 !important; }
-
-/* Aktif sekme: alt sınırı kes ve üstte kalsın */
-.tabs-wrap .nav .nav-link.active{
-  background:#fff !important; color:#111 !important;
-  position: relative !important; z-index: 2 !important;
-  border-color:#dee2e6 #dee2e6 #fff !important;
-}
-
-/* Sekme altı kutu */
-.page-section{
-  background:#fff !important; border:1px solid #dee2e6 !important;
-  border-radius:0 .9rem .9rem .9rem !important;
-  padding:1rem !important; margin-top:-1px !important;
-}
-
-/* Bootstrap tablo iyileştirme */
-.page-section .table{ margin-bottom:0 !important; }
-.page-section .table td, .page-section .table th{ vertical-align:middle !important; }
-.page-section .table thead th{ white-space:nowrap !important; }
-.page-section .table-responsive{ overflow-x:auto !important; overflow-y:visible !important; }
-
-/* Olası global pill stili/tema müdahalesini sıfırla */
-.tabs-wrap .nav .nav-link{ box-shadow:none !important; }
-  </style>
 </head>
 <body class="theme-{{ request.session.get('user_theme', 'default') }} anim-{{ request.session.get('user_anim', 'none') }}">
   <nav class="navbar navbar-light bg-transparent p-3 pb-0">
