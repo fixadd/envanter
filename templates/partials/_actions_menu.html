@@ -1,19 +1,23 @@
 {% set actions = action_options %}
 {% if not actions %}
-  {% if fault_mode %}
-    {% set actions = [
-      ('fault', 'Arızalı İşaretle'),
-      ('repair', 'Tamir Edildi'),
-      ('scrap', 'Hurdaya Ayır')
-    ] %}
-  {% else %}
-    {% set actions = [
-      ('assign', 'Atama Yap'),
-      ('edit', 'Düzenle'),
-      ('stock', 'Stok Girişi'),
-      ('scrap', 'Hurdaya Ayır')
+  {% set actions = [
+    ('assign', 'Atama Yap'),
+    ('edit', 'Düzenle'),
+    ('stock', 'Stok Girişi'),
+    ('scrap', 'Hurdaya Ayır')
+  ] %}
+{% endif %}
+{% if fault_mode %}
+  {% set fault_status_value = fault_status|default('')|lower %}
+  {% set fault_actions = [
+    ('fault', 'Arızalı İşaretle')
+  ] %}
+  {% if fault_status_value == 'arızalı' or fault_status_value == 'arizali' %}
+    {% set fault_actions = fault_actions + [
+      ('repair', 'Tamir Edildi')
     ] %}
   {% endif %}
+  {% set actions = fault_actions + actions %}
 {% endif %}
 
 <div class="d-flex align-items-center">
