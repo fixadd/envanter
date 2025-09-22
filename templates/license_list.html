@@ -44,7 +44,11 @@
       </thead>
       <tbody>
         {% for row in items %}
-        <tr>
+        <tr
+          data-id="{{ row.id }}"
+          data-personel="{{ row.sorumlu_personel or '' }}"
+          data-bagli="{{ row.bagli_envanter_no or '' }}"
+          data-durum="{{ row.durum or '' }}">
           <td>{{ row.id }}</td>
           <td>{{ row.lisans_adi }}</td>
           <td class="text-truncate" style="max-width:180px;">{{ row.lisans_key }}</td>
@@ -63,6 +67,7 @@
           <td class="actions">
             {% set entity = 'lisans' %}
             {% set row_id = row.id %}
+            {% set fault_status = row.durum %}
             {% include 'partials/_actions_menu.html' %}
           </td>
         </tr>
@@ -325,19 +330,37 @@
     // Mevcut atama/hurda işlemleri
     const assignModal = new bootstrap.Modal(document.getElementById('assignModal'));
     const assignForm  = document.getElementById('assignForm');
+    const selAssignPersonel = document.getElementById('selPersonel');
+    const selAssignBagli = document.getElementById('selBagli');
     const scrapModal  = new bootstrap.Modal(document.getElementById('scrapModal'));
     const scrapForm   = document.getElementById('scrapForm');
     let scrapId = null;
+    let personelChoices = null;
+    let bagliChoices = null;
 
     document.querySelectorAll('#licensesTable .action-select').forEach(sel => {
       sel.addEventListener('change', (e) => {
-        e.stopImmediatePropagation();
-        const id = e.target.dataset.id;
         const val = e.target.value;
         if (!val) return;
+        const id = e.target.dataset.id;
+        if (!id) return;
+
+        if (val === 'assign') {
+          e.stopImmediatePropagation();
+          assignForm.setAttribute('action', `/lisans/${id}/assign`);
+          const tr = e.target.closest('tr');
+          if (tr) {
+            setSelectValue(selAssignPersonel, tr.dataset.personel, personelChoices);
+            setSelectValue(selAssignBagli, tr.dataset.bagli, bagliChoices);
+          }
+          assignModal.show();
+          e.target.value = '';
+          return;
+        }
 
         if (val === 'fault') {
           if (window.Faults) {
+            e.stopImmediatePropagation();
             window.Faults.openMarkModal('license', {
               entityId: Number(id),
               entityKey: e.target.dataset.entityKey || id,
@@ -345,21 +368,40 @@
               title: e.target.dataset.title || '',
             });
           }
-        } else if (val === 'repair') {
+          e.target.value = '';
+          return;
+        }
+
+        if (val === 'repair') {
           if (window.Faults) {
+            e.stopImmediatePropagation();
             window.Faults.openRepairModal('license', {
               entityId: Number(id),
               entityKey: e.target.dataset.entityKey || id,
               deviceNo: e.target.dataset.device || '',
             });
           }
-        } else if (val === 'scrap') {
-          scrapId = id;
-          scrapModal.show();
+          e.target.value = '';
+          return;
         }
 
-        e.target.value = '';
+        if (val === 'scrap') {
+          e.stopImmediatePropagation();
+          scrapId = id;
+          scrapModal.show();
+          e.target.value = '';
+        }
       });
+    });
+
+    assignForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const actionUrl = assignForm.getAttribute('action');
+      if (!actionUrl) return;
+      const fd = new FormData(assignForm);
+      const res = await fetch(actionUrl, { method: 'POST', body: fd });
+      if(res.ok){ assignModal.hide(); location.reload(); }
+      else { alert('Atama kaydedilemedi'); }
     });
 
     scrapForm.addEventListener('submit', async (e) => {
@@ -370,11 +412,32 @@
       else { alert('Hurdaya ayırma başarısız'); }
     });
 
+    function setSelectValue(selectEl, value, choicesInstance) {
+      if (!selectEl) return;
+      const val = value || '';
+      if (val && !Array.from(selectEl.options).some(opt => opt.value === val)) {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = val;
+        selectEl.appendChild(opt);
+        if (choicesInstance) {
+          choicesInstance.setChoices([{ value: val, label: val }], 'value', 'label', false);
+        }
+      }
+      if (choicesInstance) {
+        choicesInstance.removeActiveItems();
+        if (val) {
+          choicesInstance.setChoiceByValue(val);
+        }
+      }
+      selectEl.value = val;
+    }
+
     if (window.Choices) {
       new Choices('#selLisansAdi',   { searchEnabled: true, shouldSort: false });
       new Choices('#selPersonelAdd', { searchEnabled: true, shouldSort: false });
-      new Choices('#selPersonel',    { searchEnabled: true, shouldSort: false });
-      new Choices('#selBagli',       { searchEnabled: true, shouldSort: false });
+      personelChoices = new Choices('#selPersonel', { searchEnabled: true, shouldSort: false });
+      bagliChoices = new Choices('#selBagli',       { searchEnabled: true, shouldSort: false });
     }
   });
 </script>
