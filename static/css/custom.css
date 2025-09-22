@@ -123,6 +123,46 @@ small, .text-muted { color: var(--color-muted) !important; }
 /* -------------------------------------------------------------------------- */
 /* Sidebar                                                                    */
 /* -------------------------------------------------------------------------- */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+@media (min-width: 992px) {
+  .app-shell {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.app-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  width: 100%;
+}
+
+@media (min-width: 992px) {
+  .app-sidebar {
+    flex: 0 0 280px;
+    max-width: 280px;
+    position: sticky;
+    top: var(--space-md);
+    align-self: flex-start;
+  }
+}
+
+.app-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+}
+
+.side-group {
+  border-radius: var(--radius-md);
+}
+
 .side-title {
   font-size: var(--font-size-xs);
   font-weight: 600;
