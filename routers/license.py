@@ -8,11 +8,12 @@ from fastapi.responses import (
     StreamingResponse,
 )
 from database import get_db
-from models import License, LicenseLog, Inventory, LicenseName, StockLog, StockTotal
+from models import License, LicenseLog, Inventory, LicenseName, StockTotal
 from fastapi.templating import Jinja2Templates
 from security import current_user
 from datetime import datetime
 from sqlalchemy import text
+from utils.stock_log import create_stock_log
 
 router = APIRouter(prefix="/lisans", tags=["Lisans"])
 templates = Jinja2Templates(directory="templates")
@@ -276,7 +277,8 @@ def stock_license(lic_id: int, db: Session = Depends(get_db), user=Depends(curre
     lic.bagli_envanter_no = None
     lic.inventory_id = None
 
-    log = StockLog(
+    create_stock_log(
+        db,
         donanim_tipi=lic.lisans_adi,
         miktar=1,
         ifs_no=lic.ifs_no,
@@ -287,7 +289,6 @@ def stock_license(lic_id: int, db: Session = Depends(get_db), user=Depends(curre
         source_type="lisans",
         source_id=lic.id,
     )
-    db.add(log)
 
     total = db.get(StockTotal, lic.lisans_adi) or StockTotal(
         donanim_tipi=lic.lisans_adi, toplam=0
@@ -325,16 +326,15 @@ def scrap_license(
     if aciklama:
         detay += f" Not: {aciklama}"
     _logla(db, lic, "HURDA", detay, islem_yapan)
-    db.add(
-        StockLog(
-            donanim_tipi=lic.lisans_adi,
-            miktar=1,
-            ifs_no=lic.ifs_no,
-            lisans_anahtari=lic.lisans_anahtari,
-            mail_adresi=lic.mail_adresi,
-            islem="hurda",
-            actor=islem_yapan,
-        )
+    create_stock_log(
+        db,
+        donanim_tipi=lic.lisans_adi,
+        miktar=1,
+        ifs_no=lic.ifs_no,
+        lisans_anahtari=lic.lisans_anahtari,
+        mail_adresi=lic.mail_adresi,
+        islem="hurda",
+        actor=islem_yapan,
     )
     db.commit()
     return RedirectResponse(

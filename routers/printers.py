@@ -20,10 +20,10 @@ from models import (
     Brand,
     Model,
     UsageArea,
-    StockLog,
     StockTotal,
 )
 from sqlalchemy import text
+from utils.stock_log import create_stock_log
 
 templates = Jinja2Templates(directory="templates")
 router = APIRouter(prefix="/printers", tags=["Printers"])
@@ -370,18 +370,17 @@ def stock_printer(printer_id: int, db: Session = Depends(get_db), user=Depends(c
     p.bagli_envanter_no = None
     p.fabrika = "Baylan 3"
 
-    db.add(
-        StockLog(
-            donanim_tipi=donanim_tipi,
-            miktar=1,
-            ifs_no=p.ifs_no,
-            marka=p.marka,
-            model=p.model,
-            islem="girdi",
-            actor=actor,
-            source_type="yazici",
-            source_id=p.id,
-        )
+    create_stock_log(
+        db,
+        donanim_tipi=donanim_tipi,
+        miktar=1,
+        ifs_no=p.ifs_no,
+        marka=p.marka,
+        model=p.model,
+        islem="girdi",
+        actor=actor,
+        source_type="yazici",
+        source_id=p.id,
     )
 
     total = db.get(StockTotal, donanim_tipi) or StockTotal(
