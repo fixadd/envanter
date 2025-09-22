@@ -5,11 +5,14 @@
 <div class="container-fluid p-3">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h5 class="mb-0">Yazıcılar</h5>
-    <div class="d-flex align-items-center gap-2">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
       <a href="#" class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#addModal">
         <i class="bi bi-plus-lg"></i>
         <span>Ekle</span>
       </a>
+      {% with fault_entity='printer', fault_prefix='printer', fault_label='Yazıcı Arızalı Durum' %}
+        {% include 'partials/_fault_controls.html' %}
+      {% endwith %}
       <div class="dropdown">
         <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
           Excel
@@ -48,7 +51,7 @@
       </thead>
       <tbody>
         {% for p in printers %}
-        <tr data-id="{{ p.id }}">
+        <tr data-id="{{ p.id }}"{% if p.durum == 'arızalı' %} class="table-warning"{% endif %}>
           <td>#{{ p.id }}</td>
           <td>{{ p.marka or '-' }}</td>
           <td>{{ p.model or '-' }}</td>
@@ -60,6 +63,8 @@
           <td>
             {% if p.durum == 'hurda' %}
               <span class="badge text-bg-secondary">Hurda</span>
+            {% elif p.durum == 'arızalı' %}
+              <span class="badge text-bg-warning text-dark">Arızalı</span>
             {% else %}
               <span class="badge text-bg-success">Aktif</span>
             {% endif %}
@@ -67,6 +72,10 @@
           <td class="text-nowrap">
             {% set entity = 'printers' %}
             {% set row_id = p.id %}
+            {% set fault_mode = True %}
+            {% set fault_device = p.envanter_no or ('Yazıcı #' ~ p.id) %}
+            {% set fault_title = (p.marka ~ ' ' ~ p.model)|trim %}
+            {% set fault_entity_key = p.envanter_no or p.id %}
             {% include 'partials/_actions_menu.html' %}
           </td>
         </tr>
@@ -400,12 +409,23 @@ document.addEventListener('DOMContentLoaded', () => {
       const val = e.target.value;
       if(!val) return;
 
-      if(val === 'edit'){
-        if(window.openModal){ openModal(`/printers/${printerId}/edit?modal=1`); }
-      } else if(val === 'assign'){
-        document.getElementById('assignPrinterId').value = printerId;
-        document.getElementById('assignPrinterLabel').innerText = `#${printerId}`;
-        assignModal.show();
+      if(val === 'fault'){
+        if(window.Faults){
+          window.Faults.openMarkModal('printer', {
+            entityId: Number(printerId),
+            entityKey: e.target.dataset.entityKey || printerId,
+            deviceNo: e.target.dataset.device || '',
+            title: e.target.dataset.title || '',
+          });
+        }
+      } else if(val === 'repair'){
+        if(window.Faults){
+          window.Faults.openRepairModal('printer', {
+            entityId: Number(printerId),
+            entityKey: e.target.dataset.entityKey || printerId,
+            deviceNo: e.target.dataset.device || '',
+          });
+        }
       } else if(val === 'scrap'){
         document.getElementById('scrapPrinterId').value = printerId;
         scrapModal.show();

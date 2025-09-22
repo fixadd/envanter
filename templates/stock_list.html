@@ -5,11 +5,14 @@
 <div class="container-fluid p-3">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h5 class="mb-0">Stok Takibi</h5>
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-2 flex-wrap align-items-center">
       <button class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#modalStockAdd">
         <i class="bi bi-plus-lg"></i>
         <span>Ekle</span>
       </button>
+      {% with fault_entity='stock', fault_prefix='stock', fault_label='Stok Arızalı Durum' %}
+        {% include 'partials/_fault_controls.html' %}
+      {% endwith %}
       <div class="dropdown">
         <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
           Excel

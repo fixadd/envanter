@@ -14,6 +14,7 @@ from security import current_user
 from datetime import datetime
 from sqlalchemy import text
 from utils.stock_log import create_stock_log
+from utils.faults import resolve_fault, FAULT_STATUS_SCRAP
 
 router = APIRouter(prefix="/lisans", tags=["Lisans"])
 templates = Jinja2Templates(directory="templates")
@@ -338,6 +339,14 @@ def scrap_license(
         mail_adresi=lic.mail_adresi,
         islem="hurda",
         actor=islem_yapan,
+    )
+    resolve_fault(
+        db,
+        "license",
+        entity_id=lic.id,
+        status=FAULT_STATUS_SCRAP,
+        actor=islem_yapan,
+        note="Hurdaya ayrıldı",
     )
     db.commit()
     return RedirectResponse(

@@ -25,6 +25,7 @@ from routers import (
     stock,
     trash,
     logs,
+    faults,
 )
 from routers.lookup import router as lookup_router
 from routers.picker import router as picker_router
@@ -219,6 +220,9 @@ router.include_router(
 )
 router.include_router(
     stock.api_router, dependencies=[Depends(current_user)]
+)
+router.include_router(
+    faults.router, dependencies=[Depends(current_user)]
 )
 router.include_router(
     scrap_router, dependencies=[Depends(current_user)]
