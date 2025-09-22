@@ -474,6 +474,20 @@ small, .text-muted { color: var(--color-muted) !important; }
   width: 100%;
   border-collapse: collapse;
   background: var(--color-surface);
+}
+
+.table-rounded {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.table-rounded > .table {
+  border-radius: inherit;
+  margin-bottom: 0;
+}
+
+.table.table-rounded {
   border-radius: var(--radius-sm);
   overflow: hidden;
 }
