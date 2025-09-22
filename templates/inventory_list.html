@@ -45,7 +45,13 @@
     </thead>
     <tbody>
       {% for row in items %}
-      <tr data-id="{{ row.id }}" class="inv-row{% if row.durum == 'arızalı' %} table-warning{% endif %}">
+      <tr
+        data-id="{{ row.id }}"
+        data-fabrika="{{ row.fabrika or '' }}"
+        data-departman="{{ row.departman or '' }}"
+        data-sorumlu="{{ row.sorumlu_personel or '' }}"
+        data-bagli="{{ row.bagli_envanter_no or '' }}"
+        class="inv-row{% if row.durum == 'arızalı' %} table-warning{% endif %}">
         <td>
           {{ row.no }}
           {% if row.durum == 'arızalı' %}
@@ -420,13 +426,30 @@ document.addEventListener('DOMContentLoaded', () => {
   // İşlem seçimi
   document.querySelectorAll('.action-select').forEach(sel => {
     sel.addEventListener('change', async (e) => {
-      e.stopImmediatePropagation();
-      const id = e.target.dataset.id;
       const val = e.target.value;
       if (!val) return;
+      const id = e.target.dataset.id;
+      if (!id) return;
+
+      if (val === 'assign') {
+        e.stopImmediatePropagation();
+        const tr = e.target.closest('tr');
+        document.getElementById('assign_item_id').value = id;
+        await preloadAssignDropdowns(id);
+        if (tr) {
+          setSelectValue('selFabrika', tr.dataset.fabrika);
+          setSelectValue('selDepartman', tr.dataset.departman);
+          setSelectValue('selPersonel', tr.dataset.sorumlu);
+          setSelectValue('selBagli', tr.dataset.bagli);
+        }
+        assignModal.show();
+        e.target.value = '';
+        return;
+      }
 
       if (val === 'fault') {
         if (window.Faults) {
+          e.stopImmediatePropagation();
           window.Faults.openMarkModal('inventory', {
             entityId: Number(id),
             entityKey: e.target.dataset.entityKey || e.target.dataset.device || id,
@@ -434,19 +457,29 @@ document.addEventListener('DOMContentLoaded', () => {
             title: e.target.dataset.title || '',
           });
         }
-      } else if (val === 'repair') {
+        e.target.value = '';
+        return;
+      }
+
+      if (val === 'repair') {
         if (window.Faults) {
+          e.stopImmediatePropagation();
           window.Faults.openRepairModal('inventory', {
             entityId: Number(id),
             entityKey: e.target.dataset.entityKey || e.target.dataset.device || id,
             deviceNo: e.target.dataset.device || '',
           });
         }
-      } else if (val === 'scrap') {
+        e.target.value = '';
+        return;
+      }
+
+      if (val === 'scrap') {
+        e.stopImmediatePropagation();
         document.getElementById('scrap_item_id').value = id;
         scrapModal.show();
+        e.target.value = '';
       }
-      e.target.value = '';
     });
   });
 
@@ -466,6 +499,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const el = document.getElementById(id);
     el.innerHTML = '<option value="">Seçiniz</option>' + arr.map(x =>
       `<option value="${x.id}">${x.text}</option>`).join('');
+  }
+
+  function setSelectValue(selectId, value) {
+    const el = document.getElementById(selectId);
+    if (!el) return;
+    const val = value || '';
+    if (val && !Array.from(el.options).some(opt => opt.value === val)) {
+      const opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = val;
+      el.appendChild(opt);
+    }
+    el.value = val;
   }
 
   // Atama submit

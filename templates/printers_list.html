@@ -51,7 +51,14 @@
       </thead>
       <tbody>
         {% for p in printers %}
-        <tr data-id="{{ p.id }}"{% if p.durum == 'arızalı' %} class="table-warning"{% endif %}>
+        <tr
+          data-id="{{ p.id }}"
+          data-label="{{ p.hostname or p.envanter_no or ('Yazıcı #' ~ p.id) }}"
+          data-fabrika="{{ p.fabrika or '' }}"
+          data-kullanim="{{ p.kullanim_alani or '' }}"
+          data-personel="{{ p.sorumlu_personel or '' }}"
+          data-bagli="{{ p.bagli_envanter_no or '' }}"
+          {% if p.durum == 'arızalı' %}class="table-warning"{% endif %}>
           <td>#{{ p.id }}</td>
           <td>{{ p.marka or '-' }}</td>
           <td>{{ p.model or '-' }}</td>
@@ -404,14 +411,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('.action-select').forEach(sel => {
     sel.addEventListener('change', (e) => {
-      e.stopImmediatePropagation();
-      const tr = e.target.closest('tr');
-      const printerId = tr.dataset.id;
       const val = e.target.value;
       if(!val) return;
+      const tr = e.target.closest('tr');
+      const printerId = tr?.dataset.id;
+      if(!printerId) return;
+
+      if(val === 'assign'){
+        e.stopImmediatePropagation();
+        document.getElementById('assignPrinterId').value = printerId;
+        document.getElementById('assignPrinterLabel').textContent = tr.dataset.label || `#${printerId}`;
+        setSelectValue('selFabrika', tr.dataset.fabrika);
+        setSelectValue('selKullanim', tr.dataset.kullanim);
+        setSelectValue('selPersonel', tr.dataset.personel);
+        setSelectValue('selBagliEnv', tr.dataset.bagli);
+        assignModal.show();
+        e.target.value = '';
+        return;
+      }
 
       if(val === 'fault'){
         if(window.Faults){
+          e.stopImmediatePropagation();
           window.Faults.openMarkModal('printer', {
             entityId: Number(printerId),
             entityKey: e.target.dataset.entityKey || printerId,
@@ -419,22 +440,44 @@ document.addEventListener('DOMContentLoaded', () => {
             title: e.target.dataset.title || '',
           });
         }
-      } else if(val === 'repair'){
+        e.target.value = '';
+        return;
+      }
+
+      if(val === 'repair'){
         if(window.Faults){
+          e.stopImmediatePropagation();
           window.Faults.openRepairModal('printer', {
             entityId: Number(printerId),
             entityKey: e.target.dataset.entityKey || printerId,
             deviceNo: e.target.dataset.device || '',
           });
         }
-      } else if(val === 'scrap'){
-        document.getElementById('scrapPrinterId').value = printerId;
-        scrapModal.show();
+        e.target.value = '';
+        return;
       }
 
-      e.target.value = '';
+      if(val === 'scrap'){
+        e.stopImmediatePropagation();
+        document.getElementById('scrapPrinterId').value = printerId;
+        scrapModal.show();
+        e.target.value = '';
+      }
     });
   });
+
+  function setSelectValue(selectId, value){
+    const el = document.getElementById(selectId);
+    if(!el) return;
+    const val = value || '';
+    if(val && !Array.from(el.options).some(opt => opt.value === val)){
+      const opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = val;
+      el.appendChild(opt);
+    }
+    el.value = val;
+  }
 
   scrapForm.addEventListener('submit', function(e){
     e.preventDefault();

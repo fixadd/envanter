@@ -7,8 +7,8 @@
     ('scrap', 'Hurdaya Ayır')
   ] %}
 {% endif %}
+{% set fault_status_value = fault_status|default('')|lower %}
 {% if fault_mode %}
-  {% set fault_status_value = fault_status|default('')|lower %}
   {% set fault_actions = [
     ('fault', 'Arızalı İşaretle')
   ] %}
@@ -18,6 +18,16 @@
     ] %}
   {% endif %}
   {% set actions = fault_actions + actions %}
+{% endif %}
+
+{% if fault_status_value == 'arızalı' or fault_status_value == 'arizali' %}
+  {% set filtered_actions = [] %}
+  {% for value, label in actions %}
+    {% if value not in ['assign', 'edit', 'stock'] %}
+      {% set filtered_actions = filtered_actions + [(value, label)] %}
+    {% endif %}
+  {% endfor %}
+  {% set actions = filtered_actions %}
 {% endif %}
 
 <div class="d-flex align-items-center">
