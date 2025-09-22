@@ -907,34 +907,42 @@
 
     async function refreshStockStatus() {
       const inventoryTbody = document.querySelector('#tblStockStatusInventory tbody');
+      const printerTbody = document.querySelector('#tblStockStatusPrinters tbody');
       const licenseTbody = document.querySelector('#tblStockStatusLicense tbody');
       setStockStatusMessage(inventoryTbody, 'Yükleniyor…');
+      setStockStatusMessage(printerTbody, 'Yükleniyor…');
       setStockStatusMessage(licenseTbody, 'Yükleniyor…');
       try {
         const data = await http.requestJson(STOCK_STATUS_URL, { credentials: 'same-origin' });
         const items = Array.isArray(data) ? data : data.items || data.rows || [];
         if (!Array.isArray(items)) {
           setStockStatusMessage(inventoryTbody, 'Veri alınamadı');
+          setStockStatusMessage(printerTbody, 'Veri alınamadı');
           setStockStatusMessage(licenseTbody, 'Veri alınamadı');
           return;
         }
         const inventoryItems = [];
+        const printerItems = [];
         const licenseItems = [];
         items.forEach((item) => {
           const typeRaw = item?.source_type;
           const type = typeof typeRaw === 'string' ? typeRaw.toLowerCase() : '';
-          if (type === 'lisans') {
+          if (type === 'lisans' || type === 'license' || type === 'yazilim' || type === 'software') {
             licenseItems.push(item);
+          } else if (type === 'yazici' || type === 'printer') {
+            printerItems.push(item);
           } else {
             inventoryItems.push(item);
           }
         });
         renderStockStatusTable(inventoryTbody, inventoryItems);
+        renderStockStatusTable(printerTbody, printerItems);
         renderStockStatusTable(licenseTbody, licenseItems);
         filterStockTable();
       } catch (err) {
         console.error('stock status load failed', err);
         setStockStatusMessage(document.querySelector('#tblStockStatusInventory tbody'), 'Veri alınamadı');
+        setStockStatusMessage(document.querySelector('#tblStockStatusPrinters tbody'), 'Veri alınamadı');
         setStockStatusMessage(document.querySelector('#tblStockStatusLicense tbody'), 'Veri alınamadı');
       }
     }
@@ -1093,9 +1101,51 @@
   // ---------------------------------------------------------------------------
   // Başlat
   // ---------------------------------------------------------------------------
+
+  function showBootstrapTab(selector) {
+    const el = document.querySelector(selector);
+    if (!el) return;
+    try {
+      bootstrap.Tab.getOrCreateInstance(el).show();
+    } catch (err) {
+      console.warn('tab activation failed', selector, err);
+    }
+  }
+
+  function applyInitialTabSelection() {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search || '');
+    const tabParam = (params.get('tab') || '').toLowerCase();
+    const moduleParam = (params.get('module') || '').toLowerCase();
+
+    if (tabParam === 'status') {
+      showBootstrapTab('#tab-status');
+    } else if (tabParam === 'log') {
+      showBootstrapTab('#tab-log');
+    }
+
+    if (!moduleParam) return;
+
+    showBootstrapTab('#tab-status');
+
+    if (moduleParam === 'inventory' || moduleParam === 'envanter') {
+      showBootstrapTab('#status-tab-inventory');
+    } else if (moduleParam === 'printer' || moduleParam === 'yazici') {
+      showBootstrapTab('#status-tab-printer');
+    } else if (
+      moduleParam === 'license'
+      || moduleParam === 'lisans'
+      || moduleParam === 'software'
+      || moduleParam === 'yazilim'
+    ) {
+      showBootstrapTab('#status-tab-license');
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     StockAddForm.init();
     StockAssign.init();
+    applyInitialTabSelection();
     StockAssign.refreshStockStatus();
   });
 

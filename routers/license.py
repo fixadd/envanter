@@ -298,7 +298,10 @@ def stock_license(lic_id: int, db: Session = Depends(get_db), user=Depends(curre
 
     _logla(db, lic, "STOK", "Stok girişi yapıldı", actor)
     db.commit()
-    return RedirectResponse(url="/stock", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(
+        url="/stock?tab=status&module=license",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
 
 
 @router.post("/{lic_id}/scrap")
