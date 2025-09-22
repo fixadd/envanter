@@ -1,5 +1,6 @@
 # models.py (ilgili kısımları güncelle)
 from __future__ import annotations
+import json
 import os
 from datetime import datetime
 from pathlib import Path
@@ -357,6 +358,54 @@ class ScrapPrinter(Base):
     snapshot = Column(SQLITE_JSON)
     reason = Column(String(200), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class FaultRecord(Base):
+    __tablename__ = "fault_records"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    entity_type = Column(String(50), nullable=False, index=True)
+    entity_id = Column(Integer, nullable=True, index=True)
+    entity_key = Column(String(200), nullable=True, index=True)
+    title = Column(String(200), nullable=True)
+    device_no = Column(String(120), nullable=True)
+    reason = Column(Text, nullable=True)
+    destination = Column(String(200), nullable=True)
+    status = Column(String(30), nullable=False, default="arızalı", index=True)
+    created_by = Column(String(120), nullable=True)
+    resolved_by = Column(String(120), nullable=True)
+    note = Column(Text, nullable=True)
+    meta = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    resolved_at = Column(DateTime, nullable=True)
+
+    def to_dict(self) -> dict[str, Any]:
+        data: dict[str, Any] = {
+            "id": self.id,
+            "entity_type": self.entity_type,
+            "entity_id": self.entity_id,
+            "entity_key": self.entity_key,
+            "title": self.title,
+            "device_no": self.device_no,
+            "reason": self.reason,
+            "destination": self.destination,
+            "status": self.status,
+            "created_by": self.created_by,
+            "resolved_by": self.resolved_by,
+            "note": self.note,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "resolved_at": self.resolved_at,
+        }
+        if self.meta:
+            try:
+                data["meta"] = json.loads(self.meta)
+            except json.JSONDecodeError:
+                data["meta"] = self.meta
+        else:
+            data["meta"] = None
+        return data
 
 
 # Yeni stok hareketi tablosu

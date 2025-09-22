@@ -798,6 +798,10 @@
       try {
         const result = await http.postJson('/stock/add', payload);
         if (result?.ok) {
+          await closeFaultAfterScrap(item);
+          if (window.Faults && typeof window.Faults.refresh === 'function') {
+            window.Faults.refresh('stock');
+          }
           await refreshStockStatus();
         } else {
           alert(result?.error || 'İşlem başarısız');
@@ -805,6 +809,110 @@
       } catch (err) {
         console.error('scrap failed', err);
         alert(err.message || 'İşlem başarısız');
+      }
+    }
+
+    function buildFaultKey(item) {
+      if (!item) return '';
+      const fields = [
+        item?.donanim_tipi,
+        item?.marka,
+        item?.model,
+        item?.ifs_no,
+        item?.source_type,
+        item?.source_id,
+      ];
+      const parts = fields
+        .map((part) => (part == null ? '' : String(part).trim()))
+        .filter(Boolean);
+      return parts.join('|') || (item?.donanim_tipi ? `stock:${String(item.donanim_tipi).trim()}` : 'stock');
+    }
+
+    function buildFaultLabel(item) {
+      if (!item) return 'Stok Kaydı';
+      const parts = [item.donanim_tipi, item.marka, item.model]
+        .map((part) => (part == null ? '' : String(part).trim()))
+        .filter(Boolean);
+      if (parts.length) return parts.join(' - ');
+      if (item.ifs_no) return String(item.ifs_no);
+      return 'Stok Kaydı';
+    }
+
+    function buildFaultMeta(item) {
+      return {
+        donanim_tipi: item?.donanim_tipi || '',
+        marka: item?.marka || '',
+        model: item?.model || '',
+        ifs_no: item?.ifs_no || '',
+      };
+    }
+
+    function markFaultFromStatus(encoded) {
+      if (!window.Faults || typeof window.Faults.openMarkModal !== 'function') {
+        alert('Arıza ekranı açılamadı.');
+        return;
+      }
+      let item;
+      try {
+        item = JSON.parse(decodeURIComponent(encoded));
+      } catch (err) {
+        console.error('fault decode failed', err);
+        alert('Geçersiz kayıt');
+        return;
+      }
+      const key = buildFaultKey(item);
+      const label = buildFaultLabel(item);
+      window.Faults.openMarkModal('stock', {
+        entityId: null,
+        entityKey: key,
+        deviceNo: label,
+        title: label,
+        meta: buildFaultMeta(item),
+      });
+    }
+
+    function repairFromStatus(encoded) {
+      if (!window.Faults || typeof window.Faults.openRepairModal !== 'function') {
+        alert('Arıza ekranı açılamadı.');
+        return;
+      }
+      let item;
+      try {
+        item = JSON.parse(decodeURIComponent(encoded));
+      } catch (err) {
+        console.error('repair decode failed', err);
+        alert('Geçersiz kayıt');
+        return;
+      }
+      const key = buildFaultKey(item);
+      const label = buildFaultLabel(item);
+      window.Faults.openRepairModal('stock', {
+        entityId: null,
+        entityKey: key,
+        deviceNo: label,
+      });
+    }
+
+    async function closeFaultAfterScrap(item) {
+      if (!item) return;
+      const key = buildFaultKey(item);
+      if (!key || typeof fetch !== 'function') return;
+      const fd = new FormData();
+      fd.append('entity', 'stock');
+      fd.append('entity_key', key);
+      fd.append('status', 'hurda');
+      try {
+        const res = await fetch('/faults/repair', {
+          method: 'POST',
+          body: fd,
+          credentials: 'same-origin',
+        });
+        if (!res.ok && res.status !== 404) {
+          const text = await res.text();
+          console.warn('fault close failed', text);
+        }
+      } catch (err) {
+        console.warn('fault close request failed', err);
       }
     }
 
@@ -825,7 +933,9 @@
         İşlemler
       </button>
       <ul class="dropdown-menu dropdown-menu-end">
-        <li><button class="dropdown-item" type="button" onclick="assignFromStatus('${encoded}')">Atama</button></li>
+        <li><button class="dropdown-item" type="button" onclick="markFaultFromStatus('${encoded}')">Arızalı</button></li>
+        <li><button class="dropdown-item" type="button" onclick="repairFromStatus('${encoded}')">Tamir Edildi</button></li>
+        <li><hr class="dropdown-divider"></li>
         <li><button class="dropdown-item text-danger" type="button" onclick="scrapFromStatus('${encoded}')">Hurda</button></li>
       </ul>
     </div>`;
@@ -1073,6 +1183,8 @@
       init,
       assignFromStatus,
       scrapFromStatus,
+      markFaultFromStatus,
+      repairFromStatus,
       refreshStockStatus,
     };
   })();
@@ -1130,5 +1242,7 @@
 
   window.assignFromStatus = (encoded) => StockAssign.assignFromStatus(encoded);
   window.scrapFromStatus = (encoded) => StockAssign.scrapFromStatus(encoded);
+  window.markFaultFromStatus = (encoded) => StockAssign.markFaultFromStatus(encoded);
+  window.repairFromStatus = (encoded) => StockAssign.repairFromStatus(encoded);
   window.loadStockStatus = () => StockAssign.refreshStockStatus();
 })();
