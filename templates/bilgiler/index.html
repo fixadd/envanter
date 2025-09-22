@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Bilgi Merkezi{% endblock %}
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="d-flex flex-wrap gap-3 align-items-center justify-content-between mb-4">
+    <div>
+      <h1 class="h4 mb-1">Bilgi Merkezi</h1>
+      <p class="text-muted small mb-0">Ekip içerisinde paylaşılan önemli notlar ve yönergeler.</p>
+    </div>
+    <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#bilgiModal">
+      <i class="bi bi-plus-circle me-1"></i>Yeni Bilgi Ekle
+    </button>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <div class="row g-3 align-items-end" id="bilgiFilters">
+        <div class="col-md-3">
+          <label for="kategoriFilter" class="form-label text-muted">Kategori</label>
+          <select id="kategoriFilter" class="form-select form-select-sm">
+            <option value="">Tümü</option>
+            {% for kategori in categories %}
+            <option value="{{ kategori.id }}">{{ kategori.ad }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label for="bilgiSearch" class="form-label text-muted">Arama</label>
+          <input id="bilgiSearch" class="form-control form-control-sm" type="search" placeholder="Başlık veya içerik içinde ara..." value="{{ search_query }}">
+        </div>
+        <div class="col-md-3 text-md-end">
+          <small class="text-muted d-block">Toplam {{ (pinned_items|length + other_items|length) }} kayıt</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if pinned_items %}
+  <section class="mb-5" id="pinnedBilgiler">
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <span class="text-uppercase text-muted fw-semibold small">Sabitlenen Bilgiler</span>
+      <span class="badge bg-warning text-dark">{{ pinned_items|length }}/3</span>
+    </div>
+    <div class="row g-3">
+      {% for bilgi in pinned_items %}
+        {% include "partials/bilgi_card.html" %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section>
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <span class="text-uppercase text-muted fw-semibold small">Tüm Bilgiler</span>
+    </div>
+    <div class="row g-3" id="bilgiList">
+      {% if other_items %}
+        {% for bilgi in other_items %}
+          {% include "partials/bilgi_card.html" %}
+        {% endfor %}
+      {% else %}
+        <div class="col-12">
+          <div class="alert alert-info mb-0">Henüz paylaşılmış bilgi bulunmuyor. İlk bilgiyi siz ekleyin!</div>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+</div>
+
+<div class="modal fade" id="bilgiModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Yeni Bilgi Ekle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <form id="bilgiForm" enctype="multipart/form-data">
+        <div class="modal-body">
+          <div class="alert alert-danger d-none" id="bilgiFormError"></div>
+          <div class="mb-3">
+            <label class="form-label">Başlık <span class="text-danger">*</span></label>
+            <input name="baslik" class="form-control" required maxlength="200" placeholder="Bilgi başlığını girin">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Kategori</label>
+            <select name="kategori_id" class="form-select" id="bilgiKategoriSelect">
+              <option value="">(Genel)</option>
+              {% for kategori in categories %}
+              <option value="{{ kategori.id }}">{{ kategori.ad }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">İçerik <span class="text-danger">*</span></label>
+            <textarea name="icerik" class="form-control" rows="6" required placeholder="İçeriği yazın..."></textarea>
+            <div class="form-text">Satır sonu için Enter kullanın. HTML otomatik olarak güvenli biçimde gösterilir.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Fotoğraf (opsiyonel)</label>
+            <input type="file" class="form-control" name="foto" id="bilgiPhotoInput" accept=".jpg,.jpeg,.png,.gif">
+            <div class="form-text">En fazla 5MB. Dosya türleri: JPG, PNG veya GIF.</div>
+            <div class="mt-3 d-none" id="bilgiPhotoPreviewWrapper">
+              <img src="" alt="Fotoğraf önizlemesi" class="img-fluid rounded shadow-sm" id="bilgiPhotoPreview">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+          <button type="submit" class="btn btn-primary">Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="{{ url_for('static', path='js/bilgiler.js') }}"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      initBilgiPage({
+        kategori: "{{ selected_category }}",
+        search: "{{ search_query }}",
+        currentUserId: {{ session_user.id }},
+        isAdmin: {{ 'true' if session_user.role == 'admin' else 'false' }}
+      });
+    });
+  </script>
+{% endblock %}

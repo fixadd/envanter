@@ -14,6 +14,7 @@ from app.core.security import verify_password
 from routers import (
     catalog as catalog_router,
     home as home_router,
+    bilgiler as bilgiler_router,
     inventory as inventory_router,
     license as license_router,
     panel as panel_router,
@@ -196,6 +197,9 @@ router.include_router(
 )
 router.include_router(
     inventory_router.router, dependencies=[Depends(current_user)]
+)
+router.include_router(
+    bilgiler_router.router, dependencies=[Depends(current_user)]
 )
 router.include_router(
     license_router.router, dependencies=[Depends(current_user)]

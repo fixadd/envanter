@@ -17,6 +17,16 @@ async function apiGet(url) {
     return r.json();
   }
 
+  async function apiPut(url, body) {
+    const r = await fetch(url, {
+      method: 'PUT',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  }
+
   async function apiDelete(url) {
     const r = await fetch(url, { method: 'DELETE' });
     if (!r.ok) throw new Error(await r.text());
@@ -45,9 +55,12 @@ async function fetchList(entity, extraParams = {}) {
     containerEl.innerHTML =
       (rows && rows.length)
         ? rows.map(r =>
-            `<li class="list-group-item d-flex justify-content-between align-items-center">
-               <span>${r.name ?? r.ad ?? r.adi ?? r.text ?? ''}</span>
-               <button class="btn btn-sm btn-danger ref-delete" data-id="${r.id}">Sil</button>
+            `<li class="list-group-item d-flex justify-content-between align-items-center gap-2">
+               <span class="flex-grow-1">${r.name ?? r.ad ?? r.adi ?? r.text ?? ''}</span>
+               <div class="btn-group btn-group-sm">
+                 <button class="btn btn-outline-secondary ref-edit" data-id="${r.id}">Düzenle</button>
+                 <button class="btn btn-danger ref-delete" data-id="${r.id}">Sil</button>
+               </div>
              </li>`
           ).join('')
         : `<li class="list-group-item text-muted">Kayıt yok</li>`;
@@ -153,6 +166,23 @@ async function fillBrandSelect(selectEl) {
 
       if (listEl) {
         listEl.addEventListener('click', async (e) => {
+          const editBtn = e.target.closest('.ref-edit');
+          if (editBtn) {
+            const id = editBtn.dataset.id;
+            if (!id) return;
+            const rowEl = editBtn.closest('li');
+            const currentText = rowEl ? rowEl.querySelector('span')?.textContent?.trim() : '';
+            const name = prompt('Yeni adı girin', currentText || '');
+            if (!name) return;
+            try {
+              await apiPut(`/api/ref/${entity}/${id}`, { name });
+              await refreshCard(card);
+            } catch (err) {
+              alert('Güncellenemedi: ' + (err?.message || err));
+            }
+            return;
+          }
+
           const btn = e.target.closest('.ref-delete');
           if (!btn) return;
           const id = btn.dataset.id;
