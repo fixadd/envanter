@@ -4,11 +4,14 @@
 <div id="licenses-list" class="container-fluid p-2 content">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h5 class="mb-0">Lisans</h5>
-    <div class="d-flex align-items-center gap-2">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
       <a href="#" class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#addModal">
         <i class="bi bi-plus-lg"></i>
         <span>Ekle</span>
       </a>
+      {% with fault_entity='license', fault_prefix='license', fault_label='Lisans Arızalı Durum' %}
+        {% include 'partials/_fault_controls.html' %}
+      {% endwith %}
       <div class="dropdown">
         <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
           Excel
@@ -52,12 +55,21 @@
           <td>{{ row.bagli_envanter_no or '-' }}</td>
           <td>{{ row.mail_adresi or '-' }}</td>
           <td>
-            {% if row.durum == 'hurda' %}<span class="badge bg-secondary">Hurda</span>
-            {% else %}<span class="badge bg-success">Aktif</span>{% endif %}
+          {% if row.durum == 'hurda' %}
+            <span class="badge bg-secondary">Hurda</span>
+          {% elif row.durum == 'arızalı' %}
+            <span class="badge text-bg-warning text-dark">Arızalı</span>
+          {% else %}
+            <span class="badge bg-success">Aktif</span>
+          {% endif %}
           </td>
           <td class="actions">
             {% set entity = 'lisans' %}
             {% set row_id = row.id %}
+            {% set fault_mode = True %}
+            {% set fault_device = row.lisans_key or ('Lisans #' ~ row.id) %}
+            {% set fault_title = row.lisans_adi %}
+            {% set fault_entity_key = row.id %}
             {% include 'partials/_actions_menu.html' %}
           </td>
         </tr>
@@ -331,11 +343,23 @@
         const val = e.target.value;
         if (!val) return;
 
-        if (val === 'assign') {
-          assignForm.action = `/lisans/${id}/assign`;
-          assignModal.show();
-        } else if (val === 'edit') {
-          if(window.openModal){ openModal(`/lisans/${id}/edit?modal=1`); }
+        if (val === 'fault') {
+          if (window.Faults) {
+            window.Faults.openMarkModal('license', {
+              entityId: Number(id),
+              entityKey: e.target.dataset.entityKey || id,
+              deviceNo: e.target.dataset.device || '',
+              title: e.target.dataset.title || '',
+            });
+          }
+        } else if (val === 'repair') {
+          if (window.Faults) {
+            window.Faults.openRepairModal('license', {
+              entityId: Number(id),
+              entityKey: e.target.dataset.entityKey || id,
+              deviceNo: e.target.dataset.device || '',
+            });
+          }
         } else if (val === 'scrap') {
           scrapId = id;
           scrapModal.show();

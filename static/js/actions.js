@@ -23,6 +23,26 @@
     // edit   -> /{entity}/{id}/edit
     // stock  -> /{entity}/{id}/stock
     // scrap  -> /{entity}/{id}/scrap
+    if (val === 'fault' && window.Faults) {
+      window.Faults.openMarkModal(entity, {
+        entityId: Number.isNaN(Number(id)) ? id : Number(id),
+        entityKey: sel.dataset.entityKey || '',
+        deviceNo: sel.dataset.device || '',
+        title: sel.dataset.title || '',
+      });
+      sel.value = '';
+      return;
+    }
+    if (val === 'repair' && window.Faults) {
+      window.Faults.openRepairModal(entity, {
+        entityId: Number.isNaN(Number(id)) ? id : Number(id),
+        entityKey: sel.dataset.entityKey || '',
+        deviceNo: sel.dataset.device || '',
+      });
+      sel.value = '';
+      return;
+    }
+
     const map = { assign: 'assign', edit: 'edit', stock: 'stock', scrap: 'scrap' };
     if (map[val]) {
       const url = `/${entity}/${id}/${map[val]}`;
