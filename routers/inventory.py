@@ -27,10 +27,10 @@ from models import (
     License,
     LicenseLog,
     ScrapPrinter,
-    StockLog,
     StockTotal,
 )
 from security import current_user
+from utils.stock_log import create_stock_log
 
 templates = register_filters(Jinja2Templates(directory="templates"))
 
@@ -472,18 +472,17 @@ def stock_entry(
     item.fabrika = "Baylan 3"
     item.departman = "Bilgi İşlem"
 
-    db.add(
-        StockLog(
-            donanim_tipi=donanim_tipi,
-            miktar=1,
-            ifs_no=item.ifs_no,
-            marka=item.marka,
-            model=item.model,
-            islem="girdi",
-            actor=actor,
-            source_type="envanter",
-            source_id=item.id,
-        )
+    create_stock_log(
+        db,
+        donanim_tipi=donanim_tipi,
+        miktar=1,
+        ifs_no=item.ifs_no,
+        marka=item.marka,
+        model=item.model,
+        islem="girdi",
+        actor=actor,
+        source_type="envanter",
+        source_id=item.id,
     )
 
     total = db.get(StockTotal, donanim_tipi) or StockTotal(

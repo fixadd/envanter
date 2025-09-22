@@ -5,6 +5,8 @@ import models
 from sqlalchemy import func, case, or_, inspect, literal
 from typing import List
 
+from utils.stock_log import create_stock_log, normalize_islem
+
 router = APIRouter(prefix="/api", tags=["API"])
 
 # Basit lookup tablosu
@@ -303,25 +305,29 @@ def stock_log_create(
     aciklama: str | None = None,
     db: Session = Depends(get_db),
 ):
-    if islem not in ("girdi", "cikti", "hurda"):
+    islem_normalized, islem_valid = normalize_islem(islem)
+    if not islem_valid:
         raise HTTPException(400, "Geçersiz işlem")
     if miktar <= 0:
         raise HTTPException(400, "Miktar > 0 olmalı")
     total = db.get(models.StockTotal, donanim_tipi) or models.StockTotal(
         donanim_tipi=donanim_tipi, toplam=0
     )
-    if islem in ("cikti", "hurda") and total.toplam < miktar:
+    if islem_normalized in ("cikti", "hurda", "atama") and total.toplam < miktar:
         raise HTTPException(400, "Yetersiz stok")
-    log = models.StockLog(
+    create_stock_log(
+        db,
         donanim_tipi=donanim_tipi,
         miktar=miktar,
-        islem=islem,
+        islem=islem_normalized,
         ifs_no=ifs_no,
         actor=islem_yapan,
         aciklama=aciklama,
     )
-    db.add(log)
-    total.toplam = total.toplam + miktar if islem == "girdi" else total.toplam - miktar
+    if islem_normalized == "girdi":
+        total.toplam += miktar
+    else:
+        total.toplam -= miktar
     db.merge(total)
     db.commit()
     return {"ok": True}

@@ -35,6 +35,7 @@ from models import (
     Model,
 )
 from routers.api import stock_status_detail
+from utils.stock_log import create_stock_log, normalize_islem
 from security import current_user
 
 router = APIRouter(prefix="/stock", tags=["Stock"])
@@ -327,15 +328,20 @@ def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):
             return {"ok": False, "error": "Miktar 0'dan büyük olmalı"}
         if miktar <= 0:
             return {"ok": False, "error": "Miktar 0'dan büyük olmalı"}
-    islem = payload.get("islem") or "girdi"
+    islem_raw = payload.get("islem")
+    islem, islem_valid = normalize_islem(islem_raw)
+    if islem_raw and not islem_valid:
+        return {"ok": False, "error": "Geçersiz işlem türü"}
 
     total = db.get(StockTotal, donanim_tipi) or StockTotal(
         donanim_tipi=donanim_tipi, toplam=0
     )
-    if islem in ("cikti", "hurda") and total.toplam < miktar:
+    if islem in ("cikti", "hurda", "atama") and total.toplam < miktar:
         return {"ok": False, "error": "Yetersiz stok"}
 
-    log = StockLog(
+    log_id = create_stock_log(
+        db,
+        return_id=True,
         donanim_tipi=donanim_tipi,
         marka=marka,
         model=model,
@@ -350,12 +356,14 @@ def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):
         source_type=payload.get("source_type"),
         source_id=payload.get("source_id"),
     )
-    db.add(log)
 
-    total.toplam = total.toplam + miktar if islem == "girdi" else total.toplam - miktar
+    if islem == "girdi":
+        total.toplam += miktar
+    else:
+        total.toplam -= miktar
     db.merge(total)
     db.commit()
-    return {"ok": True, "id": log.id}
+    return {"ok": True, "id": log_id or 0}
 
 class StockOption(BaseModel):
     """UI'daki stok seçenekleri için DTO."""
@@ -832,19 +840,18 @@ def stock_assign(
             )
         )
 
-        db.add(
-            StockLog(
-                donanim_tipi=donanim_tipi,
-                marka=item.get("marka") if item else None,
-                model=item.get("model") if item else None,
-                miktar=payload.miktar,
-                ifs_no=ifs_no,
-                islem="cikti",
-                actor=actor,
-                aciklama=payload.notlar,
-                source_type=payload.atama_turu,
-                source_id=created_id,
-            )
+        create_stock_log(
+            db,
+            donanim_tipi=donanim_tipi,
+            marka=item.get("marka") if item else None,
+            model=item.get("model") if item else None,
+            miktar=payload.miktar,
+            ifs_no=ifs_no,
+            islem="cikti",
+            actor=actor,
+            aciklama=payload.notlar,
+            source_type=payload.atama_turu,
+            source_id=created_id,
         )
 
     return {
