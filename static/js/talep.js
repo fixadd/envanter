@@ -1,8 +1,14 @@
 // /static/js/talep.js
 (function () {
   const modal = document.getElementById("talepModal");
-  const tableBody = () => document.querySelector("#rowsTable tbody");
-  const addRowBtn = () => document.getElementById("btnAddRow");
+  const tableBody = document.querySelector("#rowsTable tbody");
+  const addRowBtn = document.getElementById("btnAddRow");
+  const talepForm = document.getElementById("talepForm");
+  const ifsInput = document.getElementById("ifs_no");
+
+  if (!tableBody || !talepForm || !ifsInput) {
+    return;
+  }
 
   // Basit cache
   const cache = {};
@@ -91,46 +97,51 @@
 
   async function addRow() {
     const tr = rowTemplate();
-    tableBody().appendChild(tr);
+    tableBody.appendChild(tr);
     await fillStaticLookups(tr);
 
     // Eventler
-    tr.querySelector(".sel-marka").addEventListener("change", (e) => {
+    const markaSelect = tr.querySelector(".sel-marka");
+    const removeButton = tr.querySelector(".btn-remove");
+
+    markaSelect?.addEventListener("change", (e) => {
       onBrandChange(tr, e.target.value);
     });
-    tr.querySelector(".btn-remove").addEventListener("click", () => {
+    removeButton?.addEventListener("click", () => {
       tr.remove();
     });
   }
 
   // Modal açıldığında ilk satırı garanti ekle
   modal?.addEventListener("shown.bs.modal", async () => {
-    if (!tableBody().children.length) {
+    if (!tableBody.children.length) {
       await addRow();
     }
   });
 
   // Satır ekle butonu
-  document.addEventListener("click", async (e) => {
-    if (e.target?.id === "btnAddRow") {
-      await addRow();
-    }
+  addRowBtn?.addEventListener("click", async () => {
+    await addRow();
   });
 
   // Form submit
-  document.addEventListener("submit", async (e) => {
-    const form = e.target;
-    if (form?.id !== "talepForm") return;
+  talepForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const ifs_no = document.getElementById("ifs_no").value.trim();
+    const ifs_no = ifsInput.value.trim();
     const lines = [];
-    tableBody().querySelectorAll("tr").forEach((tr) => {
-      const donanim_tipi_id = Number(tr.querySelector(".sel-donanim").value || 0);
-      const miktar = Number(tr.querySelector(".inp-miktar").value || 0);
-      const marka_id = Number(tr.querySelector(".sel-marka").value || 0);
-      const model_id = Number(tr.querySelector(".sel-model").value || 0);
-      const aciklama = tr.querySelector(".inp-aciklama").value.trim() || null;
+    tableBody.querySelectorAll("tr").forEach((tr) => {
+      const donanimSelect = tr.querySelector(".sel-donanim");
+      const miktarInput = tr.querySelector(".inp-miktar");
+      const markaSelect = tr.querySelector(".sel-marka");
+      const modelSelect = tr.querySelector(".sel-model");
+      const aciklamaInput = tr.querySelector(".inp-aciklama");
+
+      const donanim_tipi_id = Number(donanimSelect?.value || 0);
+      const miktar = Number(miktarInput?.value || 0);
+      const marka_id = Number(markaSelect?.value || 0);
+      const model_id = Number(modelSelect?.value || 0);
+      const aciklama = aciklamaInput?.value.trim() || null;
 
       if (donanim_tipi_id && miktar > 0) {
         lines.push({ donanim_tipi_id, miktar, marka_id, model_id, aciklama });
