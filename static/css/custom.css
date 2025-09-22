@@ -706,3 +706,21 @@ tr[data-href] > td:first-child {
 .inline-gap-sm { gap: var(--space-sm); }
 .inline-gap-md { gap: var(--space-md); }
 
+
+/* -------------------------------------------------------------------------- */
+/* Bilgi kartları                                                             */
+/* -------------------------------------------------------------------------- */
+.bilgi-card .card {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.bilgi-card .bilgi-content {
+  white-space: normal;
+}
+
+.bilgi-card .bilgi-photo {
+  max-height: 240px;
+  width: 100%;
+  object-fit: cover;
+}
