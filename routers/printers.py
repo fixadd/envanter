@@ -398,7 +398,9 @@ def stock_printer(printer_id: int, db: Session = Depends(get_db), user=Depends(c
         )
     )
     db.commit()
-    return RedirectResponse(url="/stock", status_code=303)
+    return RedirectResponse(
+        url="/stock?tab=status&module=printer", status_code=303
+    )
 
 
 @router.post("/{printer_id}/scrap")
