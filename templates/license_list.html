@@ -70,6 +70,7 @@
             {% set fault_device = row.lisans_key or ('Lisans #' ~ row.id) %}
             {% set fault_title = row.lisans_adi %}
             {% set fault_entity_key = row.id %}
+            {% set fault_status = row.durum %}
             {% include 'partials/_actions_menu.html' %}
           </td>
         </tr>
