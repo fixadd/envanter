@@ -106,7 +106,6 @@
   const STOCK_STATUS_URL = `${API_ROOT_META}/stock/status`;
   const API_PREFIX = '';
   const URLS = {
-    stockOptions: `${API_PREFIX}/stock/options`,
     assignSources: `${API_PREFIX}/inventory/assign/sources`,
     stockAssign: `${API_PREFIX}/stock/assign`,
     assignSourceDetail: `${API_PREFIX}/stock/assign/source-detail`,
@@ -276,7 +275,7 @@
   const StockAssign = (() => {
     const state = {
       selectedStockMeta: null,
-      preselectStockId: null,
+      currentStockId: null,
       sourceCache: new Map(),
       sourceRequestId: 0,
     };
@@ -321,38 +320,6 @@
       }
     }
 
-    async function loadStocks() {
-      const select = dom.one('#sa_stock');
-      if (!select) return;
-      select.innerHTML = '<option value="">Seçiniz...</option>';
-      try {
-        const data = await http.getJson(URLS.stockOptions);
-        if (!Array.isArray(data) || data.length === 0) {
-          showBanner('Uygun stok bulunamadı (miktar > 0).', 'warning');
-          return;
-        }
-        data.forEach((item) => {
-          const option = document.createElement('option');
-          option.value = item.id;
-          option.textContent =
-            item.label ?? `${item.donanim_tipi || 'Donanım'} | IFS:${item.ifs_no || '-'} | Mevcut:${item.mevcut_miktar ?? 0}`;
-          option.dataset.tip = item.donanim_tipi || '';
-          option.dataset.ifs = item.ifs_no || '';
-          option.dataset.qty = String(Number(item.mevcut_miktar ?? 0));
-          option.dataset.meta = encodeURIComponent(JSON.stringify(item));
-          select.appendChild(option);
-        });
-        if (state.preselectStockId) {
-          select.value = state.preselectStockId;
-          select.dispatchEvent(new Event('change'));
-          state.preselectStockId = null;
-        }
-      } catch (err) {
-        showBanner('Stok listesi yüklenemedi. Konsolu kontrol edin.', 'danger');
-        console.error('sa_loadStocks failed', err);
-      }
-    }
-
     async function loadSources() {
       try {
         const [usersRes, inventoryRes, factoryRes, deptRes, usageRes] = await Promise.all([
@@ -384,7 +351,9 @@
 
     function resetStockMetaDisplay() {
       state.selectedStockMeta = null;
+      state.currentStockId = null;
       dom.toggle(dom.one('#sa_stock_meta'), false);
+      dom.toggle(dom.one('#sa_stock_alert'), true);
       const defaults = {
         '#sa_meta_tip': '-',
         '#sa_meta_ifs': '-',
@@ -404,31 +373,55 @@
           el?.classList.add('d-none');
         },
       );
+      const miktar = dom.one('#sa_miktar');
+      if (miktar) {
+        miktar.value = '1';
+        miktar.removeAttribute('max');
+      }
+      const submitBtn = dom.one('#sa_submit');
+      submitBtn?.setAttribute('disabled', 'disabled');
     }
 
-    function renderStockMeta(meta, option) {
-      if (!meta || !option) {
+    function computeStockId(meta) {
+      if (!meta) return '';
+      return [meta.donanim_tipi || '', meta.marka || '', meta.model || '', meta.ifs_no || ''].join('|');
+    }
+
+    function normaliseStockMeta(meta) {
+      if (!meta) return null;
+      const normalised = { ...meta };
+      if (normalised.net !== undefined && normalised.mevcut_miktar === undefined) {
+        normalised.mevcut_miktar = normalised.net;
+      }
+      normalised.mevcut_miktar = Number(normalised.mevcut_miktar ?? 0);
+      return normalised;
+    }
+
+    function renderStockMeta(meta) {
+      const normalised = normaliseStockMeta(meta);
+      if (!normalised) {
         resetStockMetaDisplay();
         return;
       }
-      state.selectedStockMeta = meta;
+      state.selectedStockMeta = normalised;
+      state.currentStockId = computeStockId(normalised);
       const tipEl = dom.one('#sa_meta_tip');
       if (tipEl) {
-        tipEl.textContent = meta?.donanim_tipi || '-';
+        tipEl.textContent = normalised?.donanim_tipi || '-';
         tipEl.classList.add('text-break');
       }
       const ifsEl = dom.one('#sa_meta_ifs');
       if (ifsEl) {
-        ifsEl.textContent = meta?.ifs_no || '-';
+        ifsEl.textContent = normalised?.ifs_no || '-';
         ifsEl.classList.add('text-break');
       }
       const qtyEl = dom.one('#sa_meta_qty');
-      if (qtyEl) qtyEl.textContent = option.dataset.qty || '0';
+      if (qtyEl) qtyEl.textContent = String(normalised.mevcut_miktar || 0);
 
-      const brand = meta?.marka || '';
-      const model = meta?.model || '';
-      const licenseKey = meta?.lisans_anahtari || '';
-      const mail = meta?.mail_adresi || '';
+      const brand = normalised?.marka || '';
+      const model = normalised?.model || '';
+      const licenseKey = normalised?.lisans_anahtari || '';
+      const mail = normalised?.mail_adresi || '';
       const brandWrap = dom.one('#sa_meta_brand_wrap');
       const modelWrap = dom.one('#sa_meta_model_wrap');
       const licenseWrap = dom.one('#sa_meta_license_wrap');
@@ -463,50 +456,28 @@
         const hasLicenseInfo = Boolean(licenseKey || mail);
         dom.toggle(licenseRow, hasLicenseInfo);
       }
-      dom.toggle(dom.one('#sa_stock_meta'), true);
-    }
-
-    function parseStockOption(option) {
-      if (!option) return null;
-      if (!option.dataset.meta) {
-        return {
-          donanim_tipi: option.dataset.tip || '',
-          ifs_no: option.dataset.ifs || '',
-          mevcut_miktar: Number(option.dataset.qty || 0),
-        };
-      }
-      try {
-        return JSON.parse(decodeURIComponent(option.dataset.meta));
-      } catch (err) {
-        console.warn('meta parse failed', err);
-        return {
-          donanim_tipi: option.dataset.tip || '',
-          ifs_no: option.dataset.ifs || '',
-          mevcut_miktar: Number(option.dataset.qty || 0),
-        };
-      }
-    }
-
-    function handleStockChange(event) {
-      const select = event.currentTarget;
-      const option = select.selectedOptions[0];
-      if (!option || !option.value) {
-        resetStockMetaDisplay();
-        updateAutoFields();
-        return;
-      }
-      const meta = parseStockOption(option);
-      renderStockMeta(meta, option);
-      updateAutoFields();
-
       const miktar = dom.one('#sa_miktar');
       if (miktar) {
-        const max = Number(option.dataset.qty || 1);
+        const max = Math.max(1, Number(normalised.mevcut_miktar || 0));
         miktar.max = String(max);
         if (Number(miktar.value) > max) {
           miktar.value = String(max);
         }
       }
+      dom.toggle(dom.one('#sa_stock_meta'), true);
+      dom.toggle(dom.one('#sa_stock_alert'), false);
+      const submitBtn = dom.one('#sa_submit');
+      submitBtn?.removeAttribute('disabled');
+    }
+
+    function setSelectedStock(meta) {
+      if (!meta) {
+        resetStockMetaDisplay();
+        updateAutoFields();
+        return;
+      }
+      renderStockMeta(meta);
+      updateAutoFields();
     }
 
     function applyFieldRules() {
@@ -597,7 +568,7 @@
     }
 
     function buildAssignmentPayload() {
-      const stockValue = valueOf('#sa_stock');
+      const stockValue = state.currentStockId;
       if (!stockValue) {
         throw new Error('Lütfen stok seçiniz.');
       }
@@ -638,7 +609,6 @@
         }
         showBanner(result?.message || 'Atama tamamlandı.', 'success');
         dom.one('#stokAtamaModal .btn-close')?.click();
-        await loadStocks();
         await refreshStockStatus();
       } catch (err) {
         showBanner(err.message || 'Atama gönderilemedi.', 'danger');
@@ -785,7 +755,10 @@
     function assignFromStatus(encoded) {
       try {
         const item = JSON.parse(decodeURIComponent(encoded));
-        state.preselectStockId = [item.donanim_tipi, item.marka || '', item.model || '', item.ifs_no || ''].join('|');
+        setSelectedStock({
+          ...item,
+          mevcut_miktar: item.mevcut_miktar ?? item.net,
+        });
         const modalEl = document.getElementById('stokAtamaModal');
         if (modalEl) {
           const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
@@ -826,7 +799,6 @@
         const result = await http.postJson('/stock/add', payload);
         if (result?.ok) {
           await refreshStockStatus();
-          await loadStocks();
         } else {
           alert(result?.error || 'İşlem başarısız');
         }
@@ -1072,21 +1044,28 @@
       const statusTab = document.getElementById('tab-status');
       statusTab?.addEventListener('shown.bs.tab', refreshStockStatus);
 
-      const stockSelect = dom.one('#sa_stock');
-      stockSelect?.addEventListener('change', handleStockChange);
       dom.one('#sa_submit')?.addEventListener('click', submitAssignment);
       bindTabChange();
       applyFieldRules();
 
       console.log('[StokAtama] DOMContentLoaded');
-      loadStocks();
       loadSources();
 
       document.addEventListener('shown.bs.modal', async (event) => {
         if (event.target.id !== 'stokAtamaModal') return;
-        await loadStocks();
         await loadSources();
+        if (state.selectedStockMeta) {
+          renderStockMeta(state.selectedStockMeta);
+        } else {
+          resetStockMetaDisplay();
+        }
+        updateAutoFields();
         applyFieldRules();
+      });
+
+      document.addEventListener('hidden.bs.modal', (event) => {
+        if (event.target.id !== 'stokAtamaModal') return;
+        setSelectedStock(null);
       });
     }
 
