@@ -508,7 +508,9 @@ def stock_entry(
         )
     )
     db.commit()
-    return RedirectResponse(url="/stock", status_code=303)
+    return RedirectResponse(
+        url="/stock?tab=status&module=inventory", status_code=303
+    )
 
 
 @router.post("/scrap", name="inventory.scrap")
