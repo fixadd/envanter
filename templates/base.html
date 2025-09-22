@@ -80,27 +80,58 @@
         {% if request.session.get('user_id') %}
         <!-- Sol bloklar -->
         <aside class="col-12 col-lg-2">
-          <div class="side-group soft-card p-3 mb-3">
-            <a class="side-link" href="/dashboard">Ana Sayfa</a>
+          <div class="side-group soft-card p-3 mb-3 stack-sm">
+            <a class="side-link" href="/dashboard">
+              <i class="bi bi-speedometer2"></i>
+              <span>Ana Sayfa</span>
+            </a>
           </div>
-          <div class="side-group soft-card p-3 mb-3">
+          <div class="side-group soft-card p-3 mb-3 stack-sm">
             <div class="side-title">ENVANTER</div>
-            <a class="side-link" href="/inventory">Envanter Takip</a>
-            <a class="side-link" href="/lisans">Lisans Takip</a>
-            <a class="side-link" href="/printers">Yazıcı Takip</a>
-            <a class="side-link" href="/stock">Stok Takip</a>
+            <a class="side-link" href="/inventory">
+              <i class="bi bi-hdd-stack"></i>
+              <span>Envanter Takip</span>
+            </a>
+            <a class="side-link" href="/lisans">
+              <i class="bi bi-key"></i>
+              <span>Lisans Takip</span>
+            </a>
+            <a class="side-link" href="/printers">
+              <i class="bi bi-printer"></i>
+              <span>Yazıcı Takip</span>
+            </a>
+            <a class="side-link" href="/stock">
+              <i class="bi bi-box-seam"></i>
+              <span>Stok Takip</span>
+            </a>
+          </div>
         </div>
-        <div class="side-group soft-card p-3 mb-3">
+        <div class="side-group soft-card p-3 mb-3 stack-sm">
           <div class="side-title">İŞLEMLER</div>
-          <a class="side-link" href="/talepler">Talep Takip</a>
-          <a class="side-link" href="{{ url_for('inventory.hurdalar') }}">Hurdalar</a>
+          <a class="side-link" href="/talepler">
+            <i class="bi bi-inboxes"></i>
+            <span>Talep Takip</span>
+          </a>
+          <a class="side-link" href="{{ url_for('inventory.hurdalar') }}">
+            <i class="bi bi-recycle"></i>
+            <span>Hurdalar</span>
+          </a>
         </div>
-        <div class="side-group soft-card p-3">
+        <div class="side-group soft-card p-3 stack-sm">
           <div class="side-title">AYARLAR</div>
-          <a class="side-link" href="/profile">Profil</a>
+          <a class="side-link" href="/profile">
+            <i class="bi bi-person-circle"></i>
+            <span>Profil</span>
+          </a>
           {% if request.session.get('user_role') == 'admin' %}
-          <a class="side-link" href="/admin">Admin Paneli</a>
-          <a class="side-link" href="/logs">Kayıtlar</a>
+          <a class="side-link" href="/admin">
+            <i class="bi bi-gear-wide-connected"></i>
+            <span>Admin Paneli</span>
+          </a>
+          <a class="side-link" href="/logs">
+            <i class="bi bi-clock-history"></i>
+            <span>Kayıtlar</span>
+          </a>
           {% endif %}
         </div>
       </aside>
