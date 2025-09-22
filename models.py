@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 import enum
-from typing import Any
+from typing import Any, Optional
 
 from dotenv import load_dotenv
 from sqlalchemy import (
@@ -19,6 +19,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    Boolean,
     create_engine,
     func,
 )
@@ -78,6 +79,13 @@ class User(Base):
     animation: Mapped[str] = mapped_column(String(20), default="none")
     created_at: Mapped[str] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
+    )
+
+    pin_limit: Mapped[Optional["UserPinLimit"]] = relationship(
+        "UserPinLimit",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        uselist=False,
     )
 
     @property
@@ -515,6 +523,66 @@ class Lookup(Base):
     )
 
     __table_args__ = (UniqueConstraint("type", "value", name="uq_lookup_type_value"),)
+
+
+class BilgiKategori(Base):
+    __tablename__ = "bilgi_kategorileri"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    ad: Mapped[str] = mapped_column(String(150), unique=True, index=True, nullable=False)
+    aciklama: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, nullable=False
+    )
+
+    bilgiler: Mapped[list["Bilgi"]] = relationship(
+        "Bilgi", back_populates="kategori", cascade="all, delete-orphan"
+    )
+
+
+class Bilgi(Base):
+    __tablename__ = "bilgiler"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    baslik: Mapped[str] = mapped_column(String(200), nullable=False)
+    kategori_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("bilgi_kategorileri.id"), nullable=True, index=True
+    )
+    icerik: Mapped[str] = mapped_column(Text, nullable=False)
+    foto_yolu: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    kullanici_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False, index=True
+    )
+    is_pinned: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    pinned_by: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=True, index=True
+    )
+    pinned_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+    )
+
+    kategori: Mapped[Optional["BilgiKategori"]] = relationship(
+        "BilgiKategori", back_populates="bilgiler"
+    )
+    author: Mapped["User"] = relationship("User", foreign_keys=[kullanici_id])
+    pinned_by_user: Mapped[Optional["User"]] = relationship(
+        "User", foreign_keys=[pinned_by], viewonly=True
+    )
+
+
+class UserPinLimit(Base):
+    __tablename__ = "user_pin_limits"
+
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), primary_key=True, nullable=False
+    )
+    pin_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+
+    user: Mapped["User"] = relationship("User", back_populates="pin_limit")
 
 
 

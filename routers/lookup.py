@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 
 from database import get_db  # projedeki mevcut get_db
-from models import Lookup, Model as ModelTbl, Brand, HardwareType
+from models import Lookup, Model as ModelTbl, Brand, HardwareType, BilgiKategori
 
 router = APIRouter(prefix="/api/lookup", tags=["lookup"])
 
@@ -21,6 +21,12 @@ def lookup_marka(db: Session = Depends(get_db)):
     rows = db.query(Brand).order_by(Brand.name.asc()).all()
     # İstemcilerin beklediği alan adı `name` olduğundan bu alanı döndür
     return [{"id": r.id, "name": r.name} for r in rows]
+
+
+@router.get("/bilgi_kategorileri")
+def lookup_bilgi_kategorileri(db: Session = Depends(get_db)):
+    rows = db.query(BilgiKategori).order_by(BilgiKategori.ad.asc()).all()
+    return [{"id": r.id, "name": r.ad} for r in rows]
 
 
 @router.get("/model")
@@ -71,6 +77,8 @@ ENTITY_TABLE = {
     "donanim_tipi": "hardware_types",
     "lisans-adi": "license_names",
     "lisans_adi": "license_names",
+    "bilgi-kategori": "bilgi_kategorileri",
+    "bilgi_kategorileri": "bilgi_kategorileri",
 }
 
 # Kolon/lookup bulunmadığında dönecek güvenli değerler
