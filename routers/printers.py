@@ -24,6 +24,7 @@ from models import (
 )
 from sqlalchemy import text
 from utils.stock_log import create_stock_log
+from utils.faults import resolve_fault, FAULT_STATUS_SCRAP
 
 templates = Jinja2Templates(directory="templates")
 router = APIRouter(prefix="/printers", tags=["Printers"])
@@ -439,6 +440,15 @@ def scrap_printer(
             existing.created_at = datetime.utcnow()
         else:
             db.add(ScrapPrinter(printer_id=p.id, snapshot=snap, reason=reason))
+
+    resolve_fault(
+        db,
+        "printer",
+        entity_id=p.id,
+        status=FAULT_STATUS_SCRAP,
+        actor=getattr(user, "full_name", None) or getattr(user, "username", ""),
+        note=reason or "Hurdaya ayrıldı",
+    )
 
     db.commit()
     return JSONResponse({"ok": True})

@@ -31,6 +31,7 @@ from models import (
 )
 from security import current_user
 from utils.stock_log import create_stock_log
+from utils.faults import resolve_fault, FAULT_STATUS_SCRAP
 
 templates = register_filters(Jinja2Templates(directory="templates"))
 
@@ -553,6 +554,14 @@ def scrap(
             created_at=datetime.utcnow(),
             actor=user.username,
         )
+    )
+    resolve_fault(
+        db,
+        "inventory",
+        entity_id=item.id,
+        status=FAULT_STATUS_SCRAP,
+        actor=getattr(user, "full_name", None) or user.username,
+        note="Hurdaya ayırma işlemi",
     )
     db.commit()
     return JSONResponse({"ok": True})

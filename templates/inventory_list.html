@@ -4,11 +4,14 @@
   <div id="inventory-list-root" class="container-fluid p-2">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h5 class="mb-0">Envanter</h5>
-    <div class="d-flex align-items-center gap-2">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
       <a href="#" id="addBtn" class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle">
         <i class="bi bi-plus-lg"></i>
         <span>Ekle</span>
       </a>
+      {% with fault_entity='inventory', fault_prefix='inventory', fault_label='Envanter Arızalı Durum' %}
+        {% include 'partials/_fault_controls.html' %}
+      {% endwith %}
       <div class="dropdown">
         <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
           Excel
@@ -42,8 +45,13 @@
     </thead>
     <tbody>
       {% for row in items %}
-      <tr data-id="{{ row.id }}" class="inv-row">
-        <td>{{ row.no }}</td>
+      <tr data-id="{{ row.id }}" class="inv-row{% if row.durum == 'arızalı' %} table-warning{% endif %}">
+        <td>
+          {{ row.no }}
+          {% if row.durum == 'arızalı' %}
+            <span class="badge text-bg-warning text-dark ms-1">Arızalı</span>
+          {% endif %}
+        </td>
         <td>{{ row.fabrika }}</td>
         <td>{{ row.departman }}</td>
         <td>{{ row.sorumlu_personel }}</td>
@@ -51,6 +59,10 @@
         <td class="text-nowrap">
           {% set entity = 'inventory' %}
           {% set row_id = row.id %}
+          {% set fault_mode = True %}
+          {% set fault_device = row.no %}
+          {% set fault_title = (row.marka ~ ' ' ~ row.model)|trim %}
+          {% set fault_entity_key = row.no %}
           {% include 'partials/_actions_menu.html' %}
         </td>
       </tr>
@@ -412,12 +424,23 @@ document.addEventListener('DOMContentLoaded', () => {
       const val = e.target.value;
       if (!val) return;
 
-      if (val === 'assign') {
-        await preloadAssignDropdowns(id);
-        document.getElementById('assign_item_id').value = id;
-        assignModal.show();
-      } else if (val === 'edit') {
-        if(window.openModal){ openModal(`/inventory/${id}/edit?modal=1`); }
+      if (val === 'fault') {
+        if (window.Faults) {
+          window.Faults.openMarkModal('inventory', {
+            entityId: Number(id),
+            entityKey: e.target.dataset.entityKey || e.target.dataset.device || id,
+            deviceNo: e.target.dataset.device || '',
+            title: e.target.dataset.title || '',
+          });
+        }
+      } else if (val === 'repair') {
+        if (window.Faults) {
+          window.Faults.openRepairModal('inventory', {
+            entityId: Number(id),
+            entityKey: e.target.dataset.entityKey || e.target.dataset.device || id,
+            deviceNo: e.target.dataset.device || '',
+          });
+        }
       } else if (val === 'scrap') {
         document.getElementById('scrap_item_id').value = id;
         scrapModal.show();
