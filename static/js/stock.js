@@ -390,10 +390,15 @@
     function normaliseStockMeta(meta) {
       if (!meta) return null;
       const normalised = { ...meta };
-      if (normalised.net !== undefined && normalised.mevcut_miktar === undefined) {
-        normalised.mevcut_miktar = normalised.net;
+      if (normalised.mevcut_miktar === undefined) {
+        if (normalised.net_miktar !== undefined) {
+          normalised.mevcut_miktar = normalised.net_miktar;
+        } else if (normalised.net !== undefined) {
+          normalised.mevcut_miktar = normalised.net;
+        }
       }
-      normalised.mevcut_miktar = Number(normalised.mevcut_miktar ?? 0);
+      const numericQty = Number(normalised.mevcut_miktar ?? 0);
+      normalised.mevcut_miktar = Number.isNaN(numericQty) ? 0 : numericQty;
       return normalised;
     }
 
@@ -757,7 +762,7 @@
         const item = JSON.parse(decodeURIComponent(encoded));
         setSelectedStock({
           ...item,
-          mevcut_miktar: item.mevcut_miktar ?? item.net,
+          mevcut_miktar: item.mevcut_miktar ?? item.net_miktar ?? item.net,
         });
         const modalEl = document.getElementById('stokAtamaModal');
         if (modalEl) {
