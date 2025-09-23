@@ -1,13 +1,39 @@
 (function () {
+  const ENTITY_ALIASES = {
+    inventory: 'inventory',
+    envanter: 'inventory',
+    inventories: 'inventory',
+    license: 'license',
+    licenses: 'license',
+    lisans: 'license',
+    yazilim: 'license',
+    software: 'license',
+    printer: 'printer',
+    printers: 'printer',
+    yazici: 'printer',
+    stok: 'stock',
+    stock: 'stock',
+  };
+
+  function normaliseEntityName(value) {
+    if (value == null) return '';
+    const key = String(value).trim().toLowerCase();
+    return ENTITY_ALIASES[key] || key;
+  }
+
   const API = {
     async list(entity) {
-      const params = new URLSearchParams({ entity, status: 'arızalı' });
+      const entityName = normaliseEntityName(entity);
+      if (!entityName) throw new Error('Modül bilgisi eksik');
+      const params = new URLSearchParams({ entity: entityName, status: 'arızalı' });
       const res = await fetch(`/faults/list?${params.toString()}`, { credentials: 'same-origin' });
       if (!res.ok) throw new Error('Arızalı kayıtlar alınamadı');
       return res.json();
     },
     async get(entity, entityId, entityKey) {
-      const params = new URLSearchParams({ entity });
+      const entityName = normaliseEntityName(entity);
+      if (!entityName) throw new Error('Modül bilgisi eksik');
+      const params = new URLSearchParams({ entity: entityName });
       if (entityId != null) params.append('entity_id', String(entityId));
       if (entityKey) params.append('entity_key', entityKey);
       const res = await fetch(`/faults/entity?${params.toString()}`, { credentials: 'same-origin' });
@@ -15,6 +41,10 @@
       return res.json();
     },
     async mark(formData) {
+      const entityField = formData.get('entity');
+      if (entityField) {
+        formData.set('entity', normaliseEntityName(entityField));
+      }
       const res = await fetch('/faults/mark', {
         method: 'POST',
         body: formData,
@@ -27,6 +57,10 @@
       return res.json();
     },
     async repair(formData) {
+      const entityField = formData.get('entity');
+      if (entityField) {
+        formData.set('entity', normaliseEntityName(entityField));
+      }
       const res = await fetch('/faults/repair', {
         method: 'POST',
         body: formData,
@@ -115,12 +149,24 @@
   }
 
   async function refresh(entity) {
-    const containerState = state.get(entity);
+    const entityName = normaliseEntityName(entity);
+    if (!entityName) return;
+    const containerState = state.get(entityName);
     if (!containerState) return;
     try {
-      const data = await API.list(entity);
-      renderSummary(containerState, data.items || []);
+      const data = await API.list(containerState.entityParam || entityName);
+      const items = Array.isArray(data?.items) ? data.items : [];
+      containerState.items = items;
+      renderSummary(containerState, items);
+      if (entityName === 'stock' && typeof window.onStockFaultsUpdated === 'function') {
+        try {
+          window.onStockFaultsUpdated();
+        } catch (callbackErr) {
+          console.warn('stock fault sync failed', callbackErr);
+        }
+      }
     } catch (err) {
+      containerState.items = [];
       if (containerState.countEl) containerState.countEl.textContent = '!';
       if (containerState.listEl) {
         containerState.listEl.innerHTML = `<div class="text-danger small">${err.message}</div>`;
@@ -129,9 +175,11 @@
   }
 
   async function openSummary(entity) {
-    const containerState = state.get(entity);
+    const entityName = normaliseEntityName(entity);
+    if (!entityName) return;
+    const containerState = state.get(entityName);
     if (!containerState) return;
-    await refresh(entity);
+    await refresh(containerState.entityParam || entityName);
     if (containerState.summaryModal) {
       ensureBootstrapModal(containerState.summaryModal).show();
     }
@@ -154,7 +202,9 @@
   }
 
   async function openMarkModal(entity, options) {
-    const containerState = state.get(entity);
+    const entityName = normaliseEntityName(entity);
+    if (!entityName) return;
+    const containerState = state.get(entityName);
     if (!containerState) return;
     const { markModal, markForm, inputs } = containerState;
     if (!markModal || !markForm || !inputs) return;
@@ -164,18 +214,20 @@
     inputs.device.value = deviceNo || '';
     inputs.title.value = title || '';
     inputs.meta.value = meta ? JSON.stringify(meta) : '';
-    await populateExistingFault(entity, entityId, entityKey, inputs);
+    await populateExistingFault(containerState.entityParam || entityName, entityId, entityKey, inputs);
     ensureBootstrapModal(markModal).show();
   }
 
   async function openRepairModal(entity, options) {
-    const containerState = state.get(entity);
+    const entityName = normaliseEntityName(entity);
+    if (!entityName) return;
+    const containerState = state.get(entityName);
     if (!containerState) return;
     const { repairModal, repairForm, repairInputs } = containerState;
     if (!repairModal || !repairForm || !repairInputs) return;
     const { entityId = null, entityKey = '', deviceNo = '' } = options || {};
     try {
-      const data = await API.get(entity, entityId, entityKey);
+      const data = await API.get(containerState.entityParam || entityName, entityId, entityKey);
       const fault = data?.fault;
       if (!fault) {
         alert('Aktif arıza kaydı bulunamadı.');
@@ -192,6 +244,22 @@
       console.error(err);
       alert(err.message || 'Arıza bilgisi alınamadı');
     }
+  }
+
+  function findFaultRecord(entity, entityKey) {
+    const entityName = normaliseEntityName(entity);
+    if (!entityName) return null;
+    const key = entityKey == null ? '' : String(entityKey).trim();
+    if (!key) return null;
+    const containerState = state.get(entityName);
+    if (!containerState || !Array.isArray(containerState.items)) return null;
+    const lookupKey = key.toLowerCase();
+    return (
+      containerState.items.find((item) => {
+        const itemKey = item?.entity_key;
+        return itemKey && String(itemKey).trim().toLowerCase() === lookupKey;
+      }) || null
+    );
   }
 
   function collectInputs(form) {
@@ -218,9 +286,10 @@
   }
 
   function initContainer(container) {
-    const entity = container.dataset.faultEntity;
-    if (!entity) return;
-    const prefix = container.dataset.faultPrefix || entity;
+    const rawEntity = container.dataset.faultEntity;
+    const entityName = normaliseEntityName(rawEntity);
+    if (!entityName) return;
+    const prefix = container.dataset.faultPrefix || entityName;
     const summaryModal = document.getElementById(`${prefix}FaultSummaryModal`);
     const markModal = document.getElementById(`${prefix}FaultMarkModal`);
     const repairModal = document.getElementById(`${prefix}FaultRepairModal`);
@@ -230,7 +299,8 @@
     const listEl = summaryModal?.querySelector('[data-fault-list]') || null;
 
     const containerState = {
-      entity,
+      entity: entityName,
+      entityParam: entityName,
       prefix,
       container,
       summaryModal,
@@ -242,12 +312,13 @@
       repairInputs: repairForm ? collectRepairInputs(repairForm) : null,
       countEl,
       listEl,
+      items: [],
     };
-    state.set(entity, containerState);
+    state.set(entityName, containerState);
 
     const trigger = container.querySelector('[data-fault-summary-trigger]');
     if (trigger) {
-      trigger.addEventListener('click', () => openSummary(entity));
+      trigger.addEventListener('click', () => openSummary(entityName));
     }
 
     if (markForm) {
@@ -256,8 +327,8 @@
         try {
           await API.mark(new FormData(markForm));
           ensureBootstrapModal(markModal).hide();
-          await refresh(entity);
-          if (entity === 'stock' && typeof window.loadStockStatus === 'function') {
+          await refresh(entityName);
+          if (entityName === 'stock' && typeof window.loadStockStatus === 'function') {
             window.loadStockStatus();
           }
         } catch (err) {
@@ -272,8 +343,8 @@
         try {
           await API.repair(new FormData(repairForm));
           ensureBootstrapModal(repairModal).hide();
-          await refresh(entity);
-          if (entity === 'stock' && typeof window.loadStockStatus === 'function') {
+          await refresh(entityName);
+          if (entityName === 'stock' && typeof window.loadStockStatus === 'function') {
             window.loadStockStatus();
           }
         } catch (err) {
@@ -282,7 +353,7 @@
       });
     }
 
-    refresh(entity);
+    refresh(entityName);
   }
 
   function initAll() {
@@ -294,6 +365,13 @@
     openMarkModal,
     openRepairModal,
     refresh: refresh,
+    hasOpenFault(entity, entityKey) {
+      return Boolean(findFaultRecord(entity, entityKey));
+    },
+    getOpenFault(entity, entityKey) {
+      const record = findFaultRecord(entity, entityKey);
+      return record ? { ...record } : null;
+    },
   };
 
   document.addEventListener('DOMContentLoaded', () => {

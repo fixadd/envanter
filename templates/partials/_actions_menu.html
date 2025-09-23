@@ -7,14 +7,16 @@
     ('scrap', 'Hurdaya Ayır')
   ] %}
 {% endif %}
-{% set fault_status_value = fault_status|default('')|lower %}
+{% set fault_status_value = fault_status|default('')|lower|trim %}
 {% if fault_mode %}
-  {% set fault_actions = [
-    ('fault', 'Arızalı İşaretle')
-  ] %}
+  {% set fault_actions = [] %}
   {% if fault_status_value == 'arızalı' or fault_status_value == 'arizali' %}
     {% set fault_actions = fault_actions + [
-      ('repair', 'Tamir Edildi')
+      ('repair', 'Aktif Et')
+    ] %}
+  {% else %}
+    {% set fault_actions = fault_actions + [
+      ('fault', 'Arızalı İşaretle')
     ] %}
   {% endif %}
   {% set actions = fault_actions + actions %}
@@ -23,7 +25,7 @@
 {% if fault_status_value == 'arızalı' or fault_status_value == 'arizali' %}
   {% set filtered_actions = [] %}
   {% for value, label in actions %}
-    {% if value not in ['assign', 'edit', 'stock'] %}
+    {% if value not in ['assign', 'edit', 'stock', 'fault'] %}
       {% set filtered_actions = filtered_actions + [(value, label)] %}
     {% endif %}
   {% endfor %}
