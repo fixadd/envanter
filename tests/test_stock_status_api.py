@@ -109,3 +109,46 @@ def test_stock_status_handles_missing_optional_columns(db_session):
     assert item['donanim_tipi'] == 'monitor'
     assert item['net_miktar'] == 2
     assert item['marka'] is None
+
+
+def test_stock_status_detail_reflection_is_cached(monkeypatch, db_session):
+    import routers.api as api_module
+    import utils.stock_log as stock_log_utils
+
+    db_session.add(
+        StockLog(
+            donanim_tipi='monitor',
+            marka='Dell',
+            model='U2412M',
+            ifs_no='IFS-1',
+            miktar=1,
+            islem='girdi',
+            tarih=datetime.utcnow(),
+        )
+    )
+    db_session.commit()
+
+    original_cache = stock_log_utils._AVAILABLE_COLUMNS
+    original_verified = getattr(stock_log_utils, "_CACHE_VERIFIED", False)
+    stock_log_utils._AVAILABLE_COLUMNS = None
+    stock_log_utils._CACHE_VERIFIED = False
+
+    inspect_calls = 0
+    original_inspect = stock_log_utils.inspect
+
+    def tracking_inspect(bind):
+        nonlocal inspect_calls
+        inspect_calls += 1
+        return original_inspect(bind)
+
+    monkeypatch.setattr(stock_log_utils, "inspect", tracking_inspect)
+
+    try:
+        api_module.stock_status_detail(db_session)
+        first_call = inspect_calls
+        api_module.stock_status_detail(db_session)
+        assert inspect_calls == first_call
+        assert inspect_calls <= 1
+    finally:
+        stock_log_utils._AVAILABLE_COLUMNS = original_cache
+        stock_log_utils._CACHE_VERIFIED = original_verified
