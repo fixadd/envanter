@@ -151,3 +151,51 @@ def test_stock_assign_updates_printer(db_session):
     assert log.islem == "cikti"
     assign = db.query(models.StockAssignment).filter_by(donanim_tipi="Kartus").first()
     assert assign.hedef_envanter_no == "INV200"
+
+
+def test_stock_assign_matches_lookup_display_values(db_session):
+    db = db_session
+    hw = models.HardwareType(name="Laptop")
+    brand = models.Brand(name="Dell")
+    db.add_all([hw, brand])
+    db.commit()
+    db.refresh(hw)
+    db.refresh(brand)
+
+    model = models.Model(name="Latitude", brand_id=brand.id)
+    db.add(model)
+    db.commit()
+    db.refresh(model)
+
+    _setup_stock(
+        db,
+        str(hw.id),
+        toplam=2,
+        marka=str(brand.id),
+        model=str(model.id),
+    )
+
+    payload = AssignPayload(
+        stock_id="Laptop|Dell|Latitude|",
+        atama_turu="envanter",
+        miktar=1,
+        envanter_form={
+            "envanter_no": "INV300",
+            "bilgisayar_adi": "PC-300",
+        },
+    )
+
+    stock_assign(payload, db=db, user=_make_user())
+
+    inv = db.query(models.Inventory).filter_by(no="INV300").one()
+    assert inv.donanim_tipi == "Laptop"
+    assert inv.marka == "Dell"
+    assert inv.model == "Latitude"
+
+    log = db.query(models.StockLog).order_by(models.StockLog.id.desc()).first()
+    assert log.donanim_tipi == str(hw.id)
+    assert log.marka == str(brand.id)
+    assert log.model == str(model.id)
+
+    assign = db.query(models.StockAssignment).filter_by(hedef_envanter_no="INV300").one()
+    assert assign.donanim_tipi == str(hw.id)
