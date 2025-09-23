@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 import models
-from sqlalchemy import func, case, or_, inspect, literal
+from sqlalchemy import func, case, or_, literal
 from typing import List
 
-from utils.stock_log import create_stock_log, normalize_islem
+from utils.stock_log import create_stock_log, get_available_columns, normalize_islem
 
 router = APIRouter(prefix="/api", tags=["API"])
 
@@ -169,16 +169,9 @@ def stock_status_detail(db: Session = Depends(get_db)):
 
     totals_db = {t.donanim_tipi: t.toplam for t in db.query(models.StockTotal).all()}
 
-    available_columns: set[str] = set()
-    bind = db.get_bind()
-    if bind is not None:
-        try:
-            inspector = inspect(bind)
-            available_columns = {
-                col["name"] for col in inspector.get_columns("stock_logs")
-            }
-        except Exception:  # pragma: no cover - inspector may fail on some DBs
-            available_columns = set()
+    available_columns = set(get_available_columns(db))
+    if not available_columns:
+        available_columns = {col.name for col in models.StockLog.__table__.columns}
 
     has_marka = "marka" in available_columns
     has_model = "model" in available_columns
