@@ -927,16 +927,42 @@
       const detailButton = hasDetail
         ? `<button type="button" class="btn btn-sm btn-outline-secondary" data-stock-detail="${encoded}" title="Detay"><span aria-hidden="true">&#9776;</span><span class="visually-hidden">Detay</span></button>`
         : '';
+      const key = buildFaultKey(item);
+      const hasFault =
+        typeof window !== 'undefined'
+        && window.Faults
+        && typeof window.Faults.hasOpenFault === 'function'
+        ? window.Faults.hasOpenFault('stock', key)
+        : false;
+      const availableQty = Number(item?.net_miktar) || 0;
+      const menuItems = [];
+      if (availableQty > 0) {
+        menuItems.push(
+          `<li><button class="dropdown-item" type="button" onclick="assignFromStatus('${encoded}')">Atama Yap</button></li>`
+        );
+      }
+      if (hasFault) {
+        menuItems.push(
+          `<li><button class="dropdown-item" type="button" onclick="repairFromStatus('${encoded}')">Aktif Et</button></li>`
+        );
+      } else {
+        menuItems.push(
+          `<li><button class="dropdown-item" type="button" onclick="markFaultFromStatus('${encoded}')">Arızalı</button></li>`
+        );
+      }
+      if (menuItems.length) {
+        menuItems.push('<li><hr class="dropdown-divider"></li>');
+      }
+      menuItems.push(
+        `<li><button class="dropdown-item text-danger" type="button" onclick="scrapFromStatus('${encoded}')">Hurda</button></li>`
+      );
       const actionsMenu = `
     <div class="btn-group">
       <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         İşlemler
       </button>
       <ul class="dropdown-menu dropdown-menu-end">
-        <li><button class="dropdown-item" type="button" onclick="markFaultFromStatus('${encoded}')">Arızalı</button></li>
-        <li><button class="dropdown-item" type="button" onclick="repairFromStatus('${encoded}')">Tamir Edildi</button></li>
-        <li><hr class="dropdown-divider"></li>
-        <li><button class="dropdown-item text-danger" type="button" onclick="scrapFromStatus('${encoded}')">Hurda</button></li>
+        ${menuItems.join('')}
       </ul>
     </div>`;
       const lastOp = item.son_islem_ts
@@ -1245,4 +1271,5 @@
   window.markFaultFromStatus = (encoded) => StockAssign.markFaultFromStatus(encoded);
   window.repairFromStatus = (encoded) => StockAssign.repairFromStatus(encoded);
   window.loadStockStatus = () => StockAssign.refreshStockStatus();
+  window.onStockFaultsUpdated = () => StockAssign.refreshStockStatus();
 })();
