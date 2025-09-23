@@ -499,20 +499,77 @@ def stock_assign(
     model_key = model_key or None
     ifs_no = ifs_no or None
 
+    def _build_lookup(model_cls):
+        lookup: dict[str, str] = {}
+        for row in db.query(model_cls).all():
+            name = getattr(row, "name", None)
+            if not name:
+                continue
+            lookup[str(row.id)] = str(name)
+        return lookup
+
+    def _build_reverse(mapping: dict[str, str]) -> dict[str, str]:
+        return {
+            str(value).strip().casefold(): key
+            for key, value in mapping.items()
+            if value
+        }
+
+    type_lookup = _build_lookup(HardwareType)
+    # Lisans adları da stok loglarında saklanabildiği için aynı sözlüğe ekle.
+    type_lookup.update(_build_lookup(LicenseName))
+    type_reverse = _build_reverse(type_lookup)
+    brand_lookup = _build_lookup(Brand)
+    brand_reverse = _build_reverse(brand_lookup)
+    model_lookup = _build_lookup(Model)
+    model_reverse = _build_reverse(model_lookup)
+
+    def _canon(
+        value,
+        lookup: Optional[dict[str, str]] = None,
+        reverse: Optional[dict[str, str]] = None,
+    ) -> str:
+        if value is None:
+            return ""
+        value_str = str(value).strip()
+        if not value_str:
+            return ""
+        if lookup:
+            mapped = lookup.get(value_str)
+            if mapped:
+                return str(mapped).strip().casefold()
+            if reverse:
+                alt_key = reverse.get(value_str.casefold())
+                if alt_key:
+                    mapped_alt = lookup.get(alt_key)
+                    if mapped_alt:
+                        return str(mapped_alt).strip().casefold()
+        return value_str.casefold()
+
+    target_type = _canon(donanim_tipi, type_lookup, type_reverse)
+    target_brand = _canon(marka_key, brand_lookup, brand_reverse)
+    target_model = _canon(model_key, model_lookup, model_reverse)
+    target_ifs = _canon(ifs_no)
+
     status = stock_status_detail(db)
     item = None
     for r in status["items"]:
         if (
-            r["donanim_tipi"] == donanim_tipi
-            and (marka_key or "") == (r.get("marka") or "")
-            and (model_key or "") == (r.get("model") or "")
-            and (ifs_no or "") == (r.get("ifs_no") or "")
+            _canon(r["donanim_tipi"], type_lookup, type_reverse) == target_type
+            and _canon(r.get("marka"), brand_lookup, brand_reverse) == target_brand
+            and _canon(r.get("model"), model_lookup, model_reverse) == target_model
+            and _canon(r.get("ifs_no")) == target_ifs
         ):
             item = r
             break
 
     if not item:
         raise HTTPException(status_code=404, detail="Stok kaydı bulunamadı.")
+
+    donanim_tipi = item["donanim_tipi"]
+    marka_key = item.get("marka")
+    model_key = item.get("model")
+    ifs_no = item.get("ifs_no") or ifs_no
 
     mevcut = item["net"]
 
