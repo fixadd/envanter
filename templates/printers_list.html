@@ -280,37 +280,36 @@ document.addEventListener('DOMContentLoaded', () => {
     .map((th, idx) => ({ idx, name: th.textContent.trim(), field: th.dataset.field }))
     .filter(c => c.field);
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const markaSel = document.getElementById('selYaziciMarka');
-    const modelSel = document.getElementById('selYaziciModel');
-    if (markaSel && modelSel) {
-      if (window.Choices) {
-        new Choices(markaSel, { searchEnabled: true, shouldSort: false });
-        new Choices(modelSel, { searchEnabled: true, shouldSort: false });
-      }
-      const loadModels = async () => {
-        const marka = markaSel.value;
-        modelSel.innerHTML = '<option value="">Seçiniz...</option>';
-        modelSel.disabled = !marka;
-        if (!marka) return;
-        try {
-          const resp = await fetch(`/api/printers/models?brand=${encodeURIComponent(marka)}`);
-          if (resp.ok) {
-            const data = await resp.json();
-            data.forEach(m => {
-              const opt = document.createElement('option');
-              opt.value = m;
-              opt.textContent = m;
-              modelSel.appendChild(opt);
-            });
-          }
-        } catch (e) {
-          console.error(e);
-        }
-      };
-      markaSel.addEventListener('change', loadModels);
+  const markaSel = document.getElementById('selYaziciMarka');
+  const modelSel = document.getElementById('selYaziciModel');
+  if (markaSel && modelSel) {
+    if (window.Choices) {
+      new Choices(markaSel, { searchEnabled: true, shouldSort: false });
+      new Choices(modelSel, { searchEnabled: true, shouldSort: false });
     }
-  });
+    const loadModels = async () => {
+      const marka = markaSel.value;
+      modelSel.innerHTML = '<option value="">Seçiniz...</option>';
+      modelSel.disabled = !marka;
+      if (!marka) return;
+      try {
+        const resp = await fetch(`/api/printers/models?brand=${encodeURIComponent(marka)}`);
+        if (resp.ok) {
+          const data = await resp.json();
+          data.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m;
+            opt.textContent = m;
+            modelSel.appendChild(opt);
+          });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    markaSel.addEventListener('change', loadModels);
+    loadModels();
+  }
 
   // Modal tetikleyici attribute ile handle ediliyor; ek JS gerekmez.
 
