@@ -341,18 +341,42 @@ def stock_assign(
 ):
     if hedef_tur not in ("envanter", "lisans", "yazici"):
         raise HTTPException(400, "Geçersiz hedef_tur")
-    status = stock_status_detail(db)
-    mevcut = status["totals"].get(donanim_tipi, 0)
+    toplam_row = (
+        db.query(models.StockTotal.toplam)
+        .filter(models.StockTotal.donanim_tipi == donanim_tipi)
+        .first()
+    )
+    mevcut = int(toplam_row[0]) if toplam_row else 0
+
+    net_expr = func.coalesce(
+        func.sum(
+            case(
+                (models.StockLog.islem == "girdi", models.StockLog.miktar),
+                else_=-models.StockLog.miktar,
+            )
+        ),
+        0,
+    )
+
     if ifs_no:
-        for r in status["items"]:
-            if r["donanim_tipi"] == donanim_tipi and r.get("ifs_no") == ifs_no:
-                mevcut = r["net"]
-                break
+        mevcut = int(
+            db.query(net_expr)
+            .filter(models.StockLog.donanim_tipi == donanim_tipi)
+            .filter(models.StockLog.ifs_no == ifs_no)
+            .scalar()
+            or 0
+        )
     else:
-        adaylar = [r for r in status["items"] if r["donanim_tipi"] == donanim_tipi]
+        aday_sorgu = (
+            db.query(models.StockLog.ifs_no, net_expr.label("net"))
+            .filter(models.StockLog.donanim_tipi == donanim_tipi)
+            .group_by(models.StockLog.ifs_no)
+            .having(net_expr > 0)
+        )
+        adaylar = aday_sorgu.limit(2).all()
         if len(adaylar) == 1:
-            ifs_no = adaylar[0]["ifs_no"]
-            mevcut = adaylar[0]["net"]
+            ifs_no = adaylar[0].ifs_no
+            mevcut = int(adaylar[0].net or 0)
         elif len(adaylar) > 1:
             raise HTTPException(400, "Birden fazla IFS bulundu, seçim gerekli")
     if mevcut < miktar:
