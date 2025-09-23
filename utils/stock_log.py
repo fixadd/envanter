@@ -4,13 +4,14 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import inspect, insert, select, func
+from sqlalchemy import inspect, insert, select, func, text
 from sqlalchemy.orm import Session
 
 from models import StockLog, SessionLocal
 
 
 _AVAILABLE_COLUMNS: set[str] | None = None
+_CACHE_VERIFIED = False
 _ISLEM_TRANSLATION = str.maketrans({"ç": "c", "ğ": "g", "ı": "i", "ö": "o", "ş": "s", "ü": "u"})
 _ISLEM_ALIASES = {
     "girdi": "girdi",
@@ -73,12 +74,63 @@ def _load_available_columns() -> set[str]:
     return _AVAILABLE_COLUMNS
 
 
-def _get_available_columns(db: Session) -> set[str]:
-    """Return the set of physical columns for the stock_logs table."""
+def get_available_columns(db: Session | None = None) -> set[str]:
+    """Return the set of physical columns for the ``stock_logs`` table.
 
-    if _AVAILABLE_COLUMNS is not None:
+    The helper preserves the module-level cache so expensive reflection is
+    only performed once per process.  When a session is provided its bind is
+    preferred for reflection, falling back to a new session (and ultimately
+    to the model-defined columns) if necessary.
+    """
+
+    global _AVAILABLE_COLUMNS, _CACHE_VERIFIED
+
+    if db is not None:
+        runtime_columns: set[str] | None = None
+        try:
+            result = db.execute(text("SELECT * FROM stock_logs LIMIT 0"))
+        except Exception:  # pragma: no cover - runtime lookup failures
+            pass
+        else:
+            try:
+                columns = tuple(result.keys())
+                if columns:
+                    runtime_columns = set(columns)
+            finally:
+                result.close()
+
+        if runtime_columns:
+            if _AVAILABLE_COLUMNS != runtime_columns:
+                _AVAILABLE_COLUMNS = runtime_columns
+            _CACHE_VERIFIED = True
+            return _AVAILABLE_COLUMNS
+
+    if _AVAILABLE_COLUMNS is not None and (_CACHE_VERIFIED or db is None):
         return _AVAILABLE_COLUMNS
-    return _load_available_columns()
+
+    if db is not None:
+        bind = db.get_bind()
+        if bind is not None:
+            try:
+                inspector = inspect(bind)
+                columns = inspector.get_columns("stock_logs")
+            except Exception:  # pragma: no cover - reflection failures fallback
+                columns = None
+            else:
+                if columns:
+                    _AVAILABLE_COLUMNS = {col["name"] for col in columns}
+                    _CACHE_VERIFIED = True
+                    return _AVAILABLE_COLUMNS
+
+            # Reflection failed or returned no columns; rely on the loader
+            _AVAILABLE_COLUMNS = _load_available_columns()
+            _CACHE_VERIFIED = True
+            return _AVAILABLE_COLUMNS
+
+    result = _load_available_columns()
+    if db is None:
+        _CACHE_VERIFIED = False
+    return result
 
 
 def create_stock_log(db: Session, *, return_id: bool = False, **fields: Any) -> int | None:
@@ -95,7 +147,7 @@ def create_stock_log(db: Session, *, return_id: bool = False, **fields: Any) -> 
     that need to expose it (e.g. API responses) can continue to do so.
     """
 
-    available = _get_available_columns(db)
+    available = get_available_columns(db)
     model_columns = {col.name for col in StockLog.__table__.columns}
     missing_columns = model_columns - available
 
