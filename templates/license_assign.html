@@ -9,16 +9,18 @@ content %}
           Lisansı uygun personele ve envantere hızlıca yönlendirin.
         </p>
       </div>
+      {% if not modal %}
       <div class="form-shell__header-actions">
         <a class="btn btn-light" href="{{ url_for('license_list') }}">
           ← Listeye Dön
         </a>
       </div>
+      {% endif %}
     </div>
 
     <form
       method="post"
-      action="/lisans/{{ license.id }}/assign"
+      action="/lisans/{{ license.id }}/assign{{ '?modal=1' if modal else '' }}"
       class="form-shell__form"
     >
       <input
@@ -35,7 +37,13 @@ content %}
               {% for u in users %}
               <option
                 value="{{ u }}"
-                {% if license.sorumlu_personel == u %}selected{% endif %}
+                {%
+                if
+                license.sorumlu_personel=""
+                ="u"
+                %}selected{%
+                endif
+                %}
               >
                 {{ u }}
               </option>
@@ -49,7 +57,13 @@ content %}
               {% for inv in envanterler %}
               <option
                 value="{{ inv.no }}"
-                {% if license.bagli_envanter_no == inv.no %}selected{% endif %}
+                {%
+                if
+                license.bagli_envanter_no=""
+                ="inv.no"
+                %}selected{%
+                endif
+                %}
               >
                 {{ inv.no }} - {{ inv.bilgisayar_adi or inv.marka }}
               </option>
@@ -60,9 +74,13 @@ content %}
       </div>
       <div class="form-shell__actions">
         <button class="btn btn-primary" type="submit">Kaydet</button>
-        <a class="btn btn-outline-secondary" href="{{ url_for('license_list') }}"
+        {% if not modal %}
+        <a
+          class="btn btn-outline-secondary"
+          href="{{ url_for('license_list') }}"
           >İptal</a
         >
+        {% endif %}
       </div>
     </form>
   </div>
