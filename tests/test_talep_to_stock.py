@@ -57,6 +57,8 @@ def test_convert_request_to_stock_creates_log_and_closes(db_session):
     assert log.islem == "girdi"
     assert log.actor == "tester"
     assert log.aciklama == "Not"
+    assert log.source_type == "talep:envanter"
+    assert log.source_id == talep.id
 
     total = db_session.get(StockTotal, "mouse")
     assert total.toplam == 5
@@ -66,6 +68,7 @@ def test_convert_request_to_stock_creates_log_and_closes(db_session):
     assert refreshed.karsilanan_miktar == 5
     assert refreshed.kalan_miktar == 0
     assert refreshed.kapanma_tarihi is not None
+    assert refreshed.tur == TalepTuru.ENVANTER
 
 
 def test_convert_request_requires_brand_model(db_session):
@@ -96,6 +99,40 @@ def test_convert_request_requires_brand_model(db_session):
     log = db_session.query(StockLog).order_by(StockLog.id.desc()).first()
     assert log.marka == "ABC"
     assert log.model == "XYZ"
+    assert log.source_type == "talep:envanter"
+    assert log.source_id == talep.id
+
+
+def test_convert_request_license_without_brand_model(db_session):
+    talep = Talep(
+        tur=TalepTuru.AKSESUAR,
+        donanim_tipi="Office",
+        miktar=1,
+        karsilanan_miktar=0,
+        kalan_miktar=1,
+    )
+    db_session.add(talep)
+    db_session.commit()
+    db_session.refresh(talep)
+
+    res = convert_request_to_stock(
+        talep.id,
+        adet=1,
+        tur="lisans",
+        db=db_session,
+    )
+    assert res["ok"] is True
+
+    log = db_session.query(StockLog).order_by(StockLog.id.desc()).first()
+    assert log.donanim_tipi == "Office"
+    assert log.marka is None
+    assert log.model is None
+    assert log.source_type == "talep:lisans"
+    assert log.source_id == talep.id
+
+    refreshed = db_session.get(Talep, talep.id)
+    assert refreshed.tur == TalepTuru.LISANS
+    assert refreshed.karsilanan_miktar == 1
 
 
 def test_partial_convert_keeps_open(db_session):
@@ -121,5 +158,37 @@ def test_partial_convert_keeps_open(db_session):
     assert refreshed.kalan_miktar == 3
 
     log = db_session.query(StockLog).order_by(StockLog.id.desc()).first()
-    assert log.source_type == "talep"
+    assert log.source_type == "talep:envanter"
     assert log.source_id == talep.id
+
+
+def test_convert_request_printer_sets_type(db_session):
+    talep = Talep(
+        tur=TalepTuru.AKSESUAR,
+        donanim_tipi="Yazici",
+        miktar=1,
+        karsilanan_miktar=0,
+        kalan_miktar=1,
+    )
+    db_session.add(talep)
+    db_session.commit()
+    db_session.refresh(talep)
+
+    res = convert_request_to_stock(
+        talep.id,
+        adet=1,
+        tur="yazici",
+        marka="HP",
+        model="LaserJet",
+        db=db_session,
+    )
+    assert res["ok"] is True
+
+    log = db_session.query(StockLog).order_by(StockLog.id.desc()).first()
+    assert log.marka == "HP"
+    assert log.model == "LaserJet"
+    assert log.source_type == "talep:yazici"
+    assert log.source_id == talep.id
+
+    refreshed = db_session.get(Talep, talep.id)
+    assert refreshed.tur == TalepTuru.AKSESUAR

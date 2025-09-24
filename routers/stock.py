@@ -15,7 +15,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import text, select
 from sqlalchemy.orm import Session
 from typing import Optional, Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 from database import get_db
 from models import (
@@ -33,6 +33,7 @@ from models import (
     StockAssignment,
     Brand,
     Model,
+    SystemRoomItem,
 )
 from routers.api import stock_status_detail
 from utils.stock_log import create_stock_log, normalize_islem
@@ -91,8 +92,17 @@ async def export_stock(db: Session = Depends(get_db)):
     )
 
     for row in sorted_items:
-        source_type = row.get("source_type") or ""
-        source_label = source_labels.get(str(source_type).lower(), source_type)
+        raw_source = row.get("source_type") or ""
+        source_lower = str(raw_source).lower()
+        if ":" in source_lower:
+            _, base = source_lower.split(":", 1)
+        else:
+            base = source_lower
+        base_label = source_labels.get(base, base.title() if base else "")
+        if source_lower.startswith("talep:"):
+            source_label = f"Talep ({base_label})" if base_label else "Talep"
+        else:
+            source_label = source_labels.get(source_lower, raw_source)
         ws.append(
             [
                 row.get("donanim_tipi") or "",
@@ -223,6 +233,11 @@ def stock_status(db: Session = Depends(get_db)):
                 "son_islem_ts": r.get("last_tarih"),
                 "source_type": r.get("source_type"),
                 "source_id": r.get("source_id"),
+                "item_type": r.get("item_type"),
+                "assignment_hint": r.get("assignment_hint"),
+                "system_room": bool(r.get("system_room")),
+                "system_room_assigned_at": r.get("system_room_assigned_at"),
+                "system_room_assigned_by": r.get("system_room_assigned_by"),
             }
         )
     return items
@@ -325,6 +340,48 @@ class StockOption(BaseModel):
     source_id: Optional[int] = None
 
 
+class SystemRoomItemKey(BaseModel):
+    item_type: Literal["envanter", "lisans", "yazici"]
+    donanim_tipi: str
+    marka: Optional[str] = None
+    model: Optional[str] = None
+    ifs_no: Optional[str] = None
+
+    @validator("item_type", pre=True)
+    def _normalize_type(cls, value: str) -> str:
+        if value is None:
+            return "envanter"
+        return str(value).strip().lower()
+
+    @validator("donanim_tipi")
+    def _validate_donanim(cls, value: str) -> str:
+        text = (value or "").strip()
+        if not text:
+            raise ValueError("donanım tipi boş olamaz")
+        return text
+
+    @validator("marka", "model", "ifs_no", pre=True)
+    def _normalize_optional(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        text = str(value).strip()
+        return text or None
+
+
+class SystemRoomBulkPayload(BaseModel):
+    items: list[SystemRoomItemKey]
+
+
+def _system_room_key_to_dict(key: SystemRoomItemKey) -> dict[str, Optional[str]]:
+    return {
+        "item_type": key.item_type,
+        "donanim_tipi": key.donanim_tipi,
+        "marka": key.marka,
+        "model": key.model,
+        "ifs_no": key.ifs_no,
+    }
+
+
 class InventoryAssignForm(BaseModel):
     envanter_no: str
     bilgisayar_adi: Optional[str] = None
@@ -412,6 +469,60 @@ def stock_options(db: Session = Depends(get_db), q: Optional[str] = None):
         )
 
     return items
+
+
+@api_router.post("/system-room/add")
+def system_room_add(
+    payload: SystemRoomBulkPayload,
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
+):
+    if not payload.items:
+        raise HTTPException(status_code=400, detail="Herhangi bir kayıt seçilmedi.")
+
+    actor = getattr(user, "full_name", None) or getattr(user, "username", "") or "Sistem"
+    added = 0
+    skipped = 0
+
+    for key in payload.items:
+        data = _system_room_key_to_dict(key)
+        exists = db.query(SystemRoomItem).filter_by(**data).first()
+        if exists:
+            skipped += 1
+            continue
+        entry = SystemRoomItem(**data, assigned_at=datetime.utcnow(), assigned_by=actor)
+        db.add(entry)
+        added += 1
+
+    if added:
+        db.commit()
+    else:
+        db.rollback()
+    return {"ok": True, "added": added, "skipped": skipped}
+
+
+@api_router.post("/system-room/remove")
+def system_room_remove(
+    payload: SystemRoomBulkPayload,
+    db: Session = Depends(get_db),
+):
+    if not payload.items:
+        raise HTTPException(status_code=400, detail="Herhangi bir kayıt seçilmedi.")
+
+    removed = 0
+    for key in payload.items:
+        data = _system_room_key_to_dict(key)
+        query = db.query(SystemRoomItem)
+        for field, value in data.items():
+            column = getattr(SystemRoomItem, field)
+            if value is None:
+                query = query.filter(column.is_(None))
+            else:
+                query = query.filter(column == value)
+        removed += query.delete(synchronize_session=False)
+
+    db.commit()
+    return {"ok": True, "removed": removed}
 
 
 @api_router.get("/assign/source-detail")
