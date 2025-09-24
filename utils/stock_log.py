@@ -1,18 +1,20 @@
 """Utility helpers for working with stock logs."""
+
 from __future__ import annotations
 
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import inspect, insert, select, func, text
+from sqlalchemy import func, insert, inspect, select, text
 from sqlalchemy.orm import Session
 
-from models import StockLog, SessionLocal
-
+from models import SessionLocal, StockLog
 
 _AVAILABLE_COLUMNS: set[str] | None = None
 _CACHE_VERIFIED = False
-_ISLEM_TRANSLATION = str.maketrans({"ç": "c", "ğ": "g", "ı": "i", "ö": "o", "ş": "s", "ü": "u"})
+_ISLEM_TRANSLATION = str.maketrans(
+    {"ç": "c", "ğ": "g", "ı": "i", "ö": "o", "ş": "s", "ü": "u"}
+)
 _ISLEM_ALIASES = {
     "girdi": "girdi",
     "cikti": "cikti",
@@ -133,7 +135,9 @@ def get_available_columns(db: Session | None = None) -> set[str]:
     return result
 
 
-def create_stock_log(db: Session, *, return_id: bool = False, **fields: Any) -> int | None:
+def create_stock_log(
+    db: Session, *, return_id: bool = False, **fields: Any
+) -> int | None:
     """Insert a row into ``stock_logs`` while tolerating legacy schemas.
 
     Older deployments may not have all of the newer optional columns

@@ -1,14 +1,30 @@
-<form method="post" action="/inventory/create" class="needs-validation" novalidate>
+<form
+  method="post"
+  action="/inventory/create"
+  class="needs-validation"
+  novalidate
+>
   <div class="row g-3" id="envanter-ekle">
-
     <!-- Envanter No / Bilgisayar Adı -->
     <div class="col-md-6">
       <label class="form-label">Envanter No</label>
-      <input name="envanter_no" type="text" class="form-control" required placeholder="ENV-000123">
+      <input
+        name="envanter_no"
+        type="text"
+        class="form-control"
+        required
+        placeholder="ENV-000123"
+      />
     </div>
     <div class="col-md-6">
       <label class="form-label">Bilgisayar Adı</label>
-      <input name="bilgisayar_adi" type="text" class="form-control" required placeholder="PC-OFIS-01">
+      <input
+        name="bilgisayar_adi"
+        type="text"
+        class="form-control"
+        required
+        placeholder="PC-OFIS-01"
+      />
     </div>
 
     <!-- Fabrika / Departman -->
@@ -18,17 +34,32 @@
     </div>
     <div class="col-md-6">
       <label class="form-label">Departman</label>
-      <select id="departman" name="departman" class="form-select" required></select>
+      <select
+        id="departman"
+        name="departman"
+        class="form-select"
+        required
+      ></select>
     </div>
 
     <!-- Donanım Tipi / Sorumlu Personel -->
     <div class="col-md-6">
       <label class="form-label">Donanım Tipi</label>
-      <select id="donanim_tipi" name="donanim_tipi" class="form-select" required></select>
+      <select
+        id="donanim_tipi"
+        name="donanim_tipi"
+        class="form-select"
+        required
+      ></select>
     </div>
     <div class="col-md-6">
       <label class="form-label">Sorumlu Personel</label>
-      <select id="sorumlu_personel" name="sorumlu_personel" class="form-select" required></select>
+      <select
+        id="sorumlu_personel"
+        name="sorumlu_personel"
+        class="form-select"
+        required
+      ></select>
     </div>
 
     <!-- Marka / Model -->
@@ -46,77 +77,124 @@
     <!-- Seri No / IFS No -->
     <div class="col-md-6">
       <label class="form-label">Seri No</label>
-      <input name="seri_no" type="text" class="form-control" required placeholder="SN123456789">
+      <input
+        name="seri_no"
+        type="text"
+        class="form-control"
+        required
+        placeholder="SN123456789"
+      />
     </div>
     <div class="col-md-6">
-      <label class="form-label">IFS No <span class="text-muted">(zorunlu değil)</span></label>
-      <input name="ifs_no" type="text" class="form-control" placeholder="IFS-...">
+      <label class="form-label"
+        >IFS No <span class="text-muted">(zorunlu değil)</span></label
+      >
+      <input
+        name="ifs_no"
+        type="text"
+        class="form-control"
+        placeholder="IFS-..."
+      />
     </div>
 
     <!-- Bağlı Makina No -->
     <div class="col-md-6">
-      <label class="form-label">Bağlı Makina No <span class="text-muted">(zorunlu değil)</span></label>
-      <input name="bagli_makina_no" type="text" class="form-control" placeholder="Makina No">
+      <label class="form-label"
+        >Bağlı Makina No <span class="text-muted">(zorunlu değil)</span></label
+      >
+      <input
+        name="bagli_makina_no"
+        type="text"
+        class="form-control"
+        placeholder="Makina No"
+      />
     </div>
 
     <!-- Not -->
     <div class="col-12">
-      <label class="form-label">Not <span class="text-muted">(zorunlu değil)</span></label>
-      <textarea name="notlar" class="form-control" rows="2" placeholder="Açıklama / notlar"></textarea>
+      <label class="form-label"
+        >Not <span class="text-muted">(zorunlu değil)</span></label
+      >
+      <textarea
+        name="notlar"
+        class="form-control"
+        rows="2"
+        placeholder="Açıklama / notlar"
+      ></textarea>
     </div>
   </div>
 
   <div class="mt-3 d-flex gap-2">
     <button type="submit" class="btn btn-primary">Kaydet</button>
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+      İptal
+    </button>
   </div>
 </form>
 
 <script>
-(async function(){
-  async function loadOptions(sel, url){
-    const res = await fetch(url);
-    const data = await res.json();
-    sel.innerHTML = '<option value="">Seçiniz...</option>' +
-      data.map(o=>`<option value="${o.text}" data-id="${o.id}">${o.text}</option>`).join('');
-  }
+  (async function () {
+    async function loadOptions(sel, url) {
+      const res = await fetch(url);
+      const data = await res.json();
+      sel.innerHTML =
+        '<option value="">Seçiniz...</option>' +
+        data
+          .map(
+            (o) =>
+              `<option value="${o.text}" data-id="${o.id}">${o.text}</option>`,
+          )
+          .join("");
+    }
 
-  const fabrikaSel = document.getElementById('fabrika');
-  const departmanSel = document.getElementById('departman');
-  const donanimSel = document.getElementById('donanim_tipi');
-  const personelSel = document.getElementById('sorumlu_personel');
-  const markaSel = document.getElementById('marka');
-  const modelSel = document.getElementById('model');
+    const fabrikaSel = document.getElementById("fabrika");
+    const departmanSel = document.getElementById("departman");
+    const donanimSel = document.getElementById("donanim_tipi");
+    const personelSel = document.getElementById("sorumlu_personel");
+    const markaSel = document.getElementById("marka");
+    const modelSel = document.getElementById("model");
 
-  await loadOptions(fabrikaSel, '/api/picker/fabrika');
-  await loadOptions(departmanSel, '/api/picker/kullanim_alani');
-  await loadOptions(donanimSel, '/api/picker/donanim_tipi');
-  if (window._selects) {
-    await _selects.fillChoices({
-      endpoint: '/api/picker/kullanici',
-      selectId: 'sorumlu_personel',
-      mapFn: r => ({ value: r.text, label: r.text })
+    await loadOptions(fabrikaSel, "/api/picker/fabrika");
+    await loadOptions(departmanSel, "/api/picker/kullanim_alani");
+    await loadOptions(donanimSel, "/api/picker/donanim_tipi");
+    if (window._selects) {
+      await _selects.fillChoices({
+        endpoint: "/api/picker/kullanici",
+        selectId: "sorumlu_personel",
+        mapFn: (r) => ({ value: r.text, label: r.text }),
+      });
+      _selects.enableRemoteSearch(
+        "sorumlu_personel",
+        "/api/picker/kullanici",
+        () => ({}),
+        (r) => ({ value: r.text, label: r.text }),
+      );
+    } else {
+      await loadOptions(personelSel, "/api/picker/kullanici");
+    }
+
+    const brandRes = await fetch("/api/picker/marka");
+    const brands = await brandRes.json();
+    markaSel.innerHTML =
+      '<option value="">Seçiniz...</option>' +
+      brands
+        .map(
+          (b) =>
+            `<option value="${b.text}" data-id="${b.id}">${b.text}</option>`,
+        )
+        .join("");
+
+    markaSel.addEventListener("change", async () => {
+      const opt = markaSel.options[markaSel.selectedIndex];
+      const brandId = opt && opt.dataset.id;
+      modelSel.innerHTML = '<option value="">Seçiniz...</option>';
+      modelSel.disabled = !brandId;
+      if (!brandId) return;
+      const res = await fetch(`/api/picker/model?marka_id=${brandId}`);
+      const models = await res.json();
+      modelSel.innerHTML += models
+        .map((m) => `<option value="${m.text}">${m.text}</option>`)
+        .join("");
     });
-    _selects.enableRemoteSearch('sorumlu_personel', '/api/picker/kullanici', () => ({}), r => ({ value: r.text, label: r.text }));
-  } else {
-    await loadOptions(personelSel, '/api/picker/kullanici');
-  }
-
-  const brandRes = await fetch('/api/picker/marka');
-  const brands = await brandRes.json();
-  markaSel.innerHTML = '<option value="">Seçiniz...</option>' +
-    brands.map(b=>`<option value="${b.text}" data-id="${b.id}">${b.text}</option>`).join('');
-
-  markaSel.addEventListener('change', async () => {
-    const opt = markaSel.options[markaSel.selectedIndex];
-    const brandId = opt && opt.dataset.id;
-    modelSel.innerHTML = '<option value="">Seçiniz...</option>';
-    modelSel.disabled = !brandId;
-    if(!brandId) return;
-    const res = await fetch(`/api/picker/model?marka_id=${brandId}`);
-    const models = await res.json();
-    modelSel.innerHTML += models.map(m=>`<option value="${m.text}">${m.text}</option>`).join('');
-  });
-})();
+  })();
 </script>
-

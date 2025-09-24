@@ -1,5 +1,5 @@
-import os
 import importlib
+import os
 
 from sqlalchemy import inspect
 
@@ -8,6 +8,7 @@ def test_init_db_adds_new_columns(tmp_path):
     db_file = tmp_path / "talepler.db"
     os.environ["DATABASE_URL"] = f"sqlite:///{db_file}"
     import models
+
     importlib.reload(models)
 
     with models.engine.begin() as conn:
