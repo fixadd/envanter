@@ -37,7 +37,7 @@
   function optionHtml(arr, placeholder = "Seçiniz…") {
     const head = `<option value="">${placeholder}</option>`;
     if (!Array.isArray(arr) || !arr.length)
-      return head + `<option value="">Seçenek yok</option>`;
+      return head + '<option value="">Seçenek yok</option>';
     return (
       head +
       arr
@@ -85,19 +85,19 @@
 
     donanimSel.innerHTML = optionHtml(donanimlar);
     markaSel.innerHTML = optionHtml(markalar);
-    modelSel.innerHTML = `<option value="">Seçiniz…</option>`;
+    modelSel.innerHTML = '<option value="">Seçiniz…</option>';
     modelSel.disabled = true;
   }
 
   async function onBrandChange(tr, brandId) {
     const modelSel = tr.querySelector(".sel-model");
     if (!brandId) {
-      modelSel.innerHTML = `<option value="">Seçiniz…</option>`;
+      modelSel.innerHTML = '<option value="">Seçiniz…</option>';
       modelSel.disabled = true;
       return;
     }
     modelSel.disabled = true;
-    modelSel.innerHTML = `<option>Yükleniyor…</option>`;
+    modelSel.innerHTML = "<option>Yükleniyor…</option>";
     const modeller = await getModelsByBrand(brandId);
     modelSel.innerHTML = optionHtml(modeller);
     modelSel.disabled = !modeller.length;

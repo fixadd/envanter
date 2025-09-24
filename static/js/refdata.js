@@ -53,7 +53,7 @@ async function fetchList(entity, extraParams = {}) {
 // Liste render
 function renderList(containerEl, rows) {
   containerEl.innerHTML =
-    rows && rows.length
+    rows?.length
       ? rows
           .map(
             (r) =>
@@ -66,13 +66,13 @@ function renderList(containerEl, rows) {
              </li>`,
           )
           .join("")
-      : `<li class="list-group-item text-muted">Kayıt yok</li>`;
+      : '<li class="list-group-item text-muted">Kayıt yok</li>';
 }
 
 // Marka select'ini doldur (model kartı için)
 async function fillBrandSelect(selectEl) {
   const rows = await fetchList("marka");
-  const opts = [`<option value="">Marka seçiniz…</option>`].concat(
+  const opts = ['<option value="">Marka seçiniz…</option>'].concat(
     rows.map(
       (r) =>
         `<option value="${r.id}">${r.name ?? r.ad ?? r.adi ?? r.text}</option>`,
@@ -116,7 +116,7 @@ async function refreshCard(card) {
 
   if (entity === "model") {
     const brandSel = card.querySelector(".ref-brand");
-    const brandId = brandSel && brandSel.value ? brandSel.value : "";
+    const brandId = brandSel?.value ? brandSel.value : "";
     if (!brandId) {
       renderList(listEl, []); // Marka seçilmeden model listesi gösterilmesin
       return;
@@ -164,7 +164,7 @@ function bindCard(card) {
         if (entity === "model") {
           const brandSel = card.querySelector(".ref-brand");
           const brandId =
-            brandSel && brandSel.value ? parseInt(brandSel.value, 10) : null;
+            brandSel?.value ? parseInt(brandSel.value, 10) : null;
           if (!brandId) {
             alert("Lütfen önce marka seçin.");
             return;
