@@ -6,8 +6,9 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
 import pytest
+
 import models
-from routers.api import users_list, inventory_list
+from routers.api import inventory_list, users_list
 
 
 @pytest.fixture()
@@ -23,10 +24,19 @@ def db_session():
 
 def test_users_list_search_and_role(db_session):
     db = db_session
-    db.add_all([
-        models.User(username="ali", password_hash="x", full_name="Ali Veli", role="user"),
-        models.User(username="admin", password_hash="y", full_name="Admin User", role="admin"),
-    ])
+    db.add_all(
+        [
+            models.User(
+                username="ali", password_hash="x", full_name="Ali Veli", role="user"
+            ),
+            models.User(
+                username="admin",
+                password_hash="y",
+                full_name="Admin User",
+                role="admin",
+            ),
+        ]
+    )
     db.commit()
 
     res = users_list(q="ali", db=db)
@@ -40,30 +50,32 @@ def test_users_list_search_and_role(db_session):
 
 def test_inventory_list_search_and_filters(db_session):
     db = db_session
-    db.add_all([
-        models.Inventory(
-            no="INV1",
-            fabrika="F1",
-            departman="D1",
-            sorumlu_personel="Ali",
-            marka="HP",
-            model="A",
-            bilgisayar_adi="PC1",
-            seri_no="S1",
-            ifs_no="IFS1",
-        ),
-        models.Inventory(
-            no="INV2",
-            fabrika="F1",
-            departman="D2",
-            sorumlu_personel="Veli",
-            marka="Dell",
-            model="B",
-            bilgisayar_adi="PC2",
-            seri_no="S2",
-            ifs_no="IFS2",
-        ),
-    ])
+    db.add_all(
+        [
+            models.Inventory(
+                no="INV1",
+                fabrika="F1",
+                departman="D1",
+                sorumlu_personel="Ali",
+                marka="HP",
+                model="A",
+                bilgisayar_adi="PC1",
+                seri_no="S1",
+                ifs_no="IFS1",
+            ),
+            models.Inventory(
+                no="INV2",
+                fabrika="F1",
+                departman="D2",
+                sorumlu_personel="Veli",
+                marka="Dell",
+                model="B",
+                bilgisayar_adi="PC2",
+                seri_no="S2",
+                ifs_no="IFS2",
+            ),
+        ]
+    )
     db.commit()
 
     res = inventory_list(q="INV1", db=db)

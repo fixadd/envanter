@@ -1,37 +1,38 @@
-from fastapi import APIRouter, Request, Depends, Form, HTTPException, UploadFile, File
+from datetime import date, datetime
+from io import BytesIO
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import (
-    JSONResponse,
-    RedirectResponse,
-    PlainTextResponse,
-    StreamingResponse,
     HTMLResponse,
+    JSONResponse,
+    PlainTextResponse,
+    RedirectResponse,
+    StreamingResponse,
 )
+from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from datetime import datetime, date
-from fastapi.templating import Jinja2Templates
-from io import BytesIO
-from utils.template_filters import register_filters
 
 from database import get_db
 from models import (
+    Brand,
+    Factory,
+    HardwareType,
     Inventory,
     InventoryLog,
-    ScrapItem,
-    User,
-    Factory,
-    Brand,
-    Model,
-    UsageArea,
-    HardwareType,
     License,
     LicenseLog,
+    Model,
+    ScrapItem,
     ScrapPrinter,
     StockTotal,
+    UsageArea,
+    User,
 )
 from security import current_user
+from utils.faults import FAULT_STATUS_SCRAP, resolve_fault
 from utils.stock_log import create_stock_log
-from utils.faults import resolve_fault, FAULT_STATUS_SCRAP
+from utils.template_filters import register_filters
 
 templates = register_filters(Jinja2Templates(directory="templates"))
 
@@ -509,9 +510,7 @@ def stock_entry(
         )
     )
     db.commit()
-    return RedirectResponse(
-        url="/stock?tab=status&module=inventory", status_code=303
-    )
+    return RedirectResponse(url="/stock?tab=status&module=inventory", status_code=303)
 
 
 @router.post("/scrap", name="inventory.scrap")

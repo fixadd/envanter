@@ -7,6 +7,7 @@ os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
 import pytest
 from fastapi import HTTPException
+
 import models
 from routes.admin import user_delete
 from security import SessionUser
@@ -40,14 +41,26 @@ def test_user_deletion_permissions(db_session):
     normal_id = normal.id
     other_admin_id = other_admin.id
 
-    user_delete(normal_id, user=SessionUser(other_admin_id, other_admin.username, other_admin.role), db=db)
+    user_delete(
+        normal_id,
+        user=SessionUser(other_admin_id, other_admin.username, other_admin.role),
+        db=db,
+    )
     assert db.get(models.User, normal_id) is None
 
     with pytest.raises(HTTPException):
-        user_delete(admin.id, user=SessionUser(other_admin.id, other_admin.username, other_admin.role), db=db)
+        user_delete(
+            admin.id,
+            user=SessionUser(other_admin.id, other_admin.username, other_admin.role),
+            db=db,
+        )
 
-    user_delete(other_admin_id, user=SessionUser(admin.id, admin.username, admin.role), db=db)
+    user_delete(
+        other_admin_id, user=SessionUser(admin.id, admin.username, admin.role), db=db
+    )
     assert db.get(models.User, other_admin_id) is None
 
     with pytest.raises(HTTPException):
-        user_delete(admin.id, user=SessionUser(admin.id, admin.username, admin.role), db=db)
+        user_delete(
+            admin.id, user=SessionUser(admin.id, admin.username, admin.role), db=db
+        )

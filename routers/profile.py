@@ -1,5 +1,5 @@
 # routers/profile.py
-from fastapi import APIRouter, Request, Depends, Form, status
+from fastapi import APIRouter, Depends, Form, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -10,6 +10,7 @@ from security import SessionUser, current_user
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
+
 
 @router.get("/", response_class=HTMLResponse)
 async def profile_home(
