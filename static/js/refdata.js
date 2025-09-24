@@ -52,21 +52,20 @@ async function fetchList(entity, extraParams = {}) {
 
 // Liste render
 function renderList(containerEl, rows) {
-  containerEl.innerHTML =
-    rows?.length
-      ? rows
-          .map(
-            (r) =>
-              `<li class="list-group-item d-flex justify-content-between align-items-center gap-2">
+  containerEl.innerHTML = rows?.length
+    ? rows
+        .map(
+          (r) =>
+            `<li class="list-group-item d-flex justify-content-between align-items-center gap-2">
                <span class="flex-grow-1">${r.name ?? r.ad ?? r.adi ?? r.text ?? ""}</span>
                <div class="btn-group btn-group-sm">
                  <button class="btn btn-outline-secondary ref-edit" data-id="${r.id}">Düzenle</button>
                  <button class="btn btn-danger ref-delete" data-id="${r.id}">Sil</button>
                </div>
              </li>`,
-          )
-          .join("")
-      : '<li class="list-group-item text-muted">Kayıt yok</li>';
+        )
+        .join("")
+    : '<li class="list-group-item text-muted">Kayıt yok</li>';
 }
 
 // Marka select'ini doldur (model kartı için)
@@ -163,8 +162,7 @@ function bindCard(card) {
       try {
         if (entity === "model") {
           const brandSel = card.querySelector(".ref-brand");
-          const brandId =
-            brandSel?.value ? parseInt(brandSel.value, 10) : null;
+          const brandId = brandSel?.value ? parseInt(brandSel.value, 10) : null;
           if (!brandId) {
             alert("Lütfen önce marka seçin.");
             return;
