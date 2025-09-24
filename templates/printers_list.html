@@ -294,7 +294,7 @@ content %}
 
 <!-- ATAMA MODAL -->
 <div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg modal-modern">
     <form class="modal-content" id="assignForm">
       <div class="modal-header">
         <h6 class="modal-title">
@@ -309,8 +309,8 @@ content %}
       <div class="modal-body">
         <input type="hidden" id="assignPrinterId" name="printer_id" />
 
-        <div class="row g-3">
-          <div class="col-12 col-md-6 col-xl-3">
+        <div class="form-grid">
+          <div>
             <label class="form-label">Fabrika</label>
             <select id="selFabrika" name="fabrika" class="form-select">
               <option value="">Seçiniz</option>
@@ -320,7 +320,7 @@ content %}
             </select>
           </div>
 
-          <div class="col-12 col-md-6 col-xl-3">
+          <div>
             <label class="form-label">Kullanım Alanı</label>
             <select id="selKullanim" name="kullanim_alani" class="form-select">
               <option value="">Seçiniz</option>
@@ -330,7 +330,7 @@ content %}
             </select>
           </div>
 
-          <div class="col-12 col-md-6 col-xl-3">
+          <div>
             <label class="form-label">Sorumlu Personel</label>
             <select id="selPersonel" name="sorumlu_personel" class="form-select">
               <option value="">Seçiniz</option>
@@ -340,7 +340,7 @@ content %}
             </select>
           </div>
 
-          <div class="col-12 col-md-6 col-xl-3">
+          <div>
             <label class="form-label">Bağlı Olduğu Envanter</label>
             <select id="selBagliEnv" name="bagli_envanter_no" class="form-select">
               <option value="">Seçiniz</option>
@@ -352,10 +352,10 @@ content %}
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">
+        <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">
           İptal
         </button>
-        <button class="btn btn-success" type="submit">Atamayı Kaydet</button>
+        <button class="btn btn-primary" type="submit">Atamayı Kaydet</button>
       </div>
     </form>
   </div>
