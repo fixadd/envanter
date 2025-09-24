@@ -1,36 +1,37 @@
 # models.py (ilgili kısımları güncelle)
 from __future__ import annotations
+
+import enum
 import json
 import os
 from datetime import datetime
 from pathlib import Path
-import enum
 from typing import Any, Optional
 
 from dotenv import load_dotenv
 from sqlalchemy import (
+    JSON,
+    Boolean,
     Column,
     Date,
     DateTime,
     Enum,
     ForeignKey,
     Integer,
-    JSON,
     String,
     Text,
     UniqueConstraint,
-    Boolean,
     create_engine,
     func,
 )
-from sqlalchemy.engine import URL, make_url
 from sqlalchemy.dialects.sqlite import JSON as SQLITE_JSON
+from sqlalchemy.engine import URL, make_url
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
     mapped_column,
-    sessionmaker,
     relationship,
+    sessionmaker,
     synonym,
 )
 
@@ -553,7 +554,9 @@ class BilgiKategori(Base):
     __tablename__ = "bilgi_kategorileri"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    ad: Mapped[str] = mapped_column(String(150), unique=True, index=True, nullable=False)
+    ad: Mapped[str] = mapped_column(
+        String(150), unique=True, index=True, nullable=False
+    )
     aciklama: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False
@@ -607,7 +610,6 @@ class UserPinLimit(Base):
     pin_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     user: Mapped["User"] = relationship("User", back_populates="pin_limit")
-
 
 
 def init_db() -> None:

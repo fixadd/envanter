@@ -1,5 +1,5 @@
-from concurrent.futures import ThreadPoolExecutor
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pathlib import Path
 
@@ -9,9 +9,10 @@ from sqlalchemy.pool import StaticPool
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-import models
-from routers.stock import stock_assign, AssignPayload
 from fastapi import HTTPException
+
+import models
+from routers.stock import AssignPayload, stock_assign
 
 
 def _setup_engine():
@@ -80,4 +81,3 @@ def test_concurrent_assignments():
         assert total.toplam == 0
         # one giriş, one çıkış logu olmalı
         assert db.query(models.StockLog).count() == 2
-

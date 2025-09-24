@@ -1,4 +1,5 @@
 """Database bootstrap and lightweight migration utilities."""
+
 from __future__ import annotations
 
 from sqlalchemy import inspect, text
@@ -100,9 +101,7 @@ def init_db() -> None:
             )
         if "theme" not in cols:
             conn.execute(
-                text(
-                    "ALTER TABLE users ADD COLUMN theme VARCHAR(20) DEFAULT 'default'"
-                )
+                text("ALTER TABLE users ADD COLUMN theme VARCHAR(20) DEFAULT 'default'")
             )
         if "animation" not in cols:
             conn.execute(
@@ -165,7 +164,9 @@ def init_db() -> None:
             )
         if "durum" not in cols:
             conn.execute(
-                text("ALTER TABLE licenses ADD COLUMN durum VARCHAR(20) DEFAULT 'aktif'")
+                text(
+                    "ALTER TABLE licenses ADD COLUMN durum VARCHAR(20) DEFAULT 'aktif'"
+                )
             )
         if "notlar" not in cols:
             conn.execute(text("ALTER TABLE licenses ADD COLUMN notlar TEXT"))
@@ -192,7 +193,9 @@ def init_db() -> None:
                     text("ALTER TABLE license_logs RENAME COLUMN field TO islem")
                 )
             else:
-                conn.execute(text("ALTER TABLE license_logs ADD COLUMN islem VARCHAR(50)"))
+                conn.execute(
+                    text("ALTER TABLE license_logs ADD COLUMN islem VARCHAR(50)")
+                )
         if "detay" not in cols:
             if "old_value" in cols:
                 conn.execute(
@@ -242,7 +245,9 @@ def init_db() -> None:
             )
         if "durum" not in cols:
             conn.execute(
-                text("ALTER TABLE inventories ADD COLUMN durum VARCHAR(50) DEFAULT 'aktif'")
+                text(
+                    "ALTER TABLE inventories ADD COLUMN durum VARCHAR(50) DEFAULT 'aktif'"
+                )
             )
         if "ifs_no" not in cols:
             conn.execute(text("ALTER TABLE inventories ADD COLUMN ifs_no VARCHAR(150)"))
@@ -267,9 +272,7 @@ def init_db() -> None:
             )
         if "kalan_miktar" not in cols:
             conn.execute(
-                text(
-                    "ALTER TABLE talepler ADD COLUMN kalan_miktar INTEGER DEFAULT 0"
-                )
+                text("ALTER TABLE talepler ADD COLUMN kalan_miktar INTEGER DEFAULT 0")
             )
 
     # -- Printers --------------------------------------------------------------
@@ -300,7 +303,9 @@ def init_db() -> None:
             )
         if "durum" not in cols:
             conn.execute(
-                text("ALTER TABLE printers ADD COLUMN durum VARCHAR(30) DEFAULT 'aktif'")
+                text(
+                    "ALTER TABLE printers ADD COLUMN durum VARCHAR(30) DEFAULT 'aktif'"
+                )
             )
         if "notlar" not in cols:
             conn.execute(text("ALTER TABLE printers ADD COLUMN notlar TEXT"))
@@ -346,6 +351,8 @@ def init_db() -> None:
         if "actor" not in cols:
             conn.execute(text("ALTER TABLE stock_logs ADD COLUMN actor VARCHAR(150)"))
         if "source_type" not in cols:
-            conn.execute(text("ALTER TABLE stock_logs ADD COLUMN source_type VARCHAR(50)"))
+            conn.execute(
+                text("ALTER TABLE stock_logs ADD COLUMN source_type VARCHAR(50)")
+            )
         if "source_id" not in cols:
             conn.execute(text("ALTER TABLE stock_logs ADD COLUMN source_id INTEGER"))

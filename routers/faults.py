@@ -43,10 +43,7 @@ def list_faults(
 ):
     entity_name = normalize_entity(entity)
     status_name = STATUS_ALIASES.get(status.lower(), status)
-    query = (
-        db.query(FaultRecord)
-        .filter(FaultRecord.entity_type == entity_name)
-    )
+    query = db.query(FaultRecord).filter(FaultRecord.entity_type == entity_name)
     if status_name:
         query = query.filter(FaultRecord.status == status_name)
     records = query.order_by(FaultRecord.created_at.desc()).all()

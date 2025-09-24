@@ -1,4 +1,5 @@
 """Security helpers shared across the application."""
+
 from __future__ import annotations
 
 from passlib.context import CryptContext

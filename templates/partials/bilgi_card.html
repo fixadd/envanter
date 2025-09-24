@@ -1,6 +1,10 @@
-{% set owner = session_user.id == bilgi.kullanici_id %}
-{% set pinned = bilgi.is_pinned and bilgi.pinned_by == session_user.id %}
-<div class="col-12 col-md-6 col-xl-4 bilgi-card" data-category="{{ bilgi.kategori_id or '' }}" data-search="{{ (bilgi.baslik ~ ' ' ~ (bilgi.icerik or ''))|lower|replace('\n', ' ')|e }}">
+{% set owner = session_user.id == bilgi.kullanici_id %} {% set pinned =
+bilgi.is_pinned and bilgi.pinned_by == session_user.id %}
+<div
+  class="col-12 col-md-6 col-xl-4 bilgi-card"
+  data-category="{{ bilgi.kategori_id or '' }}"
+  data-search="{{ (bilgi.baslik ~ ' ' ~ (bilgi.icerik or ''))|lower|replace('\n', ' ')|e }}"
+>
   <div class="card h-100 shadow-sm border-0">
     <div class="card-body d-flex flex-column">
       <div class="d-flex justify-content-between align-items-start mb-3 gap-2">
@@ -12,34 +16,57 @@
         </div>
         <div class="btn-group btn-group-sm">
           {% if owner %}
-          <button class="btn btn-outline-warning bilgi-pin-btn" data-id="{{ bilgi.id }}" data-pinned="{{ 'true' if pinned else 'false' }}">
+          <button
+            class="btn btn-outline-warning bilgi-pin-btn"
+            data-id="{{ bilgi.id }}"
+            data-pinned="{{ 'true' if pinned else 'false' }}"
+          >
             <i class="bi bi-pin-angle{{ '-fill' if pinned else '' }}"></i>
-            <span class="ms-1">{{ 'Tutturmayı Kaldır' if pinned else 'Tuttur' }}</span>
+            <span class="ms-1"
+              >{{ 'Tutturmayı Kaldır' if pinned else 'Tuttur' }}</span
+            >
           </button>
-          {% endif %}
-          {% if owner or session_user.role == 'admin' %}
-          <button class="btn btn-outline-danger bilgi-delete-btn" data-id="{{ bilgi.id }}" title="Sil">
+          {% endif %} {% if owner or session_user.role == 'admin' %}
+          <button
+            class="btn btn-outline-danger bilgi-delete-btn"
+            data-id="{{ bilgi.id }}"
+            title="Sil"
+          >
             <i class="bi bi-trash"></i>
           </button>
           {% endif %}
         </div>
       </div>
       <div class="text-muted small mb-3">
-        {% set author_name = bilgi.author.full_name if bilgi.author and bilgi.author.full_name else bilgi.author.username if bilgi.author else 'Bilinmiyor' %}
+        {% set author_name = bilgi.author.full_name if bilgi.author and
+        bilgi.author.full_name else bilgi.author.username if bilgi.author else
+        'Bilinmiyor' %}
         <span>{{ author_name }}</span>
         <span class="mx-1">•</span>
-        <time datetime="{{ bilgi.created_at.isoformat() }}">{{ bilgi.created_at.strftime('%d.%m.%Y %H:%M') }}</time>
+        <time datetime="{{ bilgi.created_at.isoformat() }}"
+          >{{ bilgi.created_at.strftime('%d.%m.%Y %H:%M') }}</time
+        >
       </div>
       <div class="mt-auto">
-        <button class="btn btn-link px-0 text-decoration-none bilgi-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#bilgi-{{ bilgi.id }}-icerik" aria-expanded="false">
+        <button
+          class="btn btn-link px-0 text-decoration-none bilgi-toggle"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#bilgi-{{ bilgi.id }}-icerik"
+          aria-expanded="false"
+        >
           Detayları Gör
         </button>
         <div class="collapse" id="bilgi-{{ bilgi.id }}-icerik">
           <div class="border rounded bg-light-subtle p-3 small bilgi-content">
-            {{ bilgi.icerik|e|replace('\n', '<br>')|safe }}
-            {% if bilgi.foto_yolu %}
+            {{ bilgi.icerik|e|replace('\n', '<br />')|safe }} {% if
+            bilgi.foto_yolu %}
             <div class="mt-3">
-              <img src="{{ url_for('static', path=bilgi.foto_yolu) }}" alt="{{ bilgi.baslik }} görseli" class="img-fluid rounded shadow-sm bilgi-photo">
+              <img
+                src="{{ url_for('static', path=bilgi.foto_yolu) }}"
+                alt="{{ bilgi.baslik }} görseli"
+                class="img-fluid rounded shadow-sm bilgi-photo"
+              />
             </div>
             {% endif %}
           </div>

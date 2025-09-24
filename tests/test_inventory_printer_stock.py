@@ -6,11 +6,11 @@ from types import SimpleNamespace
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
+import pytest
+
 import models
 from routers.inventory import stock_entry
 from routers.printers import stock_printer
-
-import pytest
 
 
 @pytest.fixture()
@@ -58,4 +58,3 @@ def test_printer_stock_source(db_session):
     log = db_session.query(models.StockLog).order_by(models.StockLog.id.desc()).first()
     assert log.source_type == "yazici"
     assert log.source_id == p.id
-

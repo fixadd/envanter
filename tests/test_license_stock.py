@@ -6,10 +6,10 @@ from types import SimpleNamespace
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
+import pytest
+
 import models
 from routers.license import stock_license
-
-import pytest
 
 
 @pytest.fixture()

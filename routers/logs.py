@@ -1,5 +1,5 @@
 # routers/logs.py
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -20,7 +20,9 @@ def logs_home(request: Request, tab: str = "kullanici", db: Session = Depends(ge
         .all()
     )
     users = [u[0] for u in db.query(User.username).order_by(User.username).all()]
-    inventory_numbers = [i[0] for i in db.query(Inventory.no).order_by(Inventory.no).all()]
+    inventory_numbers = [
+        i[0] for i in db.query(Inventory.no).order_by(Inventory.no).all()
+    ]
     return templates.TemplateResponse(
         "logs/index.html",
         {

@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from sqlalchemy import cast, Integer
-from pydantic import BaseModel, conint
 from typing import List, Optional
 
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, conint
+from sqlalchemy import Integer, cast
+from sqlalchemy.orm import Session
+
 from database import get_db
-from models import Talep, TalepTuru, HardwareType, Brand, Model
+from models import Brand, HardwareType, Model, Talep, TalepTuru
 
 router = APIRouter(prefix="/api/talep", tags=["Talep"])
 
@@ -46,6 +47,7 @@ def talep_ekle(item: TalepIn, db: Session = Depends(get_db)):
         ids.append(rec.id)
     db.commit()
     return {"ok": True, "ids": ids}
+
 
 @router.get("/liste")
 def talep_liste(db: Session = Depends(get_db)):

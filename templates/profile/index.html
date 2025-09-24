@@ -1,5 +1,5 @@
-{% extends "base.html" %}{% block title %}Profil{% endblock %}
-{% block content %}
+{% extends "base.html" %}{% block title %}Profil{% endblock %} {% block content
+%}
 <h2 class="h5 mb-3">Profil</h2>
 <div class="card p-3">
   <div class="mb-2"><strong>Kullanıcı Adı:</strong> {{ user.username }}</div>
@@ -12,19 +12,53 @@
     <div class="mb-3">
       <label for="themeSelect" class="form-label">Tema</label>
       <select name="theme" id="themeSelect" class="form-select">
-        <option value="default" {% if theme == 'default' %}selected{% endif %}>Varsayılan</option>
-        <option value="dark" {% if theme == 'dark' %}selected{% endif %}>Koyu</option>
-        <option value="green" {% if theme == 'green' %}selected{% endif %}>Yeşil</option>
-        <option value="red" {% if theme == 'red' %}selected{% endif %}>Kırmızı</option>
-        <option value="purple" {% if theme == 'purple' %}selected{% endif %}>Mor</option>
+        <option value="default" {% if theme="" ="default" %}selected{% endif %}>
+          Varsayılan
+        </option>
+        <option value="dark" {% if theme="" ="dark" %}selected{% endif %}>
+          Koyu
+        </option>
+        <option value="green" {% if theme="" ="green" %}selected{% endif %}>
+          Yeşil
+        </option>
+        <option value="red" {% if theme="" ="red" %}selected{% endif %}>
+          Kırmızı
+        </option>
+        <option value="purple" {% if theme="" ="purple" %}selected{% endif %}>
+          Mor
+        </option>
       </select>
     </div>
     <div class="mb-3">
       <label for="animationSelect" class="form-label">Animasyon</label>
       <select name="animation" id="animationSelect" class="form-select">
-        <option value="none" {% if animation == 'none' %}selected{% endif %}>Yok</option>
-        <option value="particles" {% if animation == 'particles' %}selected{% endif %}>Parçacıklar</option>
-        <option value="gradient" {% if animation == 'gradient' %}selected{% endif %}>Gradyan</option>
+        <option value="none" {% if animation="" ="none" %}selected{% endif %}>
+          Yok
+        </option>
+        <option
+          value="particles"
+          {%
+          if
+          animation=""
+          ="particles"
+          %}selected{%
+          endif
+          %}
+        >
+          Parçacıklar
+        </option>
+        <option
+          value="gradient"
+          {%
+          if
+          animation=""
+          ="gradient"
+          %}selected{%
+          endif
+          %}
+        >
+          Gradyan
+        </option>
       </select>
     </div>
     <button type="submit" class="btn btn-primary">Kaydet</button>

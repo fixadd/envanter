@@ -7,10 +7,10 @@ os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
 from datetime import datetime
 
-import models
-from routers.stock import stock_assign, AssignPayload
-
 import pytest
+
+import models
+from routers.stock import AssignPayload, stock_assign
 
 
 @pytest.fixture()
@@ -58,7 +58,14 @@ def _make_user():
 
 def test_stock_assign_updates_license(db_session):
     db = db_session
-    _setup_stock(db, "Ofis", toplam=1, ifs_no="IFS1", lisans_anahtari="KEY-123", mail="user@example.com")
+    _setup_stock(
+        db,
+        "Ofis",
+        toplam=1,
+        ifs_no="IFS1",
+        lisans_anahtari="KEY-123",
+        mail="user@example.com",
+    )
 
     payload = AssignPayload(
         stock_id="Ofis|||IFS1",
@@ -197,5 +204,7 @@ def test_stock_assign_matches_lookup_display_values(db_session):
     assert log.marka == str(brand.id)
     assert log.model == str(model.id)
 
-    assign = db.query(models.StockAssignment).filter_by(hedef_envanter_no="INV300").one()
+    assign = (
+        db.query(models.StockAssignment).filter_by(hedef_envanter_no="INV300").one()
+    )
     assert assign.donanim_tipi == str(hw.id)

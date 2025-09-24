@@ -1,7 +1,7 @@
 <label class="form-label">Marka</label>
 <select id="selMarka" name="marka" class="form-select" required>
   {% for b in markalar %}
-    <option value="{{ b }}">{{ b }}</option>
+  <option value="{{ b }}">{{ b }}</option>
   {% endfor %}
 </select>
 
@@ -11,16 +11,22 @@
 </select>
 
 <script>
-  const marka = document.getElementById('selMarka');
-  const model = document.getElementById('selModel');
-  marka.addEventListener('change', ()=>{
+  const marka = document.getElementById("selMarka");
+  const model = document.getElementById("selModel");
+  marka.addEventListener("change", () => {
     model.innerHTML = '<option value="">Yükleniyor...</option>';
-    if(!marka.value){ model.innerHTML = '<option value="">Marka seçiniz</option>'; return; }
-    fetch('/api/printers/models?brand=' + encodeURIComponent(marka.value))
-      .then(r=>r.json()).then(list=>{
+    if (!marka.value) {
+      model.innerHTML = '<option value="">Marka seçiniz</option>';
+      return;
+    }
+    fetch("/api/printers/models?brand=" + encodeURIComponent(marka.value))
+      .then((r) => r.json())
+      .then((list) => {
         model.innerHTML = '<option value="">Seçiniz</option>';
-        list.forEach(m=>{
-          const o=document.createElement('option'); o.value=o.textContent=m; model.appendChild(o);
+        list.forEach((m) => {
+          const o = document.createElement("option");
+          o.value = o.textContent = m;
+          model.appendChild(o);
         });
       });
   });

@@ -1,10 +1,11 @@
 # routers/home.py
-from fastapi import APIRouter, Request, Depends
+from types import SimpleNamespace
+
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
-from types import SimpleNamespace
 
 from database import get_db
 from models import (
@@ -48,7 +49,8 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         or 0
     )
     arizali_cihaz_sayisi += (
-        db.query(func.count(Printer.id)).filter(Printer.durum == "arızalı").scalar() or 0
+        db.query(func.count(Printer.id)).filter(Printer.durum == "arızalı").scalar()
+        or 0
     )
 
     try:
@@ -95,9 +97,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     user_map = {}
     if actors:
         users = (
-            db.query(
-                User.username, User.first_name, User.last_name, User.full_name
-            )
+            db.query(User.username, User.first_name, User.last_name, User.full_name)
             .filter(User.username.in_(actors))
             .all()
         )

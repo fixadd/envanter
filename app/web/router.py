@@ -8,33 +8,39 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
+from app.core.security import verify_password
 from auth import get_user_by_username
 from database import get_db
-from app.core.security import verify_password
+from routers import bilgiler as bilgiler_router
+from routers import catalog as catalog_router
 from routers import (
-    catalog as catalog_router,
-    home as home_router,
-    bilgiler as bilgiler_router,
-    inventory as inventory_router,
-    license as license_router,
-    panel as panel_router,
-    printers as printers_router,
+    faults,
+)
+from routers import home as home_router
+from routers import inventory as inventory_router
+from routers import license as license_router
+from routers import (
+    logs,
+)
+from routers import panel as panel_router
+from routers import printers as printers_router
+from routers import (
     printers_scrap_list,
     profile,
     refdata,
-    requests as requests_router,
+)
+from routers import requests as requests_router
+from routers import (
     stock,
     trash,
-    logs,
-    faults,
 )
+from routers.api import router as api_router
 from routers.lookup import router as lookup_router
 from routers.picker import router as picker_router
-from routers.api import router as api_router
+from routers.talep import router as talep_router
 from routes.admin import router as admin_router
 from routes.scrap import router as scrap_router
 from routes.talepler import router as talepler_router
-from routers.talep import router as talep_router
 from security import current_user, require_roles
 from utils.template_filters import register_filters
 
@@ -56,7 +62,9 @@ def _ensure_csrf(request: Request) -> str:
 
 
 def _check_csrf(request: Request, token_from_form: Optional[str]) -> bool:
-    return bool(token_from_form) and request.session.get("csrf_token") == token_from_form
+    return (
+        bool(token_from_form) and request.session.get("csrf_token") == token_from_form
+    )
 
 
 @router.get("/", include_in_schema=False)
@@ -162,7 +170,10 @@ def licenses_list_alias(
 
 @router.get("/licenses/{lic_id}", include_in_schema=False)
 def licenses_detail_alias(
-    lic_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)
+    lic_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
 ):
     return license_router.license_detail(lic_id, request, db)
 
@@ -197,51 +208,25 @@ def licenses_stock_alias(
     return license_router.stock_license(lic_id, db, user)
 
 
-router.include_router(
-    home_router.router, dependencies=[Depends(current_user)]
-)
-router.include_router(
-    panel_router.router, dependencies=[Depends(current_user)]
-)
-router.include_router(
-    inventory_router.router, dependencies=[Depends(current_user)]
-)
-router.include_router(
-    bilgiler_router.router, dependencies=[Depends(current_user)]
-)
-router.include_router(
-    license_router.router, dependencies=[Depends(current_user)]
-)
-router.include_router(
-    printers_scrap_list.router, dependencies=[Depends(current_user)]
-)
-router.include_router(
-    printers_router.router, dependencies=[Depends(current_user)]
-)
-router.include_router(
-    catalog_router.router, dependencies=[Depends(current_user)]
-)
+router.include_router(home_router.router, dependencies=[Depends(current_user)])
+router.include_router(panel_router.router, dependencies=[Depends(current_user)])
+router.include_router(inventory_router.router, dependencies=[Depends(current_user)])
+router.include_router(bilgiler_router.router, dependencies=[Depends(current_user)])
+router.include_router(license_router.router, dependencies=[Depends(current_user)])
+router.include_router(printers_scrap_list.router, dependencies=[Depends(current_user)])
+router.include_router(printers_router.router, dependencies=[Depends(current_user)])
+router.include_router(catalog_router.router, dependencies=[Depends(current_user)])
 router.include_router(
     requests_router.router,
     prefix="/requests",
     tags=["Requests"],
     dependencies=[Depends(current_user)],
 )
-router.include_router(
-    stock.router, dependencies=[Depends(current_user)]
-)
-router.include_router(
-    stock.api_router, dependencies=[Depends(current_user)]
-)
-router.include_router(
-    faults.router, dependencies=[Depends(current_user)]
-)
-router.include_router(
-    scrap_router, dependencies=[Depends(current_user)]
-)
-router.include_router(
-    talepler_router, dependencies=[Depends(current_user)]
-)
+router.include_router(stock.router, dependencies=[Depends(current_user)])
+router.include_router(stock.api_router, dependencies=[Depends(current_user)])
+router.include_router(faults.router, dependencies=[Depends(current_user)])
+router.include_router(scrap_router, dependencies=[Depends(current_user)])
+router.include_router(talepler_router, dependencies=[Depends(current_user)])
 router.include_router(
     trash.router,
     prefix="/trash",
@@ -254,30 +239,18 @@ router.include_router(
     tags=["Profile"],
     dependencies=[Depends(current_user)],
 )
-router.include_router(
-    refdata.router, dependencies=[Depends(current_user)]
-)
-router.include_router(
-    api_router, dependencies=[Depends(current_user)]
-)
-router.include_router(
-    picker_router, dependencies=[Depends(current_user)]
-)
-router.include_router(
-    lookup_router, dependencies=[Depends(current_user)]
-)
-router.include_router(
-    talep_router, dependencies=[Depends(current_user)]
-)
+router.include_router(refdata.router, dependencies=[Depends(current_user)])
+router.include_router(api_router, dependencies=[Depends(current_user)])
+router.include_router(picker_router, dependencies=[Depends(current_user)])
+router.include_router(lookup_router, dependencies=[Depends(current_user)])
+router.include_router(talep_router, dependencies=[Depends(current_user)])
 router.include_router(
     logs.router,
     prefix="/logs",
     tags=["Logs"],
     dependencies=[Depends(require_roles("admin"))],
 )
-router.include_router(
-    admin_router, dependencies=[Depends(require_roles("admin"))]
-)
+router.include_router(admin_router, dependencies=[Depends(require_roles("admin"))])
 
 
 def register_web_routes(app: FastAPI) -> None:

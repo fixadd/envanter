@@ -1,13 +1,21 @@
-{% extends "base.html" %}
-{% block title %}Hurdalar{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Hurdalar{% endblock %} {% block
+content %}
 <div class="container-fluid p-3">
-  <div class="d-flex flex-column flex-lg-row gap-3 align-items-lg-center justify-content-lg-between mb-3">
+  <div
+    class="d-flex flex-column flex-lg-row gap-3 align-items-lg-center justify-content-lg-between mb-3"
+  >
     <h2 class="h4 mb-0">Hurdalar</h2>
-    <div class="d-flex flex-column flex-sm-row gap-2 w-100 w-lg-auto ms-lg-auto">
+    <div
+      class="d-flex flex-column flex-sm-row gap-2 w-100 w-lg-auto ms-lg-auto"
+    >
       <div class="input-group">
         <span class="input-group-text"><i class="bi bi-search"></i></span>
-        <input type="search" id="scrapSearch" class="form-control" placeholder="Ara...">
+        <input
+          type="search"
+          id="scrapSearch"
+          class="form-control"
+          placeholder="Ara..."
+        />
       </div>
       <select id="scrapTypeFilter" class="form-select">
         <option value="all">Tümü</option>
@@ -19,7 +27,10 @@
   </div>
 
   <div class="table-responsive">
-    <table class="table table-striped table-hover table-sm align-middle table-rounded" id="scrapTable">
+    <table
+      class="table table-striped table-hover table-sm align-middle table-rounded"
+      id="scrapTable"
+    >
       <thead class="table-light">
         <tr>
           <th scope="col">Tip</th>
@@ -30,11 +41,15 @@
         </tr>
       </thead>
       <tbody>
-        {% set badge_map = {'envanter': 'text-bg-primary', 'lisans': 'text-bg-success', 'yazici': 'text-bg-warning'} %}
-        {% for item in combined_scraps %}
+        {% set badge_map = {'envanter': 'text-bg-primary', 'lisans':
+        'text-bg-success', 'yazici': 'text-bg-warning'} %} {% for item in
+        combined_scraps %}
         <tr data-type="{{ item.type }}" data-search="{{ item.search|e }}">
           <td>
-            <span class="badge {{ badge_map.get(item.type, 'text-bg-secondary') }}">{{ item.type_label }}</span>
+            <span
+              class="badge {{ badge_map.get(item.type, 'text-bg-secondary') }}"
+              >{{ item.type_label }}</span
+            >
           </td>
           <td>
             <div class="fw-semibold">{{ item.title }}</div>
@@ -43,7 +58,10 @@
           <td>
             <ul class="list-unstyled mb-0 small">
               {% for detail in item.details %}
-              <li><span class="text-muted">{{ detail.label }}:</span> {{ detail.value }}</li>
+              <li>
+                <span class="text-muted">{{ detail.label }}:</span> {{
+                detail.value }}
+              </li>
               {% endfor %}
             </ul>
             {% if item.type == 'envanter' %}
@@ -61,14 +79,20 @@
           </td>
           <td class="text-nowrap">{{ item.display_date }}</td>
           <td class="text-end">
-            <button class="btn btn-outline-secondary btn-sm view-btn" data-url="{{ item.detail_url }}" title="Detayı Göster">
+            <button
+              class="btn btn-outline-secondary btn-sm view-btn"
+              data-url="{{ item.detail_url }}"
+              title="Detayı Göster"
+            >
               <i class="bi bi-eye"></i>
             </button>
           </td>
         </tr>
         {% endfor %}
         <tr id="scrapTableEmpty" class="d-none">
-          <td colspan="5" class="text-center text-muted py-3">Kayıt bulunamadı.</td>
+          <td colspan="5" class="text-center text-muted py-3">
+            Kayıt bulunamadı.
+          </td>
         </tr>
       </tbody>
     </table>
@@ -78,8 +102,13 @@
 <div class="modal fade" id="hurdaDetayModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">Hurda Detayı</h5>
-        <button class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      <div class="modal-header">
+        <h5 class="modal-title">Hurda Detayı</h5>
+        <button
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Kapat"
+        ></button>
       </div>
       <div class="modal-body" id="hurdaDetayBody">Yükleniyor...</div>
     </div>
@@ -87,47 +116,49 @@
 </div>
 
 <script>
-const rows = Array.from(document.querySelectorAll('#scrapTable tbody tr[data-type]'));
-const emptyRow = document.getElementById('scrapTableEmpty');
-const searchInput = document.getElementById('scrapSearch');
-const typeFilter = document.getElementById('scrapTypeFilter');
+  const rows = Array.from(
+    document.querySelectorAll("#scrapTable tbody tr[data-type]"),
+  );
+  const emptyRow = document.getElementById("scrapTableEmpty");
+  const searchInput = document.getElementById("scrapSearch");
+  const typeFilter = document.getElementById("scrapTypeFilter");
 
-function applyFilters() {
-  const term = searchInput.value.trim().toLowerCase();
-  const type = typeFilter.value;
-  let visibleCount = 0;
+  function applyFilters() {
+    const term = searchInput.value.trim().toLowerCase();
+    const type = typeFilter.value;
+    let visibleCount = 0;
 
-  rows.forEach(row => {
-    const matchesType = type === 'all' || row.dataset.type === type;
-    const content = row.dataset.search || '';
-    const matchesTerm = !term || content.includes(term);
-    const shouldShow = matchesType && matchesTerm;
-    row.classList.toggle('d-none', !shouldShow);
-    if (shouldShow) {
-      visibleCount += 1;
+    rows.forEach((row) => {
+      const matchesType = type === "all" || row.dataset.type === type;
+      const content = row.dataset.search || "";
+      const matchesTerm = !term || content.includes(term);
+      const shouldShow = matchesType && matchesTerm;
+      row.classList.toggle("d-none", !shouldShow);
+      if (shouldShow) {
+        visibleCount += 1;
+      }
+    });
+
+    if (emptyRow) {
+      emptyRow.classList.toggle("d-none", visibleCount !== 0);
     }
-  });
-
-  if (emptyRow) {
-    emptyRow.classList.toggle('d-none', visibleCount !== 0);
   }
-}
 
-if (searchInput && typeFilter) {
-  searchInput.addEventListener('input', applyFilters);
-  typeFilter.addEventListener('change', applyFilters);
-  applyFilters();
-}
+  if (searchInput && typeFilter) {
+    searchInput.addEventListener("input", applyFilters);
+    typeFilter.addEventListener("change", applyFilters);
+    applyFilters();
+  }
 
-document.querySelectorAll('.view-btn').forEach(b => {
-  b.addEventListener('click', async () => {
-    const url = b.dataset.url;
-    if (!url) return;
-    const r = await fetch(url);
-    const h = await r.text();
-    document.getElementById('hurdaDetayBody').innerHTML = h;
-    new bootstrap.Modal(document.getElementById('hurdaDetayModal')).show();
+  document.querySelectorAll(".view-btn").forEach((b) => {
+    b.addEventListener("click", async () => {
+      const url = b.dataset.url;
+      if (!url) return;
+      const r = await fetch(url);
+      const h = await r.text();
+      document.getElementById("hurdaDetayBody").innerHTML = h;
+      new bootstrap.Modal(document.getElementById("hurdaDetayModal")).show();
+    });
   });
-});
 </script>
 {% endblock %}

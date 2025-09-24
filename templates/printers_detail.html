@@ -1,11 +1,15 @@
-{% extends "base.html" %}
-{% block title %}Yazıcı Detay{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Yazıcı Detay{% endblock %} {% block
+content %}
 <div class="container py-3">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0">Yazıcı #{{ p.id }} — {{ p.marka }} {{ p.model }}</h5>
     <div class="d-flex gap-2">
-      <a class="btn btn-sm btn-primary" href="#" data-modal-url="/printers/{{ p.id }}/edit?modal=1">Düzenle</a>
+      <a
+        class="btn btn-sm btn-primary"
+        href="#"
+        data-modal-url="/printers/{{ p.id }}/edit?modal=1"
+        >Düzenle</a
+      >
       <a class="btn btn-sm btn-outline-secondary" href="/printers">Geri</a>
     </div>
   </div>
@@ -16,9 +20,13 @@
         <div class="card-body">
           <div><strong>Seri No:</strong> {{ p.seri_no or '-' }}</div>
           <div><strong>Fabrika:</strong> {{ p.fabrika or '-' }}</div>
-          <div><strong>Kullanım Alanı:</strong> {{ p.kullanim_alani or '-' }}</div>
+          <div>
+            <strong>Kullanım Alanı:</strong> {{ p.kullanim_alani or '-' }}
+          </div>
           <div><strong>Sorumlu:</strong> {{ p.sorumlu_personel or '-' }}</div>
-          <div><strong>Bağlı Env.:</strong> {{ p.bagli_envanter_no or '-' }}</div>
+          <div>
+            <strong>Bağlı Env.:</strong> {{ p.bagli_envanter_no or '-' }}
+          </div>
           <div><strong>Durum:</strong> {{ p.durum }}</div>
           <div><strong>Not:</strong> {{ p.notlar or '-' }}</div>
         </div>
@@ -29,22 +37,28 @@
         <div class="card-header">Geçmiş Kayıtları</div>
         <div class="card-body">
           {% if logs|length == 0 %}
-            <em>Kayıt yok.</em>
+          <em>Kayıt yok.</em>
           {% else %}
-            <ul class="list-group list-group-flush">
-              {% for h in logs %}
-              <li class="list-group-item">
-                <div class="small text-muted">{{ h.created_at.strftime("%d.%m.%Y %H:%M") }} — {{ h.actor or '-' }} — {{ h.action }}</div>
-                {% if h.changes %}
-                <ul class="mt-2 mb-0 small">
-                  {% for field, vals in h.changes.items() %}
-                  <li><code>{{ field }}</code>: {{ vals.old or '-' }} → {{ vals.new or '-' }}</li>
-                  {% endfor %}
-                </ul>
-                {% endif %}
-              </li>
-              {% endfor %}
-            </ul>
+          <ul class="list-group list-group-flush">
+            {% for h in logs %}
+            <li class="list-group-item">
+              <div class="small text-muted">
+                {{ h.created_at.strftime("%d.%m.%Y %H:%M") }} — {{ h.actor or
+                '-' }} — {{ h.action }}
+              </div>
+              {% if h.changes %}
+              <ul class="mt-2 mb-0 small">
+                {% for field, vals in h.changes.items() %}
+                <li>
+                  <code>{{ field }}</code>: {{ vals.old or '-' }} → {{ vals.new
+                  or '-' }}
+                </li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
           {% endif %}
         </div>
       </div>
@@ -52,4 +66,3 @@
   </div>
 </div>
 {% endblock %}
-

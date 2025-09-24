@@ -1,6 +1,6 @@
+import importlib
 import os
 import sys
-import importlib
 from pathlib import Path
 
 from sqlalchemy import inspect
@@ -12,6 +12,7 @@ def test_init_db_adds_theme_and_animation_columns(tmp_path):
     db_file = tmp_path / "theme.db"
     os.environ["DATABASE_URL"] = f"sqlite:///{db_file}"
     import models
+
     importlib.reload(models)
 
     with models.engine.begin() as conn:

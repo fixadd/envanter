@@ -105,9 +105,7 @@ def mark_fault(
     key = entity_key or (str(entity_id) if entity_id is not None else None)
     if entity_id is None and not key:
         raise ValueError("entity_id or entity_key must be provided")
-    record = get_open_fault(
-        db, entity_name, entity_id=entity_id, entity_key=key
-    )
+    record = get_open_fault(db, entity_name, entity_id=entity_id, entity_key=key)
     if record is None:
         record = FaultRecord(
             entity_type=entity_name,
@@ -197,9 +195,7 @@ def resolve_fault(
     key = entity_key or (str(entity_id) if entity_id is not None else None)
     if entity_id is None and not key:
         raise ValueError("entity_id or entity_key must be provided")
-    record = get_open_fault(
-        db, entity_name, entity_id=entity_id, entity_key=key
-    )
+    record = get_open_fault(db, entity_name, entity_id=entity_id, entity_key=key)
     if record is None:
         return None
 
@@ -230,7 +226,11 @@ def resolve_fault(
                 db.add(
                     InventoryLog(
                         inventory_id=item.id,
-                        action="repair" if status == FAULT_STATUS_REPAIRED else "fault_close",
+                        action=(
+                            "repair"
+                            if status == FAULT_STATUS_REPAIRED
+                            else "fault_close"
+                        ),
                         before_json={"durum": before_status} if before_status else None,
                         after_json={"durum": item.durum},
                         note=log_note,
@@ -242,7 +242,11 @@ def resolve_fault(
                 db.add(
                     LicenseLog(
                         license_id=item.id,
-                        islem="TAMIR" if status == FAULT_STATUS_REPAIRED else "ARIZA_KAPAT",
+                        islem=(
+                            "TAMIR"
+                            if status == FAULT_STATUS_REPAIRED
+                            else "ARIZA_KAPAT"
+                        ),
                         detay=log_note,
                         islem_yapan=actor,
                         tarih=datetime.utcnow(),
@@ -252,7 +256,11 @@ def resolve_fault(
                 db.add(
                     PrinterHistory(
                         printer_id=item.id,
-                        action="repair" if status == FAULT_STATUS_REPAIRED else "fault_close",
+                        action=(
+                            "repair"
+                            if status == FAULT_STATUS_REPAIRED
+                            else "fault_close"
+                        ),
                         changes={
                             "durum": {"old": before_status, "new": item.durum},
                         },

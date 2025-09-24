@@ -25,7 +25,9 @@
   async function getModelsByBrand(brandId) {
     const key = `model_${brandId}`;
     if (cache[key]) return cache[key];
-    const r = await fetch(`/api/lookup/model?marka_id=${encodeURIComponent(brandId)}`);
+    const r = await fetch(
+      `/api/lookup/model?marka_id=${encodeURIComponent(brandId)}`,
+    );
     if (!r.ok) return [];
     const data = await r.json(); // [{id, name}]
     cache[key] = data;
@@ -34,8 +36,14 @@
 
   function optionHtml(arr, placeholder = "Seçiniz…") {
     const head = `<option value="">${placeholder}</option>`;
-    if (!Array.isArray(arr) || !arr.length) return head + `<option value="">Seçenek yok</option>`;
-    return head + arr.map(x => `<option value="${x.id}">${x.name || x.adi || ""}</option>`).join("");
+    if (!Array.isArray(arr) || !arr.length)
+      return head + `<option value="">Seçenek yok</option>`;
+    return (
+      head +
+      arr
+        .map((x) => `<option value="${x.id}">${x.name || x.adi || ""}</option>`)
+        .join("")
+    );
   }
 
   function rowTemplate() {
@@ -170,129 +178,173 @@
 })();
 
 // Talep iptal
-window.talepIptal = async function(id, mevcut){
+window.talepIptal = async function (id, mevcut) {
   let adet = 1;
-  if(mevcut > 1){
+  if (mevcut > 1) {
     const inp = prompt(`Kaç adet iptal edilecek? (1-${mevcut})`, mevcut);
-    if(!inp) return;
+    if (!inp) return;
     adet = Number(inp);
-    if(!adet || adet < 1 || adet > mevcut){ alert('Geçersiz adet'); return; }
+    if (!adet || adet < 1 || adet > mevcut) {
+      alert("Geçersiz adet");
+      return;
+    }
   }
   const fd = new FormData();
-  fd.append('adet', String(adet));
-  try{
-    const r = await fetch(`/talepler/${id}/cancel`, {method:'POST', body: fd});
-    if(!r.ok){ alert('İşlem başarısız'); return; }
+  fd.append("adet", String(adet));
+  try {
+    const r = await fetch(`/talepler/${id}/cancel`, {
+      method: "POST",
+      body: fd,
+    });
+    if (!r.ok) {
+      alert("İşlem başarısız");
+      return;
+    }
     location.reload();
-  }catch(err){
-    console.error(err); alert('İşlem başarısız');
+  } catch (err) {
+    console.error(err);
+    alert("İşlem başarısız");
   }
 };
 
 // Talep kapat ve stoğa aktar (modal ile)
 (() => {
-  const modalEl = document.getElementById('talepKapatModal');
-  if(!modalEl) return;
+  const modalEl = document.getElementById("talepKapatModal");
+  if (!modalEl) return;
 
-  const form      = document.getElementById('talepKapatForm');
-  const fldId     = document.getElementById('tkTalepId');
-  const fldAdet   = document.getElementById('tkAdet');
-  const selMarka  = document.getElementById('tkMarka');
-  const selModel  = document.getElementById('tkModel');
-  const fldAcik   = document.getElementById('tkAciklama');
-  const selTur    = document.getElementById('tkTur');
-  const markaWrap = selMarka?.closest('.mb-3');
-  const modelWrap = selModel?.closest('.mb-3');
+  const form = document.getElementById("talepKapatForm");
+  const fldId = document.getElementById("tkTalepId");
+  const fldAdet = document.getElementById("tkAdet");
+  const selMarka = document.getElementById("tkMarka");
+  const selModel = document.getElementById("tkModel");
+  const fldAcik = document.getElementById("tkAciklama");
+  const selTur = document.getElementById("tkTur");
+  const markaWrap = selMarka?.closest(".mb-3");
+  const modelWrap = selModel?.closest(".mb-3");
 
   let initialized = false;
-  async function initSelects(){
-    if(initialized) return;
-    await _selects.fillChoices({ endpoint:'/api/lookup/marka', selectId:'tkMarka', placeholder:'Marka seçiniz…' });
-    await _selects.bindMarkaModel('tkMarka','tkModel');
+  async function initSelects() {
+    if (initialized) return;
+    await _selects.fillChoices({
+      endpoint: "/api/lookup/marka",
+      selectId: "tkMarka",
+      placeholder: "Marka seçiniz…",
+    });
+    await _selects.bindMarkaModel("tkMarka", "tkModel");
     initialized = true;
   }
 
-  function updateCloseFormFields(){
-    const type = (selTur?.value || 'envanter').toLowerCase();
-    const isLicense = type === 'lisans';
+  function updateCloseFormFields() {
+    const type = (selTur?.value || "envanter").toLowerCase();
+    const isLicense = type === "lisans";
     if (selMarka) {
       selMarka.disabled = isLicense;
       selMarka.required = !isLicense;
-      if (isLicense) selMarka.value = '';
+      if (isLicense) selMarka.value = "";
     }
     if (selModel) {
       selModel.disabled = isLicense;
       selModel.required = !isLicense;
-      if (isLicense) selModel.value = '';
+      if (isLicense) selModel.value = "";
     }
-    if (markaWrap) markaWrap.classList.toggle('d-none', isLicense);
-    if (modelWrap) modelWrap.classList.toggle('d-none', isLicense);
+    if (markaWrap) markaWrap.classList.toggle("d-none", isLicense);
+    if (modelWrap) modelWrap.classList.toggle("d-none", isLicense);
   }
 
-  selTur?.addEventListener('change', updateCloseFormFields);
+  selTur?.addEventListener("change", updateCloseFormFields);
 
-  window.talepKapat = async function(id, mevcut){
+  window.talepKapat = async function (id, mevcut) {
     await initSelects();
     fldId.value = String(id);
     fldAdet.max = mevcut;
     fldAdet.value = mevcut > 1 ? mevcut : 1;
-    fldAcik.value = '';
-    selMarka.value = '';
-    selModel.value = '';
+    fldAcik.value = "";
+    selMarka.value = "";
+    selModel.value = "";
     if (selTur) {
-      const turAttr = (row?.dataset?.tur || '').toLowerCase();
-      const normalized = turAttr === 'lisans' ? 'lisans' : turAttr === 'yazici' ? 'yazici' : 'envanter';
+      const turAttr = (row?.dataset?.tur || "").toLowerCase();
+      const normalized =
+        turAttr === "lisans"
+          ? "lisans"
+          : turAttr === "yazici"
+            ? "yazici"
+            : "envanter";
       selTur.value = normalized;
     }
 
-    const row = Array.from(document.querySelectorAll('tbody tr'))
-      .find(tr => tr.firstElementChild?.textContent.trim() === String(id));
+    const row = Array.from(document.querySelectorAll("tbody tr")).find(
+      (tr) => tr.firstElementChild?.textContent.trim() === String(id),
+    );
     const markaTxt = row?.children[2]?.textContent.trim();
     const modelTxt = row?.children[3]?.textContent.trim();
 
-    if(markaTxt && markaTxt !== '-'){
-      const opt = Array.from(selMarka.options).find(o=>o.textContent.trim()===markaTxt);
-      if(opt){
+    if (markaTxt && markaTxt !== "-") {
+      const opt = Array.from(selMarka.options).find(
+        (o) => o.textContent.trim() === markaTxt,
+      );
+      if (opt) {
         selMarka.value = opt.value;
-        await _selects.fillChoices({ endpoint:'/api/lookup/model', selectId:'tkModel', params:{ marka_id: selMarka.value }, placeholder:'Model seçiniz…' });
-        if(modelTxt && modelTxt !== '-'){
-          const mOpt = Array.from(selModel.options).find(o=>o.textContent.trim()===modelTxt);
-          if(mOpt) selModel.value = mOpt.value;
+        await _selects.fillChoices({
+          endpoint: "/api/lookup/model",
+          selectId: "tkModel",
+          params: { marka_id: selMarka.value },
+          placeholder: "Model seçiniz…",
+        });
+        if (modelTxt && modelTxt !== "-") {
+          const mOpt = Array.from(selModel.options).find(
+            (o) => o.textContent.trim() === modelTxt,
+          );
+          if (mOpt) selModel.value = mOpt.value;
         }
-      }else{
-        await _selects.fillChoices({ endpoint:'/api/lookup/model', selectId:'tkModel', params:{ marka_id: selMarka.value }, placeholder:'Model seçiniz…' });
+      } else {
+        await _selects.fillChoices({
+          endpoint: "/api/lookup/model",
+          selectId: "tkModel",
+          params: { marka_id: selMarka.value },
+          placeholder: "Model seçiniz…",
+        });
       }
-    }else{
-      await _selects.fillChoices({ endpoint:'/api/lookup/model', selectId:'tkModel', params:{ marka_id: '' }, placeholder:'Model seçiniz…' });
+    } else {
+      await _selects.fillChoices({
+        endpoint: "/api/lookup/model",
+        selectId: "tkModel",
+        params: { marka_id: "" },
+        placeholder: "Model seçiniz…",
+      });
     }
 
     updateCloseFormFields();
     bootstrap.Modal.getOrCreateInstance(modalEl).show();
   };
 
-  form?.addEventListener('submit', async (e) => {
+  form?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const id     = fldId.value;
-    const adet   = Number(fldAdet.value) || 1;
-    const marka  = selMarka.selectedOptions[0]?.textContent.trim() || '';
-    const model  = selModel.selectedOptions[0]?.textContent.trim() || '';
-    const acik   = fldAcik.value.trim();
+    const id = fldId.value;
+    const adet = Number(fldAdet.value) || 1;
+    const marka = selMarka.selectedOptions[0]?.textContent.trim() || "";
+    const model = selModel.selectedOptions[0]?.textContent.trim() || "";
+    const acik = fldAcik.value.trim();
 
     const fd = new FormData();
-    fd.append('adet', String(adet));
-    fd.append('marka', marka);
-    fd.append('model', model);
-    if(acik) fd.append('aciklama', acik);
-    if(selTur) fd.append('tur', selTur.value || 'envanter');
-    try{
-      const r = await fetch(`/talepler/${id}/stock`, {method:'POST', body: fd});
-      if(!r.ok){ alert('İşlem başarısız'); return; }
+    fd.append("adet", String(adet));
+    fd.append("marka", marka);
+    fd.append("model", model);
+    if (acik) fd.append("aciklama", acik);
+    if (selTur) fd.append("tur", selTur.value || "envanter");
+    try {
+      const r = await fetch(`/talepler/${id}/stock`, {
+        method: "POST",
+        body: fd,
+      });
+      if (!r.ok) {
+        alert("İşlem başarısız");
+        return;
+      }
       bootstrap.Modal.getInstance(modalEl)?.hide();
       location.reload();
-    }catch(err){
-      console.error(err); alert('İşlem başarısız');
+    } catch (err) {
+      console.error(err);
+      alert("İşlem başarısız");
     }
   });
 })();
-
-

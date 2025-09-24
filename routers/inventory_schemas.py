@@ -1,5 +1,6 @@
-from typing import Optional, List
 from datetime import datetime
+from typing import List, Optional
+
 from pydantic import BaseModel
 
 
@@ -70,4 +71,3 @@ class InventoryDetailOut(InventoryBase):
 
     class Config:
         from_attributes = True
-

@@ -1,13 +1,15 @@
 ACTION_TR = {
-  "assign": "Atama",
-  "edit": "Düzenleme",
-  "scrap": "Hurdaya Ayırma",
-  "girdi": "Girdi",
-  "cikti": "Çıktı",
+    "assign": "Atama",
+    "edit": "Düzenleme",
+    "scrap": "Hurdaya Ayırma",
+    "girdi": "Girdi",
+    "cikti": "Çıktı",
 }
+
 
 def tr_action(key: str) -> str:
     return ACTION_TR.get(key, key)
+
 
 def humanize_log(row) -> str:
     """Render an inventory log entry in a human friendly format.

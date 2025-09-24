@@ -19,6 +19,7 @@ from utils.template_filters import register_filters
 
 load_dotenv()
 
+
 # --- Secrets & Config ---------------------------------------------------------
 def _load_session_secret() -> str:
     """Return a session secret, generating a transient one if necessary."""
@@ -120,7 +121,9 @@ def on_startup():
     init_db()
     db = SessionLocal()
     try:
-        existing = db.query(User).filter(User.username == DEFAULT_ADMIN_USERNAME).first()
+        existing = (
+            db.query(User).filter(User.username == DEFAULT_ADMIN_USERNAME).first()
+        )
         if not existing:
             u = User(
                 username=DEFAULT_ADMIN_USERNAME,

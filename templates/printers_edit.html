@@ -1,30 +1,47 @@
-{% extends "base.html" %}
-{% block title %}Yazıcı Düzenle{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Yazıcı Düzenle{% endblock %} {% block
+content %}
 <div class="container-fluid p-3">
   <h5 class="mb-3">Yazıcı Düzenle</h5>
   <form method="post" action="{{ '?modal=1' if modal else '' }}">
     <div class="mb-2">
       <label class="form-label">Marka</label>
-      <input type="text" name="marka" value="{{ p.marka or '' }}" class="form-control">
+      <input
+        type="text"
+        name="marka"
+        value="{{ p.marka or '' }}"
+        class="form-control"
+      />
     </div>
     <div class="mb-2">
       <label class="form-label">Model</label>
-      <input type="text" name="model" value="{{ p.model or '' }}" class="form-control">
+      <input
+        type="text"
+        name="model"
+        value="{{ p.model or '' }}"
+        class="form-control"
+      />
     </div>
     <div class="mb-2">
       <label class="form-label">Seri No</label>
-      <input type="text" name="seri_no" value="{{ p.seri_no or '' }}" class="form-control">
+      <input
+        type="text"
+        name="seri_no"
+        value="{{ p.seri_no or '' }}"
+        class="form-control"
+      />
     </div>
     <div class="mb-3">
       <label class="form-label">Notlar</label>
-      <textarea name="notlar" class="form-control" rows="3">{{ p.notlar or '' }}</textarea>
+      <textarea name="notlar" class="form-control" rows="3">
+{{ p.notlar or '' }}</textarea
+      >
     </div>
     <button class="btn btn-primary btn-sm">Kaydet</button>
     {% if not modal %}
-    <a href="/printers/{{ p.id }}" class="btn btn-outline-secondary btn-sm">İptal</a>
+    <a href="/printers/{{ p.id }}" class="btn btn-outline-secondary btn-sm"
+      >İptal</a
+    >
     {% endif %}
   </form>
 </div>
 {% endblock %}
-

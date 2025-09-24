@@ -1,17 +1,34 @@
-{% extends "base.html" %}{% block title %}Lisans – Liste{% endblock %}
-{% block content %}
+{% extends "base.html" %}{% block title %}Lisans – Liste{% endblock %} {% block
+content %}
 <h2 class="h5 mb-3">Lisans Listesi</h2>
 <div class="mb-3">
   <div class="dropdown d-inline">
-    <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <button
+      class="btn btn-outline-primary btn-sm dropdown-toggle"
+      type="button"
+      data-bs-toggle="dropdown"
+      aria-expanded="false"
+    >
       Excel
     </button>
     <ul class="dropdown-menu">
       <li><a class="dropdown-item" href="/licenses/export">Dışa Aktar</a></li>
       <li>
-        <form action="/licenses/import" method="post" enctype="multipart/form-data">
-          <input type="file" name="file" id="licensesExcel" class="d-none" onchange="this.form.submit()">
-          <label for="licensesExcel" class="dropdown-item mb-0">İçe Aktar</label>
+        <form
+          action="/licenses/import"
+          method="post"
+          enctype="multipart/form-data"
+        >
+          <input
+            type="file"
+            name="file"
+            id="licensesExcel"
+            class="d-none"
+            onchange="this.form.submit()"
+          />
+          <label for="licensesExcel" class="dropdown-item mb-0"
+            >İçe Aktar</label
+          >
         </form>
       </li>
     </ul>

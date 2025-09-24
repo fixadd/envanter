@@ -1,51 +1,36 @@
-{% set actions = action_options %}
-{% if not actions %}
-  {% set actions = [
-    ('assign', 'Atama Yap'),
-    ('edit', 'Düzenle'),
-    ('stock', 'Stok Girişi'),
-    ('scrap', 'Hurdaya Ayır')
-  ] %}
-{% endif %}
-{% set fault_status_value = fault_status|default('')|lower|trim %}
-{% if fault_mode %}
-  {% set fault_actions = [] %}
-  {% if fault_status_value == 'arızalı' or fault_status_value == 'arizali' %}
-    {% set fault_actions = fault_actions + [
-      ('repair', 'Aktif Et')
-    ] %}
-  {% else %}
-    {% set fault_actions = fault_actions + [
-      ('fault', 'Arızalı İşaretle')
-    ] %}
-  {% endif %}
-  {% set actions = fault_actions + actions %}
-{% endif %}
-
-{% if fault_status_value == 'arızalı' or fault_status_value == 'arizali' %}
-  {% set filtered_actions = namespace(values=[]) %}
-  {% for value, label in actions %}
-    {% if value not in ['assign', 'edit', 'stock', 'fault'] %}
-      {% set filtered_actions.values = filtered_actions.values + [(value, label)] %}
-    {% endif %}
-  {% endfor %}
-  {% set actions = filtered_actions.values %}
-{% endif %}
+{% set actions = action_options %} {% if not actions %} {% set actions = [
+('assign', 'Atama Yap'), ('edit', 'Düzenle'), ('stock', 'Stok Girişi'),
+('scrap', 'Hurdaya Ayır') ] %} {% endif %} {% set fault_status_value =
+fault_status|default('')|lower|trim %} {% if fault_mode %} {% set fault_actions
+= [] %} {% if fault_status_value == 'arızalı' or fault_status_value == 'arizali'
+%} {% set fault_actions = fault_actions + [ ('repair', 'Aktif Et') ] %} {% else
+%} {% set fault_actions = fault_actions + [ ('fault', 'Arızalı İşaretle') ] %}
+{% endif %} {% set actions = fault_actions + actions %} {% endif %} {% if
+fault_status_value == 'arızalı' or fault_status_value == 'arizali' %} {% set
+filtered_actions = namespace(values=[]) %} {% for value, label in actions %} {%
+if value not in ['assign', 'edit', 'stock', 'fault'] %} {% set
+filtered_actions.values = filtered_actions.values + [(value, label)] %} {% endif
+%} {% endfor %} {% set actions = filtered_actions.values %} {% endif %}
 
 <div class="d-flex align-items-center">
-  <button type="button"
-          class="btn btn-outline-secondary btn-sm me-2 js-view"
-          data-entity="{{ entity }}" data-id="{{ row_id }}"
-          title="Detay">
+  <button
+    type="button"
+    class="btn btn-outline-secondary btn-sm me-2 js-view"
+    data-entity="{{ entity }}"
+    data-id="{{ row_id }}"
+    title="Detay"
+  >
     <i class="bi bi-eye"></i>
   </button>
 
-  <select class="form-select form-select-sm action-select js-actions"
-          data-entity="{{ entity }}"
-          data-id="{{ row_id }}"
-          data-device="{{ fault_device or '' }}"
-          data-title="{{ fault_title or '' }}"
-          data-entity-key="{{ fault_entity_key or '' }}">
+  <select
+    class="form-select form-select-sm action-select js-actions"
+    data-entity="{{ entity }}"
+    data-id="{{ row_id }}"
+    data-device="{{ fault_device or '' }}"
+    data-title="{{ fault_title or '' }}"
+    data-entity-key="{{ fault_entity_key or '' }}"
+  >
     <option value="">Seçiniz...</option>
     {% for value, label in actions %}
     <option value="{{ value }}">{{ label }}</option>

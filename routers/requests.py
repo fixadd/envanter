@@ -1,17 +1,19 @@
 # routers/requests.py
-from fastapi import APIRouter, Request, UploadFile, File, Depends, Form
+from typing import Optional
+
+from fastapi import APIRouter, Depends, File, Form, Request, UploadFile
 from fastapi.responses import (
     HTMLResponse,
+    JSONResponse,
     PlainTextResponse,
     StreamingResponse,
-    JSONResponse,
 )
-from sqlalchemy.orm import Session
-from sqlalchemy import cast, Integer
-from typing import Optional
-from database import get_db
 from fastapi.templating import Jinja2Templates
-from models import Talep, TalepTuru, TalepDurum, HardwareType, Brand, Model
+from sqlalchemy import Integer, cast
+from sqlalchemy.orm import Session
+
+from database import get_db
+from models import Brand, HardwareType, Model, Talep, TalepDurum, TalepTuru
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -20,8 +22,9 @@ templates = Jinja2Templates(directory="templates")
 @router.get("/export")
 async def export_requests(db: Session = Depends(get_db)):
     """Export request records as an Excel file."""
-    from openpyxl import Workbook
     from io import BytesIO
+
+    from openpyxl import Workbook
 
     wb = Workbook()
     ws = wb.active

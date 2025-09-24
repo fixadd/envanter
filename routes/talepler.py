@@ -1,16 +1,16 @@
-from fastapi import APIRouter, Depends, Request, Form, HTTPException
-from fastapi.responses import HTMLResponse, StreamingResponse
-from sqlalchemy.orm import Session
-from typing import Optional, Literal
-from io import BytesIO
-from openpyxl import Workbook
 from datetime import datetime
+from io import BytesIO
+from typing import Literal, Optional
 
-from models import Talep, TalepTuru, TalepDurum, HardwareType, Brand, Model
-from database import get_db
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import cast, Integer
+from openpyxl import Workbook
+from sqlalchemy import Integer, cast
+from sqlalchemy.orm import Session
 
+from database import get_db
+from models import Brand, HardwareType, Model, Talep, TalepDurum, TalepTuru
 from utils.http import get_or_404, validate_adet
 
 templates = Jinja2Templates(directory="templates")
@@ -209,7 +209,9 @@ def convert_request_to_stock(
 
     result = stock_add(payload, db)
     if not result.get("ok"):
-        raise HTTPException(status_code=400, detail=result.get("error", "İşlem başarısız"))
+        raise HTTPException(
+            status_code=400, detail=result.get("error", "İşlem başarısız")
+        )
 
     process_talep(talep, adet, is_cancel=False)
 
@@ -218,7 +220,9 @@ def convert_request_to_stock(
 
 
 @router.get("/convert/{talep_id}", response_class=HTMLResponse)
-def convert_request(talep_id: int, request: Request, adet: int = 1, db: Session = Depends(get_db)):
+def convert_request(
+    talep_id: int, request: Request, adet: int = 1, db: Session = Depends(get_db)
+):
     if adet <= 0:
         return HTMLResponse(status_code=400)
     talep = db.get(Talep, talep_id)

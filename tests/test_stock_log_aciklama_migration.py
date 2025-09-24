@@ -1,6 +1,6 @@
-import sys
-import sqlite3
 import importlib
+import sqlite3
+import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
@@ -32,6 +32,7 @@ def test_init_db_adds_aciklama_column(tmp_path, monkeypatch):
     monkeypatch.setenv("DATABASE_URL", f"sqlite:///{db_file}")
     sys.modules.pop("models", None)
     import models
+
     importlib.reload(models)
 
     models.init_db()
@@ -45,7 +46,9 @@ def test_init_db_adds_aciklama_column(tmp_path, monkeypatch):
     assert "source_id" in cols
 
     db = models.SessionLocal()
-    log = models.StockLog(donanim_tipi="mouse", miktar=1, islem="girdi", aciklama="test")
+    log = models.StockLog(
+        donanim_tipi="mouse", miktar=1, islem="girdi", aciklama="test"
+    )
     db.add(log)
     db.commit()
     db.close()
@@ -53,4 +56,5 @@ def test_init_db_adds_aciklama_column(tmp_path, monkeypatch):
     monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
     sys.modules.pop("models", None)
     import models as _cleanup
+
     importlib.reload(_cleanup)

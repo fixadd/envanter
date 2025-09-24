@@ -1,16 +1,18 @@
-{# ortak sekme bileşeni #}
-{% macro tabs(items=[], active_key="", right_slot="") -%}
-  <div class="d-flex align-items-center justify-content-between">
-    <ul class="nav nav-tabs">
-      {%- for it in items %}
-        <li class="nav-item">
-          <a class="nav-link {{ 'active' if it.key == active_key else '' }}"
-             href="{{ it.href }}">
-            {{ it.label }}
-          </a>
-        </li>
-      {%- endfor %}
-    </ul>
-    <div class="d-flex gap-2">{{ right_slot | safe }}</div>
-  </div>
+{# ortak sekme bileşeni #} {% macro tabs(items=[], active_key="", right_slot="")
+-%}
+<div class="d-flex align-items-center justify-content-between">
+  <ul class="nav nav-tabs">
+    {%- for it in items %}
+    <li class="nav-item">
+      <a
+        class="nav-link {{ 'active' if it.key == active_key else '' }}"
+        href="{{ it.href }}"
+      >
+        {{ it.label }}
+      </a>
+    </li>
+    {%- endfor %}
+  </ul>
+  <div class="d-flex gap-2">{{ right_slot | safe }}</div>
+</div>
 {%- endmacro %}

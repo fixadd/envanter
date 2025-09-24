@@ -1,21 +1,32 @@
 <div class="row g-3">
   <div class="col-md-6"><strong>Marka:</strong> {{ row.snapshot.marka }}</div>
   <div class="col-md-6"><strong>Model:</strong> {{ row.snapshot.model }}</div>
-  <div class="col-md-6"><strong>Seri No:</strong> {{ row.snapshot.seri_no }}</div>
-  <div class="col-md-6"><strong>Fabrika:</strong> {{ row.snapshot.fabrika or '-' }}</div>
-  <div class="col-md-6"><strong>Kullanım Alanı:</strong> {{ row.snapshot.kullanim_alani or '-' }}</div>
-  <div class="col-md-6"><strong>Sorumlu:</strong> {{ row.snapshot.sorumlu_personel or '-' }}</div>
-  <div class="col-md-6"><strong>Bağlı Env.:</strong> {{ row.snapshot.bagli_envanter_no or '-' }}</div>
+  <div class="col-md-6">
+    <strong>Seri No:</strong> {{ row.snapshot.seri_no }}
+  </div>
+  <div class="col-md-6">
+    <strong>Fabrika:</strong> {{ row.snapshot.fabrika or '-' }}
+  </div>
+  <div class="col-md-6">
+    <strong>Kullanım Alanı:</strong> {{ row.snapshot.kullanim_alani or '-' }}
+  </div>
+  <div class="col-md-6">
+    <strong>Sorumlu:</strong> {{ row.snapshot.sorumlu_personel or '-' }}
+  </div>
+  <div class="col-md-6">
+    <strong>Bağlı Env.:</strong> {{ row.snapshot.bagli_envanter_no or '-' }}
+  </div>
   <div class="col-md-6"><strong>Not:</strong> {{ row.reason or '-' }}</div>
-  <div class="col-md-6"><strong>Tarih:</strong> {{ row.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+  <div class="col-md-6">
+    <strong>Tarih:</strong> {{ row.created_at.strftime('%d.%m.%Y %H:%M') }}
+  </div>
 </div>
-<hr>
+<hr />
 <h6>Geçmiş İşlemler</h6>
 <ul class="list-group">
   {% for log in logs %}
-    <li class="list-group-item">{{ log|humanize_log }}</li>
+  <li class="list-group-item">{{ log|humanize_log }}</li>
   {% else %}
-    <li class="list-group-item text-muted">Kayıt yok.</li>
+  <li class="list-group-item text-muted">Kayıt yok.</li>
   {% endfor %}
 </ul>
-

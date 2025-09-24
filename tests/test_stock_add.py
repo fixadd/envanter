@@ -81,11 +81,7 @@ def test_stock_add_normalizes_cikti_variants(db_session):
     result = stock_add(payload, db_session)
     assert result["ok"] is True
 
-    log = (
-        db_session.query(models.StockLog)
-        .order_by(models.StockLog.id.desc())
-        .first()
-    )
+    log = db_session.query(models.StockLog).order_by(models.StockLog.id.desc()).first()
     assert log is not None
     assert log.islem == "cikti"
 

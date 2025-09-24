@@ -1,22 +1,47 @@
-{% extends "base.html" %}
-{% block title %}Stok Durumu{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Stok Durumu{% endblock %} {% block
+content %}
 <div class="container-fluid p-3">
   <div class="card">
     <div class="card-header">
       <ul class="nav nav-tabs" id="stokTabs" role="tablist">
         <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="durum-tab" data-bs-toggle="tab" data-bs-target="#durum" type="button" role="tab" aria-controls="durum" aria-selected="true">Stok Durumu</button>
+          <button
+            class="nav-link active"
+            id="durum-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#durum"
+            type="button"
+            role="tab"
+            aria-controls="durum"
+            aria-selected="true"
+          >
+            Stok Durumu
+          </button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="log-tab" data-bs-toggle="tab" data-bs-target="#log" type="button" role="tab" aria-controls="log" aria-selected="false">Log</button>
+          <button
+            class="nav-link"
+            id="log-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#log"
+            type="button"
+            role="tab"
+            aria-controls="log"
+            aria-selected="false"
+          >
+            Log
+          </button>
         </li>
       </ul>
     </div>
     <div class="card-body">
       <div class="tab-content">
-        <div class="tab-pane fade show active" id="durum" role="tabpanel" aria-labelledby="durum-tab">
+        <div
+          class="tab-pane fade show active"
+          id="durum"
+          role="tabpanel"
+          aria-labelledby="durum-tab"
+        >
           <div class="table-responsive">
             <table class="table table-sm align-middle table-rounded">
               <thead>
@@ -29,46 +54,51 @@
             </table>
           </div>
         </div>
-        <div class="tab-pane fade" id="log" role="tabpanel" aria-labelledby="log-tab">
+        <div
+          class="tab-pane fade"
+          id="log"
+          role="tabpanel"
+          aria-labelledby="log-tab"
+        >
           <!-- Log içeriği -->
         </div>
       </div>
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-{{ super() }}
+{% endblock %} {% block scripts %} {{ super() }}
 <script>
-async function loadStokDurumu() {
-  const tbody = document.getElementById('stok-tbody');
-  if (!tbody) return;
-  tbody.innerHTML = `<tr><td colspan="2">Yükleniyor…</td></tr>`;
-  try {
-    const res = await fetch('/api/stock/status', {
-      headers: { Accept: 'application/json' },
-      credentials: 'same-origin',
-    });
-    if (!res.ok) throw new Error('API hata durumu: ' + res.status);
-    const data = await res.json();
-    if (!Array.isArray(data) || data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="2">Kayıt bulunamadı</td></tr>`;
-      return;
-    }
-    tbody.innerHTML = data.map(item => `
+  async function loadStokDurumu() {
+    const tbody = document.getElementById("stok-tbody");
+    if (!tbody) return;
+    tbody.innerHTML = `<tr><td colspan="2">Yükleniyor…</td></tr>`;
+    try {
+      const res = await fetch("/api/stock/status", {
+        headers: { Accept: "application/json" },
+        credentials: "same-origin",
+      });
+      if (!res.ok) throw new Error("API hata durumu: " + res.status);
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="2">Kayıt bulunamadı</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = data
+        .map(
+          (item) => `
       <tr>
-        <td>${item.donanim_tipi || '-'}</td>
+        <td>${item.donanim_tipi || "-"}</td>
         <td class="text-end">${item.net_miktar}</td>
       </tr>
-    `).join('');
-  } catch (err) {
-    console.error(err);
-    tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Veri alınamadı</td></tr>`;
+    `,
+        )
+        .join("");
+    } catch (err) {
+      console.error(err);
+      tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Veri alınamadı</td></tr>`;
+    }
   }
-}
 
-document.addEventListener('DOMContentLoaded', loadStokDurumu);
+  document.addEventListener("DOMContentLoaded", loadStokDurumu);
 </script>
 {% endblock %}
-

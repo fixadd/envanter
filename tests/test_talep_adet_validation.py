@@ -9,8 +9,8 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
 import models
+from models import Talep, TalepDurum, TalepTuru
 from routes.talepler import cancel_request, close_request
-from models import Talep, TalepTuru, TalepDurum
 
 
 @pytest.fixture()

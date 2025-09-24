@@ -1,4 +1,5 @@
 """Expose the FastAPI application instance for ASGI servers."""
+
 from __future__ import annotations
 
 from importlib import import_module

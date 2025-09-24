@@ -4,13 +4,19 @@
   <div class="col-md-6"><strong>Model:</strong> {{ inv.model or '-' }}</div>
   <div class="col-md-6"><strong>Seri No:</strong> {{ inv.seri_no or '-' }}</div>
   <div class="col-md-6"><strong>Fabrika:</strong> {{ inv.fabrika or '-' }}</div>
-  <div class="col-md-6"><strong>Kullanım Alanı:</strong> {{ inv.kullanim_alani or '-' }}</div>
-  <div class="col-md-6"><strong>Sorumlu:</strong> {{ inv.sorumlu_personel or '-' }}</div>
-  <div class="col-md-6"><strong>Bağlı Env.:</strong> {{ inv.bagli_envanter_no or '-' }}</div>
+  <div class="col-md-6">
+    <strong>Kullanım Alanı:</strong> {{ inv.kullanim_alani or '-' }}
+  </div>
+  <div class="col-md-6">
+    <strong>Sorumlu:</strong> {{ inv.sorumlu_personel or '-' }}
+  </div>
+  <div class="col-md-6">
+    <strong>Bağlı Env.:</strong> {{ inv.bagli_envanter_no or '-' }}
+  </div>
   <div class="col-md-6"><strong>Not:</strong> {{ inv.not_ or '-' }}</div>
   <div class="col-md-6"><strong>Tarih:</strong> {{ inv.tarih }}</div>
 </div>
-<hr>
+<hr />
 <h6>Geçmiş İşlemler</h6>
 <ul class="list-group">
   {% for log in logs %}
