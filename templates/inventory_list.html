@@ -371,7 +371,7 @@ block content %}
 
 <!-- Atama Modal -->
 <div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-lg modal-modern">
     <form id="assignForm" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Envanter Atama</h5>
@@ -381,35 +381,37 @@ block content %}
           data-bs-dismiss="modal"
         ></button>
       </div>
-      <div class="modal-body row g-3">
+      <div class="modal-body">
         <input type="hidden" name="item_id" id="assign_item_id" />
-        <div class="col-md-3">
-          <label class="form-label">Fabrika</label>
-          <select name="fabrika" id="selFabrika" class="form-select"></select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Departman</label>
-          <select
-            name="departman"
-            id="selDepartman"
-            class="form-select"
-          ></select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Sorumlu Personel</label>
-          <select
-            name="sorumlu_personel"
-            id="selPersonel"
-            class="form-select"
-          ></select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Bağlı Olduğu Envanter</label>
-          <select
-            name="bagli_envanter_no"
-            id="selBagli"
-            class="form-select"
-          ></select>
+        <div class="form-grid">
+          <div>
+            <label class="form-label">Fabrika</label>
+            <select name="fabrika" id="selFabrika" class="form-select"></select>
+          </div>
+          <div>
+            <label class="form-label">Departman</label>
+            <select
+              name="departman"
+              id="selDepartman"
+              class="form-select"
+            ></select>
+          </div>
+          <div>
+            <label class="form-label">Sorumlu Personel</label>
+            <select
+              name="sorumlu_personel"
+              id="selPersonel"
+              class="form-select"
+            ></select>
+          </div>
+          <div>
+            <label class="form-label">Bağlı Olduğu Envanter</label>
+            <select
+              name="bagli_envanter_no"
+              id="selBagli"
+              class="form-select"
+            ></select>
+          </div>
         </div>
       </div>
       <div class="modal-footer">

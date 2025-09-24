@@ -1,23 +1,33 @@
 {% extends "base.html" %} {% block title %}Lisans {{ 'Düzenle' if license else
 'Ekle' }}{% endblock %} {% block content %}
-<div class="container-fluid p-3 content">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h4 class="mb-0">Lisans {{ 'Düzenle' if license else 'Ekle' }}</h4>
-    {% if not modal %}
-    <a class="btn btn-light" href="{{ url_for('license_list') }}"
-      >← Listeye Dön</a
-    >
-    {% endif %}
-  </div>
+<div class="container-fluid p-3">
+  <div class="form-shell">
+    <div class="form-shell__header">
+      <div>
+        <h2 class="form-shell__title">
+          Lisans {{ 'Düzenle' if license else 'Ekle' }}
+        </h2>
+        <p class="form-shell__subtitle">
+          Lisans kayıtlarınızdaki bilgileri kolayca yönetin.
+        </p>
+      </div>
+      {% if not modal %}
+      <div class="form-shell__header-actions">
+        <a class="btn btn-light" href="{{ url_for('license_list') }}">
+          ← Listeye Dön
+        </a>
+      </div>
+      {% endif %}
+    </div>
 
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <form
-        method="post"
-        action="{{ form_action }}{{ '?modal=1' if modal else '' }}"
-      >
-        <div class="row g-3">
-          <div class="col-md-6">
+    <form
+      method="post"
+      action="{{ form_action }}{{ '?modal=1' if modal else '' }}"
+      class="form-shell__form"
+    >
+      <div class="form-shell__body">
+        <div class="form-grid">
+          <div>
             <label class="form-label">Lisans Adı</label>
             <select name="adi" class="form-select" required>
               <option value="">Seçiniz...</option>
@@ -32,7 +42,7 @@
             </select>
           </div>
 
-          <div class="col-md-6">
+          <div>
             <label class="form-label">Lisans Anahtarı</label>
             <input
               name="anahtar"
@@ -41,7 +51,7 @@
             />
           </div>
 
-          <div class="col-md-6">
+          <div>
             <label class="form-label">Sorumlu Personel</label>
             <select name="sorumlu_personel" class="form-select">
               <option value="">(Seçiniz)</option>
@@ -56,7 +66,7 @@
             </select>
           </div>
 
-          <div class="col-md-6">
+          <div>
             <label class="form-label">Bağlı Olduğu Envanter No</label>
             <select
               id="selBagliEnvanter"
@@ -75,7 +85,7 @@
             </select>
           </div>
 
-          <div class="col-md-4">
+          <div>
             <label class="form-label">IFS No</label>
             <input
               name="ifs_no"
@@ -84,7 +94,7 @@
             />
           </div>
 
-          <div class="col-md-6">
+          <div>
             <label class="form-label">Mail Adresi</label>
             <input
               type="email"
@@ -94,17 +104,17 @@
             />
           </div>
         </div>
+      </div>
 
-        <div class="d-flex gap-2 mt-4">
-          <button class="btn btn-primary" type="submit">Kaydet</button>
-          {% if not modal %}
-          <a class="btn btn-secondary" href="{{ url_for('license_list') }}"
-            >İptal</a
-          >
-          {% endif %}
-        </div>
-      </form>
-    </div>
+      <div class="form-shell__actions">
+        <button class="btn btn-primary" type="submit">Kaydet</button>
+        {% if not modal %}
+        <a class="btn btn-outline-secondary" href="{{ url_for('license_list') }}"
+          >İptal</a
+        >
+        {% endif %}
+      </div>
+    </form>
   </div>
 </div>
 {% endblock %} {% block scripts %} {{ super() }}

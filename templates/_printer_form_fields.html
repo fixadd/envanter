@@ -1,9 +1,9 @@
-<div class="row g-3">
-  <div class="col-md-6">
+<div class="form-grid">
+  <div>
     <label class="form-label">Yazıcı Markası</label>
     <select id="selYaziciMarka" name="marka_id" class="form-select"></select>
   </div>
-  <div class="col-md-6">
+  <div>
     <label class="form-label">Yazıcı Modeli</label>
     <select
       id="selYaziciModel"
@@ -11,12 +11,12 @@
       class="form-select"
       disabled
     ></select>
-    <small class="text-muted"
-      >Not: Model listesi seçilen Markaya göre filtrelenir.</small
-    >
+  </div>
+  <div class="grid-span-2">
+    <p class="form-hint">Not: Model listesi seçilen markaya göre filtrelenir.</p>
   </div>
 
-  <div class="col-md-6">
+  <div>
     <label class="form-label">Kullanım Alanı</label>
     <select
       id="selYaziciKullanim"
@@ -25,27 +25,27 @@
     ></select>
   </div>
 
-  <div class="col-md-6">
+  <div>
     <label class="form-label">Envanter No</label>
     <input name="envanter_no" class="form-control" required />
   </div>
 
-  <div class="col-md-4">
+  <div>
     <label class="form-label">IP Adresi</label>
     <input name="ip_adresi" class="form-control" />
   </div>
 
-  <div class="col-md-4">
+  <div>
     <label class="form-label">MAC</label>
     <input name="mac" class="form-control" />
   </div>
 
-  <div class="col-md-4">
+  <div>
     <label class="form-label">Hostname</label>
     <input name="hostname" class="form-control" />
   </div>
 
-  <div class="col-md-4">
+  <div>
     <label class="form-label">IFS No</label>
     <input name="ifs_no" class="form-control" />
   </div>
