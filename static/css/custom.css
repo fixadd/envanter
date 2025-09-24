@@ -1,10 +1,20 @@
 /* -------------------------------------------------------------------------- */
 /* Design tokens & foundations                                                */
 /* -------------------------------------------------------------------------- */
-html, body { height: 100%; }
-body { margin: 0; }
-nav.navbar, .container-fluid { position: relative; }
-nav.navbar { z-index: 1; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+}
+nav.navbar,
+.container-fluid {
+  position: relative;
+}
+nav.navbar {
+  z-index: 1;
+}
 :root {
   --color-bg: #f3f6fb;
   --color-surface: #ffffff;
@@ -573,8 +583,6 @@ small,
   margin-left: 0 !important;
   margin-right: 0 !important;
 }
-
-
 
 .nav-tabs .nav-link:hover {
   border-color: #e9ecef #e9ecef #dee2e6;
