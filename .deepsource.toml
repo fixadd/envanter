@@ -1,12 +1,8 @@
 # .deepsource.toml
 version = 1
 
-# Test dosyalarını işaretle (bazı kurallar testlerde gürültü yapmasın)
-test_patterns = [
-  "tests/**"
-]
+test_patterns = ["tests/**"]
 
-# Gürültü / üretilmiş dizinleri dışla
 exclude_patterns = [
   "**/node_modules/**",
   "**/__pycache__/**",
@@ -15,19 +11,14 @@ exclude_patterns = [
   "alembic/versions/**",
   "data/**",
   "butt_background/**",
-  # Minify/derlenmiş varlıkları da istersen ekleyebilirsin:
   "static/**/*.min.*"
 ]
-
-# --- Analizörler ---
 
 [[analyzers]]
 name = "python"
 enabled = true
   [analyzers.meta]
-  runtime_version = "3.x.x"           # Proje 3.11 kullanıyorsa; değilse 3.x yap
-  # Gerekiyorsa bağımlılık dosyalarını belirt:
-  dependency_file_paths = ["requirements.txt"]
+  runtime_version = "3.x.x"   # sadece bu satır yeterli
 
 [[analyzers]]
 name = "javascript"
@@ -38,10 +29,8 @@ name = "docker"
 enabled = true
 
 [[analyzers]]
-name = "secrets"     # Anahtar/şifre sızıntısı taraması
+name = "secrets"
 enabled = true
-
-# --- Otomatik formatlayıcılar (Transformers) ---
 
 [[transformers]]
 name = "black"
