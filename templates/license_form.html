@@ -34,7 +34,15 @@
               {% for ln in license_names %}
               <option
                 value="{{ ln.name }}"
-                {% if license and license.lisans_adi == ln.name %}selected{% endif %}
+                {%
+                if
+                license
+                and
+                license.lisans_adi=""
+                ="ln.name"
+                %}selected{%
+                endif
+                %}
               >
                 {{ ln.name }}
               </option>
@@ -58,7 +66,15 @@
               {% for u in users %}
               <option
                 value="{{ u }}"
-                {% if license and license.sorumlu_personel == u %}selected{% endif %}
+                {%
+                if
+                license
+                and
+                license.sorumlu_personel=""
+                ="u"
+                %}selected{%
+                endif
+                %}
               >
                 {{ u }}
               </option>
@@ -77,7 +93,15 @@
               {% for inv in envanterler %}
               <option
                 value="{{ inv.id }}"
-                {% if license and license.inventory_id == inv.id %}selected{% endif %}
+                {%
+                if
+                license
+                and
+                license.inventory_id=""
+                ="inv.id"
+                %}selected{%
+                endif
+                %}
               >
                 {{ inv.no }} — {{ inv.marka }} {{ inv.model }}
               </option>
@@ -109,7 +133,9 @@
       <div class="form-shell__actions">
         <button class="btn btn-primary" type="submit">Kaydet</button>
         {% if not modal %}
-        <a class="btn btn-outline-secondary" href="{{ url_for('license_list') }}"
+        <a
+          class="btn btn-outline-secondary"
+          href="{{ url_for('license_list') }}"
           >İptal</a
         >
         {% endif %}

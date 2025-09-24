@@ -290,7 +290,11 @@ content %}
             </div>
             <div>
               <label class="form-label">Bağlı Olduğu Envanter No</label>
-              <select name="bagli_envanter_no" class="form-select" id="selBagli">
+              <select
+                name="bagli_envanter_no"
+                class="form-select"
+                id="selBagli"
+              >
                 <option value="">Seçiniz</option>
                 {% for inv in envanterler %}
                 <option value="{{ inv.no }}">
@@ -306,7 +310,11 @@ content %}
         </div>
         <div class="modal-footer">
           <button class="btn btn-primary" type="submit">Kaydet</button>
-          <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            data-bs-dismiss="modal"
+          >
             İptal
           </button>
         </div>
