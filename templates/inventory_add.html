@@ -1,136 +1,151 @@
-<form
-  method="post"
-  action="/inventory/create"
-  class="needs-validation"
-  novalidate
->
-  <div class="row g-3" id="envanter-ekle">
-    <!-- Envanter No / Bilgisayar Adı -->
-    <div class="col-md-6">
-      <label class="form-label">Envanter No</label>
-      <input
-        name="envanter_no"
-        type="text"
-        class="form-control"
-        required
-        placeholder="ENV-000123"
-      />
+<div class="container-fluid p-3">
+  <div class="form-shell">
+    <div class="form-shell__header">
+      <div>
+        <h2 class="form-shell__title">Envanter Ekle</h2>
+        <p class="form-shell__subtitle">
+          Yeni ekipman kaydı oluşturarak envanter listenizi güncel tutun.
+        </p>
+      </div>
     </div>
-    <div class="col-md-6">
-      <label class="form-label">Bilgisayar Adı</label>
-      <input
-        name="bilgisayar_adi"
-        type="text"
-        class="form-control"
-        required
-        placeholder="PC-OFIS-01"
-      />
-    </div>
-
-    <!-- Fabrika / Departman -->
-    <div class="col-md-6">
-      <label class="form-label">Fabrika</label>
-      <select id="fabrika" name="fabrika" class="form-select" required></select>
-    </div>
-    <div class="col-md-6">
-      <label class="form-label">Departman</label>
-      <select
-        id="departman"
-        name="departman"
-        class="form-select"
-        required
-      ></select>
-    </div>
-
-    <!-- Donanım Tipi / Sorumlu Personel -->
-    <div class="col-md-6">
-      <label class="form-label">Donanım Tipi</label>
-      <select
-        id="donanim_tipi"
-        name="donanim_tipi"
-        class="form-select"
-        required
-      ></select>
-    </div>
-    <div class="col-md-6">
-      <label class="form-label">Sorumlu Personel</label>
-      <select
-        id="sorumlu_personel"
-        name="sorumlu_personel"
-        class="form-select"
-        required
-      ></select>
-    </div>
-
-    <!-- Marka / Model -->
-    <div class="col-md-6">
-      <label class="form-label">Marka</label>
-      <select id="marka" name="marka" class="form-select" required></select>
-    </div>
-    <div class="col-md-6">
-      <label class="form-label">Model</label>
-      <select id="model" name="model" class="form-select" required disabled>
-        <option value="">Önce marka seçiniz...</option>
-      </select>
-    </div>
-
-    <!-- Seri No / IFS No -->
-    <div class="col-md-6">
-      <label class="form-label">Seri No</label>
-      <input
-        name="seri_no"
-        type="text"
-        class="form-control"
-        required
-        placeholder="SN123456789"
-      />
-    </div>
-    <div class="col-md-6">
-      <label class="form-label"
-        >IFS No <span class="text-muted">(zorunlu değil)</span></label
-      >
-      <input
-        name="ifs_no"
-        type="text"
-        class="form-control"
-        placeholder="IFS-..."
-      />
-    </div>
-
-    <!-- Bağlı Makina No -->
-    <div class="col-md-6">
-      <label class="form-label"
-        >Bağlı Makina No <span class="text-muted">(zorunlu değil)</span></label
-      >
-      <input
-        name="bagli_makina_no"
-        type="text"
-        class="form-control"
-        placeholder="Makina No"
-      />
-    </div>
-
-    <!-- Not -->
-    <div class="col-12">
-      <label class="form-label"
-        >Not <span class="text-muted">(zorunlu değil)</span></label
-      >
-      <textarea
-        name="notlar"
-        class="form-control"
-        rows="2"
-        placeholder="Açıklama / notlar"
-      ></textarea>
-    </div>
+    <form
+      method="post"
+      action="/inventory/create"
+      class="form-shell__form needs-validation"
+      novalidate
+    >
+      <div class="form-shell__body">
+        <div class="form-grid" id="envanter-ekle">
+          <div>
+            <label class="form-label">Envanter No</label>
+            <input
+              name="envanter_no"
+              type="text"
+              class="form-control"
+              required
+              placeholder="ENV-000123"
+            />
+          </div>
+          <div>
+            <label class="form-label">Bilgisayar Adı</label>
+            <input
+              name="bilgisayar_adi"
+              type="text"
+              class="form-control"
+              required
+              placeholder="PC-OFIS-01"
+            />
+          </div>
+          <div>
+            <label class="form-label">Fabrika</label>
+            <select
+              id="fabrika"
+              name="fabrika"
+              class="form-select"
+              required
+            ></select>
+          </div>
+          <div>
+            <label class="form-label">Departman</label>
+            <select
+              id="departman"
+              name="departman"
+              class="form-select"
+              required
+            ></select>
+          </div>
+          <div>
+            <label class="form-label">Donanım Tipi</label>
+            <select
+              id="donanim_tipi"
+              name="donanim_tipi"
+              class="form-select"
+              required
+            ></select>
+          </div>
+          <div>
+            <label class="form-label">Sorumlu Personel</label>
+            <select
+              id="sorumlu_personel"
+              name="sorumlu_personel"
+              class="form-select"
+              required
+            ></select>
+          </div>
+          <div>
+            <label class="form-label">Marka</label>
+            <select id="marka" name="marka" class="form-select" required></select>
+          </div>
+          <div>
+            <label class="form-label">Model</label>
+            <select
+              id="model"
+              name="model"
+              class="form-select"
+              required
+              disabled
+            >
+              <option value="">Önce marka seçiniz...</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Seri No</label>
+            <input
+              name="seri_no"
+              type="text"
+              class="form-control"
+              required
+              placeholder="SN123456789"
+            />
+          </div>
+          <div>
+            <label class="form-label">
+              IFS No <span class="text-muted">(zorunlu değil)</span>
+            </label>
+            <input
+              name="ifs_no"
+              type="text"
+              class="form-control"
+              placeholder="IFS-..."
+            />
+          </div>
+          <div>
+            <label class="form-label">
+              Bağlı Makina No <span class="text-muted">(zorunlu değil)</span>
+            </label>
+            <input
+              name="bagli_makina_no"
+              type="text"
+              class="form-control"
+              placeholder="Makina No"
+            />
+          </div>
+          <div class="grid-span-2">
+            <label class="form-label">
+              Not <span class="text-muted">(zorunlu değil)</span>
+            </label>
+            <textarea
+              name="notlar"
+              class="form-control"
+              rows="3"
+              placeholder="Açıklama / notlar"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-shell__actions">
+        <button type="submit" class="btn btn-primary">Kaydet</button>
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-bs-dismiss="modal"
+        >
+          İptal
+        </button>
+      </div>
+    </form>
   </div>
-
-  <div class="mt-3 d-flex gap-2">
-    <button type="submit" class="btn btn-primary">Kaydet</button>
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-      İptal
-    </button>
-  </div>
-</form>
+</div>
 
 <script>
   (async function () {

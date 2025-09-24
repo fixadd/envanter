@@ -1,47 +1,73 @@
 {% extends "base.html" %} {% block title %}Yazıcı Düzenle{% endblock %} {% block
 content %}
 <div class="container-fluid p-3">
-  <h5 class="mb-3">Yazıcı Düzenle</h5>
-  <form method="post" action="{{ '?modal=1' if modal else '' }}">
-    <div class="mb-2">
-      <label class="form-label">Marka</label>
-      <input
-        type="text"
-        name="marka"
-        value="{{ p.marka or '' }}"
-        class="form-control"
-      />
+  <div class="form-shell">
+    <div class="form-shell__header">
+      <div>
+        <h2 class="form-shell__title">Yazıcı Düzenle</h2>
+        <p class="form-shell__subtitle">
+          Yazıcı bilgilerini güncelleyerek takip kayıtlarını tutarlı hale getirin.
+        </p>
+      </div>
+      {% if not modal %}
+      <div class="form-shell__header-actions">
+        <a class="btn btn-light" href="/printers/{{ p.id }}">← Detaya Dön</a>
+      </div>
+      {% endif %}
     </div>
-    <div class="mb-2">
-      <label class="form-label">Model</label>
-      <input
-        type="text"
-        name="model"
-        value="{{ p.model or '' }}"
-        class="form-control"
-      />
-    </div>
-    <div class="mb-2">
-      <label class="form-label">Seri No</label>
-      <input
-        type="text"
-        name="seri_no"
-        value="{{ p.seri_no or '' }}"
-        class="form-control"
-      />
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Notlar</label>
-      <textarea name="notlar" class="form-control" rows="3">
-{{ p.notlar or '' }}</textarea
-      >
-    </div>
-    <button class="btn btn-primary btn-sm">Kaydet</button>
-    {% if not modal %}
-    <a href="/printers/{{ p.id }}" class="btn btn-outline-secondary btn-sm"
-      >İptal</a
+    <form
+      method="post"
+      action="{{ '?modal=1' if modal else '' }}"
+      class="form-shell__form"
     >
-    {% endif %}
-  </form>
+      <div class="form-shell__body">
+        <div class="form-grid">
+          <div>
+            <label class="form-label">Marka</label>
+            <input
+              type="text"
+              name="marka"
+              value="{{ p.marka or '' }}"
+              class="form-control"
+            />
+          </div>
+          <div>
+            <label class="form-label">Model</label>
+            <input
+              type="text"
+              name="model"
+              value="{{ p.model or '' }}"
+              class="form-control"
+            />
+          </div>
+          <div>
+            <label class="form-label">Seri No</label>
+            <input
+              type="text"
+              name="seri_no"
+              value="{{ p.seri_no or '' }}"
+              class="form-control"
+            />
+          </div>
+          <div class="grid-span-2">
+            <label class="form-label">Notlar</label>
+            <textarea
+              name="notlar"
+              class="form-control"
+              rows="3"
+            >{{ p.notlar or '' }}</textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-shell__actions">
+        <button class="btn btn-primary" type="submit">Kaydet</button>
+        {% if not modal %}
+        <a href="/printers/{{ p.id }}" class="btn btn-outline-secondary"
+          >İptal</a
+        >
+        {% endif %}
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}
