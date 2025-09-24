@@ -249,6 +249,7 @@ def edit_license_post(
 def assign_license_form(
     lic_id: int,
     request: Request,
+    modal: bool = False,
     db: Session = Depends(get_db),
     user=Depends(current_user),
 ):
@@ -270,6 +271,7 @@ def assign_license_form(
             "envanterler": envanterler,
             "users": users,
             "current_user": user,
+            "modal": modal,
         },
     )
 
@@ -281,6 +283,7 @@ def assign_license(
     bagli_envanter_no: str = Form(""),
     islem_yapan: str = Form("system"),
     request: Request = None,
+    modal: bool = False,
     db: Session = Depends(get_db),
 ):
     lic = db.get(License, lic_id)
@@ -298,6 +301,10 @@ def assign_license(
         islem_yapan,
     )
     db.commit()
+    if modal:
+        return HTMLResponse(
+            "<script>window.parent.postMessage('modal-close','*');</script>"
+        )
     return RedirectResponse(
         url=request.url_for("license_list"), status_code=status.HTTP_303_SEE_OTHER
     )
