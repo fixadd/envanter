@@ -133,7 +133,15 @@ async def login_submit(
 
     response = RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
     if remember:
-        response.set_cookie("saved_username", username, max_age=60 * 60 * 24 * 30)
+        secure_cookie = bool(getattr(request.app.state, "session_https_only", False))
+        response.set_cookie(
+            "saved_username",
+            username,
+            max_age=60 * 60 * 24 * 30,
+            httponly=True,
+            samesite="lax",
+            secure=secure_cookie,
+        )
     else:
         response.delete_cookie("saved_username")
     return response
@@ -249,10 +257,18 @@ router.include_router(
 router.include_router(
     refdata.router, dependencies=[Depends(current_user)]
 )
-router.include_router(api_router)
-router.include_router(picker_router)
-router.include_router(lookup_router)
-router.include_router(talep_router)
+router.include_router(
+    api_router, dependencies=[Depends(current_user)]
+)
+router.include_router(
+    picker_router, dependencies=[Depends(current_user)]
+)
+router.include_router(
+    lookup_router, dependencies=[Depends(current_user)]
+)
+router.include_router(
+    talep_router, dependencies=[Depends(current_user)]
+)
 router.include_router(
     logs.router,
     prefix="/logs",

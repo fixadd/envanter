@@ -22,16 +22,21 @@ load_dotenv()
 # --- Secrets & Config ---------------------------------------------------------
 SESSION_SECRET = os.getenv("SESSION_SECRET")
 if not SESSION_SECRET or len(SESSION_SECRET) < 32:
-    # Geliştirme kolaylığı için otomatik üret; üretimde .env zorunlu
-    SESSION_SECRET = secrets.token_urlsafe(48)
-    print(
-        "WARNING: SESSION_SECRET .env'de bulunamadı ya da kısa; geçici anahtar üretildi. "
-        "Üretimde sabit ve 32+ karakter kullanın!"
+    raise RuntimeError(
+        "SESSION_SECRET environment variable must be defined and at least 32 characters long."
     )
 
 DEFAULT_ADMIN_USERNAME = os.getenv("DEFAULT_ADMIN_USERNAME", "admin")
-DEFAULT_ADMIN_PASSWORD = os.getenv("DEFAULT_ADMIN_PASSWORD", "admin123")
+DEFAULT_ADMIN_PASSWORD = os.getenv("DEFAULT_ADMIN_PASSWORD")
 DEFAULT_ADMIN_FULLNAME = os.getenv("DEFAULT_ADMIN_FULLNAME", "Sistem Yöneticisi")
+_generated_admin_password: str | None = None
+if not DEFAULT_ADMIN_PASSWORD:
+    _generated_admin_password = secrets.token_urlsafe(20)
+    DEFAULT_ADMIN_PASSWORD = _generated_admin_password
+    print(
+        "WARNING: DEFAULT_ADMIN_PASSWORD environment variable is not set. "
+        "Generated a one-time password for the default admin user."
+    )
 # Varsayılan olarak geliştirme ortamına uygun olsun; üretimde .env ile true yapın
 SESSION_HTTPS_ONLY = os.getenv("SESSION_HTTPS_ONLY", "false").lower() in (
     "1",
@@ -79,6 +84,7 @@ app.add_middleware(
 # Statik dosyalar ve şablonlar
 app.mount("/static", StaticFiles(directory="static"), name="static")
 _register_global_state()
+app.state.session_https_only = SESSION_HTTPS_ONLY
 
 # Web router'ları ve HTML sayfaları
 register_web_routes(app)
@@ -105,5 +111,10 @@ def on_startup():
             db.add(u)
             db.commit()
             print(f"[*] Varsayılan admin oluşturuldu: {DEFAULT_ADMIN_USERNAME}")
+            if _generated_admin_password:
+                print(
+                    "[*] Varsayılan admin için geçici parola: "
+                    f"{_generated_admin_password}"
+                )
     finally:
         db.close()
