@@ -294,7 +294,7 @@ content %}
 
 <!-- ATAMA MODAL -->
 <div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg">
     <form class="modal-content" id="assignForm">
       <div class="modal-header">
         <h6 class="modal-title">
@@ -309,44 +309,46 @@ content %}
       <div class="modal-body">
         <input type="hidden" id="assignPrinterId" name="printer_id" />
 
-        <div class="mb-2">
-          <label class="form-label">Fabrika</label>
-          <select id="selFabrika" name="fabrika" class="form-select">
-            <option value="">Seçiniz</option>
-            {% for f in factories %}
-            <option value="{{ f }}">{{ f }}</option>
-            {% endfor %}
-          </select>
-        </div>
+        <div class="row g-3">
+          <div class="col-12 col-md-6 col-xl-3">
+            <label class="form-label">Fabrika</label>
+            <select id="selFabrika" name="fabrika" class="form-select">
+              <option value="">Seçiniz</option>
+              {% for f in factories %}
+              <option value="{{ f }}">{{ f }}</option>
+              {% endfor %}
+            </select>
+          </div>
 
-        <div class="mb-2">
-          <label class="form-label">Kullanım Alanı</label>
-          <select id="selKullanim" name="kullanim_alani" class="form-select">
-            <option value="">Seçiniz</option>
-            {% for a in areas %}
-            <option value="{{ a }}">{{ a }}</option>
-            {% endfor %}
-          </select>
-        </div>
+          <div class="col-12 col-md-6 col-xl-3">
+            <label class="form-label">Kullanım Alanı</label>
+            <select id="selKullanim" name="kullanim_alani" class="form-select">
+              <option value="">Seçiniz</option>
+              {% for a in areas %}
+              <option value="{{ a }}">{{ a }}</option>
+              {% endfor %}
+            </select>
+          </div>
 
-        <div class="mb-2">
-          <label class="form-label">Sorumlu Personel</label>
-          <select id="selPersonel" name="sorumlu_personel" class="form-select">
-            <option value="">Seçiniz</option>
-            {% for u in users %}
-            <option value="{{ u }}">{{ u }}</option>
-            {% endfor %}
-          </select>
-        </div>
+          <div class="col-12 col-md-6 col-xl-3">
+            <label class="form-label">Sorumlu Personel</label>
+            <select id="selPersonel" name="sorumlu_personel" class="form-select">
+              <option value="">Seçiniz</option>
+              {% for u in users %}
+              <option value="{{ u }}">{{ u }}</option>
+              {% endfor %}
+            </select>
+          </div>
 
-        <div class="mb-2">
-          <label class="form-label">Bağlı Olduğu Envanter</label>
-          <select id="selBagliEnv" name="bagli_envanter_no" class="form-select">
-            <option value="">Seçiniz</option>
-            {% for inv in inventory_nos %}
-            <option value="{{ inv }}">{{ inv }}</option>
-            {% endfor %}
-          </select>
+          <div class="col-12 col-md-6 col-xl-3">
+            <label class="form-label">Bağlı Olduğu Envanter</label>
+            <select id="selBagliEnv" name="bagli_envanter_no" class="form-select">
+              <option value="">Seçiniz</option>
+              {% for inv in inventory_nos %}
+              <option value="{{ inv }}">{{ inv }}</option>
+              {% endfor %}
+            </select>
+          </div>
         </div>
       </div>
       <div class="modal-footer">

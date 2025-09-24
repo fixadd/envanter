@@ -257,7 +257,7 @@ content %}
 
 <!-- ATAMA MODALI -->
 <div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
     <form method="post" id="assignForm">
       <div class="modal-content">
         <div class="modal-header">
@@ -274,29 +274,31 @@ content %}
             name="islem_yapan"
             value="{{ current_user.full_name if current_user else 'system' }}"
           />
-          <div class="mb-2">
-            <label class="form-label">Sorumlu Personel</label>
-            <select
-              name="sorumlu_personel"
-              class="form-select"
-              id="selPersonel"
-            >
-              <option value="">Seçiniz</option>
-              {% for u in users %}
-              <option value="{{ u }}">{{ u }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Bağlı Olduğu Envanter No</label>
-            <select name="bagli_envanter_no" class="form-select" id="selBagli">
-              <option value="">Seçiniz</option>
-              {% for inv in envanterler %}
-              <option value="{{ inv.no }}">
-                {{ inv.no }} - {{ inv.bilgisayar_adi or inv.marka }}
-              </option>
-              {% endfor %}
-            </select>
+          <div class="row g-3">
+            <div class="col-12 col-md-6 col-xl-3">
+              <label class="form-label">Sorumlu Personel</label>
+              <select
+                name="sorumlu_personel"
+                class="form-select"
+                id="selPersonel"
+              >
+                <option value="">Seçiniz</option>
+                {% for u in users %}
+                <option value="{{ u }}">{{ u }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+              <label class="form-label">Bağlı Olduğu Envanter No</label>
+              <select name="bagli_envanter_no" class="form-select" id="selBagli">
+                <option value="">Seçiniz</option>
+                {% for inv in envanterler %}
+                <option value="{{ inv.no }}">
+                  {{ inv.no }} - {{ inv.bilgisayar_adi or inv.marka }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
           <small class="text-muted"
             >Bu işlem lisansın geçmiş kayıtlarına eklenecek.</small
