@@ -66,14 +66,18 @@ async def _store_photo(file: UploadFile) -> str:
 
     ext = Path(file.filename).suffix.lower()
     if ext not in ALLOWED_EXTENSIONS:
-        raise HTTPException(status_code=400, detail="Sadece jpg, jpeg, png veya gif yükleyebilirsiniz")
+        raise HTTPException(
+            status_code=400, detail="Sadece jpg, jpeg, png veya gif yükleyebilirsiniz"
+        )
 
     data = await file.read()
     if len(data) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=400, detail="Dosya boyutu 5MB'ı geçemez")
 
     if file.content_type and not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="Sadece görsel dosyaları yükleyebilirsiniz")
+        raise HTTPException(
+            status_code=400, detail="Sadece görsel dosyaları yükleyebilirsiniz"
+        )
 
     target = _save_photo_path(file.filename)
     target.write_bytes(data)
@@ -109,9 +113,7 @@ def bilgi_index(
         query = query.filter(Bilgi.kategori_id == kategori)
     if q:
         like = f"%{q.strip()}%"
-        query = query.filter(
-            or_(Bilgi.baslik.ilike(like), Bilgi.icerik.ilike(like))
-        )
+        query = query.filter(or_(Bilgi.baslik.ilike(like), Bilgi.icerik.ilike(like)))
 
     items = query.all()
     pinned_items, other_items = _serialize_bilgi_list(items, user.id)
@@ -174,7 +176,9 @@ async def bilgi_create(
     db.commit()
     db.refresh(bilgi)
 
-    return JSONResponse({"ok": True, "id": bilgi.id}, status_code=status.HTTP_201_CREATED)
+    return JSONResponse(
+        {"ok": True, "id": bilgi.id}, status_code=status.HTTP_201_CREATED
+    )
 
 
 @router.put("/{bilgi_id}/pin")
@@ -189,7 +193,9 @@ def bilgi_pin(
         raise HTTPException(status_code=404, detail="Bilgi bulunamadı")
 
     if bilgi.kullanici_id != user.id:
-        raise HTTPException(status_code=403, detail="Sadece kendi kayıtlarınızı sabitleyebilirsiniz")
+        raise HTTPException(
+            status_code=403, detail="Sadece kendi kayıtlarınızı sabitleyebilirsiniz"
+        )
 
     limit = db.get(UserPinLimit, user.id)
     if not limit:
@@ -199,7 +205,9 @@ def bilgi_pin(
         if bilgi.is_pinned and bilgi.pinned_by == user.id:
             return {"pinned": True, "pin_count": limit.pin_count}
         if limit.pin_count >= 3:
-            raise HTTPException(status_code=400, detail="En fazla 3 bilgi sabitleyebilirsiniz")
+            raise HTTPException(
+                status_code=400, detail="En fazla 3 bilgi sabitleyebilirsiniz"
+            )
         bilgi.is_pinned = True
         bilgi.pinned_by = user.id
         bilgi.pinned_at = datetime.utcnow()

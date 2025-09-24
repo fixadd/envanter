@@ -1,7 +1,7 @@
 // static/js/selects.js
 const selects = {};
 
-function makeSearchableSelect(el, placeholder="Seçiniz…") {
+function makeSearchableSelect(el, placeholder = "Seçiniz…") {
   if (el._choices) return el._choices;
   const inst = new Choices(el, {
     searchEnabled: true,
@@ -18,33 +18,53 @@ function makeSearchableSelect(el, placeholder="Seçiniz…") {
   return inst;
 }
 
-async function fillChoices({ endpoint, selectId, params={}, placeholder="Seçiniz…", keepValue=false, mapFn, signal }) {
+async function fillChoices({
+  endpoint,
+  selectId,
+  params = {},
+  placeholder = "Seçiniz…",
+  keepValue = false,
+  mapFn,
+  signal,
+}) {
   const el = document.getElementById(selectId);
   if (!el) return;
   let inst = selects[selectId];
-  if (!inst) { inst = makeSearchableSelect(el, placeholder); selects[selectId] = inst; }
+  if (!inst) {
+    inst = makeSearchableSelect(el, placeholder);
+    selects[selectId] = inst;
+  }
 
   const p = { ...params };
-  if (endpoint.includes('/api/lookup/model')) delete p.marka; // tek parametre marka_id
+  if (endpoint.includes("/api/lookup/model")) delete p.marka; // tek parametre marka_id
 
   // Boş parametreleri filtrele
   const usp = new URLSearchParams();
-  Object.entries(p).forEach(([k,v])=>{ if(v!==undefined && v!==null && v!=='') usp.append(k,v); });
+  Object.entries(p).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && v !== "") usp.append(k, v);
+  });
 
   // Model lookup'larında marka seçimi yoksa istek gönderme
-  if (endpoint.includes('/api/lookup/model') && !usp.has('marka_id')) {
+  if (endpoint.includes("/api/lookup/model") && !usp.has("marka_id")) {
     return;
   }
 
-  const res = await fetch(`${endpoint}?${usp.toString()}`, { signal }).catch(e=>{ if(e.name!=='AbortError') throw e; });
-  if(!res) return; // abort edilmiş olabilir
-  if (res.status === 422) { alert('Marka seçiniz'); return; }
+  const res = await fetch(`${endpoint}?${usp.toString()}`, { signal }).catch(
+    (e) => {
+      if (e.name !== "AbortError") throw e;
+    },
+  );
+  if (!res) return; // abort edilmiş olabilir
+  if (res.status === 422) {
+    alert("Marka seçiniz");
+    return;
+  }
   const data = res.ok ? await res.json() : [];
   const current = keepValue ? el.value : null;
   inst.clearStore();
   const map =
     mapFn ||
-    (r => {
+    ((r) => {
       // Support both object and plain string responses
       if (typeof r === "string") return { value: r, label: r };
       return {
@@ -60,7 +80,8 @@ async function bindMarkaModel(markaSelectId, modelSelectId) {
   const markaEl = document.getElementById(markaSelectId);
   const modelEl = document.getElementById(modelSelectId);
   if (!markaEl || !modelEl) return;
-  const modelInst = selects[modelSelectId] || makeSearchableSelect(modelEl, "Model seçiniz…");
+  const modelInst =
+    selects[modelSelectId] || makeSearchableSelect(modelEl, "Model seçiniz…");
   selects[modelSelectId] = modelInst;
 
   let aborter;
@@ -75,26 +96,56 @@ async function bindMarkaModel(markaSelectId, modelSelectId) {
     modelInst.enable();
     aborter = new AbortController();
     try {
-      await fillChoices({ endpoint: "/api/lookup/model", selectId: modelSelectId, params: { marka_id: m }, placeholder: "Model seçiniz…", signal: aborter.signal });
-    } catch(e){ if(e.name!=='AbortError') console.error(e); }
+      await fillChoices({
+        endpoint: "/api/lookup/model",
+        selectId: modelSelectId,
+        params: { marka_id: m },
+        placeholder: "Model seçiniz…",
+        signal: aborter.signal,
+      });
+    } catch (e) {
+      if (e.name !== "AbortError") console.error(e);
+    }
   }
   markaEl.addEventListener("change", updateModels);
   await updateModels();
 }
 
-function debounce(fn, d=300){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), d); }; }
-function enableRemoteSearch(selectId, endpoint, extraParamsFn=()=>({}), mapFn) {
-  const inst = selects[selectId]; if (!inst) return;
-  const input = inst.input?.element; if (!input) return;
-  input.addEventListener("input", debounce(async ()=>{
-    const q = input.value.trim();
-    await fillChoices({ endpoint, selectId, params: { q, ...extraParamsFn() }, keepValue: false, mapFn });
-  }, 300));
+function debounce(fn, d = 300) {
+  let t;
+  return (...a) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...a), d);
+  };
+}
+function enableRemoteSearch(
+  selectId,
+  endpoint,
+  extraParamsFn = () => ({}),
+  mapFn,
+) {
+  const inst = selects[selectId];
+  if (!inst) return;
+  const input = inst.input?.element;
+  if (!input) return;
+  input.addEventListener(
+    "input",
+    debounce(async () => {
+      const q = input.value.trim();
+      await fillChoices({
+        endpoint,
+        selectId,
+        params: { q, ...extraParamsFn() },
+        keepValue: false,
+        mapFn,
+      });
+    }, 300),
+  );
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   if (!window.SKIP_SELECT_ENHANCE) {
-    document.querySelectorAll("select").forEach(el => {
+    document.querySelectorAll("select").forEach((el) => {
       if (el.dataset.noSearch !== undefined) return;
       const inst = makeSearchableSelect(el);
       if (el.id) selects[el.id] = inst;
@@ -102,4 +153,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-window._selects = { fillChoices, bindMarkaModel, enableRemoteSearch, makeSearchableSelect };
+window._selects = {
+  fillChoices,
+  bindMarkaModel,
+  enableRemoteSearch,
+  makeSearchableSelect,
+};

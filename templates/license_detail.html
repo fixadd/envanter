@@ -1,24 +1,53 @@
-{% extends "base.html" %}
-{% block title %}Lisans Detayı{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Lisans Detayı{% endblock %} {% block
+content %}
 <div class="container-fluid p-2 content">
   <div class="d-flex align-items-center justify-content-between mb-2">
     <h5>Lisans: {{ item.lisans_adi }}</h5>
     <div class="d-flex gap-2">
-      <a href="#" class="btn btn-sm btn-primary" data-modal-url="/lisans/{{ item.id }}/edit?modal=1">Düzenle</a>
-      <a href="/lisans" class="btn btn-sm btn-outline-secondary">← Listeye dön</a>
+      <a
+        href="#"
+        class="btn btn-sm btn-primary"
+        data-modal-url="/lisans/{{ item.id }}/edit?modal=1"
+        >Düzenle</a
+      >
+      <a href="/lisans" class="btn btn-sm btn-outline-secondary"
+        >← Listeye dön</a
+      >
     </div>
   </div>
   <div class="table-responsive">
     <table class="table table-sm table-rounded">
       <tbody>
-        <tr><th>No</th><td>{{ item.id }}</td></tr>
-        <tr><th>Lisans Adı</th><td>{{ item.lisans_adi }}</td></tr>
-        <tr><th>Key</th><td class="text-truncate" style="max-width:220px;">{{ item.lisans_key }}</td></tr>
-        <tr><th>Sorumlu</th><td>{{ item.sorumlu_personel or '-' }}</td></tr>
-        <tr><th>Bağlı Envanter</th><td>{{ item.bagli_envanter_no or '-' }}</td></tr>
-        <tr><th>E-posta</th><td>{{ item.mail_adresi or '-' }}</td></tr>
-        <tr><th>Durum</th><td>{{ item.durum }}</td></tr>
+        <tr>
+          <th>No</th>
+          <td>{{ item.id }}</td>
+        </tr>
+        <tr>
+          <th>Lisans Adı</th>
+          <td>{{ item.lisans_adi }}</td>
+        </tr>
+        <tr>
+          <th>Key</th>
+          <td class="text-truncate" style="max-width: 220px">
+            {{ item.lisans_key }}
+          </td>
+        </tr>
+        <tr>
+          <th>Sorumlu</th>
+          <td>{{ item.sorumlu_personel or '-' }}</td>
+        </tr>
+        <tr>
+          <th>Bağlı Envanter</th>
+          <td>{{ item.bagli_envanter_no or '-' }}</td>
+        </tr>
+        <tr>
+          <th>E-posta</th>
+          <td>{{ item.mail_adresi or '-' }}</td>
+        </tr>
+        <tr>
+          <th>Durum</th>
+          <td>{{ item.durum }}</td>
+        </tr>
       </tbody>
     </table>
   </div>

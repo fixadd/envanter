@@ -4,7 +4,14 @@
 <div class="table-responsive">
   <table class="table table-sm align-middle table-rounded">
     <thead class="table-light">
-      <tr><th>#</th><th>Kullanıcı Adı</th><th>Ad</th><th>Soyad</th><th>E-posta</th><th>Rol</th></tr>
+      <tr>
+        <th>#</th>
+        <th>Kullanıcı Adı</th>
+        <th>Ad</th>
+        <th>Soyad</th>
+        <th>E-posta</th>
+        <th>Rol</th>
+      </tr>
     </thead>
     <tbody>
       {% for u in users or [] %}
@@ -17,7 +24,9 @@
         <td>{{ u.role }}</td>
       </tr>
       {% else %}
-      <tr><td colspan="6" class="text-center text-muted">Kayıt yok.</td></tr>
+      <tr>
+        <td colspan="6" class="text-center text-muted">Kayıt yok.</td>
+      </tr>
       {% endfor %}
     </tbody>
   </table>

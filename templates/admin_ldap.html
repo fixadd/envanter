@@ -1,18 +1,38 @@
-{% extends "base.html" %}
-{% block title %}LDAP Bağlantısı{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}LDAP Bağlantısı{% endblock %} {%
+block content %}
 <div class="container py-3">
   <h5>LDAP Ayarları</h5>
   <form method="post" class="row g-3">
-    <div class="col-md-6"><label class="form-label">Host</label><input name="host" class="form-control" value="{{ host }}"></div>
-    <div class="col-md-6"><label class="form-label">Base DN</label><input name="base_dn" class="form-control" value="{{ base_dn }}"></div>
-    <div class="col-md-6"><label class="form-label">Bind DN</label><input name="bind_dn" class="form-control" value="{{ bind_dn }}"></div>
-    <div class="col-md-6"><label class="form-label">Bind Password</label><input type="password" name="bind_password" class="form-control" value="{{ bind_password }}"></div>
+    <div class="col-md-6">
+      <label class="form-label">Host</label
+      ><input name="host" class="form-control" value="{{ host }}" />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Base DN</label
+      ><input name="base_dn" class="form-control" value="{{ base_dn }}" />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Bind DN</label
+      ><input name="bind_dn" class="form-control" value="{{ bind_dn }}" />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Bind Password</label
+      ><input
+        type="password"
+        name="bind_password"
+        class="form-control"
+        value="{{ bind_password }}"
+      />
+    </div>
     <div class="col-md-3">
       <label class="form-label">SSL Kullan</label>
       <select name="use_ssl" class="form-select">
-        <option value="0" {% if use_ssl == "0" %}selected{% endif %}>Hayır</option>
-        <option value="1" {% if use_ssl == "1" %}selected{% endif %}>Evet</option>
+        <option value="0" {% if use_ssl="" ="0" %}selected{% endif %}>
+          Hayır
+        </option>
+        <option value="1" {% if use_ssl="" ="1" %}selected{% endif %}>
+          Evet
+        </option>
       </select>
     </div>
     <div class="col-12"><button class="btn btn-primary">Kaydet</button></div>
