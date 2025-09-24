@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
-from sqlalchemy.orm import Session
-from database import get_db
-import models
-from sqlalchemy import func, case, or_, literal
 from typing import List
 
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import case, func, literal, or_
+from sqlalchemy.orm import Session
+
+import models
+from database import get_db
 from utils.stock_log import create_stock_log, get_available_columns, normalize_islem
 
 router = APIRouter(prefix="/api", tags=["API"])
@@ -38,14 +39,25 @@ def user_names(db: Session = Depends(get_db)):
 @router.get("/licenses/names")
 def license_names(db: Session = Depends(get_db)):
     if hasattr(models, "LicenseName"):
-        rows = db.query(models.LicenseName.name).order_by(models.LicenseName.name.asc()).all()
+        rows = (
+            db.query(models.LicenseName.name)
+            .order_by(models.LicenseName.name.asc())
+            .all()
+        )
         return [r[0] for r in rows if r[0]]
-    rows = db.query(models.License.lisans_adi).distinct().order_by(models.License.lisans_adi.asc()).all()
+    rows = (
+        db.query(models.License.lisans_adi)
+        .distinct()
+        .order_by(models.License.lisans_adi.asc())
+        .all()
+    )
     return [r[0] for r in rows if r[0]]
 
 
 @router.get("/printers/models")
-def printer_models(brand: str = Query(..., min_length=1), db: Session = Depends(get_db)):
+def printer_models(
+    brand: str = Query(..., min_length=1), db: Session = Depends(get_db)
+):
     if not hasattr(models, "Model"):
         raise HTTPException(status_code=500, detail="Model tablosu tanımlı değil")
     rows = (
@@ -181,20 +193,18 @@ def stock_status_detail(db: Session = Depends(get_db)):
     has_lisans_key = "lisans_anahtari" in available_columns
     has_mail = "mail_adresi" in available_columns
 
-    q = (
-        db.query(
-            models.StockLog.donanim_tipi,
-            (models.StockLog.marka if has_marka else literal(None)).label("marka"),
-            (models.StockLog.model if has_model else literal(None)).label("model"),
-            (models.StockLog.ifs_no if has_ifs_no else literal(None)).label("ifs_no"),
-            func.sum(
-                case(
-                    (models.StockLog.islem == "girdi", models.StockLog.miktar),
-                    else_=-models.StockLog.miktar,
-                )
-            ).label("qty"),
-            func.max(models.StockLog.tarih).label("last_tarih"),
-        )
+    q = db.query(
+        models.StockLog.donanim_tipi,
+        (models.StockLog.marka if has_marka else literal(None)).label("marka"),
+        (models.StockLog.model if has_model else literal(None)).label("model"),
+        (models.StockLog.ifs_no if has_ifs_no else literal(None)).label("ifs_no"),
+        func.sum(
+            case(
+                (models.StockLog.islem == "girdi", models.StockLog.miktar),
+                else_=-models.StockLog.miktar,
+            )
+        ).label("qty"),
+        func.max(models.StockLog.tarih).label("last_tarih"),
     )
 
     group_cols = [models.StockLog.donanim_tipi]
@@ -215,20 +225,18 @@ def stock_status_detail(db: Session = Depends(get_db)):
         (models.StockLog.marka if has_marka else literal(None)).label("marka"),
         (models.StockLog.model if has_model else literal(None)).label("model"),
         (models.StockLog.ifs_no if has_ifs_no else literal(None)).label("ifs_no"),
-        (
-            models.StockLog.source_type if has_source_type else literal(None)
-        ).label("source_type"),
-        (
-            models.StockLog.source_id if has_source_id else literal(None)
-        ).label("source_id"),
-        (
-            models.StockLog.lisans_anahtari
-            if has_lisans_key
-            else literal(None)
-        ).label("lisans_anahtari"),
-        (
-            models.StockLog.mail_adresi if has_mail else literal(None)
-        ).label("mail_adresi"),
+        (models.StockLog.source_type if has_source_type else literal(None)).label(
+            "source_type"
+        ),
+        (models.StockLog.source_id if has_source_id else literal(None)).label(
+            "source_id"
+        ),
+        (models.StockLog.lisans_anahtari if has_lisans_key else literal(None)).label(
+            "lisans_anahtari"
+        ),
+        (models.StockLog.mail_adresi if has_mail else literal(None)).label(
+            "mail_adresi"
+        ),
         models.StockLog.tarih,
         models.StockLog.id,
     )
@@ -243,7 +251,6 @@ def stock_status_detail(db: Session = Depends(get_db)):
     order_cols.extend([models.StockLog.tarih.desc(), models.StockLog.id.desc()])
 
     last_logs = last_logs_query.order_by(*order_cols).all()
-
 
     def clean(value: str | None) -> str:
         return (value or "").strip()
@@ -264,7 +271,10 @@ def stock_status_detail(db: Session = Depends(get_db)):
         if not value:
             return "envanter"
         lowered = value.strip().lower()
-        return type_aliases.get(lowered, lowered if lowered in {"envanter", "lisans", "yazici"} else "envanter")
+        return type_aliases.get(
+            lowered,
+            lowered if lowered in {"envanter", "lisans", "yazici"} else "envanter",
+        )
 
     def base_type_from_source(source_value: str | None) -> str:
         if not source_value:
@@ -336,7 +346,9 @@ def stock_status_detail(db: Session = Depends(get_db)):
         key = (clean(r.donanim_tipi), clean(r.marka), clean(r.model), clean(r.ifs_no))
         src = last_source.get(key, {})
         item_type = detect_item_type(r, src)
-        system_key = make_lookup_key(item_type, r.donanim_tipi, r.marka, r.model, r.ifs_no)
+        system_key = make_lookup_key(
+            item_type, r.donanim_tipi, r.marka, r.model, r.ifs_no
+        )
         system_entry = system_room_map.get(system_key)
         assignment_hint = None
         source_raw = src.get("source_type")
@@ -359,12 +371,12 @@ def stock_status_detail(db: Session = Depends(get_db)):
                 "item_type": item_type,
                 "assignment_hint": assignment_hint,
                 "system_room": system_entry is not None,
-                "system_room_assigned_at": getattr(system_entry, "assigned_at", None)
-                if system_entry
-                else None,
-                "system_room_assigned_by": getattr(system_entry, "assigned_by", None)
-                if system_entry
-                else None,
+                "system_room_assigned_at": (
+                    getattr(system_entry, "assigned_at", None) if system_entry else None
+                ),
+                "system_room_assigned_by": (
+                    getattr(system_entry, "assigned_by", None) if system_entry else None
+                ),
             }
         )
         totals_calc[r.donanim_tipi] = totals_calc.get(r.donanim_tipi, 0) + qty
@@ -516,12 +528,14 @@ def stock_assign(
             target.envanter_no = hedef_envanter_no
             target.bagli_envanter_no = hedef_envanter_no
     db.commit()
-    log = (
-        db.query(models.StockLog)
-        .order_by(models.StockLog.id.desc())
-        .first()
-    )
-    if not log or log.donanim_tipi != donanim_tipi or log.miktar != miktar or log.ifs_no != ifs_no or log.islem != "cikti":
+    log = db.query(models.StockLog).order_by(models.StockLog.id.desc()).first()
+    if (
+        not log
+        or log.donanim_tipi != donanim_tipi
+        or log.miktar != miktar
+        or log.ifs_no != ifs_no
+        or log.islem != "cikti"
+    ):
         raise HTTPException(500, "Log kaydı doğrulanamadı")
     return {
         "ok": True,
@@ -529,4 +543,3 @@ def stock_assign(
         "miktar": miktar,
         "ifs_no": ifs_no,
     }
-

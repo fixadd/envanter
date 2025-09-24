@@ -1,5 +1,5 @@
-{% extends "base.html" %}{% block title %}Talep – Envantere Dönüştür{% endblock %}
-{% block content %}
+{% extends "base.html" %}{% block title %}Talep – Envantere Dönüştür{% endblock
+%} {% block content %}
 <h2 class="h5 mb-3">Talebi Envantere Dönüştür (ID: {{ talep.id }})</h2>
 <form class="card p-3">
   {% for i in range(adet) %}
@@ -8,7 +8,7 @@
     {% for field in eksik %}
     <div class="mb-2">
       <label class="form-label">{{ field.replace('_', ' ').title() }}</label>
-      <input name="{{ field }}_{{ i }}" class="form-control" required>
+      <input name="{{ field }}_{{ i }}" class="form-control" required />
     </div>
     {% endfor %}
   </fieldset>

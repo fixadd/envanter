@@ -2,10 +2,11 @@
 # Hızlı demo verileri: kullanıcılar + referans tablolar (marka, model, fabrika, kullanım alanı, donanım tipi, lisans adı)
 # python -m scripts.seed_minimal
 
-from sqlalchemy.orm import Session
 from sqlalchemy import select
-from database import SessionLocal  # repo mevcut dosyalar
+from sqlalchemy.orm import Session
+
 import models  # tablolar burada
+from database import SessionLocal  # repo mevcut dosyalar
 
 
 def upsert_one(db: Session, model, where: dict, values: dict):
@@ -29,12 +30,18 @@ def main():
         # burada demo amaçlı basit şifre yazıyoruz. Prod'da paneli kullan.
         if hasattr(models, "User"):
             # aynı username varsa güncelle, yoksa ekle
-            upsert_one(db, models.User,
-                       {"username": "kadir"},
-                       {"full_name": "Kadir Can", "role": "user", "password_hash": "demo"})
-            upsert_one(db, models.User,
-                       {"username": "mehmet"},
-                       {"full_name": "Mehmet Yılmaz", "role": "user", "password_hash": "demo"})
+            upsert_one(
+                db,
+                models.User,
+                {"username": "kadir"},
+                {"full_name": "Kadir Can", "role": "user", "password_hash": "demo"},
+            )
+            upsert_one(
+                db,
+                models.User,
+                {"username": "mehmet"},
+                {"full_name": "Mehmet Yılmaz", "role": "user", "password_hash": "demo"},
+            )
 
         # 2) Referans tablolar
         # Marka
@@ -47,9 +54,13 @@ def main():
             hp_id = hp.id if hp else None
             canon_id = canon.id if canon else None
             if hp_id:
-                upsert_one(db, models.Model, {"brand_id": hp_id, "name": "LaserJet 1020"}, {})
+                upsert_one(
+                    db, models.Model, {"brand_id": hp_id, "name": "LaserJet 1020"}, {}
+                )
             if canon_id:
-                upsert_one(db, models.Model, {"brand_id": canon_id, "name": "LBP631C"}, {})
+                upsert_one(
+                    db, models.Model, {"brand_id": canon_id, "name": "LBP631C"}, {}
+                )
 
         # Fabrika
         if hasattr(models, "Factory"):

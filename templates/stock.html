@@ -1,34 +1,75 @@
-{% extends "base.html" %}
-{% block title %}Stok Durumu{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Stok Durumu{% endblock %} {% block
+content %}
 <div class="soft-card p-3">
   <div class="tabs-wrap">
     <ul class="nav nav-tabs" id="stockStatusTabs" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="stok-durumu-tab" data-bs-toggle="tab" data-bs-target="#stok-durumu" type="button" role="tab" aria-controls="stok-durumu" aria-selected="true">Stok Durumu</button>
+        <button
+          class="nav-link active"
+          id="stok-durumu-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#stok-durumu"
+          type="button"
+          role="tab"
+          aria-controls="stok-durumu"
+          aria-selected="true"
+        >
+          Stok Durumu
+        </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="log-tab" data-bs-toggle="tab" data-bs-target="#log" type="button" role="tab" aria-controls="log" aria-selected="false">Log</button>
+        <button
+          class="nav-link"
+          id="log-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#log"
+          type="button"
+          role="tab"
+          aria-controls="log"
+          aria-selected="false"
+        >
+          Log
+        </button>
       </li>
     </ul>
   </div>
 
   <div class="page-section">
     <div class="tab-content" id="stockStatusTabContent">
-      <div class="tab-pane fade show active" id="stok-durumu" role="tabpanel" aria-labelledby="stok-durumu-tab">
+      <div
+        class="tab-pane fade show active"
+        id="stok-durumu"
+        role="tabpanel"
+        aria-labelledby="stok-durumu-tab"
+      >
         <div class="table-responsive">
-          <table id="stock-table"
-                 class="table table-sm table-striped align-middle table-rounded">
+          <table
+            id="stock-table"
+            class="table table-sm table-striped align-middle table-rounded"
+          >
             <thead class="table-light">
               <tr>
                 <th data-field="donanim_tipi">Donanım Tipi</th>
-                <th data-field="marka" data-formatter="emptyFormatter">Marka</th>
-                <th data-field="model" data-formatter="emptyFormatter">Model</th>
-                <th data-field="ifs_no" data-formatter="emptyFormatter">IFS No</th>
-                <th data-field="net_miktar" data-align="right" class="text-end">Stok</th>
-                <th data-field="son_islem_ts" data-formatter="dateFormatter">Son İşlem</th>
-                <th data-formatter="detailFormatter" data-align="center" class="text-center"></th>
+                <th data-field="marka" data-formatter="emptyFormatter">
+                  Marka
+                </th>
+                <th data-field="model" data-formatter="emptyFormatter">
+                  Model
+                </th>
+                <th data-field="ifs_no" data-formatter="emptyFormatter">
+                  IFS No
+                </th>
+                <th data-field="net_miktar" data-align="right" class="text-end">
+                  Stok
+                </th>
+                <th data-field="son_islem_ts" data-formatter="dateFormatter">
+                  Son İşlem
+                </th>
+                <th
+                  data-formatter="detailFormatter"
+                  data-align="center"
+                  class="text-center"
+                ></th>
               </tr>
             </thead>
             <tbody id="stockTableBody">
@@ -39,104 +80,107 @@
           </table>
         </div>
       </div>
-      <div class="tab-pane fade" id="log" role="tabpanel" aria-labelledby="log-tab">
+      <div
+        class="tab-pane fade"
+        id="log"
+        role="tabpanel"
+        aria-labelledby="log-tab"
+      >
         <div id="logList" class="small text-muted">Log yüklenmedi.</div>
       </div>
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-{{ super() }}
+{% endblock %} {% block scripts %} {{ super() }}
 <script>
-function escapeHtml(value) {
-  if (value === null || value === undefined) return '';
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function emptyFormatter(value) {
-  if (value === null || value === undefined || value === '') {
-    return '-';
-  }
-  return escapeHtml(String(value));
-}
-
-function dateFormatter(value) {
-  if (!value) return '-';
-  const d = new Date(value);
-  return d.toLocaleString('tr-TR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  });
-}
-
-function baseSourceType(raw) {
-  if (!raw) return '';
-  const text = String(raw).toLowerCase();
-  const parts = text.split(':');
-  return parts.length > 1 ? parts[parts.length - 1] : text;
-}
-
-function detailFormatter(row) {
-  const type = baseSourceType(row?.source_type);
-  if (!['lisans', 'envanter', 'yazici'].includes(type)) return '';
-  const payload = encodeURIComponent(JSON.stringify(row));
-  return `<button class="btn btn-outline-secondary btn-sm" onclick="showStockDetail('${payload}')" title="Detay">&#8801;</button>`;
-}
-
-function showStockDetail(encoded) {
-  const row = JSON.parse(decodeURIComponent(encoded));
-  let url = '';
-  const type = baseSourceType(row.source_type);
-  if (type === 'envanter' && row.source_id) {
-    url = `/inventory/${row.source_id}`;
-  } else if (type === 'lisans' && row.source_id) {
-    url = `/lisans/${row.source_id}`;
-  } else if (type === 'yazici' && row.source_id) {
-    url = `/printers/${row.source_id}`;
-  }
-  if (url) {
-    window.open(url, '_blank');
-    return;
-  }
-  const lines = [
-    `Donanım Tipi: ${row.donanim_tipi ?? '-'}`,
-    `Marka: ${row.marka ?? '-'}`,
-    `Model: ${row.model ?? '-'}`,
-    `IFS No: ${row.ifs_no ?? '-'}`,
-    `Stok: ${row.net_miktar}`,
-    `Son İşlem: ${dateFormatter(row.son_islem_ts)}`,
-  ];
-  alert(lines.join('\n'));
-}
-
-function setStockTableMessage(message) {
-  const tbody = document.getElementById('stockTableBody');
-  if (!tbody) return;
-  tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">${escapeHtml(message)}</td></tr>`;
-}
-
-function renderStockTable(items) {
-  const tbody = document.getElementById('stockTableBody');
-  if (!tbody) return;
-  if (!Array.isArray(items) || items.length === 0) {
-    setStockTableMessage('Stok bulunamadı');
-    return;
+  function escapeHtml(value) {
+    if (value === null || value === undefined) return "";
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
-  const rows = items.map(row => {
-    const detailButton = detailFormatter(row);
-    return `<tr>
+  function emptyFormatter(value) {
+    if (value === null || value === undefined || value === "") {
+      return "-";
+    }
+    return escapeHtml(String(value));
+  }
+
+  function dateFormatter(value) {
+    if (!value) return "-";
+    const d = new Date(value);
+    return d.toLocaleString("tr-TR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  }
+
+  function baseSourceType(raw) {
+    if (!raw) return "";
+    const text = String(raw).toLowerCase();
+    const parts = text.split(":");
+    return parts.length > 1 ? parts[parts.length - 1] : text;
+  }
+
+  function detailFormatter(row) {
+    const type = baseSourceType(row?.source_type);
+    if (!["lisans", "envanter", "yazici"].includes(type)) return "";
+    const payload = encodeURIComponent(JSON.stringify(row));
+    return `<button class="btn btn-outline-secondary btn-sm" onclick="showStockDetail('${payload}')" title="Detay">&#8801;</button>`;
+  }
+
+  function showStockDetail(encoded) {
+    const row = JSON.parse(decodeURIComponent(encoded));
+    let url = "";
+    const type = baseSourceType(row.source_type);
+    if (type === "envanter" && row.source_id) {
+      url = `/inventory/${row.source_id}`;
+    } else if (type === "lisans" && row.source_id) {
+      url = `/lisans/${row.source_id}`;
+    } else if (type === "yazici" && row.source_id) {
+      url = `/printers/${row.source_id}`;
+    }
+    if (url) {
+      window.open(url, "_blank");
+      return;
+    }
+    const lines = [
+      `Donanım Tipi: ${row.donanim_tipi ?? "-"}`,
+      `Marka: ${row.marka ?? "-"}`,
+      `Model: ${row.model ?? "-"}`,
+      `IFS No: ${row.ifs_no ?? "-"}`,
+      `Stok: ${row.net_miktar}`,
+      `Son İşlem: ${dateFormatter(row.son_islem_ts)}`,
+    ];
+    alert(lines.join("\n"));
+  }
+
+  function setStockTableMessage(message) {
+    const tbody = document.getElementById("stockTableBody");
+    if (!tbody) return;
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">${escapeHtml(message)}</td></tr>`;
+  }
+
+  function renderStockTable(items) {
+    const tbody = document.getElementById("stockTableBody");
+    if (!tbody) return;
+    if (!Array.isArray(items) || items.length === 0) {
+      setStockTableMessage("Stok bulunamadı");
+      return;
+    }
+
+    const rows = items
+      .map((row) => {
+        const detailButton = detailFormatter(row);
+        return `<tr>
       <td>${emptyFormatter(row.donanim_tipi)}</td>
       <td>${emptyFormatter(row.marka)}</td>
       <td>${emptyFormatter(row.model)}</td>
@@ -145,49 +189,52 @@ function renderStockTable(items) {
       <td>${dateFormatter(row.son_islem_ts)}</td>
       <td class="text-center">${detailButton}</td>
     </tr>`;
-  }).join('');
+      })
+      .join("");
 
-  tbody.innerHTML = rows;
-}
-
-function getApiRoot() {
-  const meta = document.querySelector('meta[name="api-root"]');
-  const content = meta ? (meta.getAttribute('content') || '').trim() : '';
-  return content ? content.replace(/\/$/, '') : '/api';
-}
-
-const STOCK_STATUS_URL = `${getApiRoot()}/stock/status`;
-
-async function loadStockStatusTable() {
-  setStockTableMessage('Yükleniyor…');
-  try {
-    const res = await fetch(STOCK_STATUS_URL, {
-      headers: { Accept: 'application/json' },
-      credentials: 'same-origin',
-    });
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`);
-    }
-    const data = await res.json();
-    const items = Array.isArray(data) ? data : (data.items || data.rows || []);
-    renderStockTable(items);
-  } catch (err) {
-    console.error('stock status load failed', err);
-    setStockTableMessage('Veri alınamadı');
+    tbody.innerHTML = rows;
   }
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-  loadStockStatusTable();
+  function getApiRoot() {
+    const meta = document.querySelector('meta[name="api-root"]');
+    const content = meta ? (meta.getAttribute("content") || "").trim() : "";
+    return content ? content.replace(/\/$/, "") : "/api";
+  }
 
-  document.querySelectorAll('[data-bs-toggle="tab"]').forEach(link => {
-    link.addEventListener('shown.bs.tab', (e) => {
-      const target = e.target.getAttribute('data-bs-target') || e.target.getAttribute('href');
-      if (target && target.includes('stok-durumu')) {
-        loadStockStatusTable();
+  const STOCK_STATUS_URL = `${getApiRoot()}/stock/status`;
+
+  async function loadStockStatusTable() {
+    setStockTableMessage("Yükleniyor…");
+    try {
+      const res = await fetch(STOCK_STATUS_URL, {
+        headers: { Accept: "application/json" },
+        credentials: "same-origin",
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
       }
+      const data = await res.json();
+      const items = Array.isArray(data) ? data : data.items || data.rows || [];
+      renderStockTable(items);
+    } catch (err) {
+      console.error("stock status load failed", err);
+      setStockTableMessage("Veri alınamadı");
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    loadStockStatusTable();
+
+    document.querySelectorAll('[data-bs-toggle="tab"]').forEach((link) => {
+      link.addEventListener("shown.bs.tab", (e) => {
+        const target =
+          e.target.getAttribute("data-bs-target") ||
+          e.target.getAttribute("href");
+        if (target && target.includes("stok-durumu")) {
+          loadStockStatusTable();
+        }
+      });
     });
   });
-});
 </script>
 {% endblock %}

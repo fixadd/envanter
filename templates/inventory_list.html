@@ -1,34 +1,67 @@
-{% extends "base.html" %}
-{% block title %}Envanter Listesi{% endblock %}
-{% block content %}
-  <div id="inventory-list-root" class="container-fluid p-2">
+{% extends "base.html" %} {% block title %}Envanter Listesi{% endblock %} {%
+block content %}
+<div id="inventory-list-root" class="container-fluid p-2">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h5 class="mb-0">Envanter</h5>
     <div class="d-flex align-items-center gap-2 flex-wrap">
-      <a href="#" id="addBtn" class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle">
+      <a
+        href="#"
+        id="addBtn"
+        class="btn btn-success btn-sm d-flex align-items-center gap-1"
+        title="Yeni Ekle"
+      >
         <i class="bi bi-plus-lg"></i>
         <span>Ekle</span>
       </a>
-      {% with fault_entity='inventory', fault_prefix='inventory', fault_label='Envanter Arızalı Durum' %}
-        {% include 'partials/_fault_controls.html' %}
-      {% endwith %}
+      {% with fault_entity='inventory', fault_prefix='inventory',
+      fault_label='Envanter Arızalı Durum' %} {% include
+      'partials/_fault_controls.html' %} {% endwith %}
       <div class="dropdown">
-        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <button
+          class="btn btn-outline-primary btn-sm dropdown-toggle"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
           Excel
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" href="/inventory/export">Dışa Aktar</a></li>
           <li>
-            <form action="/inventory/import" method="post" enctype="multipart/form-data">
-              <input type="file" name="file" id="invExcel" class="d-none" onchange="this.form.submit()">
+            <a class="dropdown-item" href="/inventory/export">Dışa Aktar</a>
+          </li>
+          <li>
+            <form
+              action="/inventory/import"
+              method="post"
+              enctype="multipart/form-data"
+            >
+              <input
+                type="file"
+                name="file"
+                id="invExcel"
+                class="d-none"
+                onchange="this.form.submit()"
+              />
               <label for="invExcel" class="dropdown-item mb-0">İçe Aktar</label>
             </form>
           </li>
         </ul>
       </div>
-      <button class="btn btn-outline-secondary btn-sm" id="filterBtn">Filtre</button>
-      <button class="btn btn-outline-secondary btn-sm d-none" id="clearFilterBtn">Temizle</button>
-      <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Ara...">
+      <button class="btn btn-outline-secondary btn-sm" id="filterBtn">
+        Filtre
+      </button>
+      <button
+        class="btn btn-outline-secondary btn-sm d-none"
+        id="clearFilterBtn"
+      >
+        Temizle
+      </button>
+      <input
+        type="text"
+        id="searchInput"
+        class="form-control form-control-sm"
+        placeholder="Ara..."
+      />
     </div>
   </div>
 
@@ -40,7 +73,7 @@
         <th data-field="departman">Departman</th>
         <th data-field="sorumlu_personel">Sorumlu</th>
         <th data-field="marka">Marka/Model</th>
-        <th style="width:180px;">İşlemler</th>
+        <th style="width: 180px">İşlemler</th>
       </tr>
     </thead>
     <tbody>
@@ -51,11 +84,11 @@
         data-departman="{{ row.departman or '' }}"
         data-sorumlu="{{ row.sorumlu_personel or '' }}"
         data-bagli="{{ row.bagli_envanter_no or '' }}"
-        class="inv-row{% if row.durum == 'arızalı' %} table-warning{% endif %}">
+        class="inv-row{% if row.durum == 'arızalı' %} table-warning{% endif %}"
+      >
         <td>
-          {{ row.no }}
-          {% if row.durum == 'arızalı' %}
-            <span class="badge text-bg-warning text-dark ms-1">Arızalı</span>
+          {{ row.no }} {% if row.durum == 'arızalı' %}
+          <span class="badge text-bg-warning text-dark ms-1">Arızalı</span>
           {% endif %}
         </td>
         <td>{{ row.fabrika }}</td>
@@ -63,14 +96,11 @@
         <td>{{ row.sorumlu_personel }}</td>
         <td>{{ row.marka }} {{ row.model }}</td>
         <td class="text-nowrap">
-          {% set entity = 'inventory' %}
-          {% set row_id = row.id %}
-          {% set fault_mode = True %}
-          {% set fault_device = row.no %}
-          {% set fault_title = (row.marka ~ ' ' ~ row.model)|trim %}
-          {% set fault_entity_key = row.no %}
-          {% set fault_status = row.durum %}
-          {% include 'partials/_actions_menu.html' %}
+          {% set entity = 'inventory' %} {% set row_id = row.id %} {% set
+          fault_mode = True %} {% set fault_device = row.no %} {% set
+          fault_title = (row.marka ~ ' ' ~ row.model)|trim %} {% set
+          fault_entity_key = row.no %} {% set fault_status = row.durum %} {%
+          include 'partials/_actions_menu.html' %}
         </td>
       </tr>
       {% endfor %}
@@ -80,56 +110,111 @@
 
 <style>
   /* Satırın tamamı tıklanmasın */
-  tr.inv-row { cursor: default; }
-  tr.inv-row a, tr.inv-row button, tr.inv-row select { cursor: pointer; }
+  tr.inv-row {
+    cursor: default;
+  }
+  tr.inv-row a,
+  tr.inv-row button,
+  tr.inv-row select {
+    cursor: pointer;
+  }
 </style>
 
 <!-- Envanter Ekle Modal -->
-<div class="modal fade" id="inventoryCreateModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+<div
+  class="modal fade"
+  id="inventoryCreateModal"
+  tabindex="-1"
+  aria-hidden="true"
+>
+  <div
+    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+  >
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Envanter Ekle</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Kapat"
+        ></button>
       </div>
 
       <div class="modal-body">
-        <form method="post" action="/inventory/create" id="envanter-form" novalidate>
+        <form
+          method="post"
+          action="/inventory/create"
+          id="envanter-form"
+          novalidate
+        >
           <div class="env-grid" id="envanter-ekle">
             <!-- Envanter No -->
             <div class="field">
               <label>Envanter No</label>
-              <input name="envanter_no" type="text" class="ctrl" required placeholder="ENV-000123">
+              <input
+                name="envanter_no"
+                type="text"
+                class="ctrl"
+                required
+                placeholder="ENV-000123"
+              />
             </div>
 
             <!-- Bilgisayar Adı -->
             <div class="field">
               <label>Bilgisayar Adı</label>
-              <input name="bilgisayar_adi" type="text" class="ctrl" required placeholder="PC-OFIS-01">
+              <input
+                name="bilgisayar_adi"
+                type="text"
+                class="ctrl"
+                required
+                placeholder="PC-OFIS-01"
+              />
             </div>
 
             <!-- Fabrika -->
             <div class="field">
               <label>Fabrika</label>
-              <select name="fabrika" id="fabrika" class="ctrl" required></select>
+              <select
+                name="fabrika"
+                id="fabrika"
+                class="ctrl"
+                required
+              ></select>
             </div>
 
             <!-- Departman -->
             <div class="field">
               <label>Departman</label>
-              <select name="departman" id="departman" class="ctrl" required></select>
+              <select
+                name="departman"
+                id="departman"
+                class="ctrl"
+                required
+              ></select>
             </div>
 
             <!-- Donanım Tipi -->
             <div class="field">
               <label>Donanım Tipi</label>
-              <select name="donanim_tipi" id="donanim_tipi" class="ctrl" required></select>
+              <select
+                name="donanim_tipi"
+                id="donanim_tipi"
+                class="ctrl"
+                required
+              ></select>
             </div>
 
             <!-- Sorumlu Personel -->
             <div class="field">
               <label>Sorumlu Personel</label>
-              <select name="sorumlu_personel" id="sorumlu_personel" class="ctrl" required></select>
+              <select
+                name="sorumlu_personel"
+                id="sorumlu_personel"
+                class="ctrl"
+                required
+              ></select>
             </div>
 
             <!-- Marka -->
@@ -149,50 +234,111 @@
             <!-- Seri No -->
             <div class="field">
               <label>Seri No</label>
-              <input name="seri_no" type="text" class="ctrl" required placeholder="SN123456789">
+              <input
+                name="seri_no"
+                type="text"
+                class="ctrl"
+                required
+                placeholder="SN123456789"
+              />
             </div>
 
             <!-- IFS No (opsiyonel) -->
             <div class="field">
               <label>IFS No <span class="muted">(zorunlu değil)</span></label>
-              <input name="ifs_no" type="text" class="ctrl" placeholder="IFS-...">
+              <input
+                name="ifs_no"
+                type="text"
+                class="ctrl"
+                placeholder="IFS-..."
+              />
             </div>
 
             <!-- Bağlı Makina No (opsiyonel) -->
             <div class="field">
-              <label>Bağlı Makina No <span class="muted">(zorunlu değil)</span></label>
-              <input name="bagli_makina_no" type="text" class="ctrl" placeholder="Makina No">
+              <label
+                >Bağlı Makina No
+                <span class="muted">(zorunlu değil)</span></label
+              >
+              <input
+                name="bagli_makina_no"
+                type="text"
+                class="ctrl"
+                placeholder="Makina No"
+              />
             </div>
 
             <!-- Not (opsiyonel) -->
             <div class="field span-2">
               <label>Not <span class="muted">(zorunlu değil)</span></label>
-              <textarea name="notlar" class="ctrl" rows="2" placeholder="Açıklama / notlar"></textarea>
+              <textarea
+                name="notlar"
+                class="ctrl"
+                rows="2"
+                placeholder="Açıklama / notlar"
+              ></textarea>
             </div>
           </div>
 
           <div class="mt-3 d-flex gap-2">
             <button type="submit" class="btn btn-primary">Kaydet</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              İptal
+            </button>
           </div>
         </form>
       </div>
     </div>
   </div>
-  </div>
+</div>
 
-  <style>
-    /* Yalnız bu modalı düzenler */
-    .env-grid{ display:grid; grid-template-columns:1fr; gap:12px 16px; }
-    @media (min-width:768px){ .env-grid{ grid-template-columns:1fr 1fr; } .env-grid .span-2{ grid-column:1 / -1; } }
-  .field label{ display:block; margin-bottom:6px; font-weight:600; }
-  .ctrl{ width:100%; padding:10px 12px; border:1px solid #ced4da; border-radius:.5rem; background:var(--bs-body-bg,#fff); }
-  .ctrl::placeholder{ color:var(--bs-secondary-color,#6c757d); opacity:1; }
-  .is-invalid{ border-color:#dc3545 !important; }
-  .muted{ color:var(--bs-secondary-color,#6c757d); font-weight:400; }
+<style>
+  /* Yalnız bu modalı düzenler */
+  .env-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px 16px;
+  }
+  @media (min-width: 768px) {
+    .env-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .env-grid .span-2 {
+      grid-column: 1 / -1;
+    }
+  }
+  .field label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .ctrl {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 0.5rem;
+    background: var(--bs-body-bg, #fff);
+  }
+  .ctrl::placeholder {
+    color: var(--bs-secondary-color, #6c757d);
+    opacity: 1;
+  }
+  .is-invalid {
+    border-color: #dc3545 !important;
+  }
+  .muted {
+    color: var(--bs-secondary-color, #6c757d);
+    font-weight: 400;
+  }
 </style>
 
-<script>window.SKIP_SELECT_ENHANCE = true;</script>
+<script>
+  window.SKIP_SELECT_ENHANCE = true;
+</script>
 
 <!-- Filtre Modal -->
 <div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
@@ -200,13 +346,23 @@
     <form id="filterForm" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Filtrele</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body">
         <div id="filterRows"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Kapat</button>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          data-bs-dismiss="modal"
+        >
+          Kapat
+        </button>
         <button type="submit" class="btn btn-primary btn-sm">Uygula</button>
       </div>
     </form>
@@ -219,25 +375,41 @@
     <form id="assignForm" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Envanter Atama</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body row g-3">
-        <input type="hidden" name="item_id" id="assign_item_id">
+        <input type="hidden" name="item_id" id="assign_item_id" />
         <div class="col-md-3">
           <label class="form-label">Fabrika</label>
           <select name="fabrika" id="selFabrika" class="form-select"></select>
         </div>
         <div class="col-md-3">
           <label class="form-label">Departman</label>
-          <select name="departman" id="selDepartman" class="form-select"></select>
+          <select
+            name="departman"
+            id="selDepartman"
+            class="form-select"
+          ></select>
         </div>
         <div class="col-md-3">
           <label class="form-label">Sorumlu Personel</label>
-          <select name="sorumlu_personel" id="selPersonel" class="form-select"></select>
+          <select
+            name="sorumlu_personel"
+            id="selPersonel"
+            class="form-select"
+          ></select>
         </div>
         <div class="col-md-3">
           <label class="form-label">Bağlı Olduğu Envanter</label>
-          <select name="bagli_envanter_no" id="selBagli" class="form-select"></select>
+          <select
+            name="bagli_envanter_no"
+            id="selBagli"
+            class="form-select"
+          ></select>
         </div>
       </div>
       <div class="modal-footer">
@@ -253,19 +425,29 @@
     <form id="scrapForm" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Hurdaya Ayır</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body">
-        <input type="hidden" name="item_id" id="scrap_item_id">
+        <input type="hidden" name="item_id" id="scrap_item_id" />
         <p>Bu envanter hurdaya ayrılacak. Onaylıyor musunuz?</p>
         <div class="mb-2">
           <label class="form-label">Açıklama (opsiyonel)</label>
-          <textarea name="aciklama" class="form-control" rows="3"
-            placeholder="Hurda sebebi / not"></textarea>
+          <textarea
+            name="aciklama"
+            class="form-control"
+            rows="3"
+            placeholder="Hurda sebebi / not"
+          ></textarea>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Vazgeç</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">
+          Vazgeç
+        </button>
         <button class="btn btn-danger" type="submit">Hurdaya Ayır</button>
       </div>
     </form>
@@ -273,91 +455,123 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const assignModal = new bootstrap.Modal(document.getElementById('assignModal'));
-  const scrapModal  = new bootstrap.Modal(document.getElementById('scrapModal'));
-  const addModal    = new bootstrap.Modal(document.getElementById('inventoryCreateModal'));
-  const filterModal = new bootstrap.Modal(document.getElementById('filterModal'));
+  document.addEventListener("DOMContentLoaded", () => {
+    const assignModal = new bootstrap.Modal(
+      document.getElementById("assignModal"),
+    );
+    const scrapModal = new bootstrap.Modal(
+      document.getElementById("scrapModal"),
+    );
+    const addModal = new bootstrap.Modal(
+      document.getElementById("inventoryCreateModal"),
+    );
+    const filterModal = new bootstrap.Modal(
+      document.getElementById("filterModal"),
+    );
 
-  const searchInput   = document.getElementById('searchInput');
-  const filterForm    = document.getElementById('filterForm');
-  const clearBtn      = document.getElementById('clearFilterBtn');
-  const filterRowsDiv = document.getElementById('filterRows');
-  const distinctUrl   = "{{ url_for('lookup.distinct', entity='inventory', column='__COL__') }}";
-  let activeFilters = [];
-  const columns = Array.from(document.querySelectorAll('table thead th'))
-    .map((th, idx) => ({ idx, name: th.textContent.trim(), field: th.dataset.field }))
-    .filter(c => c.field);
+    const searchInput = document.getElementById("searchInput");
+    const filterForm = document.getElementById("filterForm");
+    const clearBtn = document.getElementById("clearFilterBtn");
+    const filterRowsDiv = document.getElementById("filterRows");
+    const distinctUrl =
+      "{{ url_for('lookup.distinct', entity='inventory', column='__COL__') }}";
+    let activeFilters = [];
+    const columns = Array.from(document.querySelectorAll("table thead th"))
+      .map((th, idx) => ({
+        idx,
+        name: th.textContent.trim(),
+        field: th.dataset.field,
+      }))
+      .filter((c) => c.field);
 
-  // Envanter ekleme formundaki dropdown'ları doldur
-  (async function(){
-    async function loadOptions(sel, url){
-      const res = await fetch(url);
-      const data = await res.json();
-      sel.innerHTML = '<option value="">Seçiniz...</option>' +
-        data.map(o=>`<option value="${o.text}" data-id="${o.id}">${o.text}</option>`).join('');
-    }
+    // Envanter ekleme formundaki dropdown'ları doldur
+    (async function () {
+      async function loadOptions(sel, url) {
+        const res = await fetch(url);
+        const data = await res.json();
+        sel.innerHTML =
+          '<option value="">Seçiniz...</option>' +
+          data
+            .map(
+              (o) =>
+                `<option value="${o.text}" data-id="${o.id}">${o.text}</option>`,
+            )
+            .join("");
+      }
 
-    const fabrikaSel = document.getElementById('fabrika');
-    const departmanSel = document.getElementById('departman');
-    const donanimSel = document.getElementById('donanim_tipi');
-    const personelSel = document.getElementById('sorumlu_personel');
-    const markaSel = document.getElementById('marka');
-    const modelSel = document.getElementById('model');
+      const fabrikaSel = document.getElementById("fabrika");
+      const departmanSel = document.getElementById("departman");
+      const donanimSel = document.getElementById("donanim_tipi");
+      const personelSel = document.getElementById("sorumlu_personel");
+      const markaSel = document.getElementById("marka");
+      const modelSel = document.getElementById("model");
 
-    await loadOptions(fabrikaSel, '/api/picker/fabrika');
-    await loadOptions(departmanSel, '/api/picker/kullanim_alani');
-    await loadOptions(donanimSel, '/api/picker/donanim_tipi');
-    await _selects.fillChoices({
-      endpoint: '/api/picker/kullanici',
-      selectId: 'sorumlu_personel',
-      mapFn: r => ({ value: r.text, label: r.text })
+      await loadOptions(fabrikaSel, "/api/picker/fabrika");
+      await loadOptions(departmanSel, "/api/picker/kullanim_alani");
+      await loadOptions(donanimSel, "/api/picker/donanim_tipi");
+      await _selects.fillChoices({
+        endpoint: "/api/picker/kullanici",
+        selectId: "sorumlu_personel",
+        mapFn: (r) => ({ value: r.text, label: r.text }),
+      });
+      _selects.enableRemoteSearch(
+        "sorumlu_personel",
+        "/api/picker/kullanici",
+        () => ({}),
+        (r) => ({ value: r.text, label: r.text }),
+      );
+
+      const brandRes = await fetch("/api/picker/marka");
+      const brands = await brandRes.json();
+      markaSel.innerHTML =
+        '<option value="">Seçiniz...</option>' +
+        brands
+          .map(
+            (b) =>
+              `<option value="${b.text}" data-id="${b.id}">${b.text}</option>`,
+          )
+          .join("");
+
+      markaSel.addEventListener("change", async () => {
+        const opt = markaSel.options[markaSel.selectedIndex];
+        const brandId = opt && opt.dataset.id;
+        modelSel.innerHTML = '<option value="">Seçiniz...</option>';
+        modelSel.disabled = !brandId;
+        if (!brandId) return;
+        const res = await fetch(`/api/picker/model?marka_id=${brandId}`);
+        const models = await res.json();
+        modelSel.innerHTML += models
+          .map((m) => `<option value="${m.text}">${m.text}</option>`)
+          .join("");
+      });
+    })();
+
+    document.getElementById("addBtn").addEventListener("click", () => {
+      addModal.show();
     });
-    _selects.enableRemoteSearch('sorumlu_personel', '/api/picker/kullanici', () => ({}), r => ({ value: r.text, label: r.text }));
 
-    const brandRes = await fetch('/api/picker/marka');
-    const brands = await brandRes.json();
-    markaSel.innerHTML = '<option value="">Seçiniz...</option>' +
-      brands.map(b=>`<option value="${b.text}" data-id="${b.id}">${b.text}</option>`).join('');
-
-    markaSel.addEventListener('change', async () => {
-      const opt = markaSel.options[markaSel.selectedIndex];
-      const brandId = opt && opt.dataset.id;
-      modelSel.innerHTML = '<option value="">Seçiniz...</option>';
-      modelSel.disabled = !brandId;
-      if(!brandId) return;
-      const res = await fetch(`/api/picker/model?marka_id=${brandId}`);
-      const models = await res.json();
-      modelSel.innerHTML += models.map(m=>`<option value="${m.text}">${m.text}</option>`).join('');
+    document.getElementById("filterBtn").addEventListener("click", () => {
+      filterForm.reset();
+      filterRowsDiv.innerHTML = "";
+      createFilterRow();
+      filterModal.show();
     });
-  })();
 
-  document.getElementById('addBtn').addEventListener('click', () => {
-    addModal.show();
-  });
+    clearBtn.addEventListener("click", () => {
+      activeFilters = [];
+      filterRows();
+      clearBtn.classList.add("d-none");
+    });
 
-  document.getElementById('filterBtn').addEventListener('click', () => {
-    filterForm.reset();
-    filterRowsDiv.innerHTML = '';
-    createFilterRow();
-    filterModal.show();
-  });
+    searchInput.addEventListener("input", filterRows);
 
-  clearBtn.addEventListener('click', () => {
-    activeFilters = [];
-    filterRows();
-    clearBtn.classList.add('d-none');
-  });
-
-  searchInput.addEventListener('input', filterRows);
-
-  function createFilterRow() {
-    const row = document.createElement('div');
-    row.className = 'row g-2 align-items-center mb-2 filter-row';
-    row.innerHTML = `
+    function createFilterRow() {
+      const row = document.createElement("div");
+      row.className = "row g-2 align-items-center mb-2 filter-row";
+      row.innerHTML = `
       <div class="col-5">
         <select class="form-select form-select-sm column-select">
-          ${columns.map(c => `<option value="${c.idx}">${c.name}</option>`).join('')}
+          ${columns.map((c) => `<option value="${c.idx}">${c.name}</option>`).join("")}
         </select>
       </div>
       <div class="col-5">
@@ -367,169 +581,207 @@ document.addEventListener('DOMContentLoaded', () => {
         <button type="button" class="btn btn-success btn-sm add-row">+</button>
         <button type="button" class="btn btn-danger btn-sm remove-row">-</button>
       </div>`;
-    filterRowsDiv.appendChild(row);
-    const colSel = row.querySelector('.column-select');
-    const valSel = row.querySelector('.value-select');
-    loadValues(colSel, valSel);
-    colSel.addEventListener('change', () => loadValues(colSel, valSel));
-    updateRemoveButtons();
-  }
-
-  async function loadValues(colSelect, valSelect) {
-    const col = columns.find(c => c.idx == colSelect.value);
-    const res = await fetch(distinctUrl.replace('__COL__', col.field));
-    const data = await res.json();
-    valSelect.innerHTML = '<option value="">Seçiniz</option>' +
-      data.map(v => `<option value="${v}">${v}</option>`).join('');
-  }
-
-  function updateRemoveButtons() {
-    const rows = filterRowsDiv.querySelectorAll('.filter-row');
-    rows.forEach(r => r.querySelector('.remove-row').classList.toggle('d-none', rows.length === 1));
-  }
-
-  filterForm.addEventListener('click', (e) => {
-    if (e.target.classList.contains('add-row')) {
-      createFilterRow();
-    } else if (e.target.classList.contains('remove-row')) {
-      e.target.closest('.filter-row').remove();
+      filterRowsDiv.appendChild(row);
+      const colSel = row.querySelector(".column-select");
+      const valSel = row.querySelector(".value-select");
+      loadValues(colSel, valSel);
+      colSel.addEventListener("change", () => loadValues(colSel, valSel));
       updateRemoveButtons();
     }
-  });
 
-  filterForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    activeFilters = [];
-    filterRowsDiv.querySelectorAll('.filter-row').forEach(row => {
-      const col = parseInt(row.querySelector('.column-select').value, 10);
-      const val = row.querySelector('.value-select').value.trim().toLowerCase();
-      if (val) activeFilters.push({ col, val });
-    });
-    filterModal.hide();
-    clearBtn.classList.toggle('d-none', activeFilters.length === 0);
-    filterRows();
-  });
-
-  function filterRows() {
-    const q = searchInput.value.toLowerCase();
-    document.querySelectorAll('tbody tr').forEach(tr => {
-      const cells = tr.querySelectorAll('td');
-      const texts = Array.from(cells).map(td => td.textContent.toLowerCase());
-      let match = texts.some(t => t.includes(q));
-      if (activeFilters.length) {
-        match = match && activeFilters.every(f => texts[f.col] && texts[f.col].includes(f.val));
-      }
-      tr.classList.toggle('d-none', !match);
-    });
-  }
-
-  // İşlem seçimi
-  document.querySelectorAll('.action-select').forEach(sel => {
-    sel.addEventListener('change', async (e) => {
-      const val = e.target.value;
-      if (!val) return;
-      const id = e.target.dataset.id;
-      if (!id) return;
-
-      if (val === 'assign') {
-        e.stopImmediatePropagation();
-        const tr = e.target.closest('tr');
-        document.getElementById('assign_item_id').value = id;
-        await preloadAssignDropdowns(id);
-        if (tr) {
-          setSelectValue('selFabrika', tr.dataset.fabrika);
-          setSelectValue('selDepartman', tr.dataset.departman);
-          setSelectValue('selPersonel', tr.dataset.sorumlu);
-          setSelectValue('selBagli', tr.dataset.bagli);
-        }
-        assignModal.show();
-        e.target.value = '';
-        return;
-      }
-
-      if (val === 'fault') {
-        if (window.Faults) {
-          e.stopImmediatePropagation();
-          window.Faults.openMarkModal('inventory', {
-            entityId: Number(id),
-            entityKey: e.target.dataset.entityKey || e.target.dataset.device || id,
-            deviceNo: e.target.dataset.device || '',
-            title: e.target.dataset.title || '',
-          });
-        }
-        e.target.value = '';
-        return;
-      }
-
-      if (val === 'repair') {
-        if (window.Faults) {
-          e.stopImmediatePropagation();
-          window.Faults.openRepairModal('inventory', {
-            entityId: Number(id),
-            entityKey: e.target.dataset.entityKey || e.target.dataset.device || id,
-            deviceNo: e.target.dataset.device || '',
-          });
-        }
-        e.target.value = '';
-        return;
-      }
-
-      if (val === 'scrap') {
-        e.stopImmediatePropagation();
-        document.getElementById('scrap_item_id').value = id;
-        scrapModal.show();
-        e.target.value = '';
-      }
-    });
-  });
-
-  async function preloadAssignDropdowns(itemId) {
-    const [fabr, dept, users, invs] = await Promise.all([
-      fetch(`{{ url_for('inventory.assign_sources') }}?type=fabrika`).then(r=>r.json()),
-      fetch(`{{ url_for('inventory.assign_sources') }}?type=departman`).then(r=>r.json()),
-      fetch(`{{ url_for('inventory.assign_sources') }}?type=users`).then(r=>r.json()),
-      fetch(`{{ url_for('inventory.assign_sources') }}?type=envanter&exclude_id=` + itemId).then(r=>r.json()),
-    ]);
-    fillSelect('selFabrika', fabr);
-    fillSelect('selDepartman', dept);
-    fillSelect('selPersonel', users);
-    fillSelect('selBagli', invs);
-  }
-  function fillSelect(id, arr) {
-    const el = document.getElementById(id);
-    el.innerHTML = '<option value="">Seçiniz</option>' + arr.map(x =>
-      `<option value="${x.id}">${x.text}</option>`).join('');
-  }
-
-  function setSelectValue(selectId, value) {
-    const el = document.getElementById(selectId);
-    if (!el) return;
-    const val = value || '';
-    if (val && !Array.from(el.options).some(opt => opt.value === val)) {
-      const opt = document.createElement('option');
-      opt.value = val;
-      opt.textContent = val;
-      el.appendChild(opt);
+    async function loadValues(colSelect, valSelect) {
+      const col = columns.find((c) => c.idx == colSelect.value);
+      const res = await fetch(distinctUrl.replace("__COL__", col.field));
+      const data = await res.json();
+      valSelect.innerHTML =
+        '<option value="">Seçiniz</option>' +
+        data.map((v) => `<option value="${v}">${v}</option>`).join("");
     }
-    el.value = val;
-  }
 
-  // Atama submit
-  document.getElementById('assignForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const res = await fetch(`{{ url_for('inventory.assign') }}`, { method: 'POST', body: fd });
-    if (res.ok) location.reload(); else alert('Atama kaydedilemedi');
-  });
+    function updateRemoveButtons() {
+      const rows = filterRowsDiv.querySelectorAll(".filter-row");
+      rows.forEach((r) =>
+        r
+          .querySelector(".remove-row")
+          .classList.toggle("d-none", rows.length === 1),
+      );
+    }
 
-  // Hurda submit
-  document.getElementById('scrapForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const res = await fetch(`{{ url_for('inventory.scrap') }}`, { method: 'POST', body: fd });
-    if (res.ok) window.location.href = `{{ url_for('inventory.hurdalar') }}`;
-    else alert('Hurdaya ayırma başarısız');
+    filterForm.addEventListener("click", (e) => {
+      if (e.target.classList.contains("add-row")) {
+        createFilterRow();
+      } else if (e.target.classList.contains("remove-row")) {
+        e.target.closest(".filter-row").remove();
+        updateRemoveButtons();
+      }
+    });
+
+    filterForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      activeFilters = [];
+      filterRowsDiv.querySelectorAll(".filter-row").forEach((row) => {
+        const col = parseInt(row.querySelector(".column-select").value, 10);
+        const val = row
+          .querySelector(".value-select")
+          .value.trim()
+          .toLowerCase();
+        if (val) activeFilters.push({ col, val });
+      });
+      filterModal.hide();
+      clearBtn.classList.toggle("d-none", activeFilters.length === 0);
+      filterRows();
+    });
+
+    function filterRows() {
+      const q = searchInput.value.toLowerCase();
+      document.querySelectorAll("tbody tr").forEach((tr) => {
+        const cells = tr.querySelectorAll("td");
+        const texts = Array.from(cells).map((td) =>
+          td.textContent.toLowerCase(),
+        );
+        let match = texts.some((t) => t.includes(q));
+        if (activeFilters.length) {
+          match =
+            match &&
+            activeFilters.every(
+              (f) => texts[f.col] && texts[f.col].includes(f.val),
+            );
+        }
+        tr.classList.toggle("d-none", !match);
+      });
+    }
+
+    // İşlem seçimi
+    document.querySelectorAll(".action-select").forEach((sel) => {
+      sel.addEventListener("change", async (e) => {
+        const val = e.target.value;
+        if (!val) return;
+        const id = e.target.dataset.id;
+        if (!id) return;
+
+        if (val === "assign") {
+          e.stopImmediatePropagation();
+          const tr = e.target.closest("tr");
+          document.getElementById("assign_item_id").value = id;
+          await preloadAssignDropdowns(id);
+          if (tr) {
+            setSelectValue("selFabrika", tr.dataset.fabrika);
+            setSelectValue("selDepartman", tr.dataset.departman);
+            setSelectValue("selPersonel", tr.dataset.sorumlu);
+            setSelectValue("selBagli", tr.dataset.bagli);
+          }
+          assignModal.show();
+          e.target.value = "";
+          return;
+        }
+
+        if (val === "fault") {
+          if (window.Faults) {
+            e.stopImmediatePropagation();
+            window.Faults.openMarkModal("inventory", {
+              entityId: Number(id),
+              entityKey:
+                e.target.dataset.entityKey || e.target.dataset.device || id,
+              deviceNo: e.target.dataset.device || "",
+              title: e.target.dataset.title || "",
+            });
+          }
+          e.target.value = "";
+          return;
+        }
+
+        if (val === "repair") {
+          if (window.Faults) {
+            e.stopImmediatePropagation();
+            window.Faults.openRepairModal("inventory", {
+              entityId: Number(id),
+              entityKey:
+                e.target.dataset.entityKey || e.target.dataset.device || id,
+              deviceNo: e.target.dataset.device || "",
+            });
+          }
+          e.target.value = "";
+          return;
+        }
+
+        if (val === "scrap") {
+          e.stopImmediatePropagation();
+          document.getElementById("scrap_item_id").value = id;
+          scrapModal.show();
+          e.target.value = "";
+        }
+      });
+    });
+
+    async function preloadAssignDropdowns(itemId) {
+      const [fabr, dept, users, invs] = await Promise.all([
+        fetch(`{{ url_for('inventory.assign_sources') }}?type=fabrika`).then(
+          (r) => r.json(),
+        ),
+        fetch(`{{ url_for('inventory.assign_sources') }}?type=departman`).then(
+          (r) => r.json(),
+        ),
+        fetch(`{{ url_for('inventory.assign_sources') }}?type=users`).then(
+          (r) => r.json(),
+        ),
+        fetch(
+          `{{ url_for('inventory.assign_sources') }}?type=envanter&exclude_id=` +
+            itemId,
+        ).then((r) => r.json()),
+      ]);
+      fillSelect("selFabrika", fabr);
+      fillSelect("selDepartman", dept);
+      fillSelect("selPersonel", users);
+      fillSelect("selBagli", invs);
+    }
+    function fillSelect(id, arr) {
+      const el = document.getElementById(id);
+      el.innerHTML =
+        '<option value="">Seçiniz</option>' +
+        arr.map((x) => `<option value="${x.id}">${x.text}</option>`).join("");
+    }
+
+    function setSelectValue(selectId, value) {
+      const el = document.getElementById(selectId);
+      if (!el) return;
+      const val = value || "";
+      if (val && !Array.from(el.options).some((opt) => opt.value === val)) {
+        const opt = document.createElement("option");
+        opt.value = val;
+        opt.textContent = val;
+        el.appendChild(opt);
+      }
+      el.value = val;
+    }
+
+    // Atama submit
+    document
+      .getElementById("assignForm")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const res = await fetch(`{{ url_for('inventory.assign') }}`, {
+          method: "POST",
+          body: fd,
+        });
+        if (res.ok) location.reload();
+        else alert("Atama kaydedilemedi");
+      });
+
+    // Hurda submit
+    document
+      .getElementById("scrapForm")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const res = await fetch(`{{ url_for('inventory.scrap') }}`, {
+          method: "POST",
+          body: fd,
+        });
+        if (res.ok)
+          window.location.href = `{{ url_for('inventory.hurdalar') }}`;
+        else alert("Hurdaya ayırma başarısız");
+      });
   });
-});
 </script>
 {% endblock %}

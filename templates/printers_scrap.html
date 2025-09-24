@@ -1,67 +1,70 @@
-{% extends "base.html" %}
-{% block title %}Hurdalar{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Hurdalar{% endblock %} {% block
+content %}
 <div class="container-fluid p-3">
   <h5 class="mb-3">Hurdalar</h5>
   <div class="page-section">
     <div class="table-responsive">
-    <table class="table table-sm align-middle table-rounded">
-      <thead class="table-light">
-        <tr>
-          <th>ID</th>
-          <th>Marka/Model</th>
-          <th>Seri</th>
-          <th>Fabrika</th>
-          <th>Kullanım Alanı</th>
-          <th>Sorumlu</th>
-          <th>Bağlı Env.</th>
-          <th>Not</th>
-          <th>Tarih</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-      {% if mode == "table" %}
-        {% for r in rows %}
-        <tr>
-          <td>#{{ r.printer_id }}</td>
-          <td>{{ r.snapshot.marka }} {{ r.snapshot.model }}</td>
-          <td>{{ r.snapshot.seri_no }}</td>
-          <td>{{ r.snapshot.fabrika or '-' }}</td>
-          <td>{{ r.snapshot.kullanim_alani or '-' }}</td>
-          <td>{{ r.snapshot.sorumlu_personel or '-' }}</td>
-          <td>{{ r.snapshot.bagli_envanter_no or '-' }}</td>
-          <td>{{ r.reason or '-' }}</td>
-          <td>{{ r.created_at.strftime("%d.%m.%Y %H:%M") }}</td>
-          <td>
-            <button class="btn btn-outline-secondary btn-sm view-btn" data-id="{{ r.printer_id }}" title="Detayı Göster">
-              <i class="bi bi-eye"></i>
-            </button>
-          </td>
-        </tr>
-        {% endfor %}
-      {% else %}
-        {% for p in rows %}
-        <tr>
-          <td>#{{ p.id }}</td>
-          <td>{{ p.marka }} {{ p.model }}</td>
-          <td>{{ p.seri_no }}</td>
-          <td>{{ p.fabrika or '-' }}</td>
-          <td>{{ p.kullanim_alani or '-' }}</td>
-          <td>{{ p.sorumlu_personel or '-' }}</td>
-          <td>{{ p.bagli_envanter_no or '-' }}</td>
-          <td>-</td>
-          <td>-</td>
-          <td>
-            <button class="btn btn-outline-secondary btn-sm view-btn" data-id="{{ p.id }}" title="Detayı Göster">
-              <i class="bi bi-eye"></i>
-            </button>
-          </td>
-        </tr>
-        {% endfor %}
-      {% endif %}
-      </tbody>
-    </table>
+      <table class="table table-sm align-middle table-rounded">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Marka/Model</th>
+            <th>Seri</th>
+            <th>Fabrika</th>
+            <th>Kullanım Alanı</th>
+            <th>Sorumlu</th>
+            <th>Bağlı Env.</th>
+            <th>Not</th>
+            <th>Tarih</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if mode == "table" %} {% for r in rows %}
+          <tr>
+            <td>#{{ r.printer_id }}</td>
+            <td>{{ r.snapshot.marka }} {{ r.snapshot.model }}</td>
+            <td>{{ r.snapshot.seri_no }}</td>
+            <td>{{ r.snapshot.fabrika or '-' }}</td>
+            <td>{{ r.snapshot.kullanim_alani or '-' }}</td>
+            <td>{{ r.snapshot.sorumlu_personel or '-' }}</td>
+            <td>{{ r.snapshot.bagli_envanter_no or '-' }}</td>
+            <td>{{ r.reason or '-' }}</td>
+            <td>{{ r.created_at.strftime("%d.%m.%Y %H:%M") }}</td>
+            <td>
+              <button
+                class="btn btn-outline-secondary btn-sm view-btn"
+                data-id="{{ r.printer_id }}"
+                title="Detayı Göster"
+              >
+                <i class="bi bi-eye"></i>
+              </button>
+            </td>
+          </tr>
+          {% endfor %} {% else %} {% for p in rows %}
+          <tr>
+            <td>#{{ p.id }}</td>
+            <td>{{ p.marka }} {{ p.model }}</td>
+            <td>{{ p.seri_no }}</td>
+            <td>{{ p.fabrika or '-' }}</td>
+            <td>{{ p.kullanim_alani or '-' }}</td>
+            <td>{{ p.sorumlu_personel or '-' }}</td>
+            <td>{{ p.bagli_envanter_no or '-' }}</td>
+            <td>-</td>
+            <td>-</td>
+            <td>
+              <button
+                class="btn btn-outline-secondary btn-sm view-btn"
+                data-id="{{ p.id }}"
+                title="Detayı Göster"
+              >
+                <i class="bi bi-eye"></i>
+              </button>
+            </td>
+          </tr>
+          {% endfor %} {% endif %}
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
@@ -71,7 +74,11 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Hurda Detayı</h5>
-        <button class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+        <button
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Kapat"
+        ></button>
       </div>
       <div class="modal-body" id="hurdaDetayBody">Yükleniyor...</div>
     </div>
@@ -79,15 +86,15 @@
 </div>
 
 <script>
-document.querySelectorAll('.view-btn').forEach(b=>{
-  b.addEventListener('click', async ()=>{
-    const id = b.dataset.id;
-    const r = await fetch('/scrap/printer/'+id);
-    const h = await r.text();
-    document.getElementById('hurdaDetayBody').innerHTML = h;
-    new bootstrap.Modal(document.getElementById('hurdaDetayModal')).show();
+  document.querySelectorAll(".view-btn").forEach((b) => {
+    b.addEventListener("click", async () => {
+      const id = b.dataset.id;
+      const r = await fetch("/scrap/printer/" + id);
+      const h = await r.text();
+      document.getElementById("hurdaDetayBody").innerHTML = h;
+      new bootstrap.Modal(document.getElementById("hurdaDetayModal")).show();
+    });
   });
-});
 </script>
 
 {% endblock %}
