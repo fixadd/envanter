@@ -118,7 +118,7 @@
 
   function render(items) {
     if (!items.length) {
-      $list.innerHTML = `<div class="picker-empty">Kayıt bulunamadı.</div>`;
+      $list.innerHTML = '<div class="picker-empty">Kayıt bulunamadı.</div>';
       return;
     }
     $list.innerHTML = items
@@ -128,7 +128,7 @@
         <p class="picker-name">${r.text}</p>
         <div class="picker-actions">
           <button type="button" class="picker-select">Seç</button>
-          ${current.allowDelete ? `<button type="button" class="picker-del" title="Sil">–</button>` : ``}
+          ${current.allowDelete ? '<button type="button" class="picker-del" title="Sil">–</button>' : ""}
         </div>
       </div>`,
       )
@@ -223,7 +223,7 @@
       if (delRes.ok) {
         row.remove();
         if (!$list.children.length)
-          $list.innerHTML = `<div class="picker-empty">Kayıt bulunamadı.</div>`;
+          $list.innerHTML = '<div class="picker-empty">Kayıt bulunamadı.</div>';
       } else {
         alert("Silme başarısız!");
       }
