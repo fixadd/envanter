@@ -40,7 +40,7 @@
             <td colspan="{{ 10 if show_actions else 9 }}">IFS No: {{ current_ifs }}</td>
           </tr>
           {% endif %}
-          <tr>
+          <tr data-tur="{{ t.tur.value if t.tur else '' }}">
             <td>{{ t.id }}</td>
             <td>{{ t.donanim_tipi or '-' }}</td>
             <td>{{ t.marka or '-' }}</td>
@@ -143,6 +143,14 @@
   <div class="mb-3">
     <label class="form-label">Miktar</label>
     <input type="number" id="tkAdet" class="form-control" min="1" value="1">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Ürün Türü</label>
+    <select id="tkTur" class="form-select">
+      <option value="envanter">Envanter</option>
+      <option value="yazici">Yazıcı</option>
+      <option value="lisans">Lisans</option>
+    </select>
   </div>
   <div class="mb-3">
     <label class="form-label">Marka</label>

@@ -462,6 +462,30 @@ class StockAssignment(Base):
     actor = Column(String(150), nullable=True)
 
 
+class SystemRoomItem(Base):
+    __tablename__ = "system_room_items"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    item_type = Column(String(20), nullable=False)
+    donanim_tipi = Column(String(150), nullable=False)
+    marka = Column(String(150), nullable=True)
+    model = Column(String(150), nullable=True)
+    ifs_no = Column(String(100), nullable=True)
+    assigned_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    assigned_by = Column(String(150), nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint(
+            "item_type",
+            "donanim_tipi",
+            "marka",
+            "model",
+            "ifs_no",
+            name="uq_system_room_key",
+        ),
+    )
+
+
 class StockTotal(Base):
     __tablename__ = "stock_totals"
     donanim_tipi = Column(String(150), primary_key=True)

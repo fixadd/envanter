@@ -1,8 +1,10 @@
+import os
+import sys
 import asyncio
-import os, sys
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from openpyxl import load_workbook
@@ -12,9 +14,17 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
 
 import models
-from models import StockLog
+from models import StockLog, SystemRoomItem
 
-from routers.stock import export_stock, stock_status, stock_status_json
+from routers.stock import (
+    SystemRoomBulkPayload,
+    SystemRoomItemKey,
+    export_stock,
+    stock_status,
+    stock_status_json,
+    system_room_add,
+    system_room_remove,
+)
 
 
 @pytest.fixture()
@@ -29,8 +39,28 @@ def db_session():
 
 
 def test_stock_status_returns_rows(db_session):
-    db_session.add(StockLog(donanim_tipi='laptop', marka='asus', model='a110', ifs_no='ifs', miktar=2, islem='girdi', tarih=datetime.utcnow()))
-    db_session.add(StockLog(donanim_tipi='laptop', marka='asus', model='a110', ifs_no='ifs', miktar=1, islem='cikti', tarih=datetime.utcnow()))
+    db_session.add(
+        StockLog(
+            donanim_tipi='laptop',
+            marka='asus',
+            model='a110',
+            ifs_no='ifs',
+            miktar=2,
+            islem='girdi',
+            tarih=datetime.utcnow(),
+        )
+    )
+    db_session.add(
+        StockLog(
+            donanim_tipi='laptop',
+            marka='asus',
+            model='a110',
+            ifs_no='ifs',
+            miktar=1,
+            islem='cikti',
+            tarih=datetime.utcnow(),
+        )
+    )
     db_session.commit()
 
     rows = stock_status(db_session)
@@ -42,10 +72,25 @@ def test_stock_status_returns_rows(db_session):
     assert row['ifs_no'] == 'ifs'
     assert row['net_miktar'] == 1
     assert row['son_islem_ts'] is not None
+    assert row['item_type'] == 'envanter'
+    assert row['assignment_hint'] is None
+    assert row['system_room'] is False
+    assert row['system_room_assigned_at'] is None
+    assert row['system_room_assigned_by'] is None
 
 
 def test_stock_status_json_is_serializable(db_session):
-    db_session.add(StockLog(donanim_tipi='monitor', marka='dell', model='u2412', ifs_no='ifs-2', miktar=3, islem='girdi', tarih=datetime.utcnow()))
+    db_session.add(
+        StockLog(
+            donanim_tipi='monitor',
+            marka='dell',
+            model='u2412',
+            ifs_no='ifs-2',
+            miktar=3,
+            islem='girdi',
+            tarih=datetime.utcnow(),
+        )
+    )
     db_session.commit()
 
     payload = stock_status_json(db_session)
@@ -55,6 +100,8 @@ def test_stock_status_json_is_serializable(db_session):
     item = payload['items'][0]
     assert item['donanim_tipi'] == 'monitor'
     assert item['net_miktar'] == 3
+    assert item['item_type'] == 'envanter'
+    assert 'system_room' in item
 
 
 def test_export_stock_uses_status_rows(db_session):
@@ -152,3 +199,66 @@ def test_stock_status_detail_reflection_is_cached(monkeypatch, db_session):
     finally:
         stock_log_utils._AVAILABLE_COLUMNS = original_cache
         stock_log_utils._CACHE_VERIFIED = original_verified
+
+
+def test_system_room_add_and_remove_updates_status(db_session):
+    db_session.add(
+        StockLog(
+            donanim_tipi='printer',
+            marka='HP',
+            model='LaserJet',
+            ifs_no='IFS-PRN-1',
+            miktar=1,
+            islem='girdi',
+            tarih=datetime.utcnow(),
+            source_type='talep:yazici',
+            source_id=42,
+        )
+    )
+    db_session.commit()
+
+    payload = SystemRoomBulkPayload(
+        items=[
+            SystemRoomItemKey(
+                item_type='yazici',
+                donanim_tipi='printer',
+                marka='HP',
+                model='LaserJet',
+                ifs_no='IFS-PRN-1',
+            )
+        ]
+    )
+    user = SimpleNamespace(full_name='Tester')
+
+    result = system_room_add(payload, db=db_session, user=user)
+    assert result['ok'] is True
+    assert result['added'] == 1
+    assert result['skipped'] == 0
+
+    entry = db_session.query(SystemRoomItem).one()
+    assert entry.assigned_by == 'Tester'
+    assert entry.assigned_at is not None
+
+    rows = stock_status(db_session)
+    assert rows
+    row = rows[0]
+    assert row['system_room'] is True
+    assert row['system_room_assigned_by'] == 'Tester'
+    assert row['assignment_hint'] == 'yazici'
+
+    again = system_room_add(payload, db=db_session, user=user)
+    assert again['added'] == 0
+    assert again['skipped'] == 1
+
+    removed = system_room_remove(payload, db=db_session)
+    assert removed['ok'] is True
+    assert removed['removed'] == 1
+    assert db_session.query(SystemRoomItem).count() == 0
+
+    rows_after = stock_status(db_session)
+    assert rows_after
+    after = rows_after[0]
+    assert after['system_room'] is False
+    assert after['system_room_assigned_at'] is None
+    assert after['system_room_assigned_by'] is None
+    assert after['assignment_hint'] == 'yazici'
