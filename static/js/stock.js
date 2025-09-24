@@ -367,7 +367,7 @@
       window.setTimeout(() => {
         if (holder) holder.innerHTML = "";
       }, 6000);
-      console.log("[StokAtama]", message);
+      
     }
 
     function fillSelect(selector, data, valueKey = "id", labelKey = "text") {
@@ -865,7 +865,7 @@
       fetchSourceDetail(meta.source_type, meta.source_id)
         .then((detail) => {
           if (requestId !== state.sourceRequestId) return;
-          if (detail && detail.data) {
+          if (detail?.data) {
             applyAutoData(detail.data, {
               source: detail.type,
               clearMissing: true,
@@ -1508,7 +1508,7 @@
     }
 
     function init() {
-      console.log("[StokAtama] boot start");
+      
       resetStockMetaDisplay();
       document.addEventListener("click", handleDetailClick);
       document.addEventListener("change", handleSystemSelectionChange);
@@ -1532,7 +1532,7 @@
       bindTabChange();
       applyFieldRules();
 
-      console.log("[StokAtama] DOMContentLoaded");
+      
       loadSources();
 
       document.addEventListener("shown.bs.modal", async (event) => {
