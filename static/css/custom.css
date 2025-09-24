@@ -295,6 +295,8 @@ small,
 
 .page-section .table {
   margin-bottom: 0 !important;
+  width: 100%;
+  table-layout: fixed;
 }
 
 .page-section .table td,
@@ -536,6 +538,8 @@ small,
 
 .table-responsive {
   overflow-x: auto;
+  overflow-y: visible;
+  min-height: 0;
 }
 
 .chart-wrapper {
