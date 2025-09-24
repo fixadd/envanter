@@ -53,8 +53,9 @@
     };
     if (map[val]) {
       const url = `/${entity}/${id}/${map[val]}`;
-      if (val === "edit" && window.openModal) {
-        openModal(url + "?modal=1");
+      const label = sel.options[sel.selectedIndex]?.textContent?.trim() || "";
+      if (window.openModal && (val === "edit" || val === "assign")) {
+        openModal(url + "?modal=1", label);
       } else {
         go(url);
       }
