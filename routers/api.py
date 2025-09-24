@@ -245,12 +245,67 @@ def stock_status_detail(db: Session = Depends(get_db)):
     last_logs = last_logs_query.order_by(*order_cols).all()
 
 
+    def clean(value: str | None) -> str:
+        return (value or "").strip()
+
+    type_aliases = {
+        "envanter": "envanter",
+        "inventory": "envanter",
+        "hardware": "envanter",
+        "lisans": "lisans",
+        "license": "lisans",
+        "yazilim": "lisans",
+        "software": "lisans",
+        "yazici": "yazici",
+        "printer": "yazici",
+    }
+
+    def normalize_type(value: str | None) -> str:
+        if not value:
+            return "envanter"
+        lowered = value.strip().lower()
+        return type_aliases.get(lowered, lowered if lowered in {"envanter", "lisans", "yazici"} else "envanter")
+
+    def base_type_from_source(source_value: str | None) -> str:
+        if not source_value:
+            return ""
+        lowered = str(source_value).strip().lower()
+        if ":" in lowered:
+            return lowered.split(":", 1)[1]
+        return lowered
+
+    def detect_item_type(row, src: dict[str, str | int | None]) -> str:
+        base = normalize_type(base_type_from_source(src.get("source_type")))
+        if base in {"lisans", "yazici"}:
+            return base
+        if src.get("lisans_anahtari") or src.get("mail_adresi"):
+            return "lisans"
+        label = clean(row.donanim_tipi).lower()
+        if "yazici" in label or "printer" in label:
+            return "yazici"
+        return "envanter"
+
+    def make_lookup_key(
+        item_type: str | None,
+        donanim: str | None,
+        marka: str | None,
+        model: str | None,
+        ifs_no: str | None,
+    ) -> tuple[str, str, str, str, str]:
+        return (
+            normalize_type(item_type),
+            clean(donanim),
+            clean(marka),
+            clean(model),
+            clean(ifs_no),
+        )
+
     last_source: dict[
-        tuple[str, str | None, str | None, str | None],
+        tuple[str, str, str, str],
         dict[str, str | int | None],
     ] = {}
     for r in last_logs:
-        key = (r.donanim_tipi, r.marka, r.model, r.ifs_no)
+        key = (clean(r.donanim_tipi), clean(r.marka), clean(r.model), clean(r.ifs_no))
         if key not in last_source:
             last_source[key] = {
                 "source_type": r.source_type,
@@ -259,6 +314,18 @@ def stock_status_detail(db: Session = Depends(get_db)):
                 "mail_adresi": r.mail_adresi,
             }
 
+    system_room_entries = db.query(models.SystemRoomItem).all()
+    system_room_map = {
+        make_lookup_key(
+            entry.item_type,
+            entry.donanim_tipi,
+            entry.marka,
+            entry.model,
+            entry.ifs_no,
+        ): entry
+        for entry in system_room_entries
+    }
+
     items: list[dict] = []
     totals_calc: dict[str, int] = {}
 
@@ -266,8 +333,17 @@ def stock_status_detail(db: Session = Depends(get_db)):
         qty = int(r.qty or 0)
         if qty <= 0:
             continue
-        key = (r.donanim_tipi, r.marka, r.model, r.ifs_no)
+        key = (clean(r.donanim_tipi), clean(r.marka), clean(r.model), clean(r.ifs_no))
         src = last_source.get(key, {})
+        item_type = detect_item_type(r, src)
+        system_key = make_lookup_key(item_type, r.donanim_tipi, r.marka, r.model, r.ifs_no)
+        system_entry = system_room_map.get(system_key)
+        assignment_hint = None
+        source_raw = src.get("source_type")
+        if isinstance(source_raw, str):
+            lowered = source_raw.strip().lower()
+            if lowered.startswith("talep:"):
+                assignment_hint = normalize_type(lowered.split(":", 1)[1])
         items.append(
             {
                 "donanim_tipi": r.donanim_tipi,
@@ -280,6 +356,15 @@ def stock_status_detail(db: Session = Depends(get_db)):
                 "source_id": src.get("source_id"),
                 "lisans_anahtari": src.get("lisans_anahtari"),
                 "mail_adresi": src.get("mail_adresi"),
+                "item_type": item_type,
+                "assignment_hint": assignment_hint,
+                "system_room": system_entry is not None,
+                "system_room_assigned_at": getattr(system_entry, "assigned_at", None)
+                if system_entry
+                else None,
+                "system_room_assigned_by": getattr(system_entry, "assigned_by", None)
+                if system_entry
+                else None,
             }
         )
         totals_calc[r.donanim_tipi] = totals_calc.get(r.donanim_tipi, 0) + qty
