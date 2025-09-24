@@ -16,6 +16,7 @@ from database import get_db
 from models import Inventory, License, LicenseLog, LicenseName, StockTotal
 from security import current_user
 from utils.faults import FAULT_STATUS_SCRAP, resolve_fault
+from utils.http import get_request_user_name
 from utils.stock_log import create_stock_log
 
 router = APIRouter(prefix="/lisans", tags=["Lisans"])
@@ -85,16 +86,6 @@ def _logla(db: Session, lic: License, islem: str, detay: str, islem_yapan: str):
     db.add(
         LicenseLog(license_id=lic.id, islem=islem, detay=detay, islem_yapan=islem_yapan)
     )
-
-
-def get_current_user_name(request: Request) -> str:
-    return (
-        request.session.get("full_name")
-        or getattr(request.scope.get("user"), "full_name", None)
-        or "Bilinmeyen Kullanıcı"
-    )
-
-
 @router.get("/new", response_class=HTMLResponse, name="license.new")
 def new_license_form(request: Request, db: Session = Depends(get_db)):
     envanterler = db.query(Inventory).order_by(Inventory.no).all()
@@ -176,7 +167,7 @@ def create_license(
         mail_adresi=mail_adresi,
         ifs_no=ifs_no,
         tarih=datetime.utcnow(),
-        islem_yapan=get_current_user_name(request),
+        islem_yapan=get_request_user_name(request),
     )
     db.add(lic)
     db.commit()

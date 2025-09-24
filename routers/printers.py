@@ -25,6 +25,7 @@ from models import (
 )
 from security import current_user
 from utils.faults import FAULT_STATUS_SCRAP, resolve_fault
+from utils.http import get_request_user_name
 from utils.stock_log import create_stock_log
 
 templates = Jinja2Templates(directory="templates")
@@ -102,16 +103,6 @@ async def export_printers(db: Session = Depends(get_db)):
 @router.post("/import", response_class=PlainTextResponse)
 async def import_printers(file: UploadFile = File(...)):
     return f"Received {file.filename}, but import is not implemented."
-
-
-def get_current_user_name(request: Request) -> str:
-    return (
-        request.session.get("full_name")
-        or getattr(getattr(request, "user", None), "full_name", None)
-        or "Bilinmeyen Kullanıcı"
-    )
-
-
 def build_changes(old: Printer, new_vals: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
     out: Dict[str, Dict[str, Any]] = {}
     for k, v in new_vals.items():
@@ -273,7 +264,7 @@ def create_printer_simple(
         hostname=hostname,
         ifs_no=ifs_no,
         tarih=datetime.utcnow(),
-        islem_yapan=get_current_user_name(request),
+        islem_yapan=get_request_user_name(request),
     )
     db.add(prn)
     db.commit()
