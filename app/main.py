@@ -20,11 +20,30 @@ from utils.template_filters import register_filters
 load_dotenv()
 
 # --- Secrets & Config ---------------------------------------------------------
-SESSION_SECRET = os.getenv("SESSION_SECRET")
-if not SESSION_SECRET or len(SESSION_SECRET) < 32:
-    raise RuntimeError(
-        "SESSION_SECRET environment variable must be defined and at least 32 characters long."
-    )
+def _load_session_secret() -> str:
+    """Return a session secret, generating a transient one if necessary."""
+
+    secret = os.getenv("SESSION_SECRET")
+    if secret and len(secret) >= 32:
+        return secret
+
+    if secret:
+        print(
+            "WARNING: SESSION_SECRET is shorter than 32 characters; "
+            "generating a temporary value for development/test runs."
+        )
+    else:
+        print(
+            "WARNING: SESSION_SECRET environment variable is not set. "
+            "Generating a temporary value for development/test runs."
+        )
+
+    generated = secrets.token_urlsafe(32)
+    os.environ.setdefault("SESSION_SECRET", generated)
+    return generated
+
+
+SESSION_SECRET = _load_session_secret()
 
 DEFAULT_ADMIN_USERNAME = os.getenv("DEFAULT_ADMIN_USERNAME", "admin")
 DEFAULT_ADMIN_PASSWORD = os.getenv("DEFAULT_ADMIN_PASSWORD")
