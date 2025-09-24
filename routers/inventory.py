@@ -107,6 +107,8 @@ async def export_inventory(db: Session = Depends(get_db)):
 @router.post("/import", response_class=PlainTextResponse)
 async def import_inventory(file: UploadFile = File(...)):
     return f"Received {file.filename}, but import is not implemented."
+
+
 @router.get("", name="inventory.list")
 def list_items(
     request: Request, db: Session = Depends(get_db), user=Depends(current_user)
