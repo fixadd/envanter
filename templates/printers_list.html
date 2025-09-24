@@ -93,7 +93,14 @@ content %}
           data-kullanim="{{ p.kullanim_alani or '' }}"
           data-personel="{{ p.sorumlu_personel or '' }}"
           data-bagli="{{ p.bagli_envanter_no or '' }}"
-          {% if p.durum == 'arızalı' %}class="table-warning"{% endif %}
+          {%
+          if
+          p.durum=""
+          ="arızalı"
+          %}class="table-warning"
+          {%
+          endif
+          %}
         >
           <td>#{{ p.id }}</td>
           <td>{{ p.marka or '-' }}</td>
@@ -332,7 +339,11 @@ content %}
 
           <div>
             <label class="form-label">Sorumlu Personel</label>
-            <select id="selPersonel" name="sorumlu_personel" class="form-select">
+            <select
+              id="selPersonel"
+              name="sorumlu_personel"
+              class="form-select"
+            >
               <option value="">Seçiniz</option>
               {% for u in users %}
               <option value="{{ u }}">{{ u }}</option>
@@ -342,7 +353,11 @@ content %}
 
           <div>
             <label class="form-label">Bağlı Olduğu Envanter</label>
-            <select id="selBagliEnv" name="bagli_envanter_no" class="form-select">
+            <select
+              id="selBagliEnv"
+              name="bagli_envanter_no"
+              class="form-select"
+            >
               <option value="">Seçiniz</option>
               {% for inv in inventory_nos %}
               <option value="{{ inv }}">{{ inv }}</option>
@@ -352,7 +367,11 @@ content %}
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">
+        <button
+          class="btn btn-outline-secondary"
+          type="button"
+          data-bs-dismiss="modal"
+        >
           İptal
         </button>
         <button class="btn btn-primary" type="submit">Atamayı Kaydet</button>
