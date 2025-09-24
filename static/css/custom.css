@@ -252,6 +252,13 @@ small,
 .tabs-wrap .nav.nav-tabs,
 .tabs-wrap .nav.nav-pills {
   border-bottom: 0 !important;
+}
+
+.tabs-wrap .nav.nav-tabs {
+  gap: 0;
+}
+
+.tabs-wrap .nav.nav-pills {
   gap: var(--space-2xs);
 }
 
