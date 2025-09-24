@@ -16,6 +16,7 @@ from models import (
     Model,
     User,
     Lookup,
+    BilgiKategori,
 )
 
 router = APIRouter(prefix="/api/picker", tags=["Picker"])
@@ -28,6 +29,7 @@ ENTITY_MAP = {
     "marka":          {"model": Brand,         "label": "name", "parent_field": None},
     "model":          {"model": Model,         "label": "name", "parent_field": "brand_id"},
     "lisans_adi":     {"model": LicenseName,   "label": "name", "parent_field": None},
+    "bilgi_kategori": {"model": BilgiKategori, "label": "ad",   "parent_field": None},
     # kullanıcı ayrı ele alınacak (birden çok ad sütunu olabiliyor)
 }
 

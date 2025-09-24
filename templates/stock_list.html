@@ -89,7 +89,14 @@
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="status-tab-license" data-bs-toggle="tab" data-bs-target="#stock-status-license" type="button" role="tab" aria-controls="stock-status-license" aria-selected="false">Yazılım</button>
             </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="status-tab-system-room" data-bs-toggle="tab" data-bs-target="#stock-status-system-room" type="button" role="tab" aria-controls="stock-status-system-room" aria-selected="false">Sistem Odası</button>
+            </li>
           </ul>
+        </div>
+        <div class="d-flex justify-content-end gap-2 mt-3">
+          <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSystemRoomAdd" disabled>Seçilenleri Sistem Odasına Ata</button>
+          <button type="button" class="btn btn-outline-danger btn-sm" id="btnSystemRoomRemove" disabled>Seçilenleri Sistem Odasından Çıkar</button>
         </div>
         <div class="tab-content mt-3" id="stockStatusTabContent">
           <div class="tab-pane fade show active" id="stock-status-inventory" role="tabpanel" aria-labelledby="status-tab-inventory">
@@ -97,6 +104,7 @@
               <table class="table table-sm stock-status-table table-rounded" id="tblStockStatusInventory">
                 <thead class="table-light">
                   <tr>
+                    <th class="text-center" style="width: 42px;"><span class="visually-hidden">Seç</span></th>
                     <th>Donanım Tipi</th>
                     <th>Marka</th>
                     <th>Model</th>
@@ -104,6 +112,7 @@
                     <th class="text-end">Stok</th>
                     <th>Son İşlem</th>
                     <th class="text-center">İşlemler</th>
+                    <th class="text-center">Sistem Odası</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -115,6 +124,7 @@
               <table class="table table-sm stock-status-table table-rounded" id="tblStockStatusPrinters">
                 <thead class="table-light">
                   <tr>
+                    <th class="text-center" style="width: 42px;"><span class="visually-hidden">Seç</span></th>
                     <th>Donanım Tipi</th>
                     <th>Marka</th>
                     <th>Model</th>
@@ -122,6 +132,7 @@
                     <th class="text-end">Stok</th>
                     <th>Son İşlem</th>
                     <th class="text-center">İşlemler</th>
+                    <th class="text-center">Sistem Odası</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -133,6 +144,7 @@
               <table class="table table-sm stock-status-table table-rounded" id="tblStockStatusLicense">
                 <thead class="table-light">
                   <tr>
+                    <th class="text-center" style="width: 42px;"><span class="visually-hidden">Seç</span></th>
                     <th>Donanım Tipi</th>
                     <th>Marka</th>
                     <th>Model</th>
@@ -140,6 +152,28 @@
                     <th class="text-end">Stok</th>
                     <th>Son İşlem</th>
                     <th class="text-center">İşlemler</th>
+                    <th class="text-center">Sistem Odası</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="stock-status-system-room" role="tabpanel" aria-labelledby="status-tab-system-room">
+            <div class="table-responsive">
+              <table class="table table-sm stock-status-table table-rounded" id="tblStockStatusSystemRoom">
+                <thead class="table-light">
+                  <tr>
+                    <th class="text-center" style="width: 42px;"><span class="visually-hidden">Seç</span></th>
+                    <th>Tür</th>
+                    <th>Donanım Tipi</th>
+                    <th>Marka</th>
+                    <th>Model</th>
+                    <th>IFS No</th>
+                    <th class="text-end">Stok</th>
+                    <th>Son İşlem</th>
+                    <th>Atayan</th>
+                    <th class="text-center">İşlem</th>
                   </tr>
                 </thead>
                 <tbody></tbody>

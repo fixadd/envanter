@@ -111,6 +111,61 @@
     assignSourceDetail: `${API_PREFIX}/stock/assign/source-detail`,
   };
 
+  function baseSourceType(value) {
+    if (!value) return '';
+    const parts = String(value).toLowerCase().split(':');
+    return parts.length > 1 ? parts[parts.length - 1] : parts[0];
+  }
+
+  function normaliseSystemKey(item = {}) {
+    const type = (item.item_type || baseSourceType(item.source_type) || 'envanter').toLowerCase();
+    const clean = (val) => {
+      if (val === null || val === undefined) return null;
+      const text = String(val).trim();
+      return text ? text : null;
+    };
+    return {
+      item_type: ['envanter', 'lisans', 'yazici'].includes(type) ? type : 'envanter',
+      donanim_tipi: String(item.donanim_tipi || '').trim(),
+      marka: clean(item.marka),
+      model: clean(item.model),
+      ifs_no: clean(item.ifs_no),
+    };
+  }
+
+  function encodeSystemKey(item) {
+    return encodeURIComponent(JSON.stringify(normaliseSystemKey(item)));
+  }
+
+  function parseSystemKey(encoded) {
+    if (!encoded) return null;
+    try {
+      const raw = JSON.parse(decodeURIComponent(encoded));
+      return normaliseSystemKey(raw);
+    } catch (err) {
+      console.warn('system key parse failed', err);
+      return null;
+    }
+  }
+
+  const systemRoomState = {
+    selectedNormal: new Set(),
+    selectedSystem: new Set(),
+  };
+
+  const TYPE_LABELS = {
+    envanter: 'Envanter',
+    lisans: 'Yazılım',
+    yazici: 'Yazıcı',
+  };
+
+  function updateSystemRoomButtons() {
+    const addBtn = dom.one('#btnSystemRoomAdd');
+    const removeBtn = dom.one('#btnSystemRoomRemove');
+    if (addBtn) addBtn.disabled = systemRoomState.selectedNormal.size === 0;
+    if (removeBtn) removeBtn.disabled = systemRoomState.selectedSystem.size === 0;
+  }
+
   // ---------------------------------------------------------------------------
   // Stok ekleme formu
   // ---------------------------------------------------------------------------
@@ -697,11 +752,17 @@
     }
 
     function autoSelectTab(meta) {
-      const type = (meta?.source_type || '').toLowerCase();
+      let hint = (meta?.assignment_hint || '').toLowerCase();
+      if (!hint && meta?.item_type) {
+        hint = String(meta.item_type).toLowerCase();
+      }
+      if (!hint) {
+        hint = baseSourceType(meta?.source_type);
+      }
       let target = '#sa_tab_envanter';
-      if (type === 'lisans' || meta?.lisans_anahtari) {
+      if (hint === 'lisans' || meta?.lisans_anahtari) {
         target = '#sa_tab_lisans';
-      } else if (type === 'yazici') {
+      } else if (hint === 'yazici') {
         target = '#sa_tab_yazici';
       }
       const button = document.querySelector(`#sa_tabs [data-bs-target="${target}"]`);
@@ -921,24 +982,33 @@
       }
     }
 
-    function setStockStatusMessage(tbody, message) {
+    function setStockStatusMessage(tbody, message, colspan = 9) {
       if (!tbody) return;
-      tbody.innerHTML = `<tr data-empty-row="1"><td colspan="7" class="text-center text-muted">${message}</td></tr>`;
+      tbody.innerHTML = `<tr data-empty-row="1"><td colspan="${colspan}" class="text-center text-muted">${message}</td></tr>`;
     }
 
-    function createStockStatusRow(item) {
+    function formatLastOperation(item) {
+      if (!item?.son_islem_ts) return '-';
+      const date = new Date(item.son_islem_ts);
+      if (Number.isNaN(date.getTime())) return '-';
+      return date.toLocaleString('tr-TR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+    }
+
+    function createNormalRow(item) {
       const encoded = encodeURIComponent(JSON.stringify(item));
+      const systemKey = encodeSystemKey(item);
+      const checkedAttr = systemRoomState.selectedNormal.has(systemKey) ? ' checked' : '';
       const hasDetail = Boolean(item?.source_type || item?.source_id);
       const detailButton = hasDetail
         ? `<button type="button" class="btn btn-sm btn-outline-secondary" data-stock-detail="${encoded}" title="Detay"><span aria-hidden="true">&#9776;</span><span class="visually-hidden">Detay</span></button>`
         : '';
-      const key = buildFaultKey(item);
-      const hasFault =
-        typeof window !== 'undefined'
-        && window.Faults
-        && typeof window.Faults.hasOpenFault === 'function'
-        ? window.Faults.hasOpenFault('stock', key)
-        : false;
       const availableQty = Number(item?.net_miktar) || 0;
       const menuItems = [];
       if (availableQty > 0) {
@@ -946,6 +1016,13 @@
           `<li><button class="dropdown-item" type="button" onclick="assignFromStatus('${encoded}')">Atama Yap</button></li>`
         );
       }
+      const key = buildFaultKey(item);
+      const hasFault =
+        typeof window !== 'undefined'
+        && window.Faults
+        && typeof window.Faults.hasOpenFault === 'function'
+          ? window.Faults.hasOpenFault('stock', key)
+          : false;
       if (hasFault) {
         menuItems.push(
           `<li><button class="dropdown-item" type="button" onclick="repairFromStatus('${encoded}')">Aktif Et</button></li>`
@@ -970,27 +1047,58 @@
         ${menuItems.join('')}
       </ul>
     </div>`;
-      const lastOp = item.son_islem_ts
-        ? new Date(item.son_islem_ts).toLocaleString('tr-TR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-          })
-        : '-';
+      const lastOp = formatLastOperation(item);
       return `<tr>
+    <td class="text-center"><input type="checkbox" class="form-check-input" data-system-select value="${systemKey}"${checkedAttr}></td>
     <td>${item.donanim_tipi || '-'}</td>
     <td>${item.marka || '-'}</td>
     <td>${item.model || '-'}</td>
     <td>${item.ifs_no || '-'}</td>
-    <td class="text-end">${item.net_miktar}</td>
+    <td class="text-end">${item.net_miktar ?? '-'}</td>
     <td>${lastOp}</td>
     <td class="text-center">
       <div class="d-inline-flex align-items-center gap-1">
         ${detailButton}
         ${actionsMenu}
+      </div>
+    </td>
+    <td class="text-center">
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-system-room-action="add" data-system-item="${systemKey}">Sistem Odasına Ata</button>
+    </td>
+  </tr>`;
+    }
+
+    function createSystemRoomRow(item) {
+      const encoded = encodeURIComponent(JSON.stringify(item));
+      const systemKey = encodeSystemKey(item);
+      const checkedAttr = systemRoomState.selectedSystem.has(systemKey) ? ' checked' : '';
+      const normalisedKey = normaliseSystemKey(item);
+      const typeLabel = TYPE_LABELS[normalisedKey.item_type] || normalisedKey.item_type || '-';
+      const lastOp = formatLastOperation(item);
+      const assignedDate = formatStockDetailDate(item?.system_room_assigned_at);
+      const assignedInfo = item?.system_room_assigned_by
+        ? assignedDate && assignedDate !== '-'
+          ? `${item.system_room_assigned_by} - ${assignedDate}`
+          : item.system_room_assigned_by
+        : assignedDate || '-';
+      const hasDetail = Boolean(item?.source_type || item?.source_id);
+      const detailButton = hasDetail
+        ? `<button type="button" class="btn btn-sm btn-outline-secondary" data-stock-detail="${encoded}" title="Detay"><span aria-hidden="true">&#9776;</span><span class="visually-hidden">Detay</span></button>`
+        : '';
+      return `<tr>
+    <td class="text-center"><input type="checkbox" class="form-check-input" data-system-room-select value="${systemKey}"${checkedAttr}></td>
+    <td>${typeLabel}</td>
+    <td>${item.donanim_tipi || '-'}</td>
+    <td>${item.marka || '-'}</td>
+    <td>${item.model || '-'}</td>
+    <td>${item.ifs_no || '-'}</td>
+    <td class="text-end">${item.net_miktar ?? '-'}</td>
+    <td>${lastOp}</td>
+    <td>${assignedInfo}</td>
+    <td class="text-center">
+      <div class="d-inline-flex align-items-center gap-1">
+        ${detailButton}
+        <button type="button" class="btn btn-sm btn-outline-danger" data-system-room-action="remove" data-system-item="${systemKey}">Çıkar</button>
       </div>
     </td>
   </tr>`;
@@ -999,10 +1107,19 @@
     function renderStockStatusTable(tbody, items) {
       if (!tbody) return;
       if (!Array.isArray(items) || items.length === 0) {
-        setStockStatusMessage(tbody, 'Stok bulunamadı');
+        setStockStatusMessage(tbody, 'Stok bulunamadı', 9);
         return;
       }
-      tbody.innerHTML = items.map(createStockStatusRow).join('');
+      tbody.innerHTML = items.map(createNormalRow).join('');
+    }
+
+    function renderSystemRoomTable(tbody, items) {
+      if (!tbody) return;
+      if (!Array.isArray(items) || items.length === 0) {
+        setStockStatusMessage(tbody, 'Sistem odasında kayıt bulunmuyor', 10);
+        return;
+      }
+      tbody.innerHTML = items.map(createSystemRoomRow).join('');
     }
 
     function filterStockTable() {
@@ -1014,7 +1131,8 @@
           tr.style.display = '';
           return;
         }
-        tr.style.display = tr.textContent.toLowerCase().includes(query) ? '' : 'none';
+        const text = tr.textContent || '';
+        tr.style.display = text.toLowerCase().includes(query) ? '' : 'none';
       });
     }
 
@@ -1022,24 +1140,31 @@
       const inventoryTbody = document.querySelector('#tblStockStatusInventory tbody');
       const printerTbody = document.querySelector('#tblStockStatusPrinters tbody');
       const licenseTbody = document.querySelector('#tblStockStatusLicense tbody');
-      setStockStatusMessage(inventoryTbody, 'Yükleniyor…');
-      setStockStatusMessage(printerTbody, 'Yükleniyor…');
-      setStockStatusMessage(licenseTbody, 'Yükleniyor…');
+      const systemTbody = document.querySelector('#tblStockStatusSystemRoom tbody');
+      setStockStatusMessage(inventoryTbody, 'Yükleniyor…', 9);
+      setStockStatusMessage(printerTbody, 'Yükleniyor…', 9);
+      setStockStatusMessage(licenseTbody, 'Yükleniyor…', 9);
+      setStockStatusMessage(systemTbody, 'Yükleniyor…', 10);
       try {
         const data = await http.requestJson(STOCK_STATUS_URL, { credentials: 'same-origin' });
         const items = Array.isArray(data) ? data : data.items || data.rows || [];
         if (!Array.isArray(items)) {
-          setStockStatusMessage(inventoryTbody, 'Veri alınamadı');
-          setStockStatusMessage(printerTbody, 'Veri alınamadı');
-          setStockStatusMessage(licenseTbody, 'Veri alınamadı');
+          setStockStatusMessage(inventoryTbody, 'Veri alınamadı', 9);
+          setStockStatusMessage(printerTbody, 'Veri alınamadı', 9);
+          setStockStatusMessage(licenseTbody, 'Veri alınamadı', 9);
+          setStockStatusMessage(systemTbody, 'Veri alınamadı', 10);
           return;
         }
         const inventoryItems = [];
         const printerItems = [];
         const licenseItems = [];
+        const systemItems = [];
         items.forEach((item) => {
-          const typeRaw = item?.source_type;
-          const type = typeof typeRaw === 'string' ? typeRaw.toLowerCase() : '';
+          const type = baseSourceType(item?.item_type || item?.source_type);
+          if (item?.system_room) {
+            systemItems.push(item);
+            return;
+          }
           if (type === 'lisans' || type === 'license' || type === 'yazilim' || type === 'software') {
             licenseItems.push(item);
           } else if (type === 'yazici' || type === 'printer') {
@@ -1048,16 +1173,116 @@
             inventoryItems.push(item);
           }
         });
+        systemRoomState.selectedNormal.clear();
+        systemRoomState.selectedSystem.clear();
         renderStockStatusTable(inventoryTbody, inventoryItems);
         renderStockStatusTable(printerTbody, printerItems);
         renderStockStatusTable(licenseTbody, licenseItems);
+        renderSystemRoomTable(systemTbody, systemItems);
+        updateSystemRoomButtons();
         filterStockTable();
       } catch (err) {
         console.error('stock status load failed', err);
-        setStockStatusMessage(document.querySelector('#tblStockStatusInventory tbody'), 'Veri alınamadı');
-        setStockStatusMessage(document.querySelector('#tblStockStatusPrinters tbody'), 'Veri alınamadı');
-        setStockStatusMessage(document.querySelector('#tblStockStatusLicense tbody'), 'Veri alınamadı');
+        setStockStatusMessage(inventoryTbody, 'Veri alınamadı', 9);
+        setStockStatusMessage(printerTbody, 'Veri alınamadı', 9);
+        setStockStatusMessage(licenseTbody, 'Veri alınamadı', 9);
+        setStockStatusMessage(systemTbody, 'Veri alınamadı', 10);
       }
+    }
+
+    function collectItemsFromSet(store) {
+      const items = [];
+      store.forEach((value) => {
+        const key = parseSystemKey(value);
+        if (key) items.push(key);
+      });
+      return items;
+    }
+
+    async function addToSystemRoom(items) {
+      if (!items.length) return;
+      try {
+        await http.postJson('/api/stock/system-room/add', { items });
+        systemRoomState.selectedNormal.clear();
+        systemRoomState.selectedSystem.clear();
+        updateSystemRoomButtons();
+        await refreshStockStatus();
+      } catch (err) {
+        console.error('system room add failed', err);
+        alert(err.message || 'İşlem başarısız');
+      }
+    }
+
+    async function removeFromSystemRoom(items) {
+      if (!items.length) return;
+      try {
+        await http.postJson('/api/stock/system-room/remove', { items });
+        systemRoomState.selectedNormal.clear();
+        systemRoomState.selectedSystem.clear();
+        updateSystemRoomButtons();
+        await refreshStockStatus();
+      } catch (err) {
+        console.error('system room remove failed', err);
+        alert(err.message || 'İşlem başarısız');
+      }
+    }
+
+    function handleSystemSelectionChange(event) {
+      const checkbox = event.target.closest('[data-system-select]');
+      if (checkbox) {
+        const key = checkbox.value;
+        if (checkbox.checked) {
+          systemRoomState.selectedNormal.add(key);
+        } else {
+          systemRoomState.selectedNormal.delete(key);
+        }
+        updateSystemRoomButtons();
+        return;
+      }
+      const roomCheckbox = event.target.closest('[data-system-room-select]');
+      if (roomCheckbox) {
+        const key = roomCheckbox.value;
+        if (roomCheckbox.checked) {
+          systemRoomState.selectedSystem.add(key);
+        } else {
+          systemRoomState.selectedSystem.delete(key);
+        }
+        updateSystemRoomButtons();
+      }
+    }
+
+    async function handleSystemRoomAction(event) {
+      const btn = event.target.closest('[data-system-room-action]');
+      if (!btn) return;
+      const encoded = btn.getAttribute('data-system-item');
+      const key = parseSystemKey(encoded);
+      if (!key) return;
+      const action = btn.dataset.systemRoomAction;
+      btn.disabled = true;
+      try {
+        if (action === 'add') {
+          await addToSystemRoom([key]);
+        } else if (action === 'remove') {
+          await removeFromSystemRoom([key]);
+        }
+      } catch (err) {
+        console.error('system room action failed', err);
+        alert(err.message || 'İşlem başarısız');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function handleSystemRoomAddSelected() {
+      const items = collectItemsFromSet(systemRoomState.selectedNormal);
+      if (!items.length) return;
+      await addToSystemRoom(items);
+    }
+
+    async function handleSystemRoomRemoveSelected() {
+      const items = collectItemsFromSet(systemRoomState.selectedSystem);
+      if (!items.length) return;
+      await removeFromSystemRoom(items);
     }
 
     const STOCK_DETAIL_SOURCE_LABELS = {
@@ -1086,9 +1311,10 @@
 
     function stockDetailUrl(item) {
       if (!item || !item.source_id) return '';
-      if (item.source_type === 'envanter') return `/inventory/${item.source_id}`;
-      if (item.source_type === 'lisans') return `/lisans/${item.source_id}`;
-      if (item.source_type === 'yazici') return `/printers/${item.source_id}`;
+      const type = baseSourceType(item.source_type);
+      if (type === 'envanter') return `/inventory/${item.source_id}`;
+      if (type === 'lisans') return `/lisans/${item.source_id}`;
+      if (type === 'yazici') return `/printers/${item.source_id}`;
       return '';
     }
 
@@ -1103,7 +1329,8 @@
       ];
 
       if (item?.source_type || item?.source_id) {
-        const label = item?.source_type ? STOCK_DETAIL_SOURCE_LABELS[item.source_type] || item.source_type : '';
+        const type = baseSourceType(item?.source_type);
+        const label = type ? STOCK_DETAIL_SOURCE_LABELS[type] || item.source_type : item?.source_type || '';
         let value = label;
         if (item?.source_id) {
           value = value ? `${value} (#${item.source_id})` : `#${item.source_id}`;
@@ -1178,6 +1405,10 @@
       console.log('[StokAtama] boot start');
       resetStockMetaDisplay();
       document.addEventListener('click', handleDetailClick);
+      document.addEventListener('change', handleSystemSelectionChange);
+      document.addEventListener('click', handleSystemRoomAction);
+      dom.one('#btnSystemRoomAdd')?.addEventListener('click', handleSystemRoomAddSelected);
+      dom.one('#btnSystemRoomRemove')?.addEventListener('click', handleSystemRoomRemoveSelected);
       dom.one('#stockSearch')?.addEventListener('input', filterStockTable);
       document.querySelectorAll('#stockStatusTabs [data-bs-toggle="tab"]').forEach((btn) => {
         btn.addEventListener('shown.bs.tab', filterStockTable);

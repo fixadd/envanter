@@ -9,6 +9,7 @@
     marka:          { title: "MARKA",          endpoint: "/api/picker/marka"          },
     departman:      { title: "DEPARTMAN",      endpoint: "/api/picker/kullanim_alani" }, // ürün ekledeki kullanım alanı
     sorumlu_personel:{ title: "SORUMLU PERSONEL", endpoint: "/api/picker/kullanici", allowAdd:false, allowDelete:false },
+    bilgi_kategori: { title: "BİLGİ KATEGORİSİ", endpoint: "/api/picker/bilgi_kategori" },
 
     // MODEL marka'ya bağlı: GET'te ?marka_id=.. gönder, POST'ta parent_id olarak geç
     model:          { title: "MODEL",          endpoint: "/api/picker/model",

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, StreamingResponse
 from sqlalchemy.orm import Session
-from typing import Optional
+from typing import Optional, Literal
 from io import BytesIO
 from openpyxl import Workbook
 from datetime import datetime
@@ -138,6 +138,7 @@ def convert_request_to_stock(
     model: Optional[str] = Form(None),
     ifs_no: Optional[str] = Form(None),
     aciklama: Optional[str] = Form(None),
+    tur: Literal["envanter", "lisans", "yazici"] = Form("envanter"),
     db: Session = Depends(get_db),
 ):
     """Convert an active request into a stock entry.
@@ -163,13 +164,21 @@ def convert_request_to_stock(
     def _val(x):
         return getattr(x, "default", x)
 
+    selected_type = str(_val(tur) or "envanter").strip().lower()
+    if selected_type not in {"envanter", "lisans", "yazici"}:
+        selected_type = "envanter"
+
     marka = _val(marka) or talep.marka
     model = _val(model) or talep.model
     ifs_no = _val(ifs_no) or talep.ifs_no
     aciklama = _val(aciklama)
     islem_yapan = _val(islem_yapan) or "Sistem"
-    if not marka or not model:
+    if selected_type != "lisans" and (not marka or not model):
         raise HTTPException(status_code=400, detail="Marka ve model gerekli")
+
+    if selected_type == "lisans":
+        marka = marka or None
+        model = model or None
 
     # persist provided details back to request
     talep.marka = marka
@@ -178,8 +187,15 @@ def convert_request_to_stock(
     if aciklama:
         talep.aciklama = aciklama
 
+    if selected_type == "lisans":
+        talep.tur = TalepTuru.LISANS
+    elif selected_type == "envanter":
+        talep.tur = TalepTuru.ENVANTER
+    else:
+        talep.tur = TalepTuru.AKSESUAR
+
     payload = {
-        "is_lisans": talep.tur == TalepTuru.LISANS,
+        "is_lisans": selected_type == "lisans",
         "donanim_tipi": talep.donanim_tipi,
         "miktar": adet,
         "marka": marka,
@@ -187,7 +203,7 @@ def convert_request_to_stock(
         "ifs_no": ifs_no,
         "aciklama": aciklama,
         "islem_yapan": islem_yapan,
-        "source_type": "talep",
+        "source_type": f"talep:{selected_type}",
         "source_id": talep.id,
     }
 

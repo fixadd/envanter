@@ -200,6 +200,9 @@ window.talepIptal = async function(id, mevcut){
   const selMarka  = document.getElementById('tkMarka');
   const selModel  = document.getElementById('tkModel');
   const fldAcik   = document.getElementById('tkAciklama');
+  const selTur    = document.getElementById('tkTur');
+  const markaWrap = selMarka?.closest('.mb-3');
+  const modelWrap = selModel?.closest('.mb-3');
 
   let initialized = false;
   async function initSelects(){
@@ -209,6 +212,25 @@ window.talepIptal = async function(id, mevcut){
     initialized = true;
   }
 
+  function updateCloseFormFields(){
+    const type = (selTur?.value || 'envanter').toLowerCase();
+    const isLicense = type === 'lisans';
+    if (selMarka) {
+      selMarka.disabled = isLicense;
+      selMarka.required = !isLicense;
+      if (isLicense) selMarka.value = '';
+    }
+    if (selModel) {
+      selModel.disabled = isLicense;
+      selModel.required = !isLicense;
+      if (isLicense) selModel.value = '';
+    }
+    if (markaWrap) markaWrap.classList.toggle('d-none', isLicense);
+    if (modelWrap) modelWrap.classList.toggle('d-none', isLicense);
+  }
+
+  selTur?.addEventListener('change', updateCloseFormFields);
+
   window.talepKapat = async function(id, mevcut){
     await initSelects();
     fldId.value = String(id);
@@ -217,6 +239,11 @@ window.talepIptal = async function(id, mevcut){
     fldAcik.value = '';
     selMarka.value = '';
     selModel.value = '';
+    if (selTur) {
+      const turAttr = (row?.dataset?.tur || '').toLowerCase();
+      const normalized = turAttr === 'lisans' ? 'lisans' : turAttr === 'yazici' ? 'yazici' : 'envanter';
+      selTur.value = normalized;
+    }
 
     const row = Array.from(document.querySelectorAll('tbody tr'))
       .find(tr => tr.firstElementChild?.textContent.trim() === String(id));
@@ -239,6 +266,7 @@ window.talepIptal = async function(id, mevcut){
       await _selects.fillChoices({ endpoint:'/api/lookup/model', selectId:'tkModel', params:{ marka_id: '' }, placeholder:'Model seçiniz…' });
     }
 
+    updateCloseFormFields();
     bootstrap.Modal.getOrCreateInstance(modalEl).show();
   };
 
@@ -255,6 +283,7 @@ window.talepIptal = async function(id, mevcut){
     fd.append('marka', marka);
     fd.append('model', model);
     if(acik) fd.append('aciklama', acik);
+    if(selTur) fd.append('tur', selTur.value || 'envanter');
     try{
       const r = await fetch(`/talepler/${id}/stock`, {method:'POST', body: fd});
       if(!r.ok){ alert('İşlem başarısız'); return; }

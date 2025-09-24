@@ -80,8 +80,15 @@ function dateFormatter(value) {
   });
 }
 
+function baseSourceType(raw) {
+  if (!raw) return '';
+  const text = String(raw).toLowerCase();
+  const parts = text.split(':');
+  return parts.length > 1 ? parts[parts.length - 1] : text;
+}
+
 function detailFormatter(row) {
-  const type = (row?.source_type || '').toLowerCase();
+  const type = baseSourceType(row?.source_type);
   if (!['lisans', 'envanter', 'yazici'].includes(type)) return '';
   const payload = encodeURIComponent(JSON.stringify(row));
   return `<button class="btn btn-outline-secondary btn-sm" onclick="showStockDetail('${payload}')" title="Detay">&#8801;</button>`;
@@ -90,11 +97,12 @@ function detailFormatter(row) {
 function showStockDetail(encoded) {
   const row = JSON.parse(decodeURIComponent(encoded));
   let url = '';
-  if (row.source_type === 'envanter' && row.source_id) {
+  const type = baseSourceType(row.source_type);
+  if (type === 'envanter' && row.source_id) {
     url = `/inventory/${row.source_id}`;
-  } else if (row.source_type === 'lisans' && row.source_id) {
+  } else if (type === 'lisans' && row.source_id) {
     url = `/lisans/${row.source_id}`;
-  } else if (row.source_type === 'yazici' && row.source_id) {
+  } else if (type === 'yazici' && row.source_id) {
     url = `/printers/${row.source_id}`;
   }
   if (url) {
