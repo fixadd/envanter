@@ -1,31 +1,61 @@
-{% extends "base.html" %}
-{% block title %}Giriş Yap{% endblock %}
-{% block content %}
-  <div class="d-flex justify-content-center align-items-center position-relative" style="min-height:70vh; z-index:2;">
-    <div class="card soft-card p-4" style="max-width: 380px; width:100%;">
-      <h1 class="h5 text-center mb-3">HOŞ GELDİNİZ</h1>
+{% extends "base.html" %} {% block title %}Giriş Yap{% endblock %} {% block
+content %}
+<div
+  class="d-flex justify-content-center align-items-center position-relative"
+  style="min-height: 70vh; z-index: 2"
+>
+  <div class="card soft-card p-4" style="max-width: 380px; width: 100%">
+    <h1 class="h5 text-center mb-3">HOŞ GELDİNİZ</h1>
 
-      {% if error %}
-        <div class="alert alert-danger py-2 small">{{ error }}</div>
-      {% endif %}
+    {% if error %}
+    <div class="alert alert-danger py-2 small">{{ error }}</div>
+    {% endif %}
 
-      <form method="post" action="/login" autocomplete="on">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
-        <div class="mb-3">
-          <label class="form-label" for="username">Kullanıcı Adı</label>
-          <input id="username" name="username" type="text" class="form-control" required autofocus value="{{ saved_username }}">
-        </div>
-        <div class="mb-3">
-          <label class="form-label" for="password">Parola</label>
-          <input id="password" name="password" type="password" class="form-control" required>
-        </div>
-        <div class="mb-3 form-check">
-          <input class="form-check-input" type="checkbox" value="1" id="remember" name="remember" {% if saved_username %}checked{% endif %}>
-          <label class="form-check-label small" for="remember">Beni hatırla</label>
-        </div>
-        <button class="btn btn-primary w-100" type="submit">Giriş Yap</button>
-      </form>
-    </div>
+    <form method="post" action="/login" autocomplete="on">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+      <div class="mb-3">
+        <label class="form-label" for="username">Kullanıcı Adı</label>
+        <input
+          id="username"
+          name="username"
+          type="text"
+          class="form-control"
+          required
+          autofocus
+          value="{{ saved_username }}"
+        />
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="password">Parola</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          class="form-control"
+          required
+        />
+      </div>
+      <div class="mb-3 form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          value="1"
+          id="remember"
+          name="remember"
+          {%
+          if
+          saved_username
+          %}checked{%
+          endif
+          %}
+        />
+        <label class="form-check-label small" for="remember"
+          >Beni hatırla</label
+        >
+      </div>
+      <button class="btn btn-primary w-100" type="submit">Giriş Yap</button>
+    </form>
   </div>
+</div>
 
-  {% endblock %}
+{% endblock %}

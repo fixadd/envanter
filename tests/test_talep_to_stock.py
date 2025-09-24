@@ -7,10 +7,11 @@ import pytest
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
-import models
-from routes.talepler import convert_request_to_stock
-from models import Talep, TalepTuru, TalepDurum, StockLog, StockTotal
 from fastapi import HTTPException
+
+import models
+from models import StockLog, StockTotal, Talep, TalepDurum, TalepTuru
+from routes.talepler import convert_request_to_stock
 
 
 @pytest.fixture()

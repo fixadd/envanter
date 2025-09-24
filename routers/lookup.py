@@ -1,13 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from database import get_db  # projedeki mevcut get_db
-from models import Lookup, Model as ModelTbl, Brand, HardwareType, BilgiKategori
+from models import BilgiKategori, Brand, HardwareType, Lookup
+from models import Model as ModelTbl
 
 router = APIRouter(prefix="/api/lookup", tags=["lookup"])
 
 # Basit ORM tabanlı lookup'lar
+
 
 @router.get("/donanim_tipi")
 def lookup_donanim_tipi(db: Session = Depends(get_db)):
@@ -47,10 +49,14 @@ def lookup_model(
         try:
             marka_id = int(marka)
         except (TypeError, ValueError):
-            row = db.execute(
-                text("SELECT id FROM brands WHERE name = :name LIMIT 1"),
-                {"name": marka},
-            ).mappings().first()
+            row = (
+                db.execute(
+                    text("SELECT id FROM brands WHERE name = :name LIMIT 1"),
+                    {"name": marka},
+                )
+                .mappings()
+                .first()
+            )
             marka_id = row["id"] if row else None
 
     if marka_id is None:
@@ -64,6 +70,7 @@ def lookup_model(
     )
     # Tüm lookup uç noktaları aynı yapıda `id` ve `name` döndürsün
     return [{"id": r.id, "name": r.name} for r in rows]
+
 
 # Ürün Ekle sayfasındaki kartlara karşılık gelen tablolar:
 # (Gerekirse tablo adlarını birebir DB'nizdeki adlarla düzeltin.)
@@ -126,6 +133,7 @@ FILTER_MAP = {
     },
 }
 
+
 @router.get("/{entity}")
 def lookup_list(
     entity: str,
@@ -148,10 +156,14 @@ def lookup_list(
         if entity == "model":
             if marka_id is None and marka:
                 try:
-                    row = db.execute(
-                        text("SELECT id FROM brands WHERE name = :name LIMIT 1"),
-                        {"name": marka},
-                    ).mappings().first()
+                    row = (
+                        db.execute(
+                            text("SELECT id FROM brands WHERE name = :name LIMIT 1"),
+                            {"name": marka},
+                        )
+                        .mappings()
+                        .first()
+                    )
                     if row:
                         marka_id = row["id"]
                 except Exception:

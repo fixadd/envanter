@@ -1,35 +1,70 @@
-{% extends "base.html" %}
-{% block title %}Lisans Takip{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Lisans Takip{% endblock %} {% block
+content %}
 <div id="licenses-list" class="container-fluid p-2 content">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h5 class="mb-0">Lisans</h5>
     <div class="d-flex align-items-center gap-2 flex-wrap">
-      <a href="#" class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#addModal">
+      <a
+        href="#"
+        class="btn btn-success btn-sm d-flex align-items-center gap-1"
+        title="Yeni Ekle"
+        data-bs-toggle="modal"
+        data-bs-target="#addModal"
+      >
         <i class="bi bi-plus-lg"></i>
         <span>Ekle</span>
       </a>
       <div class="dropdown">
-        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <button
+          class="btn btn-outline-primary btn-sm dropdown-toggle"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
           Excel
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
           <li><a class="dropdown-item" href="/lisans/export">Dışa Aktar</a></li>
           <li>
-            <form action="/lisans/import" method="post" enctype="multipart/form-data">
-              <input type="file" name="file" id="licExcel" class="d-none" onchange="this.form.submit()">
+            <form
+              action="/lisans/import"
+              method="post"
+              enctype="multipart/form-data"
+            >
+              <input
+                type="file"
+                name="file"
+                id="licExcel"
+                class="d-none"
+                onchange="this.form.submit()"
+              />
               <label for="licExcel" class="dropdown-item mb-0">İçe Aktar</label>
             </form>
           </li>
         </ul>
       </div>
-      <button class="btn btn-outline-secondary btn-sm" id="filterBtn">Filtre</button>
-      <button class="btn btn-outline-secondary btn-sm d-none" id="clearFilterBtn">Temizle</button>
-      <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Ara...">
+      <button class="btn btn-outline-secondary btn-sm" id="filterBtn">
+        Filtre
+      </button>
+      <button
+        class="btn btn-outline-secondary btn-sm d-none"
+        id="clearFilterBtn"
+      >
+        Temizle
+      </button>
+      <input
+        type="text"
+        id="searchInput"
+        class="form-control form-control-sm"
+        placeholder="Ara..."
+      />
     </div>
   </div>
   <div class="table-responsive">
-    <table id="licensesTable" class="table table-hover align-middle table-rounded">
+    <table
+      id="licensesTable"
+      class="table table-hover align-middle table-rounded"
+    >
       <thead>
         <tr>
           <th data-field="no">No</th>
@@ -48,27 +83,29 @@
           data-id="{{ row.id }}"
           data-personel="{{ row.sorumlu_personel or '' }}"
           data-bagli="{{ row.bagli_envanter_no or '' }}"
-          data-durum="{{ row.durum or '' }}">
+          data-durum="{{ row.durum or '' }}"
+        >
           <td>{{ row.id }}</td>
           <td>{{ row.lisans_adi }}</td>
-          <td class="text-truncate" style="max-width:180px;">{{ row.lisans_key }}</td>
+          <td class="text-truncate" style="max-width: 180px">
+            {{ row.lisans_key }}
+          </td>
           <td>{{ row.sorumlu_personel or '-' }}</td>
           <td>{{ row.bagli_envanter_no or '-' }}</td>
           <td>{{ row.mail_adresi or '-' }}</td>
           <td>
-          {% if row.durum == 'hurda' %}
+            {% if row.durum == 'hurda' %}
             <span class="badge bg-secondary">Hurda</span>
-          {% elif row.durum == 'arızalı' %}
+            {% elif row.durum == 'arızalı' %}
             <span class="badge text-bg-warning text-dark">Arızalı</span>
-          {% else %}
+            {% else %}
             <span class="badge bg-success">Aktif</span>
-          {% endif %}
+            {% endif %}
           </td>
           <td class="actions">
-            {% set entity = 'lisans' %}
-            {% set row_id = row.id %}
-            {% set fault_status = row.durum %}
-            {% include 'partials/_actions_menu.html' %}
+            {% set entity = 'lisans' %} {% set row_id = row.id %} {% set
+            fault_status = row.durum %} {% include 'partials/_actions_menu.html'
+            %}
           </td>
         </tr>
         {% endfor %}
@@ -77,7 +114,9 @@
   </div>
 </div>
 
-<script>window.SKIP_SELECT_ENHANCE = true;</script>
+<script>
+  window.SKIP_SELECT_ENHANCE = true;
+</script>
 
 <!-- Yeni Ekle Modal -->
 <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
@@ -85,34 +124,58 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Lisans Ekle</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body">
-        <form method="post" action="/lisans/create" class="needs-validation" novalidate>
+        <form
+          method="post"
+          action="/lisans/create"
+          class="needs-validation"
+          novalidate
+        >
           <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Lisans Adı</label>
-                <select id="selLisansAdi" name="lisans_adi" class="form-select" required>
-                  <option value="">Seçiniz</option>
-                  {% for ln in license_names %}
-                    <option value="{{ ln.name }}">{{ ln.name }}</option>
-                  {% endfor %}
-                </select>
-              </div>
+            <div class="col-md-6">
+              <label class="form-label">Lisans Adı</label>
+              <select
+                id="selLisansAdi"
+                name="lisans_adi"
+                class="form-select"
+                required
+              >
+                <option value="">Seçiniz</option>
+                {% for ln in license_names %}
+                <option value="{{ ln.name }}">{{ ln.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
             <div class="col-md-6">
               <label class="form-label">Lisans Anahtarı</label>
-              <input name="lisans_anahtari" type="text" class="form-control" required placeholder="XXXX-XXXX-XXXX-XXXX">
+              <input
+                name="lisans_anahtari"
+                type="text"
+                class="form-control"
+                required
+                placeholder="XXXX-XXXX-XXXX-XXXX"
+              />
             </div>
 
-              <div class="col-md-6">
-                <label class="form-label">Sorumlu Personel</label>
-                <select id="selPersonelAdd" name="sorumlu_personel" class="form-select">
-                  <option value="">Seçiniz</option>
-                  {% for u in users %}
-                    <option value="{{ u }}">{{ u }}</option>
-                  {% endfor %}
-                </select>
-              </div>
+            <div class="col-md-6">
+              <label class="form-label">Sorumlu Personel</label>
+              <select
+                id="selPersonelAdd"
+                name="sorumlu_personel"
+                class="form-select"
+              >
+                <option value="">Seçiniz</option>
+                {% for u in users %}
+                <option value="{{ u }}">{{ u }}</option>
+                {% endfor %}
+              </select>
+            </div>
 
             <div class="col-md-6">
               <label class="form-label">Bağlı Olduğu Envanter No</label>
@@ -125,41 +188,67 @@
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">IFS No <small class="text-muted">(zorunlu değil)</small></label>
-              <input name="ifs_no" type="text" class="form-control" placeholder="IFS numarası">
+              <label class="form-label"
+                >IFS No <small class="text-muted">(zorunlu değil)</small></label
+              >
+              <input
+                name="ifs_no"
+                type="text"
+                class="form-control"
+                placeholder="IFS numarası"
+              />
             </div>
 
-              <div class="col-md-6">
-                <label class="form-label">E-posta (opsiyonel)</label>
-                <input name="mail_adresi" type="email" class="form-control" placeholder="ornek@firma.com">
-              </div>
+            <div class="col-md-6">
+              <label class="form-label">E-posta (opsiyonel)</label>
+              <input
+                name="mail_adresi"
+                type="email"
+                class="form-control"
+                placeholder="ornek@firma.com"
+              />
+            </div>
           </div>
 
           <div class="mt-3 d-flex gap-2">
             <button type="submit" class="btn btn-primary">Kaydet</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              İptal
+            </button>
           </div>
         </form>
+      </div>
+    </div>
   </div>
-  </div>
-  </div>
-  </div>
+</div>
 
-  
-
-  <!-- Filtre Modal -->
-  <div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Filtre Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
     <form id="filterForm" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Filtrele</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body">
         <div id="filterRows"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Kapat</button>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          data-bs-dismiss="modal"
+        >
+          Kapat
+        </button>
         <button type="submit" class="btn btn-primary btn-sm">Uygula</button>
       </div>
     </form>
@@ -173,33 +262,55 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Atama Yap</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+          ></button>
         </div>
         <div class="modal-body">
-          <input type="hidden" name="islem_yapan" value="{{ current_user.full_name if current_user else 'system' }}">
+          <input
+            type="hidden"
+            name="islem_yapan"
+            value="{{ current_user.full_name if current_user else 'system' }}"
+          />
           <div class="mb-2">
             <label class="form-label">Sorumlu Personel</label>
-            <select name="sorumlu_personel" class="form-select" id="selPersonel">
+            <select
+              name="sorumlu_personel"
+              class="form-select"
+              id="selPersonel"
+            >
               <option value="">Seçiniz</option>
-              {% for u in users %}<option value="{{ u }}">{{ u }}</option>{% endfor %}
+              {% for u in users %}
+              <option value="{{ u }}">{{ u }}</option>
+              {% endfor %}
             </select>
           </div>
           <div class="mb-2">
             <label class="form-label">Bağlı Olduğu Envanter No</label>
             <select name="bagli_envanter_no" class="form-select" id="selBagli">
               <option value="">Seçiniz</option>
-              {% for inv in envanterler %}<option value="{{ inv.no }}">{{ inv.no }} - {{ inv.bilgisayar_adi or inv.marka }}</option>{% endfor %}
+              {% for inv in envanterler %}
+              <option value="{{ inv.no }}">
+                {{ inv.no }} - {{ inv.bilgisayar_adi or inv.marka }}
+              </option>
+              {% endfor %}
             </select>
           </div>
-          <small class="text-muted">Bu işlem lisansın geçmiş kayıtlarına eklenecek.</small>
+          <small class="text-muted"
+            >Bu işlem lisansın geçmiş kayıtlarına eklenecek.</small
+          >
         </div>
         <div class="modal-footer">
           <button class="btn btn-primary" type="submit">Kaydet</button>
-          <button class="btn btn-light" type="button" data-bs-dismiss="modal">İptal</button>
+          <button class="btn btn-light" type="button" data-bs-dismiss="modal">
+            İptal
+          </button>
         </div>
       </div>
     </form>
-</div>
+  </div>
 </div>
 
 <!-- HURDA MODALI -->
@@ -208,18 +319,33 @@
     <form id="scrapForm" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Hurdaya Ayır</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body">
         <p>Bu lisans hurdaya ayrılacak. Onaylıyor musunuz?</p>
         <div class="mb-2">
           <label class="form-label">Açıklama (opsiyonel)</label>
-          <textarea name="aciklama" class="form-control" rows="3" placeholder="Hurda sebebi / not"></textarea>
+          <textarea
+            name="aciklama"
+            class="form-control"
+            rows="3"
+            placeholder="Hurda sebebi / not"
+          ></textarea>
         </div>
-        <input type="hidden" name="islem_yapan" value="{{ current_user.full_name if current_user else 'system' }}">
+        <input
+          type="hidden"
+          name="islem_yapan"
+          value="{{ current_user.full_name if current_user else 'system' }}"
+        />
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Vazgeç</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">
+          Vazgeç
+        </button>
         <button class="btn btn-danger" type="submit">Hurdaya Ayır</button>
       </div>
     </form>
@@ -227,41 +353,47 @@
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const filterModal = new bootstrap.Modal(document.getElementById('filterModal'));
-    const searchInput = document.getElementById('searchInput');
-    const filterForm = document.getElementById('filterForm');
-    const clearBtn = document.getElementById('clearFilterBtn');
-    const filterRowsDiv = document.getElementById('filterRows');
-    const distinctUrl = "{{ url_for('lookup.distinct', entity='license', column='__COL__') }}";
+  document.addEventListener("DOMContentLoaded", () => {
+    const filterModal = new bootstrap.Modal(
+      document.getElementById("filterModal"),
+    );
+    const searchInput = document.getElementById("searchInput");
+    const filterForm = document.getElementById("filterForm");
+    const clearBtn = document.getElementById("clearFilterBtn");
+    const filterRowsDiv = document.getElementById("filterRows");
+    const distinctUrl =
+      "{{ url_for('lookup.distinct', entity='license', column='__COL__') }}";
     let activeFilters = [];
-    const columns = Array.from(document.querySelectorAll('table thead th'))
-      .map((th, idx) => ({ idx, name: th.textContent.trim(), field: th.dataset.field }))
-      .filter(c => c.field);
+    const columns = Array.from(document.querySelectorAll("table thead th"))
+      .map((th, idx) => ({
+        idx,
+        name: th.textContent.trim(),
+        field: th.dataset.field,
+      }))
+      .filter((c) => c.field);
 
-
-    document.getElementById('filterBtn').addEventListener('click', () => {
+    document.getElementById("filterBtn").addEventListener("click", () => {
       filterForm.reset();
-      filterRowsDiv.innerHTML = '';
+      filterRowsDiv.innerHTML = "";
       createFilterRow();
       filterModal.show();
     });
 
-    clearBtn.addEventListener('click', () => {
+    clearBtn.addEventListener("click", () => {
       activeFilters = [];
       filterRows();
-      clearBtn.classList.add('d-none');
+      clearBtn.classList.add("d-none");
     });
 
-    searchInput.addEventListener('input', filterRows);
+    searchInput.addEventListener("input", filterRows);
 
     function createFilterRow() {
-      const row = document.createElement('div');
-      row.className = 'row g-2 align-items-center mb-2 filter-row';
+      const row = document.createElement("div");
+      row.className = "row g-2 align-items-center mb-2 filter-row";
       row.innerHTML = `
         <div class="col-5">
           <select class="form-select form-select-sm column-select">
-            ${columns.map(c => `<option value="${c.idx}">${c.name}</option>`).join('')}
+            ${columns.map((c) => `<option value="${c.idx}">${c.name}</option>`).join("")}
           </select>
         </div>
         <div class="col-5">
@@ -272,156 +404,199 @@
           <button type="button" class="btn btn-danger btn-sm remove-row">-</button>
         </div>`;
       filterRowsDiv.appendChild(row);
-      const colSel = row.querySelector('.column-select');
-      const valSel = row.querySelector('.value-select');
+      const colSel = row.querySelector(".column-select");
+      const valSel = row.querySelector(".value-select");
       loadValues(colSel, valSel);
-      colSel.addEventListener('change', () => loadValues(colSel, valSel));
+      colSel.addEventListener("change", () => loadValues(colSel, valSel));
       updateRemoveButtons();
     }
 
     async function loadValues(colSelect, valSelect) {
-      const col = columns.find(c => c.idx == colSelect.value);
-      const res = await fetch(distinctUrl.replace('__COL__', col.field));
+      const col = columns.find((c) => c.idx == colSelect.value);
+      const res = await fetch(distinctUrl.replace("__COL__", col.field));
       const data = await res.json();
-      valSelect.innerHTML = '<option value="">Seçiniz</option>' +
-        data.map(v => `<option value="${v}">${v}</option>`).join('');
+      valSelect.innerHTML =
+        '<option value="">Seçiniz</option>' +
+        data.map((v) => `<option value="${v}">${v}</option>`).join("");
     }
 
     function updateRemoveButtons() {
-      const rows = filterRowsDiv.querySelectorAll('.filter-row');
-      rows.forEach(r => r.querySelector('.remove-row').classList.toggle('d-none', rows.length === 1));
+      const rows = filterRowsDiv.querySelectorAll(".filter-row");
+      rows.forEach((r) =>
+        r
+          .querySelector(".remove-row")
+          .classList.toggle("d-none", rows.length === 1),
+      );
     }
 
-    filterForm.addEventListener('click', (e) => {
-      if (e.target.classList.contains('add-row')) {
+    filterForm.addEventListener("click", (e) => {
+      if (e.target.classList.contains("add-row")) {
         createFilterRow();
-      } else if (e.target.classList.contains('remove-row')) {
-        e.target.closest('.filter-row').remove();
+      } else if (e.target.classList.contains("remove-row")) {
+        e.target.closest(".filter-row").remove();
         updateRemoveButtons();
       }
     });
 
-    filterForm.addEventListener('submit', (e) => {
+    filterForm.addEventListener("submit", (e) => {
       e.preventDefault();
       activeFilters = [];
-      filterRowsDiv.querySelectorAll('.filter-row').forEach(row => {
-        const col = parseInt(row.querySelector('.column-select').value, 10);
-        const val = row.querySelector('.value-select').value.trim().toLowerCase();
+      filterRowsDiv.querySelectorAll(".filter-row").forEach((row) => {
+        const col = parseInt(row.querySelector(".column-select").value, 10);
+        const val = row
+          .querySelector(".value-select")
+          .value.trim()
+          .toLowerCase();
         if (val) activeFilters.push({ col, val });
       });
       filterModal.hide();
-      clearBtn.classList.toggle('d-none', activeFilters.length === 0);
+      clearBtn.classList.toggle("d-none", activeFilters.length === 0);
       filterRows();
     });
 
     function filterRows() {
       const q = searchInput.value.toLowerCase();
-      document.querySelectorAll('tbody tr').forEach(tr => {
-        const cells = tr.querySelectorAll('td');
-        const texts = Array.from(cells).map(td => td.textContent.toLowerCase());
-        let match = texts.some(t => t.includes(q));
+      document.querySelectorAll("tbody tr").forEach((tr) => {
+        const cells = tr.querySelectorAll("td");
+        const texts = Array.from(cells).map((td) =>
+          td.textContent.toLowerCase(),
+        );
+        let match = texts.some((t) => t.includes(q));
         if (activeFilters.length) {
-          match = match && activeFilters.every(f => texts[f.col] && texts[f.col].includes(f.val));
+          match =
+            match &&
+            activeFilters.every(
+              (f) => texts[f.col] && texts[f.col].includes(f.val),
+            );
         }
-        tr.classList.toggle('d-none', !match);
+        tr.classList.toggle("d-none", !match);
       });
     }
 
     // Mevcut atama/hurda işlemleri
-    const assignModal = new bootstrap.Modal(document.getElementById('assignModal'));
-    const assignForm  = document.getElementById('assignForm');
-    const selAssignPersonel = document.getElementById('selPersonel');
-    const selAssignBagli = document.getElementById('selBagli');
-    const scrapModal  = new bootstrap.Modal(document.getElementById('scrapModal'));
-    const scrapForm   = document.getElementById('scrapForm');
+    const assignModal = new bootstrap.Modal(
+      document.getElementById("assignModal"),
+    );
+    const assignForm = document.getElementById("assignForm");
+    const selAssignPersonel = document.getElementById("selPersonel");
+    const selAssignBagli = document.getElementById("selBagli");
+    const scrapModal = new bootstrap.Modal(
+      document.getElementById("scrapModal"),
+    );
+    const scrapForm = document.getElementById("scrapForm");
     let scrapId = null;
     let personelChoices = null;
     let bagliChoices = null;
 
-    document.querySelectorAll('#licensesTable .action-select').forEach(sel => {
-      sel.addEventListener('change', (e) => {
-        const val = e.target.value;
-        if (!val) return;
-        const id = e.target.dataset.id;
-        if (!id) return;
+    document
+      .querySelectorAll("#licensesTable .action-select")
+      .forEach((sel) => {
+        sel.addEventListener("change", (e) => {
+          const val = e.target.value;
+          if (!val) return;
+          const id = e.target.dataset.id;
+          if (!id) return;
 
-        if (val === 'assign') {
-          e.stopImmediatePropagation();
-          assignForm.setAttribute('action', `/lisans/${id}/assign`);
-          const tr = e.target.closest('tr');
-          if (tr) {
-            setSelectValue(selAssignPersonel, tr.dataset.personel, personelChoices);
-            setSelectValue(selAssignBagli, tr.dataset.bagli, bagliChoices);
-          }
-          assignModal.show();
-          e.target.value = '';
-          return;
-        }
-
-        if (val === 'fault') {
-          if (window.Faults) {
+          if (val === "assign") {
             e.stopImmediatePropagation();
-            window.Faults.openMarkModal('license', {
-              entityId: Number(id),
-              entityKey: e.target.dataset.entityKey || id,
-              deviceNo: e.target.dataset.device || '',
-              title: e.target.dataset.title || '',
-            });
+            assignForm.setAttribute("action", `/lisans/${id}/assign`);
+            const tr = e.target.closest("tr");
+            if (tr) {
+              setSelectValue(
+                selAssignPersonel,
+                tr.dataset.personel,
+                personelChoices,
+              );
+              setSelectValue(selAssignBagli, tr.dataset.bagli, bagliChoices);
+            }
+            assignModal.show();
+            e.target.value = "";
+            return;
           }
-          e.target.value = '';
-          return;
-        }
 
-        if (val === 'repair') {
-          if (window.Faults) {
+          if (val === "fault") {
+            if (window.Faults) {
+              e.stopImmediatePropagation();
+              window.Faults.openMarkModal("license", {
+                entityId: Number(id),
+                entityKey: e.target.dataset.entityKey || id,
+                deviceNo: e.target.dataset.device || "",
+                title: e.target.dataset.title || "",
+              });
+            }
+            e.target.value = "";
+            return;
+          }
+
+          if (val === "repair") {
+            if (window.Faults) {
+              e.stopImmediatePropagation();
+              window.Faults.openRepairModal("license", {
+                entityId: Number(id),
+                entityKey: e.target.dataset.entityKey || id,
+                deviceNo: e.target.dataset.device || "",
+              });
+            }
+            e.target.value = "";
+            return;
+          }
+
+          if (val === "scrap") {
             e.stopImmediatePropagation();
-            window.Faults.openRepairModal('license', {
-              entityId: Number(id),
-              entityKey: e.target.dataset.entityKey || id,
-              deviceNo: e.target.dataset.device || '',
-            });
+            scrapId = id;
+            scrapModal.show();
+            e.target.value = "";
           }
-          e.target.value = '';
-          return;
-        }
-
-        if (val === 'scrap') {
-          e.stopImmediatePropagation();
-          scrapId = id;
-          scrapModal.show();
-          e.target.value = '';
-        }
+        });
       });
-    });
 
-    assignForm.addEventListener('submit', async (e) => {
+    assignForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const actionUrl = assignForm.getAttribute('action');
+      const actionUrl = assignForm.getAttribute("action");
       if (!actionUrl) return;
       const fd = new FormData(assignForm);
-      const res = await fetch(actionUrl, { method: 'POST', body: fd });
-      if(res.ok){ assignModal.hide(); location.reload(); }
-      else { alert('Atama kaydedilemedi'); }
+      const res = await fetch(actionUrl, { method: "POST", body: fd });
+      if (res.ok) {
+        assignModal.hide();
+        location.reload();
+      } else {
+        alert("Atama kaydedilemedi");
+      }
     });
 
-    scrapForm.addEventListener('submit', async (e) => {
+    scrapForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const fd = new FormData(scrapForm);
-      const res = await fetch(`/lisans/${scrapId}/scrap`, { method: 'POST', body: fd });
-      if(res.ok){ scrapModal.hide(); window.location.href = `{{ url_for('license_scrap_list') }}`; }
-      else { alert('Hurdaya ayırma başarısız'); }
+      const res = await fetch(`/lisans/${scrapId}/scrap`, {
+        method: "POST",
+        body: fd,
+      });
+      if (res.ok) {
+        scrapModal.hide();
+        window.location.href = `{{ url_for('license_scrap_list') }}`;
+      } else {
+        alert("Hurdaya ayırma başarısız");
+      }
     });
 
     function setSelectValue(selectEl, value, choicesInstance) {
       if (!selectEl) return;
-      const val = value || '';
-      if (val && !Array.from(selectEl.options).some(opt => opt.value === val)) {
-        const opt = document.createElement('option');
+      const val = value || "";
+      if (
+        val &&
+        !Array.from(selectEl.options).some((opt) => opt.value === val)
+      ) {
+        const opt = document.createElement("option");
         opt.value = val;
         opt.textContent = val;
         selectEl.appendChild(opt);
         if (choicesInstance) {
-          choicesInstance.setChoices([{ value: val, label: val }], 'value', 'label', false);
+          choicesInstance.setChoices(
+            [{ value: val, label: val }],
+            "value",
+            "label",
+            false,
+          );
         }
       }
       if (choicesInstance) {
@@ -434,28 +609,47 @@
     }
 
     if (window.Choices) {
-      new Choices('#selLisansAdi',   { searchEnabled: true, shouldSort: false });
-      new Choices('#selPersonelAdd', { searchEnabled: true, shouldSort: false });
-      personelChoices = new Choices('#selPersonel', { searchEnabled: true, shouldSort: false });
-      bagliChoices = new Choices('#selBagli',       { searchEnabled: true, shouldSort: false });
+      new Choices("#selLisansAdi", { searchEnabled: true, shouldSort: false });
+      new Choices("#selPersonelAdd", {
+        searchEnabled: true,
+        shouldSort: false,
+      });
+      personelChoices = new Choices("#selPersonel", {
+        searchEnabled: true,
+        shouldSort: false,
+      });
+      bagliChoices = new Choices("#selBagli", {
+        searchEnabled: true,
+        shouldSort: false,
+      });
     }
   });
 </script>
 
 <style>
-#licenses-list .table-responsive { overflow: visible; }
-#licensesTable th.actions,
-#licensesTable td.actions {
-  white-space: nowrap;
-  width: 220px;
-}
+  #licenses-list .table-responsive {
+    overflow: visible;
+  }
+  #licensesTable th.actions,
+  #licensesTable td.actions {
+    white-space: nowrap;
+    width: 220px;
+  }
 
-#licensesTable td.actions .action-select { min-width: 160px; display: inline-block; }
-#licensesTable td.actions .choices { min-width: 160px; }
-#licensesTable td.actions .choices__inner { min-height: 32px; padding: 2px 30px 2px 8px; }
-#licensesTable td.actions .choices__list--dropdown.is-active {
-  z-index: 1080;
-  min-width: 180px;
-}
+  #licensesTable td.actions .action-select {
+    min-width: 160px;
+    display: inline-block;
+  }
+  #licensesTable td.actions .choices {
+    min-width: 160px;
+  }
+  #licensesTable td.actions .choices__inner {
+    min-height: 32px;
+    padding: 2px 30px 2px 8px;
+  }
+  #licensesTable td.actions .choices__list--dropdown.is-active {
+    z-index: 1080;
+    min-width: 180px;
+  }
 </style>
 {% endblock %}

@@ -18,16 +18,21 @@
         }
         const matchText = !q || text.includes(q);
         const matchSelect = !selVal || attrVal === selVal;
-        row.classList.toggle('d-none', !(matchText && matchSelect));
+        row.classList.toggle("d-none", !(matchText && matchSelect));
       });
     }
 
-    if (input) input.addEventListener('input', apply);
-    if (select) select.addEventListener('change', apply);
+    if (input) input.addEventListener("input", apply);
+    if (select) select.addEventListener("change", apply);
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    setupFilter('searchUserLogs', '#userlogs', 'filterUserName', 'data-user');
-    setupFilter('searchInventoryLogs', '#inventorylogs', 'filterInventoryNo', 'data-inv');
+  document.addEventListener("DOMContentLoaded", () => {
+    setupFilter("searchUserLogs", "#userlogs", "filterUserName", "data-user");
+    setupFilter(
+      "searchInventoryLogs",
+      "#inventorylogs",
+      "filterInventoryNo",
+      "data-inv",
+    );
   });
 })();
