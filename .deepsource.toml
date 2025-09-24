@@ -25,7 +25,7 @@ exclude_patterns = [
 name = "python"
 enabled = true
   [analyzers.meta]
-  runtime_version = "3.x"           # Proje 3.11 kullanıyorsa; değilse 3.x yap
+  runtime_version = "3.x.x"           # Proje 3.11 kullanıyorsa; değilse 3.x yap
   # Gerekiyorsa bağımlılık dosyalarını belirt:
   dependency_file_paths = ["requirements.txt"]
 
