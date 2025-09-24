@@ -31,6 +31,7 @@ from models import (
 )
 from security import current_user
 from utils.faults import FAULT_STATUS_SCRAP, resolve_fault
+from utils.http import get_request_user_name
 from utils.stock_log import create_stock_log
 from utils.template_filters import register_filters
 
@@ -106,27 +107,6 @@ async def export_inventory(db: Session = Depends(get_db)):
 @router.post("/import", response_class=PlainTextResponse)
 async def import_inventory(file: UploadFile = File(...)):
     return f"Received {file.filename}, but import is not implemented."
-
-
-def current_full_name(request: Request) -> str:
-    """Return the current user's full name if available.
-
-    In environments where the ``AuthenticationMiddleware`` is not installed,
-    accessing ``request.user`` raises an ``AssertionError``.  To avoid this we
-    read the user object directly from the request scope which is populated by
-    the middleware when present.  This keeps the function safe to call in
-    unauthenticated contexts such as tests or simple deployments.
-    """
-
-    user = request.scope.get("user")
-
-    return (
-        request.session.get("full_name")
-        or getattr(user, "full_name", None)
-        or "Bilinmeyen Kullanıcı"
-    )
-
-
 @router.get("", name="inventory.list")
 def list_items(
     request: Request, db: Session = Depends(get_db), user=Depends(current_user)
@@ -178,7 +158,7 @@ def create_inventory(
         not_=notlar,
         ifs_no=ifs_no,
         tarih=datetime.now(),
-        islem_yapan=current_full_name(request),
+        islem_yapan=get_request_user_name(request),
     )
     db.add(rec)
     db.commit()
