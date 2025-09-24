@@ -744,6 +744,284 @@ tr[data-href] > td:first-child {
 }
 
 /* -------------------------------------------------------------------------- */
+/* Modern form surfaces                                                       */
+/* -------------------------------------------------------------------------- */
+.form-shell {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.16),
+    rgba(129, 140, 248, 0.12) 42%,
+    rgba(236, 72, 153, 0.18)
+  );
+  border-radius: 26px;
+  padding: clamp(1.75rem, 1.2rem + 2vw, 3rem);
+  border: 1px solid rgba(124, 58, 237, 0.16);
+  box-shadow: var(--shadow-lg);
+  max-width: 1040px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.form-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      circle at top right,
+      rgba(248, 250, 252, 0.85),
+      transparent 56%
+    ),
+    radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.75), transparent 60%);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.form-shell__header,
+.form-shell__form {
+  position: relative;
+  z-index: 1;
+}
+
+.form-shell__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.form-shell__title {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+.form-shell__subtitle {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-muted-strong);
+}
+
+.form-shell__header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.form-shell__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.form-shell__body {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(18px);
+  border-radius: calc(var(--radius-lg) + 8px);
+  padding: clamp(1.5rem, 1.1rem + 1.6vw, 2.5rem);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.form-shell__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.form-shell__actions .btn {
+  min-width: 120px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-md) var(--space-lg);
+}
+
+.form-grid .grid-span-2,
+.form-grid .is-full {
+  grid-column: 1 / -1;
+}
+
+.form-hint {
+  margin: 0;
+  color: var(--color-muted-strong);
+  font-size: var(--font-size-sm);
+}
+
+@media (max-width: 576px) {
+  .form-shell {
+    padding: var(--space-lg);
+  }
+
+  .form-shell__body {
+    padding: var(--space-lg);
+  }
+}
+
+body.theme-dark .form-shell {
+  background: linear-gradient(
+    135deg,
+    rgba(30, 64, 175, 0.55),
+    rgba(67, 56, 202, 0.5) 45%,
+    rgba(109, 40, 217, 0.6)
+  );
+  border-color: rgba(148, 163, 184, 0.28);
+}
+
+body.theme-dark .form-shell::before {
+  background: radial-gradient(
+      circle at top right,
+      rgba(148, 163, 184, 0.25),
+      transparent 62%
+    ),
+    radial-gradient(circle at bottom left, rgba(15, 23, 42, 0.4), transparent 60%);
+  opacity: 0.6;
+}
+
+body.theme-dark .form-shell__body {
+  background: rgba(15, 23, 42, 0.78);
+  border-color: rgba(148, 163, 184, 0.25);
+  box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.08);
+}
+
+body.theme-dark .form-shell__subtitle,
+body.theme-dark .form-hint {
+  color: rgba(226, 232, 240, 0.78);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Modern modals                                                              */
+/* -------------------------------------------------------------------------- */
+.modal-modern .modal-content {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.2),
+    rgba(129, 140, 248, 0.16) 45%,
+    rgba(236, 72, 153, 0.22)
+  );
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: 28px;
+  padding: clamp(1.5rem, 1.1rem + 1.2vw, 2.25rem);
+  box-shadow: var(--shadow-lg);
+  color: inherit;
+}
+
+.modal-modern .modal-content::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      circle at top right,
+      rgba(255, 255, 255, 0.85),
+      transparent 58%
+    ),
+    radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.7), transparent 62%);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.modal-modern .modal-header,
+.modal-modern .modal-body,
+.modal-modern .modal-footer {
+  position: relative;
+  z-index: 1;
+}
+
+.modal-modern .modal-header,
+.modal-modern .modal-footer {
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.modal-modern .modal-header {
+  margin-bottom: var(--space-md);
+}
+
+.modal-modern .modal-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+.modal-modern .modal-body {
+  background: rgba(255, 255, 255, 0.82);
+  border-radius: calc(var(--radius-lg) + 6px);
+  padding: clamp(1.25rem, 1rem + 1vw, 2rem);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.modal-modern .modal-footer {
+  margin-top: var(--space-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  justify-content: flex-end;
+}
+
+.modal-modern .modal-footer .btn {
+  min-width: 120px;
+}
+
+@media (max-width: 576px) {
+  .modal-modern .modal-content {
+    padding: var(--space-lg);
+  }
+
+  .modal-modern .modal-body {
+    padding: var(--space-lg);
+  }
+}
+
+body.theme-dark .modal-modern .modal-content {
+  background: linear-gradient(
+    135deg,
+    rgba(30, 64, 175, 0.58),
+    rgba(67, 56, 202, 0.54) 45%,
+    rgba(109, 40, 217, 0.62)
+  );
+  border-color: rgba(148, 163, 184, 0.32);
+}
+
+body.theme-dark .modal-modern .modal-content::before {
+  background: radial-gradient(
+      circle at top right,
+      rgba(148, 163, 184, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(circle at bottom left, rgba(15, 23, 42, 0.45), transparent 62%);
+  opacity: 0.55;
+}
+
+body.theme-dark .modal-modern .modal-body {
+  background: rgba(15, 23, 42, 0.82);
+  border-color: rgba(148, 163, 184, 0.28);
+  box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.1);
+}
+
+body.theme-dark .modal-modern .modal-title {
+  color: #f8fafc;
+}
+
+/* -------------------------------------------------------------------------- */
 /* Buttons                                                                    */
 /* -------------------------------------------------------------------------- */
 .btn,

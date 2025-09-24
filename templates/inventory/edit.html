@@ -1,90 +1,105 @@
 {% extends "base.html" %}{% block title %}Envanter Düzenle{% endblock %} {%
 block content %}
 <div class="container-fluid p-3">
-  <h5 class="mb-3">Envanter Düzenle</h5>
-  <form method="post" action="{{ '?modal=1' if modal else '' }}">
-    <div class="row g-3">
-      <div class="col-md-3">
-        <label class="form-label">Fabrika</label>
-        <input
-          name="fabrika"
-          class="form-control"
-          value="{{ item.fabrika or '' }}"
-        />
+  <div class="form-shell">
+    <div class="form-shell__header">
+      <div>
+        <h2 class="form-shell__title">Envanter Düzenle</h2>
+        <p class="form-shell__subtitle">
+          Envanter bilgilerini güncelleyerek kayıtlarınızı güncel tutun.
+        </p>
       </div>
-      <div class="col-md-3">
-        <label class="form-label">Departman</label>
-        <input
-          name="departman"
-          class="form-control"
-          value="{{ item.departman or '' }}"
-        />
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">Sorumlu Personel</label>
-        <input
-          name="sorumlu_personel"
-          class="form-control"
-          value="{{ item.sorumlu_personel or '' }}"
-        />
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">Bağlı Envanter No</label>
-        <input
-          name="bagli_envanter_no"
-          class="form-control"
-          value="{{ item.bagli_envanter_no or '' }}"
-        />
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">Marka</label>
-        <input
-          name="marka"
-          class="form-control"
-          value="{{ item.marka or '' }}"
-        />
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">Model</label>
-        <input
-          name="model"
-          class="form-control"
-          value="{{ item.model or '' }}"
-        />
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">Kullanım Alanı</label>
-        <input
-          name="kullanim_alani"
-          class="form-control"
-          value="{{ item.kullanim_alani or '' }}"
-        />
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">IFS No</label>
-        <input
-          name="ifs_no"
-          class="form-control"
-          value="{{ item.ifs_no or '' }}"
-        />
-      </div>
-      <div class="col-md-12">
-        <label class="form-label">Not</label>
-        <textarea name="not" class="form-control">
+    </div>
+    <form
+      method="post"
+      action="{{ '?modal=1' if modal else '' }}"
+      class="form-shell__form"
+    >
+      <div class="form-shell__body">
+        <div class="form-grid">
+          <div>
+            <label class="form-label">Fabrika</label>
+            <input
+              name="fabrika"
+              class="form-control"
+              value="{{ item.fabrika or '' }}"
+            />
+          </div>
+          <div>
+            <label class="form-label">Departman</label>
+            <input
+              name="departman"
+              class="form-control"
+              value="{{ item.departman or '' }}"
+            />
+          </div>
+          <div>
+            <label class="form-label">Sorumlu Personel</label>
+            <input
+              name="sorumlu_personel"
+              class="form-control"
+              value="{{ item.sorumlu_personel or '' }}"
+            />
+          </div>
+          <div>
+            <label class="form-label">Bağlı Envanter No</label>
+            <input
+              name="bagli_envanter_no"
+              class="form-control"
+              value="{{ item.bagli_envanter_no or '' }}"
+            />
+          </div>
+          <div>
+            <label class="form-label">Marka</label>
+            <input
+              name="marka"
+              class="form-control"
+              value="{{ item.marka or '' }}"
+            />
+          </div>
+          <div>
+            <label class="form-label">Model</label>
+            <input
+              name="model"
+              class="form-control"
+              value="{{ item.model or '' }}"
+            />
+          </div>
+          <div>
+            <label class="form-label">Kullanım Alanı</label>
+            <input
+              name="kullanim_alani"
+              class="form-control"
+              value="{{ item.kullanim_alani or '' }}"
+            />
+          </div>
+          <div>
+            <label class="form-label">IFS No</label>
+            <input
+              name="ifs_no"
+              class="form-control"
+              value="{{ item.ifs_no or '' }}"
+            />
+          </div>
+          <div class="grid-span-2">
+            <label class="form-label">Not</label>
+            <textarea name="not" class="form-control" rows="3">
 {{ item.not_ or '' }}</textarea
-        >
+            >
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="mt-3">
-      <button class="btn btn-primary btn-sm">Kaydet</button>
-      {% if not modal %}
-      <a
-        href="{{ url_for('inventory.list') }}"
-        class="btn btn-outline-secondary btn-sm"
-        >İptal</a
-      >
-      {% endif %}
-    </div>
-  </form>
+      <div class="form-shell__actions">
+        <button class="btn btn-primary" type="submit">Kaydet</button>
+        {% if not modal %}
+        <a
+          href="{{ url_for('inventory.list') }}"
+          class="btn btn-outline-secondary"
+          >İptal</a
+        >
+        {% endif %}
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}

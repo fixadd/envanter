@@ -257,7 +257,7 @@ content %}
 
 <!-- ATAMA MODALI -->
 <div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-modern">
     <form method="post" id="assignForm">
       <div class="modal-content">
         <div class="modal-header">
@@ -274,8 +274,8 @@ content %}
             name="islem_yapan"
             value="{{ current_user.full_name if current_user else 'system' }}"
           />
-          <div class="row g-3">
-            <div class="col-12 col-md-6 col-xl-3">
+          <div class="form-grid">
+            <div>
               <label class="form-label">Sorumlu Personel</label>
               <select
                 name="sorumlu_personel"
@@ -288,7 +288,7 @@ content %}
                 {% endfor %}
               </select>
             </div>
-            <div class="col-12 col-md-6 col-xl-3">
+            <div>
               <label class="form-label">Bağlı Olduğu Envanter No</label>
               <select name="bagli_envanter_no" class="form-select" id="selBagli">
                 <option value="">Seçiniz</option>
@@ -300,13 +300,13 @@ content %}
               </select>
             </div>
           </div>
-          <small class="text-muted"
-            >Bu işlem lisansın geçmiş kayıtlarına eklenecek.</small
-          >
+          <p class="form-hint">
+            Bu işlem lisansın geçmiş kayıtlarına eklenecek.
+          </p>
         </div>
         <div class="modal-footer">
           <button class="btn btn-primary" type="submit">Kaydet</button>
-          <button class="btn btn-light" type="button" data-bs-dismiss="modal">
+          <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">
             İptal
           </button>
         </div>
