@@ -119,14 +119,14 @@
 
     <!-- iframe modal -->
     <div class="modal fade" id="iframeModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-dialog modal-dialog-centered" id="iframeModalDialog">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="iframeModalTitle"></h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body p-0">
-            <iframe id="iframeModalFrame" style="width:100%;height:70vh;border:0;"></iframe>
+            <iframe id="iframeModalFrame" style="width:100%;border:0;"></iframe>
           </div>
         </div>
       </div>
@@ -192,11 +192,36 @@ document.addEventListener("DOMContentLoaded", () => {
 // Use this for interactive elements inside rows
 function stopRowClick(e) { e.stopPropagation(); }
 
-function openModal(url, title="") {
+function openModal(url, title = "", size = "lg", height = "70vh") {
   const frame = document.getElementById("iframeModalFrame");
+  if (!frame) return;
+  frame.style.height = height || "70vh";
   frame.src = url;
-  document.getElementById("iframeModalTitle").textContent = title;
-  const modal = new bootstrap.Modal(document.getElementById("iframeModal"));
+
+  const titleEl = document.getElementById("iframeModalTitle");
+  if (titleEl) titleEl.textContent = title;
+
+  const dialog = document.getElementById("iframeModalDialog");
+  if (dialog) {
+    dialog.classList.remove(
+      "modal-sm",
+      "modal-md",
+      "modal-lg",
+      "modal-xl",
+      "modal-fullscreen"
+    );
+    if (size === "fullscreen") {
+      dialog.classList.add("modal-fullscreen");
+    } else if (size) {
+      dialog.classList.add(`modal-${size}`);
+    } else {
+      dialog.classList.add("modal-lg");
+    }
+  }
+
+  const modalEl = document.getElementById("iframeModal");
+  if (!modalEl) return;
+  const modal = new bootstrap.Modal(modalEl);
   modal.show();
 }
 window.openModal = openModal;
@@ -205,7 +230,17 @@ document.addEventListener("click", (e) => {
   const link = e.target.closest("[data-modal-url]");
   if (!link) return;
   e.preventDefault();
-  openModal(link.dataset.modalUrl, link.dataset.modalTitle || "");
+  const size = link.dataset.modalSize || "lg";
+  const height = link.dataset.modalHeight || "70vh";
+  const title = link.dataset.modalTitle || "";
+  openModal(link.dataset.modalUrl, title, size, height);
+});
+
+document.getElementById("iframeModal")?.addEventListener("hidden.bs.modal", () => {
+  const frame = document.getElementById("iframeModalFrame");
+  if (frame) {
+    frame.src = "about:blank";
+  }
 });
 
 window.addEventListener("message", (e) => {
