@@ -1,6 +1,5 @@
-{% extends "base.html" %}
-{% block title %}Yazıcı Düzenle{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Yazıcı Düzenle{% endblock %} {% block
+content %}
 <div class="container-fluid py-4">
   <div class="modal-shell">
     <div class="modal-shell__header">
@@ -8,8 +7,8 @@
         <div class="eyebrow text-primary mb-1">Yazıcı #{{ p.id }}</div>
         <h5 class="modal-shell__title">Yazıcı Bilgilerini Düzenle</h5>
         <p class="modal-shell__subtitle">
-          {{ ((p.marka or '-') ~ ' ' ~ (p.model or '')) | trim }}{% if p.seri_no %}
-          • Seri No: {{ p.seri_no }}{% endif %}
+          {{ ((p.marka or '-') ~ ' ' ~ (p.model or '')) | trim }}{% if p.seri_no
+          %} • Seri No: {{ p.seri_no }}{% endif %}
         </p>
       </div>
       <div class="modal-shell__header-actions">
@@ -17,8 +16,7 @@
         <span class="badge rounded-pill bg-light text-muted modal-shell__badge">
           {{ p.envanter_no }}
         </span>
-        {% endif %}
-        {% if not modal %}
+        {% endif %} {% if not modal %}
         <a
           href="/printers/{{ p.id }}"
           class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1"
@@ -79,7 +77,9 @@
             class="form-control"
             rows="4"
             placeholder="Bakım, toner değişimi veya diğer notlar..."
-          >{{ p.notlar or '' }}</textarea>
+          >
+{{ p.notlar or '' }}</textarea
+          >
         </div>
       </div>
 
@@ -90,10 +90,7 @@
         </div>
         <div class="modal-shell__actions">
           {% if not modal %}
-          <a
-            href="/printers/{{ p.id }}"
-            class="btn btn-outline-secondary"
-          >
+          <a href="/printers/{{ p.id }}" class="btn btn-outline-secondary">
             İptal
           </a>
           {% endif %}
