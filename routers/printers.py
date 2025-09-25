@@ -10,12 +10,12 @@ from fastapi.responses import (
     StreamingResponse,
 )
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from database import get_db
 from models import (
     Brand,
+    Inventory,
     Model,
     Printer,
     PrinterHistory,
@@ -103,6 +103,8 @@ async def export_printers(db: Session = Depends(get_db)):
 @router.post("/import", response_class=PlainTextResponse)
 async def import_printers(file: UploadFile = File(...)):
     return f"Received {file.filename}, but import is not implemented."
+
+
 def build_changes(old: Printer, new_vals: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
     out: Dict[str, Dict[str, Any]] = {}
     for k, v in new_vals.items():
@@ -125,6 +127,52 @@ def snapshot(p: Printer) -> Dict[str, Any]:
         "bagli_envanter_no": p.bagli_envanter_no,
         "durum": p.durum,
         "notlar": p.notlar,
+    }
+
+
+def _printer_lookups(db: Session) -> dict[str, list[str]]:
+    fabrika = [
+        row.name
+        for row in db.query(Factory).order_by(Factory.name.asc()).all()
+        if (row.name or "").strip()
+    ]
+    departman = [
+        row.name
+        for row in db.query(UsageArea).order_by(UsageArea.name.asc()).all()
+        if (row.name or "").strip()
+    ]
+    if not departman:
+        departman = [
+            val[0]
+            for val in (
+                db.query(Printer.kullanim_alani)
+                .filter(Printer.kullanim_alani.isnot(None))
+                .distinct()
+                .order_by(Printer.kullanim_alani.asc())
+                .all()
+            )
+            if (val[0] or "").strip()
+        ]
+    yazici_marka = [
+        row.name for row in db.query(Brand).order_by(Brand.name.asc()).all()
+    ]
+    envanterler = [
+        {
+            "envanter_no": inv.no,
+            "bilgisayar_adi": inv.bilgisayar_adi or "",
+        }
+        for inv in (
+            db.query(Inventory)
+            .filter(Inventory.durum != "hurda")
+            .order_by(Inventory.no.asc())
+            .all()
+        )
+    ]
+    return {
+        "fabrika": fabrika,
+        "departman": departman,
+        "yazici_marka": yazici_marka,
+        "envanterler": envanterler,
     }
 
 
@@ -154,43 +202,21 @@ def list_printers(
         )
 
     printers = query.order_by(Printer.id.desc()).all()
-
-    users = [
-        r[0]
-        for r in db.execute(
-            text("SELECT full_name FROM users ORDER BY full_name")
-        ).fetchall()
-    ]
-    invs = [
-        r[0]
-        for r in db.execute(text("SELECT no FROM inventories ORDER BY no")).fetchall()
-    ]
-    fabr = [
-        r[0]
-        for r in db.execute(text("SELECT name FROM factories ORDER BY name")).fetchall()
-    ]
-    areas = [
-        r[0]
-        for r in db.execute(
-            text("SELECT name FROM usage_areas ORDER BY name")
-        ).fetchall()
-    ]
-    marka_list = db.query(Brand).order_by(Brand.name).all()
-    kullanim_alanlari = db.query(UsageArea).order_by(UsageArea.name).all()
-
-    return templates.TemplateResponse(
-        "printers_list.html",
-        {
-            "request": request,
-            "printers": printers,
-            "users": users,
-            "inventory_nos": invs,
-            "factories": fabr,
-            "areas": areas,
-            "marka_list": marka_list,
-            "kullanim_alanlari": kullanim_alanlari,
-        },
-    )
+    lookups = _printer_lookups(db)
+    current_id = request.query_params.get("id") or request.query_params.get("item")
+    try:
+        current_id_int = int(current_id) if current_id else None
+    except (TypeError, ValueError):
+        current_id_int = None
+    current_item = db.get(Printer, current_id_int) if current_id_int else None
+    context = {
+        "request": request,
+        "printers": printers,
+        "lookups": lookups,
+        "current_id": current_id_int,
+        "current_item": current_item,
+    }
+    return templates.TemplateResponse("printers/index.html", context)
 
 
 @router.get("/new", response_class=HTMLResponse)
@@ -245,24 +271,39 @@ def create_printer(
 def create_printer_simple(
     request: Request,
     envanter_no: str = Form(...),
-    yazici_markasi: str = Form(...),
-    yazici_modeli: str = Form(...),
-    kullanim_alani: str = Form(...),
-    ip_adresi: str = Form(...),
-    mac: str = Form(...),
-    hostname: str = Form(...),
+    marka: str = Form(""),
+    model: str = Form(""),
+    departman: str = Form(""),
+    fabrika: str = Form(""),
+    ip: str = Form(""),
+    mac: str = Form(""),
+    bagli_envanter_no: str = Form(None),
+    not_field: str = Form(None, alias="not"),
+    yazici_markasi: str = Form(None),  # legacy fields
+    yazici_modeli: str = Form(None),
+    kullanim_alani: str = Form(None),
+    ip_adresi: str = Form(None),
+    hostname: str = Form(None),
     ifs_no: str = Form(None),
     db: Session = Depends(get_db),
 ):
+    marka_value = marka or yazici_markasi or None
+    model_value = model or yazici_modeli or None
+    departman_value = departman or kullanim_alani or None
+    ip_value = ip or ip_adresi or None
+    note_value = not_field or None
     prn = Printer(
         envanter_no=envanter_no,
-        marka=yazici_markasi,
-        model=yazici_modeli,
-        kullanim_alani=kullanim_alani,
-        ip_adresi=ip_adresi,
-        mac=mac,
-        hostname=hostname,
-        ifs_no=ifs_no,
+        marka=marka_value,
+        model=model_value,
+        fabrika=fabrika or None,
+        kullanim_alani=departman_value,
+        ip_adresi=ip_value,
+        mac=mac or None,
+        hostname=hostname or None,
+        ifs_no=ifs_no or None,
+        bagli_envanter_no=bagli_envanter_no or None,
+        notlar=note_value,
         tarih=datetime.utcnow(),
         islem_yapan=get_request_user_name(request),
     )
@@ -344,6 +385,12 @@ def edit_printer_post(
     printer_id: int,
     marka: str = Form(None),
     model: str = Form(None),
+    departman: str = Form(None),
+    fabrika: str = Form(None),
+    ip: str = Form(None),
+    mac: str = Form(None),
+    bagli_envanter_no: str = Form(None),
+    not_field: str = Form(None, alias="not"),
     seri_no: str = Form(None),
     notlar: str = Form(None),
     modal: bool = False,
@@ -354,10 +401,21 @@ def edit_printer_post(
     if not p:
         raise HTTPException(404, "Yazıcı bulunamadı")
 
-    new_vals = {"marka": marka, "model": model, "seri_no": seri_no, "notlar": notlar}
+    new_vals = {
+        "marka": marka,
+        "model": model,
+        "seri_no": seri_no,
+        "fabrika": fabrika,
+        "kullanim_alani": departman,
+        "ip_adresi": ip,
+        "mac": mac,
+        "bagli_envanter_no": bagli_envanter_no,
+        "notlar": not_field if not_field is not None else notlar,
+    }
     changes = build_changes(p, new_vals)
-    for k, v in new_vals.items():
-        setattr(p, k, v)
+    for attr, value in new_vals.items():
+        if value is not None:
+            setattr(p, attr, value)
 
     db.add(
         PrinterHistory(

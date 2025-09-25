@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from io import BytesIO
+from typing import Any
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import (
@@ -107,6 +108,59 @@ async def export_inventory(db: Session = Depends(get_db)):
 @router.post("/import", response_class=PlainTextResponse)
 async def import_inventory(file: UploadFile = File(...)):
     return f"Received {file.filename}, but import is not implemented."
+
+
+def _inventory_lookups(db: Session) -> dict[str, Any]:
+    fabrika = [
+        row.name
+        for row in db.query(Factory).order_by(Factory.name.asc()).all()
+        if (row.name or "").strip()
+    ]
+    departman_rows = (
+        db.query(Inventory.departman)
+        .filter(Inventory.departman.isnot(None))
+        .distinct()
+        .order_by(Inventory.departman.asc())
+        .all()
+    )
+    departman = [val[0] for val in departman_rows if (val[0] or "").strip()]
+    donanim_tipi = [
+        row.name
+        for row in db.query(HardwareType).order_by(HardwareType.name.asc()).all()
+    ]
+    marka = [row.name for row in db.query(Brand).order_by(Brand.name.asc()).all()]
+    personel = [
+        name
+        for name in [
+            (user.full_name or user.username or "").strip()
+            for user in db.query(User)
+            .order_by(User.full_name.asc(), User.username.asc())
+            .all()
+        ]
+        if name
+    ]
+    envanterler = [
+        {
+            "envanter_no": inv.no,
+            "bilgisayar_adi": inv.bilgisayar_adi or "",
+        }
+        for inv in (
+            db.query(Inventory)
+            .filter(Inventory.durum != "hurda")
+            .order_by(Inventory.no.asc())
+            .all()
+        )
+    ]
+    return {
+        "fabrika": fabrika,
+        "departman": departman,
+        "donanim_tipi": donanim_tipi,
+        "marka": marka,
+        "personel": personel,
+        "envanterler": envanterler,
+    }
+
+
 @router.get("", name="inventory.list")
 def list_items(
     request: Request, db: Session = Depends(get_db), user=Depends(current_user)
@@ -117,9 +171,21 @@ def list_items(
         .order_by(Inventory.id.desc())
         .all()
     )
-    return templates.TemplateResponse(
-        "inventory_list.html", {"request": request, "items": items}
-    )
+    lookups = _inventory_lookups(db)
+    current_id = request.query_params.get("id") or request.query_params.get("item")
+    try:
+        current_id_int = int(current_id) if current_id else None
+    except (TypeError, ValueError):
+        current_id_int = None
+    current_item = db.get(Inventory, current_id_int) if current_id_int else None
+    context = {
+        "request": request,
+        "items": items,
+        "lookups": lookups,
+        "current_id": current_id_int,
+        "current_item": current_item,
+    }
+    return templates.TemplateResponse("inventory/index.html", context)
 
 
 @router.get("/new", name="inventory.new")

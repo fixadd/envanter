@@ -1,0 +1,36 @@
+{% macro body() %}
+<div class="modal-shell" id="{{ id }}" data-modal hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div
+    class="modal-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="{{ id }}Title"
+  >
+    <form
+      method="{{ method or 'post' }}"
+      action="{{ action }}"
+      class="modal-card"
+      novalidate
+    >
+      <header class="modal-header">
+        <h3 id="{{ id }}Title" class="modal-title">{{ title }}</h3>
+        <button type="button" class="modal-close" data-close aria-label="Kapat">
+          &times;
+        </button>
+      </header>
+      <div class="modal-body">{{ caller() }}</div>
+      <footer class="modal-footer">
+        {% if secondary_label is not defined or secondary_label %}
+        <button type="button" class="btn-secondary" data-close>
+          {{ secondary_label or 'Vazgeç' }}
+        </button>
+        {% endif %}
+        <button type="submit" class="btn-primary">
+          {{ submit_label or 'Kaydet' }}
+        </button>
+      </footer>
+    </form>
+  </div>
+</div>
+{% endmacro %}

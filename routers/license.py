@@ -13,7 +13,15 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from database import get_db
-from models import Inventory, License, LicenseLog, LicenseName, StockTotal
+from models import (
+    Factory,
+    Inventory,
+    License,
+    LicenseLog,
+    LicenseName,
+    StockTotal,
+    UsageArea,
+)
 from security import current_user
 from utils.faults import FAULT_STATUS_SCRAP, resolve_fault
 from utils.http import get_request_user_name
@@ -423,27 +431,51 @@ def edit_quick_license(
     )
 
 
+def _license_lookups(db: Session) -> dict[str, list]:
+    fabrika = [
+        row.name
+        for row in db.query(Factory).order_by(Factory.name.asc()).all()
+        if (row.name or "").strip()
+    ]
+    departman = [
+        row.name
+        for row in db.query(UsageArea).order_by(UsageArea.name.asc()).all()
+        if (row.name or "").strip()
+    ]
+    envanterler = [
+        {
+            "envanter_no": inv.no,
+            "bilgisayar_adi": inv.bilgisayar_adi or "",
+        }
+        for inv in db.query(Inventory).order_by(Inventory.no.asc()).all()
+    ]
+    return {
+        "fabrika": fabrika,
+        "departman": departman,
+        "envanterler": envanterler,
+    }
+
+
 @router.get("", name="license_list")
 def license_list(
     request: Request, db: Session = Depends(get_db), current_user=Depends(current_user)
 ):
     items = db.query(License).filter(License.durum != "hurda").all()
-    users = [
-        r[0]
-        for r in db.execute(
-            text("SELECT full_name FROM users ORDER BY full_name")
-        ).fetchall()
-    ]
-    envanterler = db.query(Inventory).order_by(Inventory.no).all()
-    license_names = db.query(LicenseName).order_by(LicenseName.name).all()
+    lookups = _license_lookups(db)
+    current_id = request.query_params.get("id") or request.query_params.get("item")
+    try:
+        current_id_int = int(current_id) if current_id else None
+    except (TypeError, ValueError):
+        current_id_int = None
+    current_item = db.get(License, current_id_int) if current_id_int else None
     return templates.TemplateResponse(
-        "license_list.html",
+        "licenses/index.html",
         {
             "request": request,
             "items": items,
-            "users": users,
-            "envanterler": envanterler,
-            "license_names": license_names,
+            "lookups": lookups,
+            "current_id": current_id_int,
+            "current_item": current_item,
             "current_user": current_user,
         },
     )
