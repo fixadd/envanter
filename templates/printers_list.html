@@ -117,8 +117,8 @@ content %}
             fault_mode = True %} {% set fault_device = p.envanter_no or ('Yazıcı
             #' ~ p.id) %} {% set fault_title = (p.marka ~ ' ' ~ p.model)|trim %}
             {% set fault_entity_key = p.envanter_no or p.id %} {% set
-            fault_status = p.durum %} {% include 'partials/_actions_menu.html'
-            with edit_modal_size='md' %}
+            fault_status = p.durum %} {% with edit_modal_size='md' %} {% include
+            'partials/_actions_menu.html' %} {% endwith %}
           </td>
         </tr>
         {% endfor %}
