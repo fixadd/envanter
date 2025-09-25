@@ -1,48 +1,58 @@
-{% set marka_id = id ~ '_marka' %}
-{% set model_id = id ~ '_model' %}
-<div class="grid md:grid-cols-2 gap-4">
+{% set marka_id = id ~ '-marka' %}
+{% set model_id = id ~ '-model' %}
+<div class="form-grid">
   <div>
-    <label class="lbl">Donanım Tipi</label>
-    <select name="donanim_tipi" class="inp">
-      <option value="">Seçiniz…</option>
-      {% for x in lookups.donanim_tipi %}<option {{ 'selected' if item and item.donanim_tipi==x }}>{{ x }}</option>{% endfor %}
+    <label class="form-label">Donanım Tipi</label>
+    <select name="donanim_tipi" class="form-select">
+      <option value="">Seçiniz...</option>
+      {% for x in lookups.donanim_tipi %}
+      <option value="{{ x }}" {{ 'selected' if item and item.donanim_tipi==x }}>{{ x }}</option>
+      {% endfor %}
     </select>
   </div>
   <div>
-    <label class="lbl">Marka (opsiyonel)</label>
-    <select name="marka" class="inp" id="{{ marka_id }}">
-      <option value="">Seçiniz…</option>
-      {% for m in lookups.marka %}<option {{ 'selected' if item and item.marka==m }}>{{ m }}</option>{% endfor %}
-    </select>
-  </div>
-
-  <div>
-    <label class="lbl">Model (opsiyonel)</label>
-    <select name="model" class="inp" id="{{ model_id }}" data-depends="#{{ marka_id }}" data-url="/api/lookup/model?marka=">
-      <option value="">Seçiniz…</option>
-      {% if item and item.model %}<option selected>{{ item.model }}</option>{% endif %}
-    </select>
-  </div>
-  <div>
-    <label class="lbl">Miktar</label>
-    <input name="miktar" type="number" min="1" class="inp" value="{{ item.miktar if item else 1 }}" placeholder="1">
-  </div>
-
-  <div>
-    <label class="lbl">IFS No (opsiyonel)</label>
-    <input name="ifs_no" class="inp" value="{{ item.ifs_no if item else '' }}" placeholder="IFS-…">
-  </div>
-  <div>
-    <label class="lbl">Durum / İşlem</label>
-    <select name="islem" class="inp">
-      {% for x in ['Stokta','Rezerve','Atandı','Hurda'] %}
-        <option {{ 'selected' if item and getattr(item, 'islem', None)==x }}>{{ x }}</option>
+    <label class="form-label">Marka <span class="form-text-muted">(opsiyonel)</span></label>
+    <select name="marka" class="form-select" id="{{ marka_id }}">
+      <option value="">Seçiniz...</option>
+      {% for m in lookups.marka %}
+      <option value="{{ m }}" {{ 'selected' if item and item.marka==m }}>{{ m }}</option>
       {% endfor %}
     </select>
   </div>
 
-  <div class="md:col-span-2">
-    <label class="lbl">Not</label>
-    <textarea name="not" rows="3" class="inp">{{ item.aciklama if item else '' }}</textarea>
+  <div>
+    <label class="form-label">Model <span class="form-text-muted">(opsiyonel)</span></label>
+    <select
+      name="model"
+      class="form-select"
+      id="{{ model_id }}"
+      data-depends="#{{ marka_id }}"
+      data-url="/api/lookup/model?marka="
+    >
+      <option value="">Seçiniz...</option>
+      {% if item and item.model %}<option selected>{{ item.model }}</option>{% endif %}
+    </select>
+  </div>
+  <div>
+    <label class="form-label">Miktar</label>
+    <input name="miktar" type="number" min="1" class="form-control" value="{{ item.miktar if item else 1 }}" placeholder="1">
+  </div>
+
+  <div>
+    <label class="form-label">IFS No <span class="form-text-muted">(opsiyonel)</span></label>
+    <input name="ifs_no" class="form-control" value="{{ item.ifs_no if item else '' }}" placeholder="IFS-...">
+  </div>
+  <div>
+    <label class="form-label">Durum / İşlem</label>
+    <select name="islem" class="form-select">
+      {% for x in ['Stokta','Rezerve','Atandı','Hurda'] %}
+      <option value="{{ x }}" {{ 'selected' if item and getattr(item, 'islem', None)==x }}>{{ x }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-12">
+    <label class="form-label">Not</label>
+    <textarea name="not" rows="3" class="form-control">{{ item.aciklama if item else '' }}</textarea>
   </div>
 </div>
