@@ -327,6 +327,66 @@ block content %}
     color: var(--bs-secondary-color, #6c757d);
     opacity: 1;
   }
+
+  #assignModal .modal-dialog {
+    max-width: 760px;
+  }
+
+  #assignModal .modal-content {
+    border: none;
+    border-radius: 1rem;
+    background: #f5f7fb;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+  }
+
+  #assignModal .modal-header,
+  #assignModal .modal-footer {
+    border: none;
+    background: transparent;
+  }
+
+  #assignModal .modal-title {
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  #assignModal .modal-body {
+    background: #ffffff;
+    border-radius: 0 0 1rem 1rem;
+  }
+
+  #assignModal .form-label {
+    font-weight: 600;
+    color: #4b5563;
+  }
+
+  #assignModal .form-select {
+    border-radius: 0.75rem;
+    border-color: #d1d5db;
+    background-color: #f9fafb;
+    color: #1f2937;
+    padding: 0.5rem 0.75rem;
+  }
+
+  #assignModal .form-select:focus {
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 0.25rem rgba(26, 115, 232, 0.25);
+    background-color: #ffffff;
+  }
+
+  #assignModal .btn-primary {
+    background-color: #1a73e8;
+    border-color: #1a73e8;
+    border-radius: 999px;
+    padding: 0.55rem 1.75rem;
+    font-weight: 600;
+  }
+
+  #assignModal .btn-primary:hover,
+  #assignModal .btn-primary:focus {
+    background-color: #1558b0;
+    border-color: #1558b0;
+  }
   .is-invalid {
     border-color: #dc3545 !important;
   }
