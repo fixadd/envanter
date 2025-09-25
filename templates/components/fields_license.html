@@ -1,0 +1,42 @@
+<div class="grid md:grid-cols-2 gap-4">
+  <div>
+    <label class="lbl">Lisans Adı</label>
+    <input name="lisans_adi" class="inp" value="{{ item.lisans_adi if item else '' }}" placeholder="Microsoft 365 Business">
+  </div>
+  <div>
+    <label class="lbl">Lisans Anahtarı / Hesap</label>
+    <input name="lisans_kimlik" class="inp" value="{{ item.lisans_anahtari if item else '' }}" placeholder="XXXXX-XXXXX-… / mail@firma.com">
+  </div>
+
+  <div>
+    <label class="lbl">Fabrika</label>
+    <select name="fabrika" class="inp">
+      <option value="">Seçiniz…</option>
+      {% for x in lookups.fabrika %}<option {{ 'selected' if item and getattr(item, 'fabrika', None)==x }}>{{ x }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="lbl">Departman</label>
+    <select name="departman" class="inp">
+      <option value="">Seçiniz…</option>
+      {% for x in lookups.departman %}<option {{ 'selected' if item and getattr(item, 'departman', None)==x }}>{{ x }}</option>{% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label class="lbl">Bağlı Envanter No (opsiyonel)</label>
+    <select name="bagli_envanter_no" class="inp">
+      <option value="">Seçiniz…</option>
+      {% for e in lookups.envanterler %}<option value="{{ e.envanter_no }}" {{ 'selected' if item and item.bagli_envanter_no==e.envanter_no }}>{{ e.envanter_no }} — {{ e.bilgisayar_adi }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="lbl">Son Kullanım (opsiyonel)</label>
+    <input type="date" name="bitis" class="inp" value="{{ item.bitis if item and getattr(item, 'bitis', None) else '' }}">
+  </div>
+
+  <div class="md:col-span-2">
+    <label class="lbl">Not</label>
+    <textarea name="not" class="inp" rows="3">{{ item.notlar if item else '' }}</textarea>
+  </div>
+</div>

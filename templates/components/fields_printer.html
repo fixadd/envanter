@@ -1,0 +1,55 @@
+{% set marka_id = id ~ '_marka' %}
+{% set model_id = id ~ '_model' %}
+<div class="grid md:grid-cols-2 gap-4">
+  <div>
+    <label class="lbl">Fabrika</label>
+    <select name="fabrika" class="inp">
+      <option value="">Seçiniz…</option>
+      {% for x in lookups.fabrika %}<option {{ 'selected' if item and item.fabrika==x }}>{{ x }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="lbl">Departman</label>
+    <select name="departman" class="inp">
+      <option value="">Seçiniz…</option>
+      {% for x in lookups.departman %}<option {{ 'selected' if item and item.kullanim_alani==x }}>{{ x }}</option>{% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label class="lbl">Marka</label>
+    <select name="marka" class="inp" id="{{ marka_id }}">
+      <option value="">Seçiniz…</option>
+      {% for m in lookups.yazici_marka %}<option {{ 'selected' if item and item.marka==m }}>{{ m }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="lbl">Model</label>
+    <select name="model" class="inp" id="{{ model_id }}" data-depends="#{{ marka_id }}" data-url="/api/lookup/printer-model?marka=">
+      <option value="">{{ 'Önce marka seçiniz…' }}</option>
+      {% if item and item.model %}<option selected>{{ item.model }}</option>{% endif %}
+    </select>
+  </div>
+
+  <div>
+    <label class="lbl">IP Adresi</label>
+    <input name="ip" value="{{ item.ip_adresi if item else '' }}" class="inp" placeholder="10.0.0.50">
+  </div>
+  <div>
+    <label class="lbl">MAC</label>
+    <input name="mac" value="{{ item.mac if item else '' }}" class="inp" placeholder="CC:DB:A7:…">
+  </div>
+
+  <div class="md:col-span-2">
+    <label class="lbl">Bağlı Envanter No (opsiyonel)</label>
+    <select name="bagli_envanter_no" class="inp">
+      <option value="">Seçiniz…</option>
+      {% for e in lookups.envanterler %}<option value="{{ e.envanter_no }}" {{ 'selected' if item and item.bagli_envanter_no==e.envanter_no }}>{{ e.envanter_no }} — {{ e.bilgisayar_adi }}</option>{% endfor %}
+    </select>
+  </div>
+
+  <div class="md:col-span-2">
+    <label class="lbl">Not</label>
+    <textarea name="not" class="inp" rows="3">{{ item.notlar if item else '' }}</textarea>
+  </div>
+</div>
