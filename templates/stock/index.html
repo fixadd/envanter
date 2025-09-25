@@ -1,8 +1,9 @@
-{% extends "base.html" %}
-{% block title %}Stok{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Stok{% endblock %} {% block content
+%}
 <div class="container-fluid px-0">
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+  <div
+    class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4"
+  >
     <div>
       <h1 class="h4 mb-1">Stok Takip</h1>
       <p class="text-muted small mb-0">Donanım hareketleri</p>
@@ -38,7 +39,9 @@
           </tr>
           {% else %}
           <tr>
-            <td colspan="6" class="text-center text-muted py-4">Henüz kayıt bulunmuyor.</td>
+            <td colspan="6" class="text-center text-muted py-4">
+              Henüz kayıt bulunmuyor.
+            </td>
           </tr>
           {% endfor %}
         </tbody>
@@ -47,17 +50,10 @@
   </div>
 </div>
 
-{% set id = "stockAdd" %}
-{% set title = "Stok Giriş" %}
-{% set action = "/stock/create" %}
-{% set item = None %}
-{% include "components/modal_base.html" with context %}
-{% call(body) %}{% include "components/fields_stock.html" %}{% endcall %}
-
-{% set id = "stockEdit" %}
-{% set title = "Stok Düzenle" %}
-{% set action = "/stock/update/" ~ (current_id or '') %}
-{% set item = current_item %}
-{% include "components/modal_base.html" with context %}
-{% call(body) %}{% include "components/fields_stock.html" %}{% endcall %}
-{% endblock %}
+{% set id = "stockAdd" %} {% set title = "Stok Giriş" %} {% set action =
+"/stock/create" %} {% set item = None %} {% include "components/modal_base.html"
+with context %} {% call(body) %}{% include "components/fields_stock.html" %}{%
+endcall %} {% set id = "stockEdit" %} {% set title = "Stok Düzenle" %} {% set
+action = "/stock/update/" ~ (current_id or '') %} {% set item = current_item %}
+{% include "components/modal_base.html" with context %} {% call(body) %}{%
+include "components/fields_stock.html" %}{% endcall %} {% endblock %}

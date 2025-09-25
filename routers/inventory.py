@@ -108,6 +108,8 @@ async def export_inventory(db: Session = Depends(get_db)):
 @router.post("/import", response_class=PlainTextResponse)
 async def import_inventory(file: UploadFile = File(...)):
     return f"Received {file.filename}, but import is not implemented."
+
+
 def _inventory_lookups(db: Session) -> dict[str, Any]:
     fabrika = [
         row.name
