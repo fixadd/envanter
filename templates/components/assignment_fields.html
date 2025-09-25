@@ -1,0 +1,31 @@
+<input type="hidden" name="item_id" value="{{ current_id or '' }}">
+<div class="grid md:grid-cols-2 gap-4">
+  <div>
+    <label class="lbl">Fabrika</label>
+    <select name="fabrika" class="inp">
+      <option value="">Seçiniz…</option>
+      {% for x in lookups.fabrika %}<option {{ 'selected' if item and item.fabrika==x }}>{{ x }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="lbl">Departman</label>
+    <select name="departman" class="inp">
+      <option value="">Seçiniz…</option>
+      {% for x in lookups.departman %}<option {{ 'selected' if item and item.departman==x }}>{{ x }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="lbl">Sorumlu Personel</label>
+    <select name="sorumlu_personel" class="inp">
+      <option value="">Seçiniz…</option>
+      {% for x in lookups.personel %}<option {{ 'selected' if item and item.sorumlu_personel==x }}>{{ x }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="lbl">Bağlı Envanter No</label>
+    <select name="bagli_envanter_no" class="inp">
+      <option value="">Seçiniz…</option>
+      {% for e in lookups.envanterler %}<option value="{{ e.envanter_no }}" {{ 'selected' if item and item.bagli_envanter_no==e.envanter_no }}>{{ e.envanter_no }} — {{ e.bilgisayar_adi }}</option>{% endfor %}
+    </select>
+  </div>
+</div>

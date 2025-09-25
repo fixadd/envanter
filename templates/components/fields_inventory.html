@@ -1,0 +1,93 @@
+{% set marka_id = id ~ '_marka' %}
+{% set model_id = id ~ '_model' %}
+<div class="grid md:grid-cols-2 gap-4">
+  <div>
+    <label class="lbl">Envanter No</label>
+    <input name="envanter_no" class="inp" value="{{ item.no if item else '' }}" required placeholder="ENV-000123">
+  </div>
+  <div>
+    <label class="lbl">Bilgisayar Adı</label>
+    <input name="bilgisayar_adi" class="inp" value="{{ item.bilgisayar_adi if item else '' }}" required placeholder="PC-OFIS-01">
+  </div>
+
+  <div>
+    <label class="lbl">Fabrika</label>
+    <select name="fabrika" class="inp" required>
+      <option value="">Seçiniz…</option>
+      {% for x in lookups.fabrika %}
+        <option value="{{ x }}" {{ 'selected' if item and item.fabrika == x else '' }}>{{ x }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="lbl">Departman</label>
+    <select name="departman" class="inp" required>
+      <option value="">Seçiniz…</option>
+      {% for x in lookups.departman %}
+        <option value="{{ x }}" {{ 'selected' if item and item.departman == x else '' }}>{{ x }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label class="lbl">Donanım Tipi</label>
+    <select name="donanim_tipi" class="inp" required>
+      <option value="">Seçiniz…</option>
+      {% for x in lookups.donanim_tipi %}
+        <option value="{{ x }}" {{ 'selected' if item and item.donanim_tipi == x else '' }}>{{ x }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="lbl">Sorumlu Personel</label>
+    <select name="sorumlu_personel" class="inp" required>
+      <option value="">Seçiniz…</option>
+      {% for x in lookups.personel %}
+        <option value="{{ x }}" {{ 'selected' if item and item.sorumlu_personel == x else '' }}>{{ x }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label class="lbl">Marka</label>
+    <select name="marka" class="inp" id="{{ marka_id }}">
+      <option value="">Seçiniz…</option>
+      {% for x in lookups.marka %}
+        <option value="{{ x }}" {{ 'selected' if item and item.marka == x else '' }}>{{ x }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="lbl">Model</label>
+    <select name="model" class="inp" id="{{ model_id }}" data-depends="#{{ marka_id }}" data-url="/api/lookup/model?marka=">
+      <option value="">{{ 'Önce marka seçiniz…' }}</option>
+      {% if item and item.model %}
+        <option selected>{{ item.model }}</option>
+      {% endif %}
+    </select>
+  </div>
+
+  <div>
+    <label class="lbl">Seri No</label>
+    <input name="seri_no" class="inp" value="{{ item.seri_no if item else '' }}" placeholder="SN123456789">
+  </div>
+  <div>
+    <label class="lbl">IFS No (opsiyonel)</label>
+    <input name="ifs_no" class="inp" value="{{ item.ifs_no if item else '' }}" placeholder="IFS-…">
+  </div>
+
+  <div class="md:col-span-2">
+    <label class="lbl">Bağlı Envanter No (opsiyonel)</label>
+    <select name="bagli_envanter_no" class="inp">
+      <option value="">Seçiniz…</option>
+      {% for e in lookups.envanterler %}
+        <option value="{{ e.envanter_no }}" {{ 'selected' if item and item.bagli_envanter_no == e.envanter_no else '' }}>{{ e.envanter_no }} — {{ e.bilgisayar_adi }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="md:col-span-2">
+    <label class="lbl">Not</label>
+    <textarea name="notlar" class="inp" rows="3">{{ item.not_ if item else '' }}</textarea>
+  </div>
+</div>

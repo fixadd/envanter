@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Envanter{% endblock %}
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="h4 mb-1">Envanter</h1>
+      <p class="text-muted small mb-0">Aktif cihaz kayıtlarının listesi</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn-primary" data-open="invAdd">+ Ekle</button>
+      <button class="btn-secondary" data-open="invEdit">Düzenle</button>
+      <button class="btn-secondary" data-open="invAssign">Atama</button>
+    </div>
+  </div>
+
+  <div class="soft-card p-0">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">No</th>
+            <th scope="col">Bilgisayar Adı</th>
+            <th scope="col">Fabrika</th>
+            <th scope="col">Departman</th>
+            <th scope="col">Donanım Tipi</th>
+            <th scope="col">Marka / Model</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in items %}
+          <tr>
+            <td>{{ row.no }}</td>
+            <td>{{ row.bilgisayar_adi }}</td>
+            <td>{{ row.fabrika or '-' }}</td>
+            <td>{{ row.departman or '-' }}</td>
+            <td>{{ row.donanim_tipi or '-' }}</td>
+            <td>{{ row.marka or '-' }}{% if row.model %} / {{ row.model }}{% endif %}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="text-center text-muted py-4">Henüz kayıt bulunmuyor.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% set id = "invAdd" %}
+{% set title = "Envanter Ekle" %}
+{% set action = "/inventory/create" %}
+{% set item = None %}
+{% include "components/modal_base.html" with context %}
+{% call(body) %}{% include "components/fields_inventory.html" %}{% endcall %}
+
+{% set id = "invEdit" %}
+{% set title = "Envanter Düzenle" %}
+{% set action = "/inventory/" ~ (current_id or '') ~ "/edit" %}
+{% set item = current_item %}
+{% include "components/modal_base.html" with context %}
+{% call(body) %}{% include "components/fields_inventory.html" %}{% endcall %}
+
+{% set id = "invAssign" %}
+{% set title = "Envanter Atama" %}
+{% set action = "/inventory/assign" %}
+{% set item = current_item %}
+{% include "components/modal_base.html" with context %}
+{% call(body) %}{% include "components/assignment_fields.html" %}{% endcall %}
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Stok{% endblock %}
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="h4 mb-1">Stok Takip</h1>
+      <p class="text-muted small mb-0">Donanım hareketleri</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn-primary" data-open="stockAdd">+ Ekle</button>
+      <button class="btn-secondary" data-open="stockEdit">Düzenle</button>
+    </div>
+  </div>
+
+  <div class="soft-card p-0">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Donanım</th>
+            <th scope="col">İşlem</th>
+            <th scope="col">Miktar</th>
+            <th scope="col">IFS No</th>
+            <th scope="col">Marka</th>
+            <th scope="col">Model</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in logs %}
+          <tr>
+            <td>{{ row.donanim_tipi }}</td>
+            <td>{{ row.islem }}</td>
+            <td>{{ row.miktar }}</td>
+            <td>{{ row.ifs_no or '-' }}</td>
+            <td>{{ row.marka or '-' }}</td>
+            <td>{{ row.model or '-' }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="text-center text-muted py-4">Henüz kayıt bulunmuyor.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% set id = "stockAdd" %}
+{% set title = "Stok Giriş" %}
+{% set action = "/stock/create" %}
+{% set item = None %}
+{% include "components/modal_base.html" with context %}
+{% call(body) %}{% include "components/fields_stock.html" %}{% endcall %}
+
+{% set id = "stockEdit" %}
+{% set title = "Stok Düzenle" %}
+{% set action = "/stock/update/" ~ (current_id or '') %}
+{% set item = current_item %}
+{% include "components/modal_base.html" with context %}
+{% call(body) %}{% include "components/fields_stock.html" %}{% endcall %}
+{% endblock %}

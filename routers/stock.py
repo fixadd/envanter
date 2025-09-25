@@ -157,32 +157,36 @@ async def import_stock(file: UploadFile = File(...)):
     return f"Received {file.filename}, but import is not implemented."
 
 
+def _stock_lookups(db: Session) -> dict[str, list[str]]:
+    donanim_tipi = [
+        row.name
+        for row in db.query(HardwareType).order_by(HardwareType.name.asc()).all()
+        if (row.name or "").strip()
+    ]
+    marka = [
+        row.name for row in db.query(Brand).order_by(Brand.name.asc()).all()
+    ]
+    return {"donanim_tipi": donanim_tipi, "marka": marka}
+
+
 @router.get("", response_class=HTMLResponse)
 def stock_list(request: Request, db: Session = Depends(get_db)):
     logs = db.query(StockLog).order_by(StockLog.tarih.desc(), StockLog.id.desc()).all()
-    hardware_types = db.query(HardwareType).order_by(HardwareType.name).all()
-    license_names = db.query(LicenseName).order_by(LicenseName.name).all()
-    hardware_map = {str(h.id): h.name for h in hardware_types}
-    license_map = {
-        str(license_name.id): license_name.name for license_name in license_names
-    }
-    users = [
-        r[0]
-        for r in db.execute(
-            text("SELECT full_name FROM users ORDER BY full_name")
-        ).fetchall()
-    ]
-    usage_areas = db.query(UsageArea).order_by(UsageArea.name).all()
+    lookups = _stock_lookups(db)
+    current_id = request.query_params.get("id") or request.query_params.get("item")
+    try:
+        current_id_int = int(current_id) if current_id else None
+    except (TypeError, ValueError):
+        current_id_int = None
+    current_item = db.get(StockLog, current_id_int) if current_id_int else None
     return templates.TemplateResponse(
-        "stock_list.html",
+        "stock/index.html",
         {
             "request": request,
             "logs": logs,
-            "hardware_types": hardware_types,
-            "hardware_map": hardware_map,
-            "license_map": license_map,
-            "users": users,
-            "usage_areas": usage_areas,
+            "lookups": lookups,
+            "current_id": current_id_int,
+            "current_item": current_item,
         },
     )
 

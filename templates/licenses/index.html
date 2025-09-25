@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Lisanslar{% endblock %}
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="h4 mb-1">Lisanslar</h1>
+      <p class="text-muted small mb-0">Aktif lisans kayıtları</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn-primary" data-open="licAdd">+ Ekle</button>
+      <button class="btn-secondary" data-open="licEdit">Düzenle</button>
+    </div>
+  </div>
+
+  <div class="soft-card p-0">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Lisans</th>
+            <th scope="col">Anahtar</th>
+            <th scope="col">Bağlı Envanter</th>
+            <th scope="col">Durum</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in items %}
+          <tr>
+            <td>{{ row.lisans_adi or '-' }}</td>
+            <td class="text-monospace">{{ row.lisans_anahtari or '-' }}</td>
+            <td>{{ row.bagli_envanter_no or '-' }}</td>
+            <td>{{ row.durum or '-' }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="4" class="text-center text-muted py-4">Henüz kayıt bulunmuyor.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% set id = "licAdd" %}
+{% set title = "Lisans Ekle" %}
+{% set action = "/lisans/create" %}
+{% set item = None %}
+{% include "components/modal_base.html" with context %}
+{% call(body) %}{% include "components/fields_license.html" %}{% endcall %}
+
+{% set id = "licEdit" %}
+{% set title = "Lisans Düzenle" %}
+{% set action = "/lisans/" ~ (current_id or '') ~ "/edit" %}
+{% set item = current_item %}
+{% include "components/modal_base.html" with context %}
+{% call(body) %}{% include "components/fields_license.html" %}{% endcall %}
+{% endblock %}
