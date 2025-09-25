@@ -10,9 +10,9 @@ fault_status_value == 'arızalı' or fault_status_value == 'arizali' %} {% set
 filtered_actions = namespace(values=[]) %} {% for value, label in actions %} {%
 if value not in ['assign', 'edit', 'stock', 'fault'] %} {% set
 filtered_actions.values = filtered_actions.values + [(value, label)] %} {% endif
-%} {% endfor %} {% set actions = filtered_actions.values %} {% endif %}
-{% set edit_modal_size = edit_modal_size|default('lg') %}
-{% set edit_modal_title = edit_modal_title|default('') %}
+%} {% endfor %} {% set actions = filtered_actions.values %} {% endif %} {% set
+edit_modal_size = edit_modal_size|default('lg') %} {% set edit_modal_title =
+edit_modal_title|default('') %}
 
 <div class="d-flex align-items-center">
   <button
