@@ -1,0 +1,8 @@
+.custom-modal{border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.15);}
+.custom-modal .modal-header{border-bottom:1px solid rgba(0,0,0,.06)}
+.custom-modal .modal-footer{border-top:1px solid rgba(0,0,0,.06)}
+.form-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px}
+.form-grid .col-12{grid-column:1 / -1}
+@media (max-width: 768px){.form-grid{grid-template-columns:1fr}}
+.form-label{font-weight:600; font-size:.95rem; color:#374151; margin-bottom:.35rem}
+.form-text-muted{color:#6b7280; font-size:.8rem}
