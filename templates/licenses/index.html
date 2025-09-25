@@ -1,8 +1,9 @@
-{% extends "base.html" %}
-{% block title %}Lisanslar{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Lisanslar{% endblock %} {% block
+content %}
 <div class="container-fluid px-0">
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+  <div
+    class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4"
+  >
     <div>
       <h1 class="h4 mb-1">Lisanslar</h1>
       <p class="text-muted small mb-0">Aktif lisans kayıtları</p>
@@ -34,7 +35,9 @@
           </tr>
           {% else %}
           <tr>
-            <td colspan="4" class="text-center text-muted py-4">Henüz kayıt bulunmuyor.</td>
+            <td colspan="4" class="text-center text-muted py-4">
+              Henüz kayıt bulunmuyor.
+            </td>
           </tr>
           {% endfor %}
         </tbody>
@@ -43,17 +46,11 @@
   </div>
 </div>
 
-{% set id = "licAdd" %}
-{% set title = "Lisans Ekle" %}
-{% set action = "/lisans/create" %}
-{% set item = None %}
-{% include "components/modal_base.html" with context %}
-{% call(body) %}{% include "components/fields_license.html" %}{% endcall %}
-
-{% set id = "licEdit" %}
-{% set title = "Lisans Düzenle" %}
-{% set action = "/lisans/" ~ (current_id or '') ~ "/edit" %}
-{% set item = current_item %}
-{% include "components/modal_base.html" with context %}
-{% call(body) %}{% include "components/fields_license.html" %}{% endcall %}
-{% endblock %}
+{% set id = "licAdd" %} {% set title = "Lisans Ekle" %} {% set action =
+"/lisans/create" %} {% set item = None %} {% include
+"components/modal_base.html" with context %} {% call(body) %}{% include
+"components/fields_license.html" %}{% endcall %} {% set id = "licEdit" %} {% set
+title = "Lisans Düzenle" %} {% set action = "/lisans/" ~ (current_id or '') ~
+"/edit" %} {% set item = current_item %} {% include "components/modal_base.html"
+with context %} {% call(body) %}{% include "components/fields_license.html" %}{%
+endcall %} {% endblock %}

@@ -163,9 +163,7 @@ def _stock_lookups(db: Session) -> dict[str, list[str]]:
         for row in db.query(HardwareType).order_by(HardwareType.name.asc()).all()
         if (row.name or "").strip()
     ]
-    marka = [
-        row.name for row in db.query(Brand).order_by(Brand.name.asc()).all()
-    ]
+    marka = [row.name for row in db.query(Brand).order_by(Brand.name.asc()).all()]
     return {"donanim_tipi": donanim_tipi, "marka": marka}
 
 
