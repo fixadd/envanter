@@ -8,7 +8,7 @@ from fastapi.responses import (
     StreamingResponse,
 )
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import text
+from sqlalchemy import or_, text
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -418,7 +418,8 @@ def edit_quick_license(
 def license_list(
     request: Request, db: Session = Depends(get_db), current_user=Depends(current_user)
 ):
-    items = db.query(License).filter(License.durum != "hurda").all()
+    active_licenses = or_(License.durum.is_(None), License.durum != "hurda")
+    items = db.query(License).filter(active_licenses).all()
     users = [
         r[0]
         for r in db.execute(

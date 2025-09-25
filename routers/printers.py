@@ -10,7 +10,7 @@ from fastapi.responses import (
     StreamingResponse,
 )
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import text
+from sqlalchemy import or_, text
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -139,7 +139,7 @@ def list_printers(
     if durum:
         query = query.filter(Printer.durum == durum)
     else:
-        query = query.filter(Printer.durum != "hurda")
+        query = query.filter(or_(Printer.durum.is_(None), Printer.durum != "hurda"))
     if q:
         like = f"%{q}%"
         query = query.filter(
