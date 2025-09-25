@@ -10,7 +10,7 @@ from fastapi.responses import (
     StreamingResponse,
 )
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -107,13 +107,15 @@ async def export_inventory(db: Session = Depends(get_db)):
 @router.post("/import", response_class=PlainTextResponse)
 async def import_inventory(file: UploadFile = File(...)):
     return f"Received {file.filename}, but import is not implemented."
+
+
 @router.get("", name="inventory.list")
 def list_items(
     request: Request, db: Session = Depends(get_db), user=Depends(current_user)
 ):
     items = (
         db.query(Inventory)
-        .filter(Inventory.durum != "hurda")
+        .filter(or_(Inventory.durum.is_(None), Inventory.durum != "hurda"))
         .order_by(Inventory.id.desc())
         .all()
     )
@@ -273,7 +275,9 @@ def assign_sources(
 ):
     if not type:
         users = db.query(User).order_by(User.full_name.asc()).all()
-        inv_q = db.query(Inventory).filter(Inventory.durum != "hurda")
+        inv_q = db.query(Inventory).filter(
+            or_(Inventory.durum.is_(None), Inventory.durum != "hurda")
+        )
         if exclude_id:
             inv_q = inv_q.filter(Inventory.id != exclude_id)
         inventories = inv_q.order_by(Inventory.id.desc()).all()
@@ -316,7 +320,9 @@ def assign_sources(
         )
         return [{"id": r[0], "text": r[0]} for r in rows if (r[0] or "").strip()]
     if type == "envanter":
-        q = db.query(Inventory).filter(Inventory.durum != "hurda")
+        q = db.query(Inventory).filter(
+            or_(Inventory.durum.is_(None), Inventory.durum != "hurda")
+        )
         if exclude_id:
             q = q.filter(Inventory.id != exclude_id)
         rows = q.order_by(Inventory.id.desc()).all()

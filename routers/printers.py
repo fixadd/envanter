@@ -10,7 +10,7 @@ from fastapi.responses import (
     StreamingResponse,
 )
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import text
+from sqlalchemy import or_, text
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -103,6 +103,8 @@ async def export_printers(db: Session = Depends(get_db)):
 @router.post("/import", response_class=PlainTextResponse)
 async def import_printers(file: UploadFile = File(...)):
     return f"Received {file.filename}, but import is not implemented."
+
+
 def build_changes(old: Printer, new_vals: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
     out: Dict[str, Dict[str, Any]] = {}
     for k, v in new_vals.items():
@@ -139,7 +141,7 @@ def list_printers(
     if durum:
         query = query.filter(Printer.durum == durum)
     else:
-        query = query.filter(Printer.durum != "hurda")
+        query = query.filter(or_(Printer.durum.is_(None), Printer.durum != "hurda"))
     if q:
         like = f"%{q}%"
         query = query.filter(
