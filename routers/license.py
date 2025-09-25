@@ -86,6 +86,8 @@ def _logla(db: Session, lic: License, islem: str, detay: str, islem_yapan: str):
     db.add(
         LicenseLog(license_id=lic.id, islem=islem, detay=detay, islem_yapan=islem_yapan)
     )
+
+
 @router.get("/new", response_class=HTMLResponse, name="license.new")
 def new_license_form(request: Request, db: Session = Depends(get_db)):
     envanterler = db.query(Inventory).order_by(Inventory.no).all()
