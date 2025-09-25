@@ -1,7 +1,5 @@
-{% extends "base.html" %}
-{% import "components/modal_base.html" as modal %}
-{% block title %}Envanter{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% import "components/modal_base.html" as modal %} {%
+block title %}Envanter{% endblock %} {% block content %}
 <div class="container-fluid px-0">
   <div
     class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4"
@@ -11,9 +9,27 @@
       <p class="text-muted small mb-0">Aktif cihaz kayıtlarının listesi</p>
     </div>
     <div class="d-flex gap-2 flex-wrap">
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#invAdd">+ Ekle</button>
-      <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#invEdit">Düzenle</button>
-      <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#invAssign">Atama</button>
+      <button
+        class="btn btn-primary"
+        data-bs-toggle="modal"
+        data-bs-target="#invAdd"
+      >
+        + Ekle
+      </button>
+      <button
+        class="btn btn-outline-secondary"
+        data-bs-toggle="modal"
+        data-bs-target="#invEdit"
+      >
+        Düzenle
+      </button>
+      <button
+        class="btn btn-outline-secondary"
+        data-bs-toggle="modal"
+        data-bs-target="#invAssign"
+      >
+        Atama
+      </button>
     </div>
   </div>
 
@@ -56,21 +72,12 @@
   </div>
 </div>
 
-{% set id = "invAdd" %}
-{% set title = "Envanter Ekle" %}
-{% set action = "/inventory/create" %}
-{% set item = None %}
-{% call modal.body() %}{% include "components/fields_inventory.html" %}{% endcall %}
-
-{% set id = "invEdit" %}
-{% set title = "Envanter Düzenle" %}
-{% set action = "/inventory/" ~ (current_id or '' ) ~ "/edit" %}
-{% set item = current_item %}
-{% call modal.body() %}{% include "components/fields_inventory.html" %}{% endcall %}
-
-{% set id = "invAssign" %}
-{% set title = "Envanter Atama" %}
-{% set action = "/inventory/assign" %}
-{% set item = current_item %}
-{% call modal.body() %}{% include "components/assignment_fields.html" %}{% endcall %}
-{% endblock %}
+{% set id = "invAdd" %} {% set title = "Envanter Ekle" %} {% set action =
+"/inventory/create" %} {% set item = None %} {% call modal.body() %}{% include
+"components/fields_inventory.html" %}{% endcall %} {% set id = "invEdit" %} {%
+set title = "Envanter Düzenle" %} {% set action = "/inventory/" ~ (current_id or
+'' ) ~ "/edit" %} {% set item = current_item %} {% call modal.body() %}{%
+include "components/fields_inventory.html" %}{% endcall %} {% set id =
+"invAssign" %} {% set title = "Envanter Atama" %} {% set action =
+"/inventory/assign" %} {% set item = current_item %} {% call modal.body() %}{%
+include "components/assignment_fields.html" %}{% endcall %} {% endblock %}
