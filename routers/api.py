@@ -72,9 +72,12 @@ def printer_models(
 
 @router.get("/licenses/list")
 def licenses_list(db: Session = Depends(get_db)):
+    active_licenses = or_(
+        models.License.durum.is_(None), models.License.durum != "hurda"
+    )
     rows = (
         db.query(models.License)
-        .filter(models.License.durum != "hurda")
+        .filter(active_licenses)
         .order_by(models.License.id.asc())
         .all()
     )
@@ -92,9 +95,12 @@ def licenses_list(db: Session = Depends(get_db)):
 
 @router.get("/printers/list")
 def printers_list(db: Session = Depends(get_db)):
+    active_printers = or_(
+        models.Printer.durum.is_(None), models.Printer.durum != "hurda"
+    )
     rows = (
         db.query(models.Printer)
-        .filter(models.Printer.durum != "hurda")
+        .filter(active_printers)
         .order_by(models.Printer.id.asc())
         .all()
     )
@@ -152,7 +158,10 @@ def inventory_list(
     departman: str | None = None,
     db: Session = Depends(get_db),
 ):
-    query = db.query(models.Inventory).filter(models.Inventory.durum != "hurda")
+    active_inventory = or_(
+        models.Inventory.durum.is_(None), models.Inventory.durum != "hurda"
+    )
+    query = db.query(models.Inventory).filter(active_inventory)
     if q:
         like = f"%{q}%"
         query = query.filter(

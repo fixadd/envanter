@@ -4,7 +4,7 @@ from types import SimpleNamespace
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import func, text
+from sqlalchemy import func, or_, text
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -26,20 +26,23 @@ templates = Jinja2Templates(directory="templates")
 def dashboard(request: Request, db: Session = Depends(get_db)):
     """Render dashboard with live statistics."""
 
+    active_inventory = or_(Inventory.durum.is_(None), Inventory.durum != "hurda")
+    active_printers = or_(Printer.durum.is_(None), Printer.durum != "hurda")
+    active_licenses = or_(License.durum.is_(None), License.durum != "hurda")
+
     total_inventory = (
-        db.query(func.count(Inventory.id)).filter(Inventory.durum != "hurda").scalar()
+        db.query(func.count(Inventory.id)).filter(active_inventory).scalar()
     )
-    total_printers = (
-        db.query(func.count(Printer.id)).filter(Printer.durum != "hurda").scalar()
-    )
+    total_printers = db.query(func.count(Printer.id)).filter(active_printers).scalar()
     toplam_cihaz = (total_inventory or 0) + (total_printers or 0)
 
     lisans_sayisi = (
-        db.query(func.count(License.id)).filter(License.durum != "hurda").scalar() or 0
+        db.query(func.count(License.id)).filter(active_licenses).scalar() or 0
     )
     bos_lisans_sayisi = (
         db.query(func.count(License.id))
-        .filter(License.inventory_id.is_(None), License.durum != "hurda")
+        .filter(License.inventory_id.is_(None))
+        .filter(active_licenses)
         .scalar()
         or 0
     )
