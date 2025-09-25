@@ -1,47 +1,106 @@
 {% extends "base.html" %} {% block title %}Yazıcı Düzenle{% endblock %} {% block
 content %}
-<div class="container-fluid p-3">
-  <h5 class="mb-3">Yazıcı Düzenle</h5>
-  <form method="post" action="{{ '?modal=1' if modal else '' }}">
-    <div class="mb-2">
-      <label class="form-label">Marka</label>
-      <input
-        type="text"
-        name="marka"
-        value="{{ p.marka or '' }}"
-        class="form-control"
-      />
+<div class="container-fluid py-4">
+  <div class="modal-shell">
+    <div class="modal-shell__header">
+      <div class="modal-shell__heading">
+        <div class="eyebrow text-primary mb-1">Yazıcı #{{ p.id }}</div>
+        <h5 class="modal-shell__title">Yazıcı Bilgilerini Düzenle</h5>
+        <p class="modal-shell__subtitle">
+          {{ ((p.marka or '-') ~ ' ' ~ (p.model or '')) | trim }}{% if p.seri_no
+          %} • Seri No: {{ p.seri_no }}{% endif %}
+        </p>
+      </div>
+      <div class="modal-shell__header-actions">
+        {% if p.envanter_no %}
+        <span class="badge rounded-pill bg-light text-muted modal-shell__badge">
+          {{ p.envanter_no }}
+        </span>
+        {% endif %} {% if not modal %}
+        <a
+          href="/printers/{{ p.id }}"
+          class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1"
+        >
+          <i class="bi bi-arrow-left-short"></i>
+          Geri
+        </a>
+        {% endif %}
+      </div>
     </div>
-    <div class="mb-2">
-      <label class="form-label">Model</label>
-      <input
-        type="text"
-        name="model"
-        value="{{ p.model or '' }}"
-        class="form-control"
-      />
-    </div>
-    <div class="mb-2">
-      <label class="form-label">Seri No</label>
-      <input
-        type="text"
-        name="seri_no"
-        value="{{ p.seri_no or '' }}"
-        class="form-control"
-      />
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Notlar</label>
-      <textarea name="notlar" class="form-control" rows="3">
-{{ p.notlar or '' }}</textarea
-      >
-    </div>
-    <button class="btn btn-primary btn-sm">Kaydet</button>
-    {% if not modal %}
-    <a href="/printers/{{ p.id }}" class="btn btn-outline-secondary btn-sm"
-      >İptal</a
+
+    <form
+      method="post"
+      action="{{ '?modal=1' if modal else '' }}"
+      class="modal-shell__body"
+      autocomplete="off"
     >
-    {% endif %}
-  </form>
+      <div class="modal-form-grid">
+        <div class="form-group">
+          <label class="form-label" for="printerMarka">Marka</label>
+          <input
+            type="text"
+            name="marka"
+            id="printerMarka"
+            value="{{ p.marka or '' }}"
+            class="form-control"
+            placeholder="Örn. HP"
+            autofocus
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="printerModel">Model</label>
+          <input
+            type="text"
+            name="model"
+            id="printerModel"
+            value="{{ p.model or '' }}"
+            class="form-control"
+            placeholder="Örn. LaserJet Pro 400"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="printerSerial">Seri No</label>
+          <input
+            type="text"
+            name="seri_no"
+            id="printerSerial"
+            value="{{ p.seri_no or '' }}"
+            class="form-control"
+            placeholder="Seri numarası"
+          />
+        </div>
+        <div class="form-group modal-form-grid--full">
+          <label class="form-label" for="printerNotes">Notlar</label>
+          <textarea
+            name="notlar"
+            id="printerNotes"
+            class="form-control"
+            rows="4"
+            placeholder="Bakım, toner değişimi veya diğer notlar..."
+          >
+{{ p.notlar or '' }}</textarea
+          >
+        </div>
+      </div>
+
+      <div class="modal-shell__footer">
+        <div class="modal-shell__note">
+          <i class="bi bi-clock-history"></i>
+          <span>Kaydettiğiniz değişiklikler yazıcı geçmişine eklenir.</span>
+        </div>
+        <div class="modal-shell__actions">
+          {% if not modal %}
+          <a href="/printers/{{ p.id }}" class="btn btn-outline-secondary">
+            İptal
+          </a>
+          {% endif %}
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save me-1"></i>
+            Kaydet
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}

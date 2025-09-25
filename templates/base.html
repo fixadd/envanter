@@ -119,7 +119,7 @@
 
     <!-- iframe modal -->
     <div class="modal fade" id="iframeModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="iframeModalTitle"></h5>
@@ -192,10 +192,43 @@ document.addEventListener("DOMContentLoaded", () => {
 // Use this for interactive elements inside rows
 function stopRowClick(e) { e.stopPropagation(); }
 
-function openModal(url, title="") {
+function openModal(url, title="", options={}) {
   const frame = document.getElementById("iframeModalFrame");
   frame.src = url;
   document.getElementById("iframeModalTitle").textContent = title;
+  const dialog = document.querySelector("#iframeModal .modal-dialog");
+  if (dialog) {
+    const sizeClasses = [
+      "modal-sm",
+      "modal-lg",
+      "modal-xl",
+      "modal-fullscreen",
+      "modal-fullscreen-sm-down",
+      "modal-fullscreen-md-down",
+      "modal-fullscreen-lg-down",
+      "modal-fullscreen-xl-down",
+    ];
+    dialog.classList.remove(...sizeClasses);
+    const desired = (options && options.size) || "lg";
+    let applied = false;
+    if (typeof desired === "string" && desired.startsWith("fullscreen")) {
+      if (desired === "fullscreen") {
+        dialog.classList.add("modal-fullscreen");
+        applied = true;
+      } else {
+        dialog.classList.add(`modal-${desired}`);
+        applied = true;
+      }
+    } else if (["sm", "lg", "xl"].includes(desired)) {
+      dialog.classList.add(`modal-${desired}`);
+      applied = true;
+    } else if (["md", "default", "auto", ""].includes(desired)) {
+      applied = true; // leave default sizing (≈md)
+    }
+    if (!applied) {
+      dialog.classList.add("modal-lg");
+    }
+  }
   const modal = new bootstrap.Modal(document.getElementById("iframeModal"));
   modal.show();
 }
@@ -205,7 +238,9 @@ document.addEventListener("click", (e) => {
   const link = e.target.closest("[data-modal-url]");
   if (!link) return;
   e.preventDefault();
-  openModal(link.dataset.modalUrl, link.dataset.modalTitle || "");
+  const title = link.dataset.modalTitle || link.textContent?.trim() || "";
+  const size = link.dataset.modalSize || undefined;
+  openModal(link.dataset.modalUrl, title, { size });
 });
 
 window.addEventListener("message", (e) => {
