@@ -1,0 +1,60 @@
+{% extends "base.html" %} {% block title %}Yazıcılar{% endblock %} {% block
+content %}
+<div class="container-fluid px-0">
+  <div
+    class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4"
+  >
+    <div>
+      <h1 class="h4 mb-1">Yazıcılar</h1>
+      <p class="text-muted small mb-0">Yazıcı envanterine ait kayıtlar</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn-primary" data-open="printerAdd">+ Ekle</button>
+      <button class="btn-secondary" data-open="printerEdit">Düzenle</button>
+    </div>
+  </div>
+
+  <div class="soft-card p-0">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Envanter No</th>
+            <th scope="col">Marka</th>
+            <th scope="col">Model</th>
+            <th scope="col">Fabrika</th>
+            <th scope="col">Departman</th>
+            <th scope="col">IP</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in printers %}
+          <tr>
+            <td>{{ row.envanter_no or '-' }}</td>
+            <td>{{ row.marka or '-' }}</td>
+            <td>{{ row.model or '-' }}</td>
+            <td>{{ row.fabrika or '-' }}</td>
+            <td>{{ row.kullanim_alani or '-' }}</td>
+            <td>{{ row.ip_adresi or '-' }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" class="text-center text-muted py-4">
+              Henüz kayıt bulunmuyor.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% set id = "printerAdd" %} {% set title = "Yazıcı Ekle" %} {% set action =
+"/printers/create" %} {% set item = None %} {% include
+"components/modal_base.html" with context %} {% call(body) %}{% include
+"components/fields_printer.html" %}{% endcall %} {% set id = "printerEdit" %} {%
+set title = "Yazıcı Düzenle" %} {% set action = "/printers/" ~ (current_id or
+'') ~ "/edit" %} {% set item = current_item %} {% include
+"components/modal_base.html" with context %} {% call(body) %}{% include
+"components/fields_printer.html" %}{% endcall %} {% endblock %}
