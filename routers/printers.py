@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import (
     Brand,
+    Factory,
     Inventory,
     Model,
     Printer,
