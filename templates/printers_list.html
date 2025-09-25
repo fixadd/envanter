@@ -118,7 +118,7 @@ content %}
             #' ~ p.id) %} {% set fault_title = (p.marka ~ ' ' ~ p.model)|trim %}
             {% set fault_entity_key = p.envanter_no or p.id %} {% set
             fault_status = p.durum %} {% include 'partials/_actions_menu.html'
-            %}
+            with edit_modal_size='md' %}
           </td>
         </tr>
         {% endfor %}
