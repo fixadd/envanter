@@ -6,7 +6,8 @@ content %}
       <div>
         <h2 class="form-shell__title">Yazıcı Düzenle</h2>
         <p class="form-shell__subtitle">
-          Yazıcı bilgilerini güncelleyerek takip kayıtlarını tutarlı hale getirin.
+          Yazıcı bilgilerini güncelleyerek takip kayıtlarını tutarlı hale
+          getirin.
         </p>
       </div>
       {% if not modal %}
@@ -51,11 +52,9 @@ content %}
           </div>
           <div class="grid-span-2">
             <label class="form-label">Notlar</label>
-            <textarea
-              name="notlar"
-              class="form-control"
-              rows="3"
-            >{{ p.notlar or '' }}</textarea>
+            <textarea name="notlar" class="form-control" rows="3">
+{{ p.notlar or '' }}</textarea
+            >
           </div>
         </div>
       </div>
