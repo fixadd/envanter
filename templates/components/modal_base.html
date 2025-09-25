@@ -1,21 +1,31 @@
-{% macro body() %}
-{# Bootstrap 5 tabanlı ortak modal #}
+{% macro body() %} {# Bootstrap 5 tabanlı ortak modal #}
 <div class="modal fade" id="{{ id }}" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content custom-modal">
       <div class="modal-header">
         <h5 class="modal-title">{{ title }}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Kapat"
+        ></button>
       </div>
 
-      <form action="{{ action or '' }}" method="{{ method or 'post' }}" id="{{ id }}-form">
-        <div class="modal-body">
-          {{ caller() }}
-        </div>
+      <form
+        action="{{ action or '' }}"
+        method="{{ method or 'post' }}"
+        id="{{ id }}-form"
+      >
+        <div class="modal-body">{{ caller() }}</div>
 
         <div class="modal-footer">
           {% if secondary_label is not defined or secondary_label %}
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
             {{ secondary_label or 'İptal' }}
           </button>
           {% endif %}
