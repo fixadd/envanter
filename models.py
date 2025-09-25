@@ -37,7 +37,28 @@ from sqlalchemy.orm import (
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/app.db")
+
+def _resolve_database_url() -> str:
+    """Return the configured database URL with legacy fallbacks."""
+
+    env_url = os.getenv("DATABASE_URL")
+    if env_url:
+        return env_url
+
+    legacy_paths = [
+        Path("./data/envanter.db"),
+        Path("./data/envanter.sqlite"),
+        Path("./data/envanter.sqlite3"),
+    ]
+
+    for path in legacy_paths:
+        if path.exists():
+            return f"sqlite:///{path.as_posix()}"
+
+    return "sqlite:///./data/app.db"
+
+
+DATABASE_URL = _resolve_database_url()
 
 
 def _is_sqlite_url(url: str | URL) -> bool:
