@@ -16,12 +16,7 @@ block content %}
   <div class="form-grid form-grid-2" id="inventory-edit-grid">
     <div class="form-field">
       <label>Envanter No</label>
-      <input
-        type="text"
-        class="form-control"
-        value="{{ item.no }}"
-        readonly
-      />
+      <input type="text" class="form-control" value="{{ item.no }}" readonly />
     </div>
     <div class="form-field">
       <label>Bilgisayar Adı</label>
@@ -37,7 +32,11 @@ block content %}
     </div>
     <div class="form-field">
       <label>Donanım Tipi</label>
-      <select id="edit_donanim" name="donanim_tipi" class="form-select"></select>
+      <select
+        id="edit_donanim"
+        name="donanim_tipi"
+        class="form-select"
+      ></select>
     </div>
     <div class="form-field">
       <label>Sorumlu Personel</label>
@@ -63,7 +62,11 @@ block content %}
     </div>
     <div class="form-field">
       <label>Kullanım Alanı</label>
-      <select id="edit_kullanim" name="kullanim_alani" class="form-select"></select>
+      <select
+        id="edit_kullanim"
+        name="kullanim_alani"
+        class="form-select"
+      ></select>
     </div>
     <div class="form-field">
       <label>IFS No</label>
