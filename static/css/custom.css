@@ -1155,3 +1155,258 @@ tr[data-href] > td:first-child {
   width: 100%;
   object-fit: cover;
 }
+/* =============================================================================
+   ENVANTER SAYFA DÜZELTMELERİ - TEK DOSYA
+   Bu kodu static/css/custom.css dosyasının EN SONUNA ekleyin
+   - Boşluk sorunları çözüldü
+   - Atama Yap ve Düzenle butonları tasarıma uygun hale getirildi
+   - Bağlantılar sekmesi düzeltildi
+============================================================================= */
+
+/* ========== 1. BOŞLUK SORUNLARI ========== */
+
+/* Navbar altındaki boşluğu kaldır */
+.container-fluid.p-3 {
+  padding-top: 1rem !important;
+  margin-top: 0 !important;
+}
+
+nav.navbar + .container-fluid {
+  margin-top: 0 !important;
+  padding-top: 1rem !important;
+}
+
+/* Sayfa başlığı ve sekme arası boşluğu azalt */
+.tabs-wrap {
+  margin-top: 1rem !important;
+  margin-bottom: 0 !important;
+}
+
+/* Sekme ile içerik arası boşluğu optimize et */
+.page-section {
+  margin-top: -1px !important;
+  padding: 1.25rem !important;
+}
+
+/* Envanter listesi başlık alanı */
+.container-fluid > h5:first-child {
+  margin-bottom: 1rem !important;
+  margin-top: 0 !important;
+}
+
+/* Filtre ve arama çubuğu ile tablo arası boşluk */
+.filter-search-bar {
+  margin-bottom: 1.25rem !important;
+}
+
+/* Kart başlıkları ile içerik arası boşluk */
+.card-header + .card-body {
+  padding-top: 1rem !important;
+}
+
+/* Modal içindeki form elemanları */
+.modal-body .env-grid {
+  gap: 1rem !important;
+}
+
+/* Buton grupları arası boşluk */
+.d-flex.gap-2 {
+  gap: 0.5rem !important;
+}
+
+/* Sayfa genel boşluk ayarı */
+body .container-fluid {
+  padding: 1rem 1.5rem !important;
+}
+
+/* ========== 2. ATAMA YAP VE DÜZENLE BUTONLARI - MODERN TASARIM ========== */
+
+/* Actions Menu Container */
+.d-flex.align-items-center {
+  gap: 0.5rem;
+}
+
+/* Göz İkonu (Detay) Butonu - MOR-MAVİ GRADIENT */
+.js-view {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  color: white !important;
+  padding: 0.4rem 0.65rem !important;
+  border-radius: 8px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.js-view:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4) !important;
+  background: linear-gradient(135deg, #5568d3 0%, #6b3f99 100%) !important;
+}
+
+.js-view:active {
+  transform: translateY(0);
+}
+
+.js-view i {
+  font-size: 1rem;
+}
+
+/* Select (Atama Yap / Düzenle) Dropdown - PEMBE-KIRMIZI GRADIENT */
+.action-select.js-actions {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 600 !important;
+  padding: 0.4rem 0.75rem !important;
+  border-radius: 8px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 2px 8px rgba(245, 87, 108, 0.3) !important;
+  cursor: pointer;
+  min-width: 140px;
+  appearance: none;
+  background-image:
+    linear-gradient(135deg, #f093fb 0%, #f5576c 100%),
+    url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat, no-repeat;
+  background-position:
+    center,
+    right 0.5rem center;
+  background-size: auto, 1rem;
+  padding-right: 2rem !important;
+}
+
+.action-select.js-actions:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(245, 87, 108, 0.4) !important;
+  background-image:
+    linear-gradient(135deg, #e082ea 0%, #e4465b 100%),
+    url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}
+
+.action-select.js-actions:active {
+  transform: translateY(0);
+}
+
+.action-select.js-actions:focus {
+  outline: 3px solid rgba(245, 87, 108, 0.3);
+  outline-offset: 2px;
+}
+
+/* Dropdown Options */
+.action-select.js-actions option {
+  background: white !important;
+  color: #1f2937 !important;
+  padding: 0.5rem !important;
+}
+
+.action-select.js-actions option:hover {
+  background: #f3f4f6 !important;
+}
+
+/* Arızalı durumda buton renkleri - SARI-TURUNCU GRADIENT */
+tr[data-fault-status="arızalı"] .action-select.js-actions,
+tr[data-fault-status="arizali"] .action-select.js-actions {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+  background-image:
+    linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%),
+    url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3) !important;
+}
+
+/* ========== 3. BAĞLANTILAR SEKMESİ DÜZELTMELERİ ========== */
+
+/* Tab Navigation */
+.nav.nav-tabs {
+  border-bottom: none !important;
+  gap: 0.25rem;
+  margin-bottom: 0 !important;
+}
+
+.nav-tabs .nav-link {
+  border: 1px solid var(--color-border) !important;
+  border-bottom: 0 !important;
+  background: var(--color-surface-elevated) !important;
+  color: var(--color-heading) !important;
+  border-radius: 12px 12px 0 0 !important;
+  padding: 0.65rem 1.25rem !important;
+  font-weight: 600;
+  transition: all 0.3s ease !important;
+  margin-bottom: 0 !important;
+}
+
+.nav-tabs .nav-link:hover {
+  background: var(--color-surface) !important;
+  transform: translateY(-2px);
+}
+
+.nav-tabs .nav-link.active {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) var(--color-border) var(--color-surface) !important;
+  position: relative;
+  z-index: 2;
+}
+
+/* Tab Content */
+.tab-content {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 0 12px 12px 12px !important;
+  padding: 1.5rem !important;
+  margin-top: -1px !important;
+}
+
+/* ========== 4. TABLO İÇİNDEKİ İŞLEMLER KOLONU ========== */
+
+/* İşlemler kolonu genişliği */
+.table td:last-child,
+.table th:last-child {
+  width: 220px;
+  min-width: 220px;
+}
+
+/* ========== 5. RESPONSIVE AYARLAR ========== */
+
+@media (max-width: 768px) {
+  .d-flex.align-items-center {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .js-view,
+  .action-select.js-actions {
+    width: 100%;
+  }
+
+  .nav-tabs .nav-link {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 576px) {
+  body .container-fluid {
+    padding: 0.75rem 1rem !important;
+  }
+}
+
+/* ========== NOTLAR ========== */
+/*
+🎨 RENK PALETİ:
+- Detay Butonu: Mor-Mavi Gradient (#667eea → #764ba2)
+- Atama/Düzenle: Pembe-Kırmızı Gradient (#f093fb → #f5576c)
+- Arızalı Durum: Sarı-Turuncu Gradient (#fbbf24 → #f59e0b)
+
+📋 UYGULAMA:
+1. Bu kodu static/css/custom.css dosyasının EN SONUNA ekleyin
+2. Tarayıcı cache'ini temizleyin (Ctrl+F5 veya Cmd+Shift+R)
+3. Sayfayı yenileyin
+
+✅ ÇÖZÜLEN SORUNLAR:
+- Navbar altındaki boşluklar
+- Butonların görünümü
+- Bağlantılar sekmesi tasarımı
+- Responsive uyumluluk
+*/
