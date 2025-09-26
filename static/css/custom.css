@@ -1267,11 +1267,13 @@ body .container-fluid {
   cursor: pointer;
   min-width: 140px;
   appearance: none;
-  background-image: 
+  background-image:
     linear-gradient(135deg, #f093fb 0%, #f5576c 100%),
     url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
   background-repeat: no-repeat, no-repeat;
-  background-position: center, right 0.5rem center;
+  background-position:
+    center,
+    right 0.5rem center;
   background-size: auto, 1rem;
   padding-right: 2rem !important;
 }
@@ -1279,7 +1281,7 @@ body .container-fluid {
 .action-select.js-actions:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(245, 87, 108, 0.4) !important;
-  background-image: 
+  background-image:
     linear-gradient(135deg, #e082ea 0%, #e4465b 100%),
     url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
 }
@@ -1308,7 +1310,7 @@ body .container-fluid {
 tr[data-fault-status="arızalı"] .action-select.js-actions,
 tr[data-fault-status="arizali"] .action-select.js-actions {
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
-  background-image: 
+  background-image:
     linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%),
     url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
   box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3) !important;
@@ -1372,12 +1374,12 @@ tr[data-fault-status="arizali"] .action-select.js-actions {
     flex-direction: column;
     align-items: stretch !important;
   }
-  
+
   .js-view,
   .action-select.js-actions {
     width: 100%;
   }
-  
+
   .nav-tabs .nav-link {
     padding: 0.5rem 0.75rem !important;
     font-size: 0.875rem;
