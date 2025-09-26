@@ -1,7 +1,5 @@
-{% extends "base.html" %}
-{% block title %}Stok Takibi{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Stok Takibi{% endblock %} {% block
+content %}
 <div class="container-fluid py-4">
   <div class="page-shell">
     <header class="page-header">
@@ -9,28 +7,53 @@
         <span class="eyebrow text-primary">Stok Takip</span>
         <h1 class="page-header__title">Stok Yönetimi</h1>
         <p class="page-header__subtitle">
-          Donanım, yazıcı ve lisans stok hareketlerini izleyin ve hızlıca işlem yapın.
+          Donanım, yazıcı ve lisans stok hareketlerini izleyin ve hızlıca işlem
+          yapın.
         </p>
       </div>
       <div class="page-header__actions page-actions">
         <div class="page-actions__group">
-          <button class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#modalStockAdd">
+          <button
+            class="btn btn-success btn-sm d-flex align-items-center gap-1"
+            title="Yeni Ekle"
+            data-bs-toggle="modal"
+            data-bs-target="#modalStockAdd"
+          >
             <i class="bi bi-plus-lg"></i>
             <span>Ekle</span>
           </button>
-          {% with fault_entity='stock', fault_prefix='stock', fault_label='Stok Arızalı Durum' %}
-            {% include 'partials/_fault_controls.html' %}
-          {% endwith %}
+          {% with fault_entity='stock', fault_prefix='stock', fault_label='Stok
+          Arızalı Durum' %} {% include 'partials/_fault_controls.html' %} {%
+          endwith %}
           <div class="dropdown">
-            <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <button
+              class="btn btn-outline-primary btn-sm dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
               Excel
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="/stock/export">Dışa Aktar</a></li>
               <li>
-                <form action="/stock/import" method="post" enctype="multipart/form-data">
-                  <input type="file" name="file" id="stockExcel" class="d-none" onchange="this.form.submit()">
-                  <label for="stockExcel" class="dropdown-item mb-0">İçe Aktar</label>
+                <a class="dropdown-item" href="/stock/export">Dışa Aktar</a>
+              </li>
+              <li>
+                <form
+                  action="/stock/import"
+                  method="post"
+                  enctype="multipart/form-data"
+                >
+                  <input
+                    type="file"
+                    name="file"
+                    id="stockExcel"
+                    class="d-none"
+                    onchange="this.form.submit()"
+                  />
+                  <label for="stockExcel" class="dropdown-item mb-0"
+                    >İçe Aktar</label
+                  >
                 </form>
               </li>
             </ul>
@@ -38,7 +61,12 @@
         </div>
         <div class="page-actions__group page-actions__group--grow">
           <label for="stockSearch" class="visually-hidden">Ara</label>
-          <input type="text" id="stockSearch" class="form-control form-control-sm" placeholder="Ara">
+          <input
+            type="text"
+            id="stockSearch"
+            class="form-control form-control-sm"
+            placeholder="Ara"
+          />
         </div>
       </div>
     </header>
@@ -47,422 +75,803 @@
       <div class="tabs-wrap">
         <ul class="nav nav-tabs" id="stockTabs" role="tablist">
           <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="tab-log" data-bs-toggle="tab" data-bs-target="#pane-log" type="button" role="tab">Log</button>
+            <button
+              class="nav-link active"
+              id="tab-log"
+              data-bs-toggle="tab"
+              data-bs-target="#pane-log"
+              type="button"
+              role="tab"
+            >
+              Log
+            </button>
           </li>
           <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-status" data-bs-toggle="tab" data-bs-target="#pane-status" type="button" role="tab">Stok Durumu</button>
+            <button
+              class="nav-link"
+              id="tab-status"
+              data-bs-toggle="tab"
+              data-bs-target="#pane-status"
+              type="button"
+              role="tab"
+            >
+              Stok Durumu
+            </button>
           </li>
         </ul>
       </div>
       <div class="page-section">
-    <div class="tab-content" id="stockTabContent">
-      <div class="tab-pane fade show active" id="pane-log" role="tabpanel">
-        <div class="table-responsive">
-          <table class="table table-sm align-middle table-rounded">
-            <thead class="table-light">
-              <tr>
-                <th style="width:72px;">ID</th>
-                <th>Donanım Tipi</th>
-                <th>Miktar</th>
-                <th>IFS No</th>
-                <th>Tarih</th>
-                <th>İşlem</th>
-                <th>İşlem Yapan</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for r in logs %}
-              <tr>
-                <td>#{{ r.id }}</td>
-                <td>{{ hardware_map.get(r.donanim_tipi) or license_map.get(r.donanim_tipi) or r.donanim_tipi }}</td>
-                <td>{{ r.miktar }}</td>
-                <td>{{ r.ifs_no or '-' }}</td>
-                <td>{{ (r.tarih).strftime("%d.%m.%Y %H:%M") if r.tarih else '-' }}</td>
-                <td>
-                  {% if r.islem == 'girdi' %}<span class="badge text-bg-success">Girdi</span>
-                  {% elif r.islem == 'cikti' %}<span class="badge text-bg-warning">Çıktı</span>
-                  {% else %}<span class="badge text-bg-secondary">Atama</span>{% endif %}
-                </td>
-                <td>{{ r.actor or '-' }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="tab-pane fade" id="pane-status" role="tabpanel">
-        <div class="tabs-wrap mt-3">
-          <ul class="nav nav-tabs" id="stockStatusTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="status-tab-inventory" data-bs-toggle="tab" data-bs-target="#stock-status-inventory" type="button" role="tab" aria-controls="stock-status-inventory" aria-selected="true">Envanter</button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="status-tab-printer" data-bs-toggle="tab" data-bs-target="#stock-status-printer" type="button" role="tab" aria-controls="stock-status-printer" aria-selected="false">Yazıcı</button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="status-tab-license" data-bs-toggle="tab" data-bs-target="#stock-status-license" type="button" role="tab" aria-controls="stock-status-license" aria-selected="false">Yazılım</button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="status-tab-system-room" data-bs-toggle="tab" data-bs-target="#stock-status-system-room" type="button" role="tab" aria-controls="stock-status-system-room" aria-selected="false">Sistem Odası</button>
-            </li>
-          </ul>
-        </div>
-        <div class="d-flex justify-content-end gap-2 mt-3">
-          <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSystemRoomAdd" disabled>Seçilenleri Sistem Odasına Ata</button>
-          <button type="button" class="btn btn-outline-danger btn-sm" id="btnSystemRoomRemove" disabled>Seçilenleri Sistem Odasından Çıkar</button>
-        </div>
-        <div class="tab-content mt-3" id="stockStatusTabContent">
-          <div class="tab-pane fade show active" id="stock-status-inventory" role="tabpanel" aria-labelledby="status-tab-inventory">
+        <div class="tab-content" id="stockTabContent">
+          <div class="tab-pane fade show active" id="pane-log" role="tabpanel">
             <div class="table-responsive">
-              <table class="table table-sm stock-status-table table-rounded" id="tblStockStatusInventory">
+              <table class="table table-sm align-middle table-rounded">
                 <thead class="table-light">
                   <tr>
-                    <th class="text-center" style="width: 42px;"><span class="visually-hidden">Seç</span></th>
+                    <th style="width: 72px">ID</th>
                     <th>Donanım Tipi</th>
-                    <th>Marka</th>
-                    <th>Model</th>
+                    <th>Miktar</th>
                     <th>IFS No</th>
-                    <th class="text-end">Stok</th>
-                    <th>Son İşlem</th>
-                    <th class="text-center">İşlemler</th>
-                    <th class="text-center">Sistem Odası</th>
+                    <th>Tarih</th>
+                    <th>İşlem</th>
+                    <th>İşlem Yapan</th>
                   </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                  {% for r in logs %}
+                  <tr>
+                    <td>#{{ r.id }}</td>
+                    <td>
+                      {{ hardware_map.get(r.donanim_tipi) or
+                      license_map.get(r.donanim_tipi) or r.donanim_tipi }}
+                    </td>
+                    <td>{{ r.miktar }}</td>
+                    <td>{{ r.ifs_no or '-' }}</td>
+                    <td>
+                      {{ (r.tarih).strftime("%d.%m.%Y %H:%M") if r.tarih else
+                      '-' }}
+                    </td>
+                    <td>
+                      {% if r.islem == 'girdi' %}<span
+                        class="badge text-bg-success"
+                        >Girdi</span
+                      >
+                      {% elif r.islem == 'cikti' %}<span
+                        class="badge text-bg-warning"
+                        >Çıktı</span
+                      >
+                      {% else %}<span class="badge text-bg-secondary"
+                        >Atama</span
+                      >{% endif %}
+                    </td>
+                    <td>{{ r.actor or '-' }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
               </table>
             </div>
           </div>
-          <div class="tab-pane fade" id="stock-status-printer" role="tabpanel" aria-labelledby="status-tab-printer">
-            <div class="table-responsive">
-              <table class="table table-sm stock-status-table table-rounded" id="tblStockStatusPrinters">
-                <thead class="table-light">
-                  <tr>
-                    <th class="text-center" style="width: 42px;"><span class="visually-hidden">Seç</span></th>
-                    <th>Donanım Tipi</th>
-                    <th>Marka</th>
-                    <th>Model</th>
-                    <th>IFS No</th>
-                    <th class="text-end">Stok</th>
-                    <th>Son İşlem</th>
-                    <th class="text-center">İşlemler</th>
-                    <th class="text-center">Sistem Odası</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-          <div class="tab-pane fade" id="stock-status-license" role="tabpanel" aria-labelledby="status-tab-license">
-            <div class="table-responsive">
-              <table class="table table-sm stock-status-table table-rounded" id="tblStockStatusLicense">
-                <thead class="table-light">
-                  <tr>
-                    <th class="text-center" style="width: 42px;"><span class="visually-hidden">Seç</span></th>
-                    <th>Donanım Tipi</th>
-                    <th>Marka</th>
-                    <th>Model</th>
-                    <th>IFS No</th>
-                    <th class="text-end">Stok</th>
-                    <th>Son İşlem</th>
-                    <th class="text-center">İşlemler</th>
-                    <th class="text-center">Sistem Odası</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-          <div class="tab-pane fade" id="stock-status-system-room" role="tabpanel" aria-labelledby="status-tab-system-room">
-            <div class="table-responsive">
-              <table class="table table-sm stock-status-table table-rounded" id="tblStockStatusSystemRoom">
-                <thead class="table-light">
-                  <tr>
-                    <th class="text-center" style="width: 42px;"><span class="visually-hidden">Seç</span></th>
-                    <th>Tür</th>
-                    <th>Donanım Tipi</th>
-                    <th>Marka</th>
-                    <th>Model</th>
-                    <th>IFS No</th>
-                    <th class="text-end">Stok</th>
-                    <th>Son İşlem</th>
-                    <th>Atayan</th>
-                    <th class="text-center">İşlem</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="stokDetailModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-sm">
-    <div class="modal-content border-0 bg-transparent p-0">
-      <div class="modal-shell">
-        <div class="modal-shell__header">
-          <div class="modal-shell__heading">
-            <h5 class="modal-shell__title">Stok Detayı</h5>
-            <p class="modal-shell__subtitle">
-              Seçili hareket hakkında özet bilgileri görüntüleyin.
-            </p>
-          </div>
-          <div class="modal-shell__header-actions">
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-          </div>
-        </div>
-        <div class="modal-shell__body">
-          <dl class="row mb-0 small" id="stokDetailList"></dl>
-          <div class="mt-3 d-none" id="stokDetailLinkWrap">
-            <a id="stokDetailLink" class="btn btn-link btn-sm ps-0" href="#" target="_blank" rel="noopener">Kaynağı aç</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- STOK EKLE MODALI -->
-<div class="modal fade" id="modalStockAdd" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-    <form id="frmStockAdd" class="modal-content border-0 bg-transparent p-0">
-      <div class="modal-shell">
-        <div class="modal-shell__header">
-          <div class="modal-shell__heading">
-            <h5 class="modal-shell__title">Stok Ekle</h5>
-            <p class="modal-shell__subtitle">
-              Envanter veya lisans stok hareketlerini sisteme ekleyin.
-            </p>
-          </div>
-          <div class="modal-shell__header-actions">
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-          </div>
-        </div>
-
-        <div class="modal-shell__body stack-md">
-          <div>
-            <ul class="nav nav-pills" id="stockAddType" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button class="nav-link active" type="button" data-stock-add-type="inventory" aria-selected="true">Envanter</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" type="button" data-stock-add-type="license" aria-selected="false">Lisans</button>
-              </li>
-            </ul>
-          </div>
-
-          <div id="hardwareFields">
-            <div class="form-grid form-grid--compact stok-row">
-              <div class="form-group">
-                <label class="form-label" for="stok_donanim_tipi">Donanım Tipi</label>
-                <select name="donanim_tipi" class="form-select" data-lookup="donanim_tipi" id="stok_donanim_tipi" required></select>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="stok_marka">Marka (ops.)</label>
-                <select name="marka" class="form-select" data-lookup="marka" id="stok_marka"></select>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="stok_model">Model (ops.)</label>
-                <select name="model" class="form-select" data-lookup="model" data-depends="#stok_marka" id="stok_model"></select>
-              </div>
-              <div class="form-group" id="rowMiktar">
-                <label class="form-label" for="miktar">Miktar</label>
-                <input type="number" min="1" id="miktar" name="miktar" class="form-control" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="ifs_no">IFS No (opsiyonel)</label>
-                <input type="text" id="ifs_no" name="ifs_no" class="form-control">
-              </div>
-            </div>
-          </div>
-
-          <div id="licenseFields" class="d-none">
-            <div class="form-grid form-grid--compact">
-              <div class="form-group">
-                <label class="form-label" for="lisans_adi">Lisans Adı</label>
-                <select id="lisans_adi" name="lisans_adi" class="form-select" data-lookup="lisans_adi" required></select>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="lisans_anahtari">Lisans Anahtarı</label>
-                <input type="text" id="lisans_anahtari" name="lisans_anahtari" class="form-control" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="mail_adresi">E-posta (opsiyonel)</label>
-                <input type="email" id="mail_adresi" name="mail_adresi" class="form-control">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-shell__footer">
-          <div class="modal-shell__actions">
-            <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">Kapat</button>
-            <button class="btn btn-primary" type="submit">Kaydet</button>
-          </div>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- STOK ATAMA MODALI -->
-<div class="modal fade" id="stokAtamaModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-    <div class="modal-content border-0 bg-transparent p-0">
-      <div class="modal-shell">
-        <div class="modal-shell__header">
-          <div class="modal-shell__heading">
-            <h5 class="modal-shell__title">Stok Atama</h5>
-            <p class="modal-shell__subtitle">
-              Stok durumu tablosundan seçtiğiniz kalemi envantere, yazıcıya veya lisansa atayın.
-            </p>
-          </div>
-          <div class="modal-shell__header-actions">
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-          </div>
-        </div>
-
-        <div class="modal-shell__body">
-          <form id="stockAssignForm" class="vstack gap-3">
-            <div>
-              <p class="form-label fw-semibold mb-2">Seçilen Stok</p>
-              <div id="sa_stock_alert" class="alert alert-warning py-2 px-3 small mb-0" role="alert">
-                Atama yapmak için stok durumu tablosundaki <strong>Atama</strong> düğmesini kullanınız.
-              </div>
-              <div id="sa_stock_meta" class="mt-2 d-none">
-                <div class="border rounded p-2 small bg-light-subtle">
-                  <div class="d-flex flex-wrap gap-3 align-items-center mb-1">
-                    <span class="fw-semibold" id="sa_meta_tip">-</span>
-                    <span id="sa_meta_brand_wrap" class="d-none"><span class="text-muted">Marka:</span> <span id="sa_meta_brand">-</span></span>
-                    <span id="sa_meta_model_wrap" class="d-none"><span class="text-muted">Model:</span> <span id="sa_meta_model">-</span></span>
-                    <span><span class="text-muted">IFS:</span> <span id="sa_meta_ifs">-</span></span>
-                    <span><span class="text-muted">Mevcut:</span> <span id="sa_meta_qty">0</span></span>
-                  </div>
-                  <div class="d-flex flex-wrap gap-3" id="sa_meta_license_row">
-                    <span id="sa_meta_license_wrap" class="d-none"><span class="text-muted">Lisans:</span> <span id="sa_meta_license">-</span></span>
-                    <span id="sa_meta_mail_wrap" class="d-none"><span class="text-muted">Mail:</span> <span id="sa_meta_mail">-</span></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label class="form-label fw-semibold">Atama Türü</label>
-              <ul class="nav nav-tabs" id="sa_tabs" role="tablist">
+          <div class="tab-pane fade" id="pane-status" role="tabpanel">
+            <div class="tabs-wrap mt-3">
+              <ul class="nav nav-tabs" id="stockStatusTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                  <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#sa_tab_lisans" type="button" role="tab">Lisans</button>
+                  <button
+                    class="nav-link active"
+                    id="status-tab-inventory"
+                    data-bs-toggle="tab"
+                    data-bs-target="#stock-status-inventory"
+                    type="button"
+                    role="tab"
+                    aria-controls="stock-status-inventory"
+                    aria-selected="true"
+                  >
+                    Envanter
+                  </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sa_tab_envanter" type="button" role="tab">Envanter</button>
+                  <button
+                    class="nav-link"
+                    id="status-tab-printer"
+                    data-bs-toggle="tab"
+                    data-bs-target="#stock-status-printer"
+                    type="button"
+                    role="tab"
+                    aria-controls="stock-status-printer"
+                    aria-selected="false"
+                  >
+                    Yazıcı
+                  </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sa_tab_yazici" type="button" role="tab">Yazıcı</button>
+                  <button
+                    class="nav-link"
+                    id="status-tab-license"
+                    data-bs-toggle="tab"
+                    data-bs-target="#stock-status-license"
+                    type="button"
+                    role="tab"
+                    aria-controls="stock-status-license"
+                    aria-selected="false"
+                  >
+                    Yazılım
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link"
+                    id="status-tab-system-room"
+                    data-bs-toggle="tab"
+                    data-bs-target="#stock-status-system-room"
+                    type="button"
+                    role="tab"
+                    aria-controls="stock-status-system-room"
+                    aria-selected="false"
+                  >
+                    Sistem Odası
+                  </button>
                 </li>
               </ul>
+            </div>
+            <div class="d-flex justify-content-end gap-2 mt-3">
+              <button
+                type="button"
+                class="btn btn-outline-secondary btn-sm"
+                id="btnSystemRoomAdd"
+                disabled
+              >
+                Seçilenleri Sistem Odasına Ata
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-danger btn-sm"
+                id="btnSystemRoomRemove"
+                disabled
+              >
+                Seçilenleri Sistem Odasından Çıkar
+              </button>
+            </div>
+            <div class="tab-content mt-3" id="stockStatusTabContent">
+              <div
+                class="tab-pane fade show active"
+                id="stock-status-inventory"
+                role="tabpanel"
+                aria-labelledby="status-tab-inventory"
+              >
+                <div class="table-responsive">
+                  <table
+                    class="table table-sm stock-status-table table-rounded"
+                    id="tblStockStatusInventory"
+                  >
+                    <thead class="table-light">
+                      <tr>
+                        <th class="text-center" style="width: 42px">
+                          <span class="visually-hidden">Seç</span>
+                        </th>
+                        <th>Donanım Tipi</th>
+                        <th>Marka</th>
+                        <th>Model</th>
+                        <th>IFS No</th>
+                        <th class="text-end">Stok</th>
+                        <th>Son İşlem</th>
+                        <th class="text-center">İşlemler</th>
+                        <th class="text-center">Sistem Odası</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+              <div
+                class="tab-pane fade"
+                id="stock-status-printer"
+                role="tabpanel"
+                aria-labelledby="status-tab-printer"
+              >
+                <div class="table-responsive">
+                  <table
+                    class="table table-sm stock-status-table table-rounded"
+                    id="tblStockStatusPrinters"
+                  >
+                    <thead class="table-light">
+                      <tr>
+                        <th class="text-center" style="width: 42px">
+                          <span class="visually-hidden">Seç</span>
+                        </th>
+                        <th>Donanım Tipi</th>
+                        <th>Marka</th>
+                        <th>Model</th>
+                        <th>IFS No</th>
+                        <th class="text-end">Stok</th>
+                        <th>Son İşlem</th>
+                        <th class="text-center">İşlemler</th>
+                        <th class="text-center">Sistem Odası</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+              <div
+                class="tab-pane fade"
+                id="stock-status-license"
+                role="tabpanel"
+                aria-labelledby="status-tab-license"
+              >
+                <div class="table-responsive">
+                  <table
+                    class="table table-sm stock-status-table table-rounded"
+                    id="tblStockStatusLicense"
+                  >
+                    <thead class="table-light">
+                      <tr>
+                        <th class="text-center" style="width: 42px">
+                          <span class="visually-hidden">Seç</span>
+                        </th>
+                        <th>Donanım Tipi</th>
+                        <th>Marka</th>
+                        <th>Model</th>
+                        <th>IFS No</th>
+                        <th class="text-end">Stok</th>
+                        <th>Son İşlem</th>
+                        <th class="text-center">İşlemler</th>
+                        <th class="text-center">Sistem Odası</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+              <div
+                class="tab-pane fade"
+                id="stock-status-system-room"
+                role="tabpanel"
+                aria-labelledby="status-tab-system-room"
+              >
+                <div class="table-responsive">
+                  <table
+                    class="table table-sm stock-status-table table-rounded"
+                    id="tblStockStatusSystemRoom"
+                  >
+                    <thead class="table-light">
+                      <tr>
+                        <th class="text-center" style="width: 42px">
+                          <span class="visually-hidden">Seç</span>
+                        </th>
+                        <th>Tür</th>
+                        <th>Donanım Tipi</th>
+                        <th>Marka</th>
+                        <th>Model</th>
+                        <th>IFS No</th>
+                        <th class="text-end">Stok</th>
+                        <th>Son İşlem</th>
+                        <th>Atayan</th>
+                        <th class="text-center">İşlem</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-              <div class="tab-content border border-top-0 p-3 rounded-bottom">
-                <div class="tab-pane fade show active" id="sa_tab_lisans" role="tabpanel">
-                  <div class="form-grid form-grid--compact">
-                    <div class="form-group">
-                      <label class="form-label">Lisans Adı</label>
-                      <select class="form-select" id="sa_license_select" data-stock-assign="license"></select>
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label">Sorumlu</label>
-                      <select class="form-select" id="sa_license_owner"></select>
-                    </div>
-                    <div class="form-group form-grid__full">
-                      <label class="form-label">Açıklama</label>
-                      <textarea class="form-control" rows="2" id="sa_license_note" placeholder="Opsiyonel"></textarea>
-                    </div>
+    <div
+      class="modal fade"
+      id="stokDetailModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 bg-transparent p-0">
+          <div class="modal-shell">
+            <div class="modal-shell__header">
+              <div class="modal-shell__heading">
+                <h5 class="modal-shell__title">Stok Detayı</h5>
+                <p class="modal-shell__subtitle">
+                  Seçili hareket hakkında özet bilgileri görüntüleyin.
+                </p>
+              </div>
+              <div class="modal-shell__header-actions">
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Kapat"
+                ></button>
+              </div>
+            </div>
+            <div class="modal-shell__body">
+              <dl class="row mb-0 small" id="stokDetailList"></dl>
+              <div class="mt-3 d-none" id="stokDetailLinkWrap">
+                <a
+                  id="stokDetailLink"
+                  class="btn btn-link btn-sm ps-0"
+                  href="#"
+                  target="_blank"
+                  rel="noopener"
+                  >Kaynağı aç</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STOK EKLE MODALI -->
+    <div class="modal fade" id="modalStockAdd" tabindex="-1" aria-hidden="true">
+      <div
+        class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+      >
+        <form
+          id="frmStockAdd"
+          class="modal-content border-0 bg-transparent p-0"
+        >
+          <div class="modal-shell">
+            <div class="modal-shell__header">
+              <div class="modal-shell__heading">
+                <h5 class="modal-shell__title">Stok Ekle</h5>
+                <p class="modal-shell__subtitle">
+                  Envanter veya lisans stok hareketlerini sisteme ekleyin.
+                </p>
+              </div>
+              <div class="modal-shell__header-actions">
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Kapat"
+                ></button>
+              </div>
+            </div>
+
+            <div class="modal-shell__body stack-md">
+              <div>
+                <ul class="nav nav-pills" id="stockAddType" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button
+                      class="nav-link active"
+                      type="button"
+                      data-stock-add-type="inventory"
+                      aria-selected="true"
+                    >
+                      Envanter
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button
+                      class="nav-link"
+                      type="button"
+                      data-stock-add-type="license"
+                      aria-selected="false"
+                    >
+                      Lisans
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              <div id="hardwareFields">
+                <div class="form-grid form-grid--compact stok-row">
+                  <div class="form-group">
+                    <label class="form-label" for="stok_donanim_tipi"
+                      >Donanım Tipi</label
+                    >
+                    <select
+                      name="donanim_tipi"
+                      class="form-select"
+                      data-lookup="donanim_tipi"
+                      id="stok_donanim_tipi"
+                      required
+                    ></select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="stok_marka"
+                      >Marka (ops.)</label
+                    >
+                    <select
+                      name="marka"
+                      class="form-select"
+                      data-lookup="marka"
+                      id="stok_marka"
+                    ></select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="stok_model"
+                      >Model (ops.)</label
+                    >
+                    <select
+                      name="model"
+                      class="form-select"
+                      data-lookup="model"
+                      data-depends="#stok_marka"
+                      id="stok_model"
+                    ></select>
+                  </div>
+                  <div class="form-group" id="rowMiktar">
+                    <label class="form-label" for="miktar">Miktar</label>
+                    <input
+                      type="number"
+                      min="1"
+                      id="miktar"
+                      name="miktar"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="ifs_no"
+                      >IFS No (opsiyonel)</label
+                    >
+                    <input
+                      type="text"
+                      id="ifs_no"
+                      name="ifs_no"
+                      class="form-control"
+                    />
                   </div>
                 </div>
+              </div>
 
-                <div class="tab-pane fade" id="sa_tab_envanter" role="tabpanel">
-                  <div class="form-grid form-grid--compact">
-                    <div class="form-group">
-                      <label class="form-label">Envanter No</label>
-                      <select class="form-select" id="sa_inventory_select" data-stock-assign="inventory"></select>
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label">Sorumlu</label>
-                      <select class="form-select" id="sa_inventory_owner"></select>
-                    </div>
+              <div id="licenseFields" class="d-none">
+                <div class="form-grid form-grid--compact">
+                  <div class="form-group">
+                    <label class="form-label" for="lisans_adi"
+                      >Lisans Adı</label
+                    >
+                    <select
+                      id="lisans_adi"
+                      name="lisans_adi"
+                      class="form-select"
+                      data-lookup="lisans_adi"
+                      required
+                    ></select>
                   </div>
-                </div>
-
-                <div class="tab-pane fade" id="sa_tab_yazici" role="tabpanel">
-                  <div class="form-grid form-grid--compact">
-                    <div class="form-group">
-                      <label class="form-label">Yazıcı</label>
-                      <select class="form-select" id="sa_printer_select" data-stock-assign="printer"></select>
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label">Atama Notu</label>
-                      <input type="text" class="form-control" id="sa_printer_note" placeholder="Opsiyonel">
-                    </div>
+                  <div class="form-group">
+                    <label class="form-label" for="lisans_anahtari"
+                      >Lisans Anahtarı</label
+                    >
+                    <input
+                      type="text"
+                      id="lisans_anahtari"
+                      name="lisans_anahtari"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="mail_adresi"
+                      >E-posta (opsiyonel)</label
+                    >
+                    <input
+                      type="email"
+                      id="mail_adresi"
+                      name="mail_adresi"
+                      class="form-control"
+                    />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div>
-              <label class="form-label" for="sa_general_note">Genel Not (opsiyonel)</label>
-              <textarea class="form-control" rows="3" id="sa_general_note" placeholder="İşlem için genel açıklama..."></textarea>
+            <div class="modal-shell__footer">
+              <div class="modal-shell__actions">
+                <button
+                  class="btn btn-outline-secondary"
+                  data-bs-dismiss="modal"
+                  type="button"
+                >
+                  Kapat
+                </button>
+                <button class="btn btn-primary" type="submit">Kaydet</button>
+              </div>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
+      </div>
+    </div>
 
-        <div class="modal-shell__footer">
-          <div class="modal-shell__actions">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
-            <button type="submit" form="stockAssignForm" class="btn btn-primary">Atamayı Kaydet</button>
+    <!-- STOK ATAMA MODALI -->
+    <div
+      class="modal fade"
+      id="stokAtamaModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div
+        class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable"
+      >
+        <div class="modal-content border-0 bg-transparent p-0">
+          <div class="modal-shell">
+            <div class="modal-shell__header">
+              <div class="modal-shell__heading">
+                <h5 class="modal-shell__title">Stok Atama</h5>
+                <p class="modal-shell__subtitle">
+                  Stok durumu tablosundan seçtiğiniz kalemi envantere, yazıcıya
+                  veya lisansa atayın.
+                </p>
+              </div>
+              <div class="modal-shell__header-actions">
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Kapat"
+                ></button>
+              </div>
+            </div>
+
+            <div class="modal-shell__body">
+              <form id="stockAssignForm" class="vstack gap-3">
+                <div>
+                  <p class="form-label fw-semibold mb-2">Seçilen Stok</p>
+                  <div
+                    id="sa_stock_alert"
+                    class="alert alert-warning py-2 px-3 small mb-0"
+                    role="alert"
+                  >
+                    Atama yapmak için stok durumu tablosundaki
+                    <strong>Atama</strong> düğmesini kullanınız.
+                  </div>
+                  <div id="sa_stock_meta" class="mt-2 d-none">
+                    <div class="border rounded p-2 small bg-light-subtle">
+                      <div
+                        class="d-flex flex-wrap gap-3 align-items-center mb-1"
+                      >
+                        <span class="fw-semibold" id="sa_meta_tip">-</span>
+                        <span id="sa_meta_brand_wrap" class="d-none"
+                          ><span class="text-muted">Marka:</span>
+                          <span id="sa_meta_brand">-</span></span
+                        >
+                        <span id="sa_meta_model_wrap" class="d-none"
+                          ><span class="text-muted">Model:</span>
+                          <span id="sa_meta_model">-</span></span
+                        >
+                        <span
+                          ><span class="text-muted">IFS:</span>
+                          <span id="sa_meta_ifs">-</span></span
+                        >
+                        <span
+                          ><span class="text-muted">Mevcut:</span>
+                          <span id="sa_meta_qty">0</span></span
+                        >
+                      </div>
+                      <div
+                        class="d-flex flex-wrap gap-3"
+                        id="sa_meta_license_row"
+                      >
+                        <span id="sa_meta_license_wrap" class="d-none"
+                          ><span class="text-muted">Lisans:</span>
+                          <span id="sa_meta_license">-</span></span
+                        >
+                        <span id="sa_meta_mail_wrap" class="d-none"
+                          ><span class="text-muted">Mail:</span>
+                          <span id="sa_meta_mail">-</span></span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="form-label fw-semibold">Atama Türü</label>
+                  <ul class="nav nav-tabs" id="sa_tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                      <button
+                        class="nav-link active"
+                        data-bs-toggle="tab"
+                        data-bs-target="#sa_tab_lisans"
+                        type="button"
+                        role="tab"
+                      >
+                        Lisans
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button
+                        class="nav-link"
+                        data-bs-toggle="tab"
+                        data-bs-target="#sa_tab_envanter"
+                        type="button"
+                        role="tab"
+                      >
+                        Envanter
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button
+                        class="nav-link"
+                        data-bs-toggle="tab"
+                        data-bs-target="#sa_tab_yazici"
+                        type="button"
+                        role="tab"
+                      >
+                        Yazıcı
+                      </button>
+                    </li>
+                  </ul>
+
+                  <div
+                    class="tab-content border border-top-0 p-3 rounded-bottom"
+                  >
+                    <div
+                      class="tab-pane fade show active"
+                      id="sa_tab_lisans"
+                      role="tabpanel"
+                    >
+                      <div class="form-grid form-grid--compact">
+                        <div class="form-group">
+                          <label class="form-label">Lisans Adı</label>
+                          <select
+                            class="form-select"
+                            id="sa_license_select"
+                            data-stock-assign="license"
+                          ></select>
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label">Sorumlu</label>
+                          <select
+                            class="form-select"
+                            id="sa_license_owner"
+                          ></select>
+                        </div>
+                        <div class="form-group form-grid__full">
+                          <label class="form-label">Açıklama</label>
+                          <textarea
+                            class="form-control"
+                            rows="2"
+                            id="sa_license_note"
+                            placeholder="Opsiyonel"
+                          ></textarea>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      class="tab-pane fade"
+                      id="sa_tab_envanter"
+                      role="tabpanel"
+                    >
+                      <div class="form-grid form-grid--compact">
+                        <div class="form-group">
+                          <label class="form-label">Envanter No</label>
+                          <select
+                            class="form-select"
+                            id="sa_inventory_select"
+                            data-stock-assign="inventory"
+                          ></select>
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label">Sorumlu</label>
+                          <select
+                            class="form-select"
+                            id="sa_inventory_owner"
+                          ></select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      class="tab-pane fade"
+                      id="sa_tab_yazici"
+                      role="tabpanel"
+                    >
+                      <div class="form-grid form-grid--compact">
+                        <div class="form-group">
+                          <label class="form-label">Yazıcı</label>
+                          <select
+                            class="form-select"
+                            id="sa_printer_select"
+                            data-stock-assign="printer"
+                          ></select>
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label">Atama Notu</label>
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="sa_printer_note"
+                            placeholder="Opsiyonel"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="form-label" for="sa_general_note"
+                    >Genel Not (opsiyonel)</label
+                  >
+                  <textarea
+                    class="form-control"
+                    rows="3"
+                    id="sa_general_note"
+                    placeholder="İşlem için genel açıklama..."
+                  ></textarea>
+                </div>
+              </form>
+            </div>
+
+            <div class="modal-shell__footer">
+              <div class="modal-shell__actions">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  İptal
+                </button>
+                <button
+                  type="submit"
+                  form="stockAssignForm"
+                  class="btn btn-primary"
+                >
+                  Atamayı Kaydet
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
+    <script>
+      async function fillSelect(id, entity) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = '<option value="">Yükleniyor...</option>';
+        try {
+          const r = await fetch(`/api/lookup/${entity}`);
+          if (!r.ok) throw new Error(await r.text());
+          const data = await r.json();
+          el.innerHTML =
+            '<option value="">Seçiniz…</option>' +
+            (data || [])
+              .map((v) => {
+                const text =
+                  typeof v === "string" ? v : v.name || v.text || v.id;
+                return `<option value="${text}">${text}</option>`;
+              })
+              .join("");
+        } catch (e) {
+          console.error(e);
+          el.innerHTML = '<option value="">(Veri Yok)</option>';
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        fillSelect("stok_durumu_select", "stok_durumu");
+        fillSelect("islem_select", "islem");
+        fillSelect("donanim_tipi_select", "donanim_tipi");
+        // fillSelect('ifs_no_select', 'ifs_no');
+      });
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const modal = document.getElementById("modalStockAdd");
+        if (!modal) return;
+        modal.addEventListener("shown.bs.modal", async () => {
+          await _selects.fillChoices({
+            endpoint: "/api/lookup/donanim_tipi",
+            selectId: "stok_donanim_tipi",
+            placeholder: "Donanım tipi seçiniz…",
+          });
+          await _selects.fillChoices({
+            endpoint: "/api/lookup/marka",
+            selectId: "stok_marka",
+            placeholder: "Marka seçiniz…",
+          });
+          await _selects.fillChoices({
+            endpoint: "/api/lookup/lisans_adi",
+            selectId: "lisans_adi",
+            placeholder: "Lisans adı seçiniz…",
+          });
+          _selects.bindMarkaModel("stok_marka", "stok_model");
+        });
+      });
+    </script>
+    {% endblock %}
   </div>
 </div>
-<script>
-async function fillSelect(id, entity) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.innerHTML = '<option value="">Yükleniyor...</option>';
-  try {
-    const r = await fetch(`/api/lookup/${entity}`);
-    if (!r.ok) throw new Error(await r.text());
-    const data = await r.json();
-    el.innerHTML = '<option value="">Seçiniz…</option>' + (data || []).map(v => {
-      const text = typeof v === 'string' ? v : (v.name || v.text || v.id);
-      return `<option value="${text}">${text}</option>`;
-    }).join('');
-  } catch (e) {
-    console.error(e);
-    el.innerHTML = '<option value="">(Veri Yok)</option>';
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  fillSelect('stok_durumu_select', 'stok_durumu');
-  fillSelect('islem_select', 'islem');
-  fillSelect('donanim_tipi_select', 'donanim_tipi');
-  // fillSelect('ifs_no_select', 'ifs_no');
-});
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const modal = document.getElementById('modalStockAdd');
-  if (!modal) return;
-  modal.addEventListener('shown.bs.modal', async () => {
-    await _selects.fillChoices({ endpoint: '/api/lookup/donanim_tipi', selectId: 'stok_donanim_tipi', placeholder: 'Donanım tipi seçiniz…' });
-    await _selects.fillChoices({ endpoint: '/api/lookup/marka', selectId: 'stok_marka', placeholder: 'Marka seçiniz…' });
-    await _selects.fillChoices({ endpoint: '/api/lookup/lisans_adi', selectId: 'lisans_adi', placeholder: 'Lisans adı seçiniz…' });
-    _selects.bindMarkaModel('stok_marka', 'stok_model');
-  });
-});
-</script>
-{% endblock %}
-

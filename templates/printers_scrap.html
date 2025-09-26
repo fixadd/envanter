@@ -15,73 +15,75 @@ content %}
     <div class="page-card soft-card">
       <div class="table-responsive">
         <table class="table table-sm align-middle table-rounded">
-        <thead class="table-light">
-          <tr>
-            <th>ID</th>
-            <th>Marka/Model</th>
-            <th>Seri</th>
-            <th>Fabrika</th>
-            <th>Kullanım Alanı</th>
-            <th>Sorumlu</th>
-            <th>Bağlı Env.</th>
-            <th>Not</th>
-            <th>Tarih</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if mode == "table" %} {% for r in rows %}
-          <tr>
-            <td>#{{ r.printer_id }}</td>
-            <td>{{ r.snapshot.marka }} {{ r.snapshot.model }}</td>
-            <td>{{ r.snapshot.seri_no }}</td>
-            <td>{{ r.snapshot.fabrika or '-' }}</td>
-            <td>{{ r.snapshot.kullanim_alani or '-' }}</td>
-            <td>{{ r.snapshot.sorumlu_personel or '-' }}</td>
-            <td>{{ r.snapshot.bagli_envanter_no or '-' }}</td>
-            <td>{{ r.reason or '-' }}</td>
-            <td>{{ r.created_at.strftime("%d.%m.%Y %H:%M") }}</td>
-            <td>
-              <button
-                class="btn btn-outline-secondary btn-sm view-btn"
-                data-id="{{ r.printer_id }}"
-                title="Detayı Göster"
-              >
-                <i class="bi bi-eye"></i>
-              </button>
-            </td>
-          </tr>
-          {% endfor %} {% else %} {% for p in rows %}
-          <tr>
-            <td>#{{ p.id }}</td>
-            <td>{{ p.marka }} {{ p.model }}</td>
-            <td>{{ p.seri_no }}</td>
-            <td>{{ p.fabrika or '-' }}</td>
-            <td>{{ p.kullanim_alani or '-' }}</td>
-            <td>{{ p.sorumlu_personel or '-' }}</td>
-            <td>{{ p.bagli_envanter_no or '-' }}</td>
-            <td>-</td>
-            <td>-</td>
-            <td>
-              <button
-                class="btn btn-outline-secondary btn-sm view-btn"
-                data-id="{{ p.id }}"
-                title="Detayı Göster"
-              >
-                <i class="bi bi-eye"></i>
-              </button>
-            </td>
-          </tr>
-          {% endfor %} {% endif %}
-        </tbody>
-      </table>
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Marka/Model</th>
+              <th>Seri</th>
+              <th>Fabrika</th>
+              <th>Kullanım Alanı</th>
+              <th>Sorumlu</th>
+              <th>Bağlı Env.</th>
+              <th>Not</th>
+              <th>Tarih</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if mode == "table" %} {% for r in rows %}
+            <tr>
+              <td>#{{ r.printer_id }}</td>
+              <td>{{ r.snapshot.marka }} {{ r.snapshot.model }}</td>
+              <td>{{ r.snapshot.seri_no }}</td>
+              <td>{{ r.snapshot.fabrika or '-' }}</td>
+              <td>{{ r.snapshot.kullanim_alani or '-' }}</td>
+              <td>{{ r.snapshot.sorumlu_personel or '-' }}</td>
+              <td>{{ r.snapshot.bagli_envanter_no or '-' }}</td>
+              <td>{{ r.reason or '-' }}</td>
+              <td>{{ r.created_at.strftime("%d.%m.%Y %H:%M") }}</td>
+              <td>
+                <button
+                  class="btn btn-outline-secondary btn-sm view-btn"
+                  data-id="{{ r.printer_id }}"
+                  title="Detayı Göster"
+                >
+                  <i class="bi bi-eye"></i>
+                </button>
+              </td>
+            </tr>
+            {% endfor %} {% else %} {% for p in rows %}
+            <tr>
+              <td>#{{ p.id }}</td>
+              <td>{{ p.marka }} {{ p.model }}</td>
+              <td>{{ p.seri_no }}</td>
+              <td>{{ p.fabrika or '-' }}</td>
+              <td>{{ p.kullanim_alani or '-' }}</td>
+              <td>{{ p.sorumlu_personel or '-' }}</td>
+              <td>{{ p.bagli_envanter_no or '-' }}</td>
+              <td>-</td>
+              <td>-</td>
+              <td>
+                <button
+                  class="btn btn-outline-secondary btn-sm view-btn"
+                  data-id="{{ p.id }}"
+                  title="Detayı Göster"
+                >
+                  <i class="bi bi-eye"></i>
+                </button>
+              </td>
+            </tr>
+            {% endfor %} {% endif %}
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
 </div>
 
 <div class="modal fade" id="hurdaDetayModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+  <div
+    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+  >
     <div class="modal-content border-0 bg-transparent p-0">
       <div class="modal-shell">
         <div class="modal-shell__header">

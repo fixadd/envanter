@@ -7,7 +7,8 @@ content %}
         <span class="eyebrow text-primary">Yazıcı Takip</span>
         <h1 class="page-header__title">Yazıcılar</h1>
         <p class="page-header__subtitle">
-          Tüm yazıcı envanterini görüntüleyin, durumlarını yönetin ve hızlıca aksiyon alın.
+          Tüm yazıcı envanterini görüntüleyin, durumlarını yönetin ve hızlıca
+          aksiyon alın.
         </p>
       </div>
       <div class="page-header__actions page-actions">
@@ -83,66 +84,66 @@ content %}
     <div class="page-card soft-card">
       <div class="table-responsive">
         <table class="table table-sm align-middle table-rounded">
-      <thead class="table-light">
-        <tr>
-          <th data-field="id">ID</th>
-          <th data-field="marka">Marka</th>
-          <th data-field="model">Model</th>
-          <th data-field="seri_no">Seri No</th>
-          <th data-field="fabrika">Fabrika</th>
-          <th data-field="kullanim_alani">Kullanım Alanı</th>
-          <th data-field="sorumlu_personel">Sorumlu</th>
-          <th data-field="bagli_envanter_no">Bağlı Env.</th>
-          <th data-field="durum">Durum</th>
-          <th style="width: 220px">İşlemler</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for p in printers %}
-        <tr
-          data-id="{{ p.id }}"
-          data-label="{{ p.hostname or p.envanter_no or ('Yazıcı #' ~ p.id) }}"
-          data-fabrika="{{ p.fabrika or '' }}"
-          data-kullanim="{{ p.kullanim_alani or '' }}"
-          data-personel="{{ p.sorumlu_personel or '' }}"
-          data-bagli="{{ p.bagli_envanter_no or '' }}"
-          {%
-          if
-          p.durum=""
-          ="arızalı"
-          %}class="table-warning"
-          {%
-          endif
-          %}
-        >
-          <td>#{{ p.id }}</td>
-          <td>{{ p.marka or '-' }}</td>
-          <td>{{ p.model or '-' }}</td>
-          <td>{{ p.seri_no or '-' }}</td>
-          <td>{{ p.fabrika or '-' }}</td>
-          <td>{{ p.kullanim_alani or '-' }}</td>
-          <td>{{ p.sorumlu_personel or '-' }}</td>
-          <td>{{ p.bagli_envanter_no or '-' }}</td>
-          <td>
-            {% if p.durum == 'hurda' %}
-            <span class="badge text-bg-secondary">Hurda</span>
-            {% elif p.durum == 'arızalı' %}
-            <span class="badge text-bg-warning text-dark">Arızalı</span>
-            {% else %}
-            <span class="badge text-bg-success">Aktif</span>
-            {% endif %}
-          </td>
-          <td class="text-nowrap">
-            {% set entity = 'printers' %} {% set row_id = p.id %} {% set
-            fault_mode = True %} {% set fault_device = p.envanter_no or ('Yazıcı
-            #' ~ p.id) %} {% set fault_title = (p.marka ~ ' ' ~ p.model)|trim %}
-            {% set fault_entity_key = p.envanter_no or p.id %} {% set
-            fault_status = p.durum %} {% with edit_modal_size='md' %} {% include
-            'partials/_actions_menu.html' %} {% endwith %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
+          <thead class="table-light">
+            <tr>
+              <th data-field="id">ID</th>
+              <th data-field="marka">Marka</th>
+              <th data-field="model">Model</th>
+              <th data-field="seri_no">Seri No</th>
+              <th data-field="fabrika">Fabrika</th>
+              <th data-field="kullanim_alani">Kullanım Alanı</th>
+              <th data-field="sorumlu_personel">Sorumlu</th>
+              <th data-field="bagli_envanter_no">Bağlı Env.</th>
+              <th data-field="durum">Durum</th>
+              <th style="width: 220px">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in printers %}
+            <tr
+              data-id="{{ p.id }}"
+              data-label="{{ p.hostname or p.envanter_no or ('Yazıcı #' ~ p.id) }}"
+              data-fabrika="{{ p.fabrika or '' }}"
+              data-kullanim="{{ p.kullanim_alani or '' }}"
+              data-personel="{{ p.sorumlu_personel or '' }}"
+              data-bagli="{{ p.bagli_envanter_no or '' }}"
+              {%
+              if
+              p.durum=""
+              ="arızalı"
+              %}class="table-warning"
+              {%
+              endif
+              %}
+            >
+              <td>#{{ p.id }}</td>
+              <td>{{ p.marka or '-' }}</td>
+              <td>{{ p.model or '-' }}</td>
+              <td>{{ p.seri_no or '-' }}</td>
+              <td>{{ p.fabrika or '-' }}</td>
+              <td>{{ p.kullanim_alani or '-' }}</td>
+              <td>{{ p.sorumlu_personel or '-' }}</td>
+              <td>{{ p.bagli_envanter_no or '-' }}</td>
+              <td>
+                {% if p.durum == 'hurda' %}
+                <span class="badge text-bg-secondary">Hurda</span>
+                {% elif p.durum == 'arızalı' %}
+                <span class="badge text-bg-warning text-dark">Arızalı</span>
+                {% else %}
+                <span class="badge text-bg-success">Aktif</span>
+                {% endif %}
+              </td>
+              <td class="text-nowrap">
+                {% set entity = 'printers' %} {% set row_id = p.id %} {% set
+                fault_mode = True %} {% set fault_device = p.envanter_no or
+                ('Yazıcı #' ~ p.id) %} {% set fault_title = (p.marka ~ ' ' ~
+                p.model)|trim %} {% set fault_entity_key = p.envanter_no or p.id
+                %} {% set fault_status = p.durum %} {% with edit_modal_size='md'
+                %} {% include 'partials/_actions_menu.html' %} {% endwith %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
         </table>
       </div>
     </div>
@@ -151,7 +152,9 @@ content %}
 
 <!-- Yeni Ekle Modal -->
 <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+  <div
+    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+  >
     <form
       method="post"
       action="/printers/create"
@@ -163,7 +166,8 @@ content %}
           <div class="modal-shell__heading">
             <h5 class="modal-shell__title">Yazıcı Ekle</h5>
             <p class="modal-shell__subtitle">
-              Yeni bir yazıcıyı envantere ekleyin ve temel yapılandırmasını belirleyin.
+              Yeni bir yazıcıyı envantere ekleyin ve temel yapılandırmasını
+              belirleyin.
             </p>
           </div>
           <div class="modal-shell__header-actions">
@@ -179,7 +183,9 @@ content %}
         <div class="modal-shell__body">
           <div class="modal-form-grid">
             <div class="form-group">
-              <label class="form-label" for="printerEnvanter">Envanter No</label>
+              <label class="form-label" for="printerEnvanter"
+                >Envanter No</label
+              >
               <input
                 id="printerEnvanter"
                 name="envanter_no"
@@ -191,7 +197,9 @@ content %}
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="selYaziciMarka">Yazıcı Markası</label>
+              <label class="form-label" for="selYaziciMarka"
+                >Yazıcı Markası</label
+              >
               <select
                 name="yazici_markasi"
                 class="form-select"
@@ -206,7 +214,9 @@ content %}
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="selYaziciModel">Yazıcı Modeli</label>
+              <label class="form-label" for="selYaziciModel"
+                >Yazıcı Modeli</label
+              >
               <select
                 name="yazici_modeli"
                 class="form-select"
@@ -222,8 +232,15 @@ content %}
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="printerUsage">Kullanım Alanı</label>
-              <select id="printerUsage" name="kullanim_alani" class="form-select" required>
+              <label class="form-label" for="printerUsage"
+                >Kullanım Alanı</label
+              >
+              <select
+                id="printerUsage"
+                name="kullanim_alani"
+                class="form-select"
+                required
+              >
                 <option value="">Seçiniz...</option>
                 {% for k in kullanim_alanlari %}
                 <option value="{{ k.name }}">{{ k.name }}</option>
@@ -355,7 +372,8 @@ content %}
               Yazıcıyı Ata — <span id="assignPrinterLabel"></span>
             </h5>
             <p class="modal-shell__subtitle">
-              Yazıcı için fabrika, kullanım alanı ve sorumlu bilgilerini güncelleyin.
+              Yazıcı için fabrika, kullanım alanı ve sorumlu bilgilerini
+              güncelleyin.
             </p>
           </div>
           <div class="modal-shell__header-actions">
@@ -384,7 +402,11 @@ content %}
 
             <div class="form-group">
               <label class="form-label" for="selKullanim">Kullanım Alanı</label>
-              <select id="selKullanim" name="kullanim_alani" class="form-select">
+              <select
+                id="selKullanim"
+                name="kullanim_alani"
+                class="form-select"
+              >
                 <option value="">Seçiniz</option>
                 {% for a in areas %}
                 <option value="{{ a }}">{{ a }}</option>
@@ -393,8 +415,14 @@ content %}
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="selPersonel">Sorumlu Personel</label>
-              <select id="selPersonel" name="sorumlu_personel" class="form-select">
+              <label class="form-label" for="selPersonel"
+                >Sorumlu Personel</label
+              >
+              <select
+                id="selPersonel"
+                name="sorumlu_personel"
+                class="form-select"
+              >
                 <option value="">Seçiniz</option>
                 {% for u in users %}
                 <option value="{{ u }}">{{ u }}</option>
@@ -403,8 +431,14 @@ content %}
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="selBagliEnv">Bağlı Olduğu Envanter</label>
-              <select id="selBagliEnv" name="bagli_envanter_no" class="form-select">
+              <label class="form-label" for="selBagliEnv"
+                >Bağlı Olduğu Envanter</label
+              >
+              <select
+                id="selBagliEnv"
+                name="bagli_envanter_no"
+                class="form-select"
+              >
                 <option value="">Seçiniz</option>
                 {% for inv in inventory_nos %}
                 <option value="{{ inv }}">{{ inv }}</option>
@@ -416,10 +450,16 @@ content %}
 
         <div class="modal-shell__footer">
           <div class="modal-shell__actions">
-            <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              data-bs-dismiss="modal"
+            >
               İptal
             </button>
-            <button class="btn btn-success" type="submit">Atamayı Kaydet</button>
+            <button class="btn btn-success" type="submit">
+              Atamayı Kaydet
+            </button>
           </div>
         </div>
       </div>
@@ -454,7 +494,9 @@ content %}
           <p class="mb-2">Bu envanter hurdaya ayrılacak. Onaylıyor musunuz?</p>
           <div class="modal-form-grid">
             <div class="form-group modal-form-grid--full">
-              <label class="form-label" for="scrapReason">Açıklama (opsiyonel)</label>
+              <label class="form-label" for="scrapReason"
+                >Açıklama (opsiyonel)</label
+              >
               <textarea
                 id="scrapReason"
                 name="reason"
@@ -468,7 +510,11 @@ content %}
 
         <div class="modal-shell__footer">
           <div class="modal-shell__actions">
-            <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">
+            <button
+              class="btn btn-outline-secondary"
+              data-bs-dismiss="modal"
+              type="button"
+            >
               Vazgeç
             </button>
             <button class="btn btn-danger" type="submit">Hurdaya Ayır</button>
