@@ -1,13 +1,12 @@
 <form
   method="post"
   action="/inventory/create"
-  class="needs-validation"
+  class="soft-card p-4 stack-md needs-validation"
   novalidate
 >
-  <div class="row g-3" id="envanter-ekle">
-    <!-- Envanter No / Bilgisayar Adı -->
-    <div class="col-md-6">
-      <label class="form-label">Envanter No</label>
+  <div class="form-grid form-grid-2" id="envanter-ekle">
+    <div class="form-field">
+      <label>Envanter No</label>
       <input
         name="envanter_no"
         type="text"
@@ -16,8 +15,8 @@
         placeholder="ENV-000123"
       />
     </div>
-    <div class="col-md-6">
-      <label class="form-label">Bilgisayar Adı</label>
+    <div class="form-field">
+      <label>Bilgisayar Adı</label>
       <input
         name="bilgisayar_adi"
         type="text"
@@ -26,14 +25,12 @@
         placeholder="PC-OFIS-01"
       />
     </div>
-
-    <!-- Fabrika / Departman -->
-    <div class="col-md-6">
-      <label class="form-label">Fabrika</label>
+    <div class="form-field">
+      <label>Fabrika</label>
       <select id="fabrika" name="fabrika" class="form-select" required></select>
     </div>
-    <div class="col-md-6">
-      <label class="form-label">Departman</label>
+    <div class="form-field">
+      <label>Departman</label>
       <select
         id="departman"
         name="departman"
@@ -41,10 +38,8 @@
         required
       ></select>
     </div>
-
-    <!-- Donanım Tipi / Sorumlu Personel -->
-    <div class="col-md-6">
-      <label class="form-label">Donanım Tipi</label>
+    <div class="form-field">
+      <label>Donanım Tipi</label>
       <select
         id="donanim_tipi"
         name="donanim_tipi"
@@ -52,8 +47,8 @@
         required
       ></select>
     </div>
-    <div class="col-md-6">
-      <label class="form-label">Sorumlu Personel</label>
+    <div class="form-field">
+      <label>Sorumlu Personel</label>
       <select
         id="sorumlu_personel"
         name="sorumlu_personel"
@@ -61,22 +56,18 @@
         required
       ></select>
     </div>
-
-    <!-- Marka / Model -->
-    <div class="col-md-6">
-      <label class="form-label">Marka</label>
+    <div class="form-field">
+      <label>Marka</label>
       <select id="marka" name="marka" class="form-select" required></select>
     </div>
-    <div class="col-md-6">
-      <label class="form-label">Model</label>
+    <div class="form-field">
+      <label>Model</label>
       <select id="model" name="model" class="form-select" required disabled>
         <option value="">Önce marka seçiniz...</option>
       </select>
     </div>
-
-    <!-- Seri No / IFS No -->
-    <div class="col-md-6">
-      <label class="form-label">Seri No</label>
+    <div class="form-field">
+      <label>Seri No</label>
       <input
         name="seri_no"
         type="text"
@@ -85,10 +76,8 @@
         placeholder="SN123456789"
       />
     </div>
-    <div class="col-md-6">
-      <label class="form-label"
-        >IFS No <span class="text-muted">(zorunlu değil)</span></label
-      >
+    <div class="form-field">
+      <label>IFS No <span class="form-hint">(zorunlu değil)</span></label>
       <input
         name="ifs_no"
         type="text"
@@ -96,12 +85,8 @@
         placeholder="IFS-..."
       />
     </div>
-
-    <!-- Bağlı Makina No -->
-    <div class="col-md-6">
-      <label class="form-label"
-        >Bağlı Makina No <span class="text-muted">(zorunlu değil)</span></label
-      >
+    <div class="form-field">
+      <label>Bağlı Makina No <span class="form-hint">(zorunlu değil)</span></label>
       <input
         name="bagli_makina_no"
         type="text"
@@ -109,12 +94,8 @@
         placeholder="Makina No"
       />
     </div>
-
-    <!-- Not -->
-    <div class="col-12">
-      <label class="form-label"
-        >Not <span class="text-muted">(zorunlu değil)</span></label
-      >
+    <div class="form-field form-span-2">
+      <label>Not <span class="form-hint">(zorunlu değil)</span></label>
       <textarea
         name="notlar"
         class="form-control"
@@ -124,7 +105,7 @@
     </div>
   </div>
 
-  <div class="mt-3 d-flex gap-2">
+  <div class="d-flex flex-wrap justify-content-end gap-2">
     <button type="submit" class="btn btn-primary">Kaydet</button>
     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
       İptal

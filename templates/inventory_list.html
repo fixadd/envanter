@@ -1,9 +1,11 @@
 {% extends "base.html" %} {% block title %}Envanter Listesi{% endblock %} {%
 block content %}
-<div id="inventory-list-root" class="container-fluid p-2">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h5 class="mb-0">Envanter</h5>
-    <div class="d-flex align-items-center gap-2 flex-wrap">
+<div id="inventory-list-root" class="stack-md">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title mb-0">Envanter</h1>
+    </div>
+    <div class="page-actions">
       <a
         href="#"
         id="addBtn"
@@ -65,47 +67,51 @@ block content %}
     </div>
   </div>
 
-  <table class="table table-sm table-striped align-middle table-rounded">
-    <thead>
-      <tr>
-        <th data-field="no">Envanter No</th>
-        <th data-field="fabrika">Fabrika</th>
-        <th data-field="departman">Departman</th>
-        <th data-field="sorumlu_personel">Sorumlu</th>
-        <th data-field="marka">Marka/Model</th>
-        <th style="width: 180px">İşlemler</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in items %}
-      <tr
-        data-id="{{ row.id }}"
-        data-fabrika="{{ row.fabrika or '' }}"
-        data-departman="{{ row.departman or '' }}"
-        data-sorumlu="{{ row.sorumlu_personel or '' }}"
-        data-bagli="{{ row.bagli_envanter_no or '' }}"
-        class="inv-row{% if row.durum == 'arızalı' %} table-warning{% endif %}"
-      >
-        <td>
-          {{ row.no }} {% if row.durum == 'arızalı' %}
-          <span class="badge text-bg-warning text-dark ms-1">Arızalı</span>
-          {% endif %}
-        </td>
-        <td>{{ row.fabrika }}</td>
-        <td>{{ row.departman }}</td>
-        <td>{{ row.sorumlu_personel }}</td>
-        <td>{{ row.marka }} {{ row.model }}</td>
-        <td class="text-nowrap">
-          {% set entity = 'inventory' %} {% set row_id = row.id %} {% set
-          fault_mode = True %} {% set fault_device = row.no %} {% set
-          fault_title = (row.marka ~ ' ' ~ row.model)|trim %} {% set
-          fault_entity_key = row.no %} {% set fault_status = row.durum %} {%
-          include 'partials/_actions_menu.html' %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="soft-card p-0">
+    <div class="table-responsive">
+      <table class="table table-sm table-striped align-middle table-rounded mb-0">
+        <thead>
+          <tr>
+            <th data-field="no">Envanter No</th>
+            <th data-field="fabrika">Fabrika</th>
+            <th data-field="departman">Departman</th>
+            <th data-field="sorumlu_personel">Sorumlu</th>
+            <th data-field="marka">Marka/Model</th>
+            <th style="width: 180px">İşlemler</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in items %}
+          <tr
+            data-id="{{ row.id }}"
+            data-fabrika="{{ row.fabrika or '' }}"
+            data-departman="{{ row.departman or '' }}"
+            data-sorumlu="{{ row.sorumlu_personel or '' }}"
+            data-bagli="{{ row.bagli_envanter_no or '' }}"
+            class="inv-row{% if row.durum == 'arızalı' %} table-warning{% endif %}"
+          >
+            <td>
+              {{ row.no }} {% if row.durum == 'arızalı' %}
+              <span class="badge text-bg-warning text-dark ms-1">Arızalı</span>
+              {% endif %}
+            </td>
+            <td>{{ row.fabrika }}</td>
+            <td>{{ row.departman }}</td>
+            <td>{{ row.sorumlu_personel }}</td>
+            <td>{{ row.marka }} {{ row.model }}</td>
+            <td class="text-nowrap">
+              {% set entity = 'inventory' %} {% set row_id = row.id %} {% set
+              fault_mode = True %} {% set fault_device = row.no %} {% set
+              fault_title = (row.marka ~ ' ' ~ row.model)|trim %} {% set
+              fault_entity_key = row.no %} {% set fault_status = row.durum %} {%
+              include 'partials/_actions_menu.html' %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -122,7 +128,7 @@ block content %}
 
 <!-- Envanter Ekle Modal -->
 <div
-  class="modal fade"
+  class="modal fade modal-elevated"
   id="inventoryCreateModal"
   tabindex="-1"
   aria-hidden="true"
@@ -146,141 +152,136 @@ block content %}
           method="post"
           action="/inventory/create"
           id="envanter-form"
+          class="stack-md"
           novalidate
         >
-          <div class="env-grid" id="envanter-ekle">
-            <!-- Envanter No -->
-            <div class="field">
+          <div class="form-grid form-grid-2" id="envanter-ekle">
+            <div class="form-field">
               <label>Envanter No</label>
               <input
                 name="envanter_no"
                 type="text"
-                class="ctrl"
+                class="form-control"
                 required
                 placeholder="ENV-000123"
               />
             </div>
-
-            <!-- Bilgisayar Adı -->
-            <div class="field">
+            <div class="form-field">
               <label>Bilgisayar Adı</label>
               <input
                 name="bilgisayar_adi"
                 type="text"
-                class="ctrl"
+                class="form-control"
                 required
                 placeholder="PC-OFIS-01"
               />
             </div>
-
-            <!-- Fabrika -->
-            <div class="field">
+            <div class="form-field">
               <label>Fabrika</label>
               <select
                 name="fabrika"
                 id="fabrika"
-                class="ctrl"
+                class="form-select"
                 required
               ></select>
             </div>
-
-            <!-- Departman -->
-            <div class="field">
+            <div class="form-field">
               <label>Departman</label>
               <select
                 name="departman"
                 id="departman"
-                class="ctrl"
+                class="form-select"
                 required
               ></select>
             </div>
-
-            <!-- Donanım Tipi -->
-            <div class="field">
+            <div class="form-field">
               <label>Donanım Tipi</label>
               <select
                 name="donanim_tipi"
                 id="donanim_tipi"
-                class="ctrl"
+                class="form-select"
                 required
               ></select>
             </div>
-
-            <!-- Sorumlu Personel -->
-            <div class="field">
+            <div class="form-field">
               <label>Sorumlu Personel</label>
               <select
                 name="sorumlu_personel"
                 id="sorumlu_personel"
-                class="ctrl"
+                class="form-select"
                 required
               ></select>
             </div>
-
-            <!-- Marka -->
-            <div class="field">
+            <div class="form-field">
               <label>Marka</label>
-              <select name="marka" id="marka" class="ctrl" required></select>
+              <select
+                name="marka"
+                id="marka"
+                class="form-select"
+                required
+              ></select>
             </div>
-
-            <!-- Model -->
-            <div class="field">
+            <div class="form-field">
               <label>Model</label>
-              <select name="model" id="model" class="ctrl" required disabled>
+              <select
+                name="model"
+                id="model"
+                class="form-select"
+                required
+                disabled
+              >
                 <option value="">Önce marka seçiniz...</option>
               </select>
             </div>
-
-            <!-- Seri No -->
-            <div class="field">
+            <div class="form-field">
               <label>Seri No</label>
               <input
                 name="seri_no"
                 type="text"
-                class="ctrl"
+                class="form-control"
                 required
                 placeholder="SN123456789"
               />
             </div>
-
-            <!-- IFS No (opsiyonel) -->
-            <div class="field">
-              <label>IFS No <span class="muted">(zorunlu değil)</span></label>
+            <div class="form-field">
+              <label>Kullanım Alanı</label>
+              <select
+                name="kullanim_alani"
+                id="kullanim_alani"
+                class="form-select"
+                required
+              ></select>
+            </div>
+            <div class="form-field">
+              <label>IFS No <span class="form-hint">(zorunlu değil)</span></label>
               <input
                 name="ifs_no"
                 type="text"
-                class="ctrl"
+                class="form-control"
                 placeholder="IFS-..."
               />
             </div>
-
-            <!-- Bağlı Makina No (opsiyonel) -->
-            <div class="field">
-              <label
-                >Bağlı Makina No
-                <span class="muted">(zorunlu değil)</span></label
-              >
+            <div class="form-field">
+              <label>Bağlı Makina No <span class="form-hint">(zorunlu değil)</span></label>
               <input
                 name="bagli_makina_no"
                 type="text"
-                class="ctrl"
+                class="form-control"
                 placeholder="Makina No"
               />
             </div>
-
-            <!-- Not (opsiyonel) -->
-            <div class="field span-2">
-              <label>Not <span class="muted">(zorunlu değil)</span></label>
+            <div class="form-field form-span-2">
+              <label>Not <span class="form-hint">(zorunlu değil)</span></label>
               <textarea
                 name="notlar"
-                class="ctrl"
+                class="form-control"
                 rows="2"
                 placeholder="Açıklama / notlar"
               ></textarea>
             </div>
           </div>
 
-          <div class="mt-3 d-flex gap-2">
+          <div class="d-flex flex-wrap justify-content-end gap-2">
             <button type="submit" class="btn btn-primary">Kaydet</button>
             <button
               type="button"
@@ -296,142 +297,9 @@ block content %}
   </div>
 </div>
 
-<style>
-  /* Yalnız bu modalı düzenler */
-  .env-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px 16px;
-  }
-  @media (min-width: 768px) {
-    .env-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-    .env-grid .span-2 {
-      grid-column: 1 / -1;
-    }
-  }
-  .field label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: 600;
-  }
-  .ctrl {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 0.5rem;
-    background: var(--bs-body-bg, #fff);
-  }
-  .ctrl::placeholder {
-    color: var(--bs-secondary-color, #6c757d);
-    opacity: 1;
-  }
-
-  #assignModal .modal-dialog {
-    max-width: 760px;
-  }
-
-  #assignModal .modal-content {
-    border: none;
-    border-radius: 1rem;
-    background: #f5f7fb;
-    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
-  }
-
-  #assignModal .modal-header,
-  #assignModal .modal-footer {
-    border: none;
-    background: transparent;
-  }
-
-  #assignModal .modal-title {
-    font-weight: 600;
-    color: #1f2937;
-  }
-
-  #assignModal .modal-body {
-    background: #ffffff;
-    border-radius: 0 0 1rem 1rem;
-  }
-
-  #assignModal .form-label {
-    font-weight: 600;
-    color: #4b5563;
-  }
-
-  #assignModal .form-select {
-    border-radius: 0.75rem;
-    border-color: #d1d5db;
-    background-color: #f9fafb;
-    color: #1f2937;
-    padding: 0.5rem 0.75rem;
-  }
-
-  #assignModal .form-select:focus {
-    border-color: #1a73e8;
-    box-shadow: 0 0 0 0.25rem rgba(26, 115, 232, 0.25);
-    background-color: #ffffff;
-  }
-
-  #assignModal .btn-primary {
-    background-color: #1a73e8;
-    border-color: #1a73e8;
-    border-radius: 999px;
-    padding: 0.55rem 1.75rem;
-    font-weight: 600;
-  }
-
-  #assignModal .btn-primary:hover,
-  #assignModal .btn-primary:focus {
-    background-color: #1558b0;
-    border-color: #1558b0;
-  }
-  .is-invalid {
-    border-color: #dc3545 !important;
-  }
-  .muted {
-    color: var(--bs-secondary-color, #6c757d);
-    font-weight: 400;
-  }
-</style>
-
-<script>
-  window.SKIP_SELECT_ENHANCE = true;
-</script>
-
-<!-- Filtre Modal -->
-<div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <form id="filterForm" class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Filtrele</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <div id="filterRows"></div>
-      </div>
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-secondary btn-sm"
-          data-bs-dismiss="modal"
-        >
-          Kapat
-        </button>
-        <button type="submit" class="btn btn-primary btn-sm">Uygula</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <!-- Atama Modal -->
-<div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+<div class="modal fade modal-elevated" id="assignModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <form id="assignForm" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Envanter Atama</h5>
@@ -441,38 +309,40 @@ block content %}
           data-bs-dismiss="modal"
         ></button>
       </div>
-      <div class="modal-body row g-3">
+      <div class="modal-body">
         <input type="hidden" name="item_id" id="assign_item_id" />
-        <div class="col-md-3">
-          <label class="form-label">Fabrika</label>
-          <select name="fabrika" id="selFabrika" class="form-select"></select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Departman</label>
-          <select
-            name="departman"
-            id="selDepartman"
-            class="form-select"
-          ></select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Sorumlu Personel</label>
-          <select
-            name="sorumlu_personel"
-            id="selPersonel"
-            class="form-select"
-          ></select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Bağlı Olduğu Envanter</label>
-          <select
-            name="bagli_envanter_no"
-            id="selBagli"
-            class="form-select"
-          ></select>
+        <div class="form-grid form-grid-auto">
+          <div class="form-field">
+            <label>Fabrika</label>
+            <select name="fabrika" id="selFabrika" class="form-select"></select>
+          </div>
+          <div class="form-field">
+            <label>Departman</label>
+            <select
+              name="departman"
+              id="selDepartman"
+              class="form-select"
+            ></select>
+          </div>
+          <div class="form-field">
+            <label>Sorumlu Personel</label>
+            <select
+              name="sorumlu_personel"
+              id="selPersonel"
+              class="form-select"
+            ></select>
+          </div>
+          <div class="form-field">
+            <label>Bağlı Olduğu Envanter</label>
+            <select
+              name="bagli_envanter_no"
+              id="selBagli"
+              class="form-select"
+            ></select>
+          </div>
         </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer justify-content-end gap-2">
         <button class="btn btn-primary" type="submit">Atamayı Kaydet</button>
       </div>
     </form>
@@ -480,8 +350,8 @@ block content %}
 </div>
 
 <!-- Hurdaya Ayır Modal -->
-<div class="modal fade" id="scrapModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
+<div class="modal fade modal-elevated" id="scrapModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
     <form id="scrapForm" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Hurdaya Ayır</h5>

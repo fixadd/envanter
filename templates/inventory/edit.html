@@ -1,90 +1,227 @@
 {% extends "base.html" %}{% block title %}Envanter Düzenle{% endblock %} {%
 block content %}
-<div class="container-fluid p-3">
-  <h5 class="mb-3">Envanter Düzenle</h5>
-  <form method="post" action="{{ '?modal=1' if modal else '' }}">
-    <div class="row g-3">
-      <div class="col-md-3">
-        <label class="form-label">Fabrika</label>
-        <input
-          name="fabrika"
-          class="form-control"
-          value="{{ item.fabrika or '' }}"
-        />
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">Departman</label>
-        <input
-          name="departman"
-          class="form-control"
-          value="{{ item.departman or '' }}"
-        />
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">Sorumlu Personel</label>
-        <input
-          name="sorumlu_personel"
-          class="form-control"
-          value="{{ item.sorumlu_personel or '' }}"
-        />
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">Bağlı Envanter No</label>
-        <input
-          name="bagli_envanter_no"
-          class="form-control"
-          value="{{ item.bagli_envanter_no or '' }}"
-        />
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">Marka</label>
-        <input
-          name="marka"
-          class="form-control"
-          value="{{ item.marka or '' }}"
-        />
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">Model</label>
-        <input
-          name="model"
-          class="form-control"
-          value="{{ item.model or '' }}"
-        />
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">Kullanım Alanı</label>
-        <input
-          name="kullanim_alani"
-          class="form-control"
-          value="{{ item.kullanim_alani or '' }}"
-        />
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">IFS No</label>
-        <input
-          name="ifs_no"
-          class="form-control"
-          value="{{ item.ifs_no or '' }}"
-        />
-      </div>
-      <div class="col-md-12">
-        <label class="form-label">Not</label>
-        <textarea name="not" class="form-control">
-{{ item.not_ or '' }}</textarea
-        >
-      </div>
-    </div>
-    <div class="mt-3">
-      <button class="btn btn-primary btn-sm">Kaydet</button>
-      {% if not modal %}
-      <a
-        href="{{ url_for('inventory.list') }}"
-        class="btn btn-outline-secondary btn-sm"
-        >İptal</a
-      >
-      {% endif %}
-    </div>
-  </form>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Envanter Düzenle</h1>
+    <p class="page-subtitle">Envanter No: {{ item.no }}</p>
+  </div>
 </div>
+<form
+  method="post"
+  action="{{ '?modal=1' if modal else '' }}"
+  id="inventory-edit-form"
+  class="soft-card p-4 stack-md needs-validation"
+  novalidate
+>
+  <div class="form-grid form-grid-2" id="inventory-edit-grid">
+    <div class="form-field">
+      <label>Envanter No</label>
+      <input
+        type="text"
+        class="form-control"
+        value="{{ item.no }}"
+        readonly
+      />
+    </div>
+    <div class="form-field">
+      <label>Bilgisayar Adı</label>
+      <input name="bilgisayar_adi" type="text" class="form-control" />
+    </div>
+    <div class="form-field">
+      <label>Fabrika</label>
+      <select id="edit_fabrika" name="fabrika" class="form-select"></select>
+    </div>
+    <div class="form-field">
+      <label>Departman</label>
+      <select id="edit_departman" name="departman" class="form-select"></select>
+    </div>
+    <div class="form-field">
+      <label>Donanım Tipi</label>
+      <select id="edit_donanim" name="donanim_tipi" class="form-select"></select>
+    </div>
+    <div class="form-field">
+      <label>Sorumlu Personel</label>
+      <select
+        id="edit_sorumlu"
+        name="sorumlu_personel"
+        class="form-select"
+      ></select>
+    </div>
+    <div class="form-field">
+      <label>Marka</label>
+      <select id="edit_marka" name="marka" class="form-select"></select>
+    </div>
+    <div class="form-field">
+      <label>Model</label>
+      <select id="edit_model" name="model" class="form-select" disabled>
+        <option value="">Önce marka seçiniz...</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>Seri No</label>
+      <input name="seri_no" type="text" class="form-control" />
+    </div>
+    <div class="form-field">
+      <label>Kullanım Alanı</label>
+      <select id="edit_kullanim" name="kullanim_alani" class="form-select"></select>
+    </div>
+    <div class="form-field">
+      <label>IFS No</label>
+      <input name="ifs_no" type="text" class="form-control" />
+    </div>
+    <div class="form-field">
+      <label>Bağlı Envanter No</label>
+      <input name="bagli_envanter_no" type="text" class="form-control" />
+    </div>
+    <div class="form-field form-span-2">
+      <label>Not</label>
+      <textarea name="not" class="form-control" rows="2"></textarea>
+    </div>
+  </div>
+  <div class="d-flex flex-wrap justify-content-end gap-2">
+    <button type="submit" class="btn btn-primary btn-sm">Kaydet</button>
+    {% if not modal %}
+    <a
+      href="{{ url_for('inventory.list') }}"
+      class="btn btn-outline-secondary btn-sm"
+      >İptal</a
+    >
+    {% endif %}
+  </div>
+</form>
+
+<script>
+  window.SKIP_SELECT_ENHANCE = true;
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    const current = {{ {
+      "bilgisayar_adi": item.bilgisayar_adi or "",
+      "fabrika": item.fabrika or "",
+      "departman": item.departman or "",
+      "donanim": item.donanim_tipi or "",
+      "sorumlu": item.sorumlu_personel or "",
+      "marka": item.marka or "",
+      "model": item.model or "",
+      "seri_no": item.seri_no or "",
+      "kullanim": item.kullanim_alani or "",
+      "ifs_no": item.ifs_no or "",
+      "bagli": item.bagli_envanter_no or "",
+      "not": item.not_ or "",
+    } | tojson }};
+
+    function setInputValue(name, value) {
+      const el = document.querySelector(`[name="${name}"]`);
+      if (el) el.value = value || "";
+    }
+
+    setInputValue("bilgisayar_adi", current.bilgisayar_adi);
+    setInputValue("seri_no", current.seri_no);
+    setInputValue("ifs_no", current.ifs_no);
+    setInputValue("bagli_envanter_no", current.bagli);
+    setInputValue("not", current.not);
+
+    async function loadOptions(selectEl, url, selectedValue) {
+      if (!selectEl) return;
+      let data = [];
+      try {
+        const res = await fetch(url);
+        if (res.ok) {
+          data = (await res.json()) || [];
+        }
+      } catch (err) {
+        console.error("Seçenekler yüklenemedi", err);
+      }
+      selectEl.innerHTML =
+        '<option value="">Seçiniz...</option>' +
+        data
+          .map(
+            (o) =>
+              `<option value="${o.text}" data-id="${o.id}">${o.text}</option>`
+          )
+          .join("");
+      setSelectValue(selectEl, selectedValue);
+    }
+
+    function setSelectValue(selectEl, value) {
+      if (!selectEl) return;
+      const val = value || "";
+      if (val && !Array.from(selectEl.options).some((opt) => opt.value === val)) {
+        const opt = document.createElement("option");
+        opt.value = val;
+        opt.textContent = val;
+        selectEl.appendChild(opt);
+      }
+      selectEl.value = val;
+    }
+
+    const fabrikaSel = document.getElementById("edit_fabrika");
+    const departmanSel = document.getElementById("edit_departman");
+    const donanimSel = document.getElementById("edit_donanim");
+    const sorumluSel = document.getElementById("edit_sorumlu");
+    const markaSel = document.getElementById("edit_marka");
+    const modelSel = document.getElementById("edit_model");
+    const kullanimSel = document.getElementById("edit_kullanim");
+
+    await loadOptions(fabrikaSel, "/api/picker/fabrika", current.fabrika);
+    await loadOptions(departmanSel, "/api/picker/kullanim_alani", current.departman);
+    await loadOptions(donanimSel, "/api/picker/donanim_tipi", current.donanim);
+    await loadOptions(kullanimSel, "/api/picker/kullanim_alani", current.kullanim);
+
+    await loadOptions(sorumluSel, "/api/picker/kullanici", current.sorumlu);
+
+    let brands = [];
+    try {
+      const brandRes = await fetch("/api/picker/marka");
+      if (brandRes.ok) {
+        brands = (await brandRes.json()) || [];
+      }
+    } catch (err) {
+      console.error("Marka listesi alınamadı", err);
+    }
+    markaSel.innerHTML =
+      '<option value="">Seçiniz...</option>' +
+      brands
+        .map(
+          (b) =>
+            `<option value="${b.text}" data-id="${b.id}">${b.text}</option>`
+        )
+        .join("");
+    setSelectValue(markaSel, current.marka);
+
+    async function populateModels(selectedBrandValue, selectedModelValue) {
+      if (!modelSel) return;
+      const opt = Array.from(markaSel.options).find(
+        (option) => option.value === (selectedBrandValue || "")
+      );
+      const brandId = opt && opt.dataset.id;
+      modelSel.innerHTML = '<option value="">Seçiniz...</option>';
+      modelSel.disabled = !brandId;
+      if (!brandId) {
+        setSelectValue(modelSel, selectedModelValue);
+        return;
+      }
+      let models = [];
+      try {
+        const res = await fetch(`/api/picker/model?marka_id=${brandId}`);
+        if (res.ok) {
+          models = (await res.json()) || [];
+        }
+      } catch (err) {
+        console.error("Model listesi alınamadı", err);
+      }
+      modelSel.innerHTML += models
+        .map((m) => `<option value="${m.text}">${m.text}</option>`)
+        .join("");
+      setSelectValue(modelSel, selectedModelValue);
+    }
+
+    await populateModels(current.marka, current.model);
+
+    markaSel.addEventListener("change", async () => {
+      await populateModels(markaSel.value, "");
+    });
+  });
+</script>
 {% endblock %}

@@ -86,13 +86,17 @@
           </div>
         </aside>
         <main class="app-main">
-      {% else %}
-        <main class="app-main">
-      {% endif %}
-          {% block content %}{% endblock %}
+          <div class="page stack-md">
+            {% block content %}{% endblock %}
+          </div>
         </main>
-      {% if request.session.get('user_id') %}
       </div>
+      {% else %}
+      <main class="app-main">
+        <div class="page stack-md">
+          {% block content %}{% endblock %}
+        </div>
+      </main>
       {% endif %}
     </div>
 
