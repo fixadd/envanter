@@ -5,18 +5,21 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
-import pytest
+from urllib.parse import urlencode
+
 import anyio
+import pytest
 from fastapi import FastAPI
 from sqlalchemy import inspect
-from urllib.parse import urlencode
 
 import models
 from database import get_db
 from routes.admin import router as admin_router
 
 
-def _call_app(app: FastAPI, method: str, path: str, data: dict[str, str]) -> tuple[int, dict[bytes, bytes], bytes]:
+def _call_app(
+    app: FastAPI, method: str, path: str, data: dict[str, str]
+) -> tuple[int, dict[bytes, bytes], bytes]:
     body = urlencode(data or {}).encode()
 
     async def _request() -> tuple[int, dict[bytes, bytes], bytes]:
