@@ -1046,7 +1046,6 @@ tr[data-href] > td:first-child {
 
 /* Başlık Bölümü - Standart Mavi (#2196F3) */
 .form-header,
-.page-header,
 .header-section,
 .card-header.bg-success,
 .bg-success {
@@ -1059,16 +1058,26 @@ tr[data-href] > td:first-child {
 .form-header h2,
 .form-header h3,
 .form-header h4,
-.page-header h1,
-.page-header h2,
-.page-header h3,
-.page-header h4,
 .header-section h1,
 .header-section h2,
 .header-section h3,
 .header-section h4 {
   color: #fff !important;
   margin: 0;
+}
+
+/* Page headers use transparent background in the refreshed design */
+.page-header {
+  background-color: transparent !important;
+  color: var(--color-body) !important;
+  padding: 0 !important;
+}
+
+.page-header h1,
+.page-header h2,
+.page-header h3,
+.page-header h4 {
+  color: var(--color-heading) !important;
 }
 
 /* Tüm Butonlar - Standart Mavi */
