@@ -1799,7 +1799,7 @@ body.theme-dark .nav.nav-tabs {
   #modalStockAdd .modal-form-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   #modalStockAdd .modal-form-grid--full {
     grid-column: 1 / -1;
   }
@@ -2029,11 +2029,13 @@ body.theme-dark .nav.nav-tabs {
 /* Select seçildiğinde renk */
 .js-actions:has(option[value="edit"]:checked) {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-  background-image: 
+  background-image:
     linear-gradient(135deg, #10b981 0%, #059669 100%),
     url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
   background-repeat: no-repeat, no-repeat;
-  background-position: center, right 0.5rem center;
+  background-position:
+    center,
+    right 0.5rem center;
   background-size: auto, 1rem;
   color: white !important;
   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3) !important;
@@ -2047,40 +2049,40 @@ body.theme-dark .nav.nav-tabs {
     margin: 0.5rem !important;
     max-width: calc(100% - 1rem) !important;
   }
-  
+
   /* Header düzeni */
   .modal-shell__header {
     padding: 1.25rem 1.5rem !important;
   }
-  
+
   /* Tab'lar mobilde */
   #modalStockAdd .nav-tabs .nav-link {
     padding: 0.75rem 1.25rem !important;
     font-size: 0.9375rem !important;
   }
-  
+
   /* Form grid mobilde */
   #modalStockAdd .modal-form-grid,
   #assignModal .modal-form-grid {
     grid-template-columns: 1fr !important;
     gap: 1rem !important;
   }
-  
+
   /* Body padding */
   .modal-shell__body {
     padding: 1.5rem !important;
   }
-  
+
   /* Footer buttons */
   .modal-shell__footer {
     padding: 1.25rem 1.5rem !important;
   }
-  
+
   .modal-shell__actions {
     flex-direction: column-reverse;
     width: 100%;
   }
-  
+
   .modal-shell__actions .btn {
     width: 100% !important;
   }
