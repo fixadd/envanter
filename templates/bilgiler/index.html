@@ -6,9 +6,7 @@ content %}
       <div class="page-header__heading">
         <span class="eyebrow text-primary">BİLGİ BANKASI</span>
         <h1 class="page-header__title">Bilgiler</h1>
-        <p class="page-header__subtitle">
-          Bilgi ve dokümantasyonları yönetin.
-        </p>
+        <p class="page-header__subtitle">Bilgi ve dokümantasyonları yönetin.</p>
       </div>
       <div class="page-header__actions page-actions">
         <button
@@ -59,41 +57,41 @@ content %}
       </div>
     </div>
 
-  {% if pinned_items %}
-  <section class="mb-5" id="pinnedBilgiler">
-    <div class="d-flex align-items-center gap-2 mb-2">
-      <span class="text-uppercase text-muted fw-semibold small"
-        >Sabitlenen Bilgiler</span
-      >
-      <span class="badge bg-warning text-dark"
-        >{{ pinned_items|length }}/3</span
-      >
-    </div>
-    <div class="row g-3">
-      {% for bilgi in pinned_items %} {% include "partials/bilgi_card.html" %}
-      {% endfor %}
-    </div>
-  </section>
-  {% endif %}
-
-  <section>
-    <div class="d-flex align-items-center gap-2 mb-2">
-      <span class="text-uppercase text-muted fw-semibold small"
-        >Tüm Bilgiler</span
-      >
-    </div>
-    <div class="row g-3" id="bilgiList">
-      {% if other_items %} {% for bilgi in other_items %} {% include
-      "partials/bilgi_card.html" %} {% endfor %} {% else %}
-      <div class="col-12">
-        <div class="alert alert-info mb-0">
-          Henüz paylaşılmış bilgi bulunmuyor. İlk bilgiyi siz ekleyin!
-        </div>
+    {% if pinned_items %}
+    <section class="mb-5" id="pinnedBilgiler">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <span class="text-uppercase text-muted fw-semibold small"
+          >Sabitlenen Bilgiler</span
+        >
+        <span class="badge bg-warning text-dark"
+          >{{ pinned_items|length }}/3</span
+        >
       </div>
-      {% endif %}
-    </div>
-  </section>
-</div>
+      <div class="row g-3">
+        {% for bilgi in pinned_items %} {% include "partials/bilgi_card.html" %}
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <section>
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <span class="text-uppercase text-muted fw-semibold small"
+          >Tüm Bilgiler</span
+        >
+      </div>
+      <div class="row g-3" id="bilgiList">
+        {% if other_items %} {% for bilgi in other_items %} {% include
+        "partials/bilgi_card.html" %} {% endfor %} {% else %}
+        <div class="col-12">
+          <div class="alert alert-info mb-0">
+            Henüz paylaşılmış bilgi bulunmuyor. İlk bilgiyi siz ekleyin!
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+  </div>
 </div>
 
 <div class="modal fade" id="bilgiModal" tabindex="-1" aria-hidden="true">

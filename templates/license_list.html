@@ -85,7 +85,10 @@ content %}
             <i class="bi bi-funnel"></i>
             Filtrele
           </button>
-          <button class="btn btn-outline-secondary btn-sm d-none" id="clearFilterBtn">
+          <button
+            class="btn btn-outline-secondary btn-sm d-none"
+            id="clearFilterBtn"
+          >
             <i class="bi bi-x-circle"></i>
             Temizle
           </button>
@@ -450,11 +453,9 @@ content %}
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     window.filterSystem = new UnifiedFilterSystem({
-      tableSelector: '#licensesTable',
-      searchInputId: 'searchInput',
-      filters: [
-        { id: 'durumFilter', label: 'Durum', columnField: 'durum' },
-      ],
+      tableSelector: "#licensesTable",
+      searchInputId: "searchInput",
+      filters: [{ id: "durumFilter", label: "Durum", columnField: "durum" }],
     });
 
     // Mevcut atama/hurda işlemleri
