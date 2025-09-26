@@ -193,44 +193,31 @@ content %}
         </div>
 
         <div class="modal-shell__body">
-          <div class="modal-form-grid">
-            <div class="form-group">
-              <label class="form-label" for="selLisansAdi">Lisans Adı</label>
-              <select
-                id="selLisansAdi"
-                name="lisans_adi"
-                class="form-select"
-                required
-              >
+          <div class="modal-form-grid env-grid">
+            <div class="form-group field">
+              <label for="selLisansAdi">Lisans Adı</label>
+              <select id="selLisansAdi" name="lisans_adi" class="ctrl" required>
                 <option value="">Seçiniz</option>
                 {% for ln in license_names %}
                 <option value="{{ ln.name }}">{{ ln.name }}</option>
                 {% endfor %}
               </select>
             </div>
-            <div class="form-group">
-              <label class="form-label" for="lisansAnahtari"
-                >Lisans Anahtarı</label
-              >
+            <div class="form-group field">
+              <label for="lisansAnahtari">Lisans Anahtarı</label>
               <input
                 id="lisansAnahtari"
                 name="lisans_anahtari"
                 type="text"
-                class="form-control"
+                class="ctrl"
                 required
                 placeholder="XXXX-XXXX-XXXX-XXXX"
               />
             </div>
 
-            <div class="form-group">
-              <label class="form-label" for="selPersonelAdd"
-                >Sorumlu Personel</label
-              >
-              <select
-                id="selPersonelAdd"
-                name="sorumlu_personel"
-                class="form-select"
-              >
+            <div class="form-group field">
+              <label for="selPersonelAdd">Sorumlu Personel</label>
+              <select id="selPersonelAdd" name="sorumlu_personel" class="ctrl">
                 <option value="">Seçiniz</option>
                 {% for u in users %}
                 <option value="{{ u }}">{{ u }}</option>
@@ -238,14 +225,12 @@ content %}
               </select>
             </div>
 
-            <div class="form-group">
-              <label class="form-label" for="bagliEnvanter"
-                >Bağlı Olduğu Envanter No</label
-              >
+            <div class="form-group field">
+              <label for="bagliEnvanter">Bağlı Olduğu Envanter No</label>
               <select
                 id="bagliEnvanter"
                 name="bagli_envanter_no"
-                class="form-select"
+                class="ctrl"
                 required
               >
                 <option value="">Seçiniz...</option>
@@ -255,28 +240,28 @@ content %}
               </select>
             </div>
 
-            <div class="form-group">
-              <label class="form-label" for="ifsNo">
-                IFS No <small class="text-muted">(opsiyonel)</small>
+            <div class="form-group field">
+              <label for="ifsNo">
+                IFS No <span class="muted">(opsiyonel)</span>
               </label>
               <input
                 id="ifsNo"
                 name="ifs_no"
                 type="text"
-                class="form-control"
+                class="ctrl"
                 placeholder="IFS numarası"
               />
             </div>
 
-            <div class="form-group">
-              <label class="form-label" for="lisansEmail"
-                >E-posta (opsiyonel)</label
+            <div class="form-group field">
+              <label for="lisansEmail"
+                >E-posta <span class="muted">(opsiyonel)</span></label
               >
               <input
                 id="lisansEmail"
                 name="mail_adresi"
                 type="email"
-                class="form-control"
+                class="ctrl"
                 placeholder="ornek@firma.com"
               />
             </div>
@@ -332,31 +317,19 @@ content %}
             name="islem_yapan"
             value="{{ current_user.full_name if current_user else 'system' }}"
           />
-          <div class="modal-form-grid">
-            <div class="form-group">
-              <label class="form-label" for="selPersonel"
-                >Sorumlu Personel</label
-              >
-              <select
-                name="sorumlu_personel"
-                class="form-select"
-                id="selPersonel"
-              >
+          <div class="modal-form-grid env-grid">
+            <div class="form-group field">
+              <label for="selPersonel">Sorumlu Personel</label>
+              <select name="sorumlu_personel" class="ctrl" id="selPersonel">
                 <option value="">Seçiniz</option>
                 {% for u in users %}
                 <option value="{{ u }}">{{ u }}</option>
                 {% endfor %}
               </select>
             </div>
-            <div class="form-group">
-              <label class="form-label" for="selBagli"
-                >Bağlı Olduğu Envanter No</label
-              >
-              <select
-                name="bagli_envanter_no"
-                class="form-select"
-                id="selBagli"
-              >
+            <div class="form-group field">
+              <label for="selBagli">Bağlı Olduğu Envanter No</label>
+              <select name="bagli_envanter_no" class="ctrl" id="selBagli">
                 <option value="">Seçiniz</option>
                 {% for inv in envanterler %}
                 <option value="{{ inv.no }}">
@@ -412,15 +385,15 @@ content %}
 
         <div class="modal-shell__body">
           <p class="mb-2">Bu lisans hurdaya ayrılacak. Onaylıyor musunuz?</p>
-          <div class="modal-form-grid">
-            <div class="form-group modal-form-grid--full">
-              <label class="form-label" for="scrapNote"
-                >Açıklama (opsiyonel)</label
+          <div class="modal-form-grid env-grid">
+            <div class="form-group field modal-form-grid--full span-2">
+              <label for="scrapNote"
+                >Açıklama <span class="muted">(opsiyonel)</span></label
               >
               <textarea
                 id="scrapNote"
                 name="aciklama"
-                class="form-control"
+                class="ctrl"
                 rows="3"
                 placeholder="Hurda sebebi / not"
               ></textarea>

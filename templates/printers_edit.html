@@ -34,47 +34,47 @@ content %}
       class="modal-shell__body"
       autocomplete="off"
     >
-      <div class="modal-form-grid">
-        <div class="form-group">
-          <label class="form-label" for="printerMarka">Marka</label>
+      <div class="modal-form-grid env-grid">
+        <div class="form-group field">
+          <label for="printerMarka">Marka</label>
           <input
             type="text"
             name="marka"
             id="printerMarka"
             value="{{ p.marka or '' }}"
-            class="form-control"
+            class="ctrl"
             placeholder="Örn. HP"
             autofocus
           />
         </div>
-        <div class="form-group">
-          <label class="form-label" for="printerModel">Model</label>
+        <div class="form-group field">
+          <label for="printerModel">Model</label>
           <input
             type="text"
             name="model"
             id="printerModel"
             value="{{ p.model or '' }}"
-            class="form-control"
+            class="ctrl"
             placeholder="Örn. LaserJet Pro 400"
           />
         </div>
-        <div class="form-group">
-          <label class="form-label" for="printerSerial">Seri No</label>
+        <div class="form-group field">
+          <label for="printerSerial">Seri No</label>
           <input
             type="text"
             name="seri_no"
             id="printerSerial"
             value="{{ p.seri_no or '' }}"
-            class="form-control"
+            class="ctrl"
             placeholder="Seri numarası"
           />
         </div>
-        <div class="form-group modal-form-grid--full">
-          <label class="form-label" for="printerNotes">Notlar</label>
+        <div class="form-group field modal-form-grid--full span-2">
+          <label for="printerNotes">Notlar</label>
           <textarea
             name="notlar"
             id="printerNotes"
-            class="form-control"
+            class="ctrl"
             rows="4"
             placeholder="Bakım, toner değişimi veya diğer notlar..."
           >
