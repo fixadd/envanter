@@ -34,6 +34,7 @@ from sqlalchemy.orm import (
     sessionmaker,
     synonym,
 )
+from sqlalchemy.pool import StaticPool
 
 load_dotenv()
 
@@ -68,7 +69,11 @@ def _is_sqlite_url(url: str | URL) -> bool:
 
 def engine_kwargs_for_url(url: str | URL) -> dict[str, Any]:
     if _is_sqlite_url(url):
-        return {"connect_args": {"check_same_thread": False}}
+        parsed = url if isinstance(url, URL) else make_url(url)
+        kwargs: dict[str, Any] = {"connect_args": {"check_same_thread": False}}
+        if parsed.database in (None, "", ":memory:"):
+            kwargs["poolclass"] = StaticPool
+        return kwargs
     return {}
 
 
@@ -132,6 +137,22 @@ class Setting(Base):
     id = Column(Integer, primary_key=True)
     key = Column(String, unique=True, index=True)
     value = Column(String)
+
+
+class Product(Base):
+    __tablename__ = "products"
+
+    id: Mapped[int | None] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+    donanim_tipi: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    marka: Mapped[str | None] = mapped_column(String(150), nullable=True, index=True)
+    model: Mapped[str | None] = mapped_column(String(150), nullable=True, index=True)
+    kullanim_alani: Mapped[str | None] = mapped_column(
+        String(150), nullable=True, index=True
+    )
+    lisans_adi: Mapped[str | None] = mapped_column(String(150), nullable=True)
+    fabrika: Mapped[str | None] = mapped_column(String(150), nullable=True, index=True)
 
 
 class Inventory(Base):

@@ -96,23 +96,24 @@ def create_product(
     fabrika: str = Form(""),
     db: Session = Depends(get_db),
 ):
-    # Uygun veri modeli seç (Product tanımlı değilse Inventory kullan)
-    model_cls = getattr(models, "Product", models.Inventory)
-
-    if not donanim_tipi:
+    normalized_type = donanim_tipi.strip()
+    if not normalized_type:
         raise HTTPException(status_code=400, detail="Donanım tipi gerekli")
 
-    data = {
-        "donanim_tipi": donanim_tipi,
-        "marka": marka or None,
-        "model": model or None,
-        "kullanim_alani": kullanim_alani or None,
-        "fabrika": fabrika or None,
-    }
-    if hasattr(model_cls, "__table__") and "lisans_adi" in model_cls.__table__.columns:
-        data["lisans_adi"] = lisans_adi or None
+    product_table = models.Product.__table__
+    bind = db.get_bind()
+    if bind is None:
+        bind = db.connection()
+    product_table.create(bind=bind, checkfirst=True)
 
-    item = model_cls(**data)
+    item = models.Product(
+        donanim_tipi=normalized_type,
+        marka=marka or None,
+        model=model or None,
+        kullanim_alani=kullanim_alani or None,
+        lisans_adi=lisans_adi or None,
+        fabrika=fabrika or None,
+    )
     db.add(item)
     db.commit()
     return RedirectResponse(url="/admin#products", status_code=303)
