@@ -342,18 +342,28 @@ window.addEventListener("message", (e) => {
     first.value = ''; first.textContent = 'Seçiniz…';
     el.appendChild(first);
 
-    const list = (items || []).map(v => {
+    const list = (items || []).map((v) => {
       if (v && typeof v === 'object') {
-        return { id: v.id ?? '', text: v.name ?? v.ad ?? v.text ?? v.value ?? '' };
+        const text =
+          v.name ?? v.ad ?? v.adi ?? v.text ?? v.label ?? v.value ?? '';
+        const value =
+          v.id ??
+          v.value ??
+          (v.text !== undefined && v.text !== null ? v.text : text);
+        return { id: v.id ?? null, value: value ?? '', text: text ?? '' };
       }
-      return { id: '', text: v };
+      const text = v == null ? '' : String(v);
+      return { id: null, value: text, text };
     });
 
     for (const v of list) {
       const opt = document.createElement('option');
-      opt.value = v.text;
-      opt.textContent = v.text;
-      if (v.id) opt.dataset.id = v.id;
+      opt.value = v.value ?? '';
+      opt.textContent = v.text ?? '';
+      if (v.id !== null && v.id !== undefined && v.id !== '') {
+        opt.dataset.id = v.id;
+      }
+      opt.dataset.label = v.text ?? '';
       el.appendChild(opt);
     }
 
@@ -372,14 +382,21 @@ window.addEventListener("message", (e) => {
     // TomSelect
     if (el.tomselect) {
       el.tomselect.clearOptions();
-      el.tomselect.addOptions(list.map(v => ({ value: v.text, text: v.text })));
+      el.tomselect.addOptions(
+        list.map((v) => ({ value: v.value ?? v.text, text: v.text })),
+      );
     }
 
     // Choices.js
     if (window.Choices && el.classList.contains('choices')) {
       if (el._choices && el._choices.destroy) el._choices.destroy();
       el._choices = new Choices(el, { searchEnabled: true, itemSelectText: '' });
-      el._choices.setChoices(list.map(v => ({ value: v.text, label: v.text })), 'value', 'label', true);
+      el._choices.setChoices(
+        list.map((v) => ({ value: v.value ?? v.text, label: v.text })),
+        'value',
+        'label',
+        true,
+      );
     }
   }
 
