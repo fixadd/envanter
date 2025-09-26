@@ -387,14 +387,43 @@
 
     async function loadSources() {
       try {
-        const [usersRes, inventoryRes, factoryRes, deptRes, usageRes] =
-          await Promise.all([
-            loadList(`${URLS.assignSources}?type=users`),
-            loadList(`${URLS.assignSources}?type=envanter`),
-            loadList("/api/lookup/fabrika"),
-            loadList(`${URLS.assignSources}?type=departman`),
-            loadList("/api/lookup/kullanim_alani"),
-          ]);
+        const [
+          usersRes,
+          inventoryRes,
+          factoryRes,
+          deptRes,
+          usageRes,
+          licenseNamesRes,
+        ] = await Promise.all([
+          loadList(`${URLS.assignSources}?type=users`),
+          loadList(`${URLS.assignSources}?type=envanter`),
+          loadList("/api/lookup/fabrika"),
+          loadList(`${URLS.assignSources}?type=departman`),
+          loadList("/api/lookup/kullanim_alani"),
+          loadList("/api/licenses/names"),
+        ]);
+
+        let printersRes = { data: [], error: null };
+        try {
+          const printerData = await http.getJson("/api/printers/list");
+          const items = Array.isArray(printerData?.items)
+            ? printerData.items
+            : [];
+          printersRes.data = items.map((item) => ({
+            id: item.envanter_no || item.id || "",
+            text:
+              [
+                item.envanter_no || item.id || "",
+                item.marka,
+                item.model,
+                item.seri_no,
+              ]
+                .filter((part) => part)
+                .join(" - ") || item.envanter_no || item.id || "",
+          }));
+        } catch (err) {
+          printersRes = { data: [], error: err };
+        }
 
         const hadError = [
           usersRes,
@@ -402,6 +431,8 @@
           factoryRes,
           deptRes,
           usageRes,
+          licenseNamesRes,
+          printersRes,
         ].some((r) => r.error);
         if (hadError) {
           showBanner(
@@ -410,9 +441,18 @@
           );
         }
 
+        fillSelect("#sa_license_owner", usersRes.data, "id", "text");
         fillSelect("#sa_license_person", usersRes.data, "id", "text");
+        fillSelect("#sa_inventory_owner", usersRes.data, "id", "text");
         fillSelect("#sa_inv_person", usersRes.data, "id", "text");
         fillSelect("#sa_license_inventory", inventoryRes.data, "id", "text");
+        fillSelect("#sa_inventory_select", inventoryRes.data, "id", "text");
+        const licenseOptions = (licenseNamesRes.data || []).map((name) => ({
+          id: name,
+          text: name,
+        }));
+        fillSelect("#sa_license_select", licenseOptions, "id", "text");
+        fillSelect("#sa_printer_select", printersRes.data, "id", "text");
         fillSelect("#sa_inv_factory", factoryRes.data, "id", "name");
         fillSelect("#sa_inv_department", deptRes.data, "id", "text");
         fillSelect("#sa_inv_usage", usageRes.data, "id", "name");
@@ -460,7 +500,25 @@
         miktar.value = "1";
         miktar.removeAttribute("max");
       }
-      const submitBtn = dom.one("#sa_submit");
+      [
+        "#sa_license_select",
+        "#sa_license_owner",
+        "#sa_inventory_select",
+        "#sa_inventory_owner",
+        "#sa_printer_select",
+      ].forEach((selector) => {
+        const el = dom.one(selector);
+        if (el) saSetFieldValue(el, "");
+      });
+      ["#sa_license_note", "#sa_printer_note", "#sa_general_note"].forEach(
+        (selector) => {
+          const el = dom.one(selector);
+          if (el) el.value = "";
+        },
+      );
+      const submitBtn =
+        dom.one("#sa_submit") ||
+        dom.one('#stokAtamaModal button[type="submit"]');
       submitBtn?.setAttribute("disabled", "disabled");
     }
 
@@ -558,7 +616,9 @@
       }
       dom.toggle(dom.one("#sa_stock_meta"), true);
       dom.toggle(dom.one("#sa_stock_alert"), false);
-      const submitBtn = dom.one("#sa_submit");
+      const submitBtn =
+        dom.one("#sa_submit") ||
+        dom.one('#stokAtamaModal button[type="submit"]');
       submitBtn?.removeAttribute("disabled");
     }
 
@@ -577,9 +637,15 @@
       const isLicense = active?.dataset.bsTarget?.includes("lisans");
       const isInventory = active?.dataset.bsTarget?.includes("envanter");
       const isPrinter = active?.dataset.bsTarget?.includes("yazici");
-      dom.require(dom.one("#sa_license_name"), Boolean(isLicense));
-      dom.require(dom.one("#sa_inv_no"), Boolean(isInventory));
-      dom.require(dom.one("#sa_prn_no"), Boolean(isPrinter));
+      const licenseField =
+        dom.one("#sa_license_select") || dom.one("#sa_license_name");
+      const inventoryField =
+        dom.one("#sa_inventory_select") || dom.one("#sa_inv_no");
+      const printerField =
+        dom.one("#sa_printer_select") || dom.one("#sa_prn_no");
+      dom.require(licenseField, Boolean(isLicense));
+      dom.require(inventoryField, Boolean(isInventory));
+      dom.require(printerField, Boolean(isPrinter));
     }
 
     function bindTabChange() {
@@ -604,58 +670,93 @@
       return value ? value : null;
     }
 
+    function valueOfAny(...selectors) {
+      for (const selector of selectors) {
+        const value = valueOf(selector);
+        if (value) return value;
+      }
+      return "";
+    }
+
+    function valueOrNullAny(...selectors) {
+      for (const selector of selectors) {
+        const value = valueOrNull(selector);
+        if (value !== null && value !== undefined) {
+          return value;
+        }
+      }
+      return null;
+    }
+
+    function combineNotes(...notes) {
+      const filtered = notes
+        .map((note) => (typeof note === "string" ? note.trim() : note))
+        .filter((note) => typeof note === "string" && note);
+      if (!filtered.length) return null;
+      return filtered.join("\n\n");
+    }
+
     function buildLicenseForm() {
-      const name = valueOf("#sa_license_name");
+      const name = valueOfAny("#sa_license_select", "#sa_license_name");
       if (!name) {
         throw new Error("Lisans adı giriniz.");
       }
       return {
         lisans_adi: name,
-        lisans_anahtari: valueOrNull("#sa_license_key"),
-        sorumlu_personel: valueOrNull("#sa_license_person"),
-        bagli_envanter_no: valueOrNull("#sa_license_inventory"),
-        mail_adresi: valueOrNull("#sa_license_mail"),
-        ifs_no: valueOrNull("#sa_license_ifs"),
+        lisans_anahtari: valueOrNullAny("#sa_license_key"),
+        sorumlu_personel: valueOrNullAny(
+          "#sa_license_owner",
+          "#sa_license_person",
+        ),
+        bagli_envanter_no: valueOrNullAny("#sa_license_inventory"),
+        mail_adresi: valueOrNullAny("#sa_license_mail"),
+        ifs_no: valueOrNullAny("#sa_license_ifs"),
       };
     }
 
     function buildInventoryForm() {
-      const invNo = valueOf("#sa_inv_no");
+      const invNo = valueOfAny("#sa_inventory_select", "#sa_inv_no");
       if (!invNo) {
         throw new Error("Envanter numarası giriniz.");
       }
       return {
         envanter_no: invNo,
-        bilgisayar_adi: valueOrNull("#sa_inv_pc"),
-        fabrika: valueOrNull("#sa_inv_factory"),
-        departman: valueOrNull("#sa_inv_department"),
-        sorumlu_personel: valueOrNull("#sa_inv_person"),
-        kullanim_alani: valueOrNull("#sa_inv_usage"),
-        seri_no: valueOrNull("#sa_inv_serial"),
-        bagli_envanter_no: valueOrNull("#sa_inv_machine"),
-        notlar: valueOrNull("#sa_inv_note"),
-        ifs_no: valueOrNull("#sa_inv_ifs"),
-        marka: valueOrNull("#sa_inv_brand"),
-        model: valueOrNull("#sa_inv_model"),
-        donanim_tipi: valueOrNull("#sa_inv_hardware"),
+        bilgisayar_adi: valueOrNullAny("#sa_inv_pc"),
+        fabrika: valueOrNullAny("#sa_inv_factory"),
+        departman: valueOrNullAny("#sa_inv_department"),
+        sorumlu_personel: valueOrNullAny(
+          "#sa_inventory_owner",
+          "#sa_inv_person",
+        ),
+        kullanim_alani: valueOrNullAny("#sa_inv_usage"),
+        seri_no: valueOrNullAny("#sa_inv_serial"),
+        bagli_envanter_no: valueOrNullAny("#sa_inv_machine"),
+        notlar: valueOrNullAny("#sa_inv_note"),
+        ifs_no: valueOrNullAny("#sa_inv_ifs"),
+        marka: valueOrNullAny("#sa_inv_brand"),
+        model: valueOrNullAny("#sa_inv_model"),
+        donanim_tipi: valueOrNullAny("#sa_inv_hardware"),
       };
     }
 
     function buildPrinterForm() {
-      const printerNo = valueOf("#sa_prn_no");
+      const printerNo = valueOfAny("#sa_printer_select", "#sa_prn_no");
       if (!printerNo) {
         throw new Error("Yazıcı envanter numarası giriniz.");
       }
       return {
         envanter_no: printerNo,
-        marka: valueOrNull("#sa_prn_brand"),
-        model: valueOrNull("#sa_prn_model"),
-        kullanim_alani: valueOrNull("#sa_prn_usage"),
-        ip_adresi: valueOrNull("#sa_prn_ip"),
-        mac: valueOrNull("#sa_prn_mac"),
-        hostname: valueOrNull("#sa_prn_host"),
-        ifs_no: valueOrNull("#sa_prn_ifs"),
-        notlar: valueOrNull("#sa_prn_note"),
+        marka: valueOrNullAny("#sa_prn_brand"),
+        model: valueOrNullAny("#sa_prn_model"),
+        kullanim_alani: valueOrNullAny("#sa_prn_usage"),
+        ip_adresi: valueOrNullAny("#sa_prn_ip"),
+        mac: valueOrNullAny("#sa_prn_mac"),
+        hostname: valueOrNullAny("#sa_prn_host"),
+        ifs_no: valueOrNullAny("#sa_prn_ifs"),
+        bagli_envanter_no: valueOrNullAny("#sa_prn_machine"),
+        sorumlu_personel: valueOrNullAny("#sa_prn_person"),
+        fabrika: valueOrNullAny("#sa_prn_factory"),
+        notlar: valueOrNullAny("#sa_printer_note", "#sa_prn_note"),
       };
     }
 
@@ -665,19 +766,29 @@
         throw new Error("Lütfen stok seçiniz.");
       }
       const type = getAssignmentType();
+      const generalNote =
+        valueOrNull("#sa_general_note") ?? valueOrNull("#sa_not");
       const payload = {
         stock_id: stockValue,
         atama_turu: type,
         miktar: Number(valueOf("#sa_miktar") || "1") || 1,
-        notlar: valueOrNull("#sa_not"),
+        notlar: combineNotes(generalNote),
       };
 
       if (type === "lisans") {
+        const licenseNote = valueOrNull("#sa_license_note");
         payload.license_form = buildLicenseForm();
+        payload.notlar = combineNotes(generalNote, licenseNote);
       } else if (type === "envanter") {
         payload.envanter_form = buildInventoryForm();
       } else {
-        payload.printer_form = buildPrinterForm();
+        const printerForm = buildPrinterForm();
+        const printerNote = valueOrNull("#sa_printer_note");
+        if (printerNote && !printerForm.notlar) {
+          printerForm.notlar = printerNote;
+        }
+        payload.printer_form = printerForm;
+        payload.notlar = combineNotes(generalNote, printerNote);
       }
 
       return payload;
@@ -1520,6 +1631,9 @@
       statusTab?.addEventListener("shown.bs.tab", refreshStockStatus);
 
       dom.one("#sa_submit")?.addEventListener("click", submitAssignment);
+      dom
+        .one("#stockAssignForm")
+        ?.addEventListener("submit", submitAssignment);
       bindTabChange();
       applyFieldRules();
 
