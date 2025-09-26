@@ -90,8 +90,7 @@ async function fillChoices({
       const text = String(item);
       return { value: text, label: text };
     }
-    const value =
-      item.id ?? item.value ?? (item.text != null ? item.text : "");
+    const value = item.id ?? item.value ?? (item.text != null ? item.text : "");
     const label =
       item.name ??
       item.text ??
