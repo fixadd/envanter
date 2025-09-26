@@ -1,69 +1,92 @@
 {% extends "base.html" %} {% block title %}Hurdalar - Lisans{% endblock %} {%
 block content %}
-<div class="container-fluid p-2 content">
-  <h5 class="mb-3">Hurdaya Ayrılan Lisanslar</h5>
-  <div class="page-section">
-    <div class="table-responsive">
-      <table class="table table-sm align-middle table-rounded">
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>Lisans Adı</th>
-            <th>Key</th>
-            <th>Sorumlu</th>
-            <th>Bağlı Envanter</th>
-            <th>E-posta</th>
-            <th>Not</th>
-            <th>Durum</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for row in items %}
-          <tr>
-            <td>{{ row.id }}</td>
-            <td>{{ row.lisans_adi }}</td>
-            <td class="text-truncate" style="max-width: 220px">
-              {{ row.lisans_key }}
-            </td>
-            <td>{{ row.sorumlu_personel or '-' }}</td>
-            <td>{{ row.bagli_envanter_no or '-' }}</td>
-            <td>{{ row.mail_adresi or '-' }}</td>
-            <td>{{ row.notlar or '-' }}</td>
-            <td><span class="badge bg-secondary">Hurda</span></td>
-            <td class="text-nowrap">
-              <button
-                class="btn btn-outline-secondary btn-sm view-btn"
-                data-id="{{ row.id }}"
-                title="Detayı Göster"
-              >
-                <i class="bi bi-eye"></i>
-              </button>
-            </td>
-          </tr>
-          {% else %}
-          <tr>
-            <td colspan="8" class="text-muted">Kayıt yok.</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+<div class="container-fluid py-4">
+  <div class="page-shell">
+    <header class="page-header">
+      <div class="page-header__heading">
+        <span class="eyebrow text-primary">Lisans Takip</span>
+        <h1 class="page-header__title">Hurdaya Ayrılan Lisanslar</h1>
+        <p class="page-header__subtitle">
+          Hurdaya ayrılan lisans kayıtlarını görüntüleyin ve detaylarını
+          inceleyin.
+        </p>
+      </div>
+    </header>
+
+    <div class="page-card soft-card">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle table-rounded">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Lisans Adı</th>
+              <th>Key</th>
+              <th>Sorumlu</th>
+              <th>Bağlı Envanter</th>
+              <th>E-posta</th>
+              <th>Not</th>
+              <th>Durum</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in items %}
+            <tr>
+              <td>{{ row.id }}</td>
+              <td>{{ row.lisans_adi }}</td>
+              <td class="text-truncate" style="max-width: 220px">
+                {{ row.lisans_key }}
+              </td>
+              <td>{{ row.sorumlu_personel or '-' }}</td>
+              <td>{{ row.bagli_envanter_no or '-' }}</td>
+              <td>{{ row.mail_adresi or '-' }}</td>
+              <td>{{ row.notlar or '-' }}</td>
+              <td><span class="badge bg-secondary">Hurda</span></td>
+              <td class="text-nowrap">
+                <button
+                  class="btn btn-outline-secondary btn-sm view-btn"
+                  data-id="{{ row.id }}"
+                  title="Detayı Göster"
+                >
+                  <i class="bi bi-eye"></i>
+                </button>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="8" class="text-muted">Kayıt yok.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
 
 <div class="modal fade" id="hurdaDetayModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Hurda Detayı</h5>
-        <button
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Kapat"
-        ></button>
+  <div
+    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+  >
+    <div class="modal-content border-0 bg-transparent p-0">
+      <div class="modal-shell">
+        <div class="modal-shell__header">
+          <div class="modal-shell__heading">
+            <h5 class="modal-shell__title">Hurda Detayı</h5>
+            <p class="modal-shell__subtitle">
+              Seçilen lisans kaydına ait hurda detaylarını görüntüleyin.
+            </p>
+          </div>
+          <div class="modal-shell__header-actions">
+            <button
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Kapat"
+            ></button>
+          </div>
+        </div>
+        <div class="modal-shell__body" id="hurdaDetayBody">Yükleniyor...</div>
       </div>
-      <div class="modal-body" id="hurdaDetayBody">Yükleniyor...</div>
     </div>
   </div>
 </div>
