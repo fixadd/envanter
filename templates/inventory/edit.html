@@ -83,37 +83,6 @@ block content %}
   </form>
 </div>
 
-<style>
-  #inventory-edit-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px 16px;
-  }
-  @media (min-width: 768px) {
-    #inventory-edit-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    #inventory-edit-grid .span-2 {
-      grid-column: 1 / -1;
-    }
-  }
-  #inventory-edit-grid .field label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: 600;
-  }
-  #inventory-edit-grid .ctrl {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 0.5rem;
-    background: var(--bs-body-bg, #fff);
-  }
-  #inventory-edit-grid .ctrl:disabled {
-    background: var(--bs-tertiary-bg, #f1f3f5);
-  }
-</style>
-
 <script>
   window.SKIP_SELECT_ENHANCE = true;
 </script>

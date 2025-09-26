@@ -16,10 +16,10 @@
         method="post"
         action="{{ form_action }}{{ '?modal=1' if modal else '' }}"
       >
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label">Lisans Adı</label>
-            <select name="adi" class="form-select" required>
+        <div class="env-grid">
+          <div class="field">
+            <label>Lisans Adı</label>
+            <select name="adi" class="ctrl" required>
               <option value="">Seçiniz...</option>
               {% for ln in license_names %}
               <option
@@ -32,18 +32,18 @@
             </select>
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Lisans Anahtarı</label>
+          <div class="field">
+            <label>Lisans Anahtarı</label>
             <input
               name="anahtar"
-              class="form-control"
+              class="ctrl"
               value="{{ license.anahtar if license else '' }}"
             />
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Sorumlu Personel</label>
-            <select name="sorumlu_personel" class="form-select">
+          <div class="field">
+            <label>Sorumlu Personel</label>
+            <select name="sorumlu_personel" class="ctrl">
               <option value="">(Seçiniz)</option>
               {% for u in users %}
               <option
@@ -56,13 +56,9 @@
             </select>
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Bağlı Olduğu Envanter No</label>
-            <select
-              id="selBagliEnvanter"
-              name="inventory_id"
-              class="form-select"
-            >
+          <div class="field">
+            <label>Bağlı Olduğu Envanter No</label>
+            <select id="selBagliEnvanter" name="inventory_id" class="ctrl">
               <option value="">(Seçimsiz)</option>
               {% for inv in envanterler %}
               <option
@@ -75,21 +71,21 @@
             </select>
           </div>
 
-          <div class="col-md-4">
-            <label class="form-label">IFS No</label>
+          <div class="field">
+            <label>IFS No</label>
             <input
               name="ifs_no"
-              class="form-control"
+              class="ctrl"
               value="{{ license.ifs_no if license else '' }}"
             />
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Mail Adresi</label>
+          <div class="field">
+            <label>Mail Adresi</label>
             <input
               type="email"
               name="mail_adresi"
-              class="form-control"
+              class="ctrl"
               value="{{ license.mail_adresi if license else '' }}"
             />
           </div>
