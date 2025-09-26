@@ -2,32 +2,45 @@
 "components/modal.html" import modal %} {% set active_key =
 request.query_params.get("durum") or "acik" %} {% block title %}Talep Takip{%
 endblock %} {% block content %}
-<div class="container-fluid p-3">
-  {% set right_slot %}
-  <a
-    href="{{ url_for('talep_export_excel') }}"
-    class="btn btn-outline-secondary btn-sm"
-    >Excel</a
-  >
-  <button
-    class="btn btn-primary btn-sm"
-    data-bs-toggle="modal"
-    data-bs-target="#talepModal"
-  >
-    Talep Aç
-  </button>
-  {% endset %}
+<div class="container-fluid py-4">
+  <div class="page-shell">
+    <header class="page-header">
+      <div class="page-header__heading">
+        <span class="eyebrow text-primary">Talep Takip</span>
+        <h1 class="page-header__title">Talepler</h1>
+        <p class="page-header__subtitle">
+          Açık, tamamlanan ve iptal edilen tüm talepleri tek noktadan yönetin.
+        </p>
+      </div>
+      <div class="page-header__actions page-actions">
+        <div class="page-actions__group">
+          <a
+            href="{{ url_for('talep_export_excel') }}"
+            class="btn btn-outline-secondary btn-sm"
+          >
+            Excel
+          </a>
+          <button
+            class="btn btn-primary btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#talepModal"
+          >
+            Talep Aç
+          </button>
+        </div>
+      </div>
+    </header>
 
-  <div class="tabs-wrap">
-    {{ tabs( items=[ {"label":"Açık","href": url_for('talep_list') ~
-    "?durum=acik", "key":"acik"}, {"label":"Tamamlandı","href":
-    url_for('talep_list') ~ "?durum=tamamlandi","key":"tamamlandi"},
-    {"label":"İptal","href": url_for('talep_list') ~
-    "?durum=iptal","key":"iptal"}, ], active_key=active_key,
-    right_slot=right_slot ) }}
-  </div>
+    <div class="page-card soft-card stack-md">
+      <div class="tabs-wrap">
+        {{ tabs( items=[ {"label":"Açık","href": url_for('talep_list') ~
+        "?durum=acik", "key":"acik"}, {"label":"Tamamlandı","href":
+        url_for('talep_list') ~ "?durum=tamamlandi","key":"tamamlandi"},
+        {"label":"İptal","href": url_for('talep_list') ~
+        "?durum=iptal","key":"iptal"}, ], active_key=active_key ) }}
+      </div>
 
-  {% macro render_table(rows, empty_msg, show_actions=False) %}
+      {% macro render_table(rows, empty_msg, show_actions=False) %}
   <div class="table-responsive">
     <table class="table table-striped table-hover table-sm align-middle">
       <thead>
@@ -121,8 +134,10 @@ endblock %} {% block content %}
   {% endmacro %} {% set msg_map = {'acik':'Açık talep
   bulunamadı.','tamamlandi':'Tamamlanan talep bulunamadı.','iptal':'İptal talep
   bulunamadı.'} %}
-  <div class="page-section">
-    {{ render_table(rows, msg_map.get(active_key), active_key == 'acik') }}
+      <div class="page-section">
+        {{ render_table(rows, msg_map.get(active_key), active_key == 'acik') }}
+      </div>
+    </div>
   </div>
 </div>
 
