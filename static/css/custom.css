@@ -1149,7 +1149,6 @@ body .container-fluid {
   padding-right: 2rem !important;
 }
 
-
 .action-select.js-actions:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(245, 87, 108, 0.4) !important;
@@ -1546,7 +1545,8 @@ tr[data-fault-status="arizali"] .action-select.js-actions {
 
 /* Modal açılma animasyonu */
 .modal.fade .modal-dialog {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     opacity 0.3s ease;
   transform: scale(0.95) translateY(-20px);
   opacity: 0;
