@@ -1039,6 +1039,119 @@ tr[data-href] > td:first-child {
    - Bağlantılar sekmesi düzeltildi
 ============================================================================= */
 
+/* =============================================
+   GLOBAL FORM DESIGN - TÜM SAYFALAR
+   Envanter Ekle/Düzenle/Atama için Standart Mavi Tema
+   ============================================= */
+
+/* Başlık Bölümü - Standart Mavi (#2196F3) */
+.form-header,
+.page-header,
+.header-section,
+.card-header.bg-success,
+.bg-success {
+  background-color: #2196f3 !important;
+  color: #fff !important;
+  padding: 20px;
+}
+
+.form-header h1,
+.form-header h2,
+.form-header h3,
+.form-header h4,
+.page-header h1,
+.page-header h2,
+.page-header h3,
+.page-header h4,
+.header-section h1,
+.header-section h2,
+.header-section h3,
+.header-section h4 {
+  color: #fff !important;
+  margin: 0;
+}
+
+/* Tüm Butonlar - Standart Mavi */
+.btn-primary,
+.btn-save,
+.btn-add,
+.btn-edit,
+.btn-assign,
+.btn-submit,
+.btn-success {
+  background-color: #2196f3 !important;
+  border-color: #2196f3 !important;
+  color: #fff !important;
+}
+
+.btn-primary:hover,
+.btn-save:hover,
+.btn-add:hover,
+.btn-edit:hover,
+.btn-assign:hover,
+.btn-submit:hover,
+.btn-success:hover {
+  background-color: #1976d2 !important;
+  border-color: #1976d2 !important;
+}
+
+.btn-primary:focus,
+.btn-save:focus,
+.btn-add:focus,
+.btn-edit:focus,
+.btn-assign:focus,
+.btn-submit:focus,
+.btn-success:focus {
+  background-color: #1976d2 !important;
+  border-color: #1976d2 !important;
+  box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.5) !important;
+}
+
+.btn-primary:active,
+.btn-save:active,
+.btn-add:active,
+.btn-edit:active,
+.btn-assign:active,
+.btn-submit:active,
+.btn-success:active {
+  background-color: #1565c0 !important;
+  border-color: #1565c0 !important;
+}
+
+/* Form Stil */
+.form-control:focus {
+  border-color: #2196f3;
+  box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+}
+
+/* Select Dropdown */
+.form-select:focus {
+  border-color: #2196f3;
+  box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+}
+
+/* Diğer Butonlar */
+.btn-secondary,
+.btn-cancel {
+  background-color: #6c757d !important;
+  border-color: #6c757d !important;
+}
+
+.btn-danger,
+.btn-delete {
+  background-color: #f44336 !important;
+  border-color: #f44336 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-header,
+  .page-header,
+  .header-section {
+    padding: 15px;
+  }
+}
+
 /* ========== 1. BOŞLUK SORUNLARI ========== */
 
 /* Navbar altındaki boşluğu kaldır */
