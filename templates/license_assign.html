@@ -15,33 +15,35 @@ content %}
           name="islem_yapan"
           value="{{ current_user.full_name if current_user else 'system' }}"
         />
-        <div class="mb-3">
-          <label class="form-label">Sorumlu Personel</label>
-          <select name="sorumlu_personel" class="form-select">
-            <option value="">Seçiniz</option>
-            {% for u in users %}
-            <option
-              value="{{ u }}"
-              {% if license.sorumlu_personel == u %}selected{% endif %}
-            >
-              {{ u }}
-            </option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Bağlı Olduğu Envanter No</label>
-          <select name="bagli_envanter_no" class="form-select">
-            <option value="">Seçiniz</option>
-            {% for inv in envanterler %}
-            <option
-              value="{{ inv.no }}"
-              {% if license.bagli_envanter_no == inv.no %}selected{% endif %}
-            >
-              {{ inv.no }} - {{ inv.bilgisayar_adi or inv.marka }}
-            </option>
-            {% endfor %}
-          </select>
+        <div class="env-grid">
+          <div class="field">
+            <label>Sorumlu Personel</label>
+            <select name="sorumlu_personel" class="ctrl">
+              <option value="">Seçiniz</option>
+              {% for u in users %}
+              <option
+                value="{{ u }}"
+                {% if license.sorumlu_personel == u %}selected{% endif %}
+              >
+                {{ u }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label>Bağlı Olduğu Envanter No</label>
+            <select name="bagli_envanter_no" class="ctrl">
+              <option value="">Seçiniz</option>
+              {% for inv in envanterler %}
+              <option
+                value="{{ inv.no }}"
+                {% if license.bagli_envanter_no == inv.no %}selected{% endif %}
+              >
+                {{ inv.no }} - {{ inv.bilgisayar_adi or inv.marka }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
         </div>
         <div class="d-flex gap-2 mt-4">
           <button class="btn btn-primary" type="submit">Kaydet</button>

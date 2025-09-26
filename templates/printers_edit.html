@@ -1,5 +1,4 @@
-{% extends "base.html" %} {% block title %}Yazıcı Düzenle{% endblock %} {% block
-content %}
+{% extends "base.html" %} {% block title %}Yazıcı Düzenle{% endblock %} {% block content %}
 <div class="container-fluid py-4">
   <div class="modal-shell">
     <div class="modal-shell__header">
@@ -7,8 +6,7 @@ content %}
         <div class="eyebrow text-primary mb-1">Yazıcı #{{ p.id }}</div>
         <h5 class="modal-shell__title">Yazıcı Bilgilerini Düzenle</h5>
         <p class="modal-shell__subtitle">
-          {{ ((p.marka or '-') ~ ' ' ~ (p.model or '')) | trim }}{% if p.seri_no
-          %} • Seri No: {{ p.seri_no }}{% endif %}
+          {{ ((p.marka or '-') ~ ' ' ~ (p.model or '')) | trim }}{% if p.seri_no %} • Seri No: {{ p.seri_no }}{% endif %}
         </p>
       </div>
       <div class="modal-shell__header-actions">
@@ -16,7 +14,8 @@ content %}
         <span class="badge rounded-pill bg-light text-muted modal-shell__badge">
           {{ p.envanter_no }}
         </span>
-        {% endif %} {% if not modal %}
+        {% endif %}
+        {% if not modal %}
         <a
           href="/printers/{{ p.id }}"
           class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1"
@@ -34,52 +33,50 @@ content %}
       class="modal-shell__body"
       autocomplete="off"
     >
-      <div class="modal-form-grid">
-        <div class="form-group">
-          <label class="form-label" for="printerMarka">Marka</label>
+      <div class="modal-form-grid env-grid">
+        <div class="form-group field">
+          <label for="printerMarka">Marka</label>
           <input
             type="text"
             name="marka"
             id="printerMarka"
             value="{{ p.marka or '' }}"
-            class="form-control"
+            class="ctrl"
             placeholder="Örn. HP"
             autofocus
           />
         </div>
-        <div class="form-group">
-          <label class="form-label" for="printerModel">Model</label>
+        <div class="form-group field">
+          <label for="printerModel">Model</label>
           <input
             type="text"
             name="model"
             id="printerModel"
             value="{{ p.model or '' }}"
-            class="form-control"
+            class="ctrl"
             placeholder="Örn. LaserJet Pro 400"
           />
         </div>
-        <div class="form-group">
-          <label class="form-label" for="printerSerial">Seri No</label>
+        <div class="form-group field">
+          <label for="printerSerial">Seri No</label>
           <input
             type="text"
             name="seri_no"
             id="printerSerial"
             value="{{ p.seri_no or '' }}"
-            class="form-control"
+            class="ctrl"
             placeholder="Seri numarası"
           />
         </div>
-        <div class="form-group modal-form-grid--full">
-          <label class="form-label" for="printerNotes">Notlar</label>
+        <div class="form-group field modal-form-grid--full span-2">
+          <label for="printerNotes">Notlar</label>
           <textarea
             name="notlar"
             id="printerNotes"
-            class="form-control"
+            class="ctrl"
             rows="4"
             placeholder="Bakım, toner değişimi veya diğer notlar..."
-          >
-{{ p.notlar or '' }}</textarea
-          >
+          >{{ p.notlar or '' }}</textarea>
         </div>
       </div>
 
