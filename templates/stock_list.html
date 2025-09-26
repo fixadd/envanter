@@ -2,46 +2,59 @@
 {% block title %}Stok Takibi{% endblock %}
 
 {% block content %}
-<div class="container-fluid p-3">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h5 class="mb-0">Stok Takibi</h5>
-    <div class="d-flex gap-2 flex-wrap align-items-center">
-      <button class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#modalStockAdd">
-        <i class="bi bi-plus-lg"></i>
-        <span>Ekle</span>
-      </button>
-      {% with fault_entity='stock', fault_prefix='stock', fault_label='Stok Arızalı Durum' %}
-        {% include 'partials/_fault_controls.html' %}
-      {% endwith %}
-      <div class="dropdown">
-        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-          Excel
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" href="/stock/export">Dışa Aktar</a></li>
-          <li>
-            <form action="/stock/import" method="post" enctype="multipart/form-data">
-              <input type="file" name="file" id="stockExcel" class="d-none" onchange="this.form.submit()">
-              <label for="stockExcel" class="dropdown-item mb-0">İçe Aktar</label>
-            </form>
+<div class="container-fluid py-4">
+  <div class="page-shell">
+    <header class="page-header">
+      <div class="page-header__heading">
+        <span class="eyebrow text-primary">Stok Takip</span>
+        <h1 class="page-header__title">Stok Yönetimi</h1>
+        <p class="page-header__subtitle">
+          Donanım, yazıcı ve lisans stok hareketlerini izleyin ve hızlıca işlem yapın.
+        </p>
+      </div>
+      <div class="page-header__actions page-actions">
+        <div class="page-actions__group">
+          <button class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#modalStockAdd">
+            <i class="bi bi-plus-lg"></i>
+            <span>Ekle</span>
+          </button>
+          {% with fault_entity='stock', fault_prefix='stock', fault_label='Stok Arızalı Durum' %}
+            {% include 'partials/_fault_controls.html' %}
+          {% endwith %}
+          <div class="dropdown">
+            <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Excel
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="/stock/export">Dışa Aktar</a></li>
+              <li>
+                <form action="/stock/import" method="post" enctype="multipart/form-data">
+                  <input type="file" name="file" id="stockExcel" class="d-none" onchange="this.form.submit()">
+                  <label for="stockExcel" class="dropdown-item mb-0">İçe Aktar</label>
+                </form>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="page-actions__group page-actions__group--grow">
+          <label for="stockSearch" class="visually-hidden">Ara</label>
+          <input type="text" id="stockSearch" class="form-control form-control-sm" placeholder="Ara">
+        </div>
+      </div>
+    </header>
+
+    <div class="page-card soft-card stack-md">
+      <div class="tabs-wrap">
+        <ul class="nav nav-tabs" id="stockTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-log" data-bs-toggle="tab" data-bs-target="#pane-log" type="button" role="tab">Log</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-status" data-bs-toggle="tab" data-bs-target="#pane-status" type="button" role="tab">Stok Durumu</button>
           </li>
         </ul>
       </div>
-      <input type="text" id="stockSearch" class="form-control form-control-sm" placeholder="Ara" style="width:200px">
-    </div>
-  </div>
-
-  <div class="tabs-wrap">
-    <ul class="nav nav-tabs" id="stockTabs" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="tab-log" data-bs-toggle="tab" data-bs-target="#pane-log" type="button" role="tab">Log</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-status" data-bs-toggle="tab" data-bs-target="#pane-status" type="button" role="tab">Stok Durumu</button>
-      </li>
-    </ul>
-  </div>
-  <div class="page-section">
+      <div class="page-section">
     <div class="tab-content" id="stockTabContent">
       <div class="tab-pane fade show active" id="pane-log" role="tabpanel">
         <div class="table-responsive">
@@ -188,15 +201,24 @@
 
 <div class="modal fade" id="stokDetailModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Stok Detayı</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-      </div>
-      <div class="modal-body">
-        <dl class="row mb-0 small" id="stokDetailList"></dl>
-        <div class="mt-3 d-none" id="stokDetailLinkWrap">
-          <a id="stokDetailLink" class="btn btn-link btn-sm ps-0" href="#" target="_blank" rel="noopener">Kaynağı aç</a>
+    <div class="modal-content border-0 bg-transparent p-0">
+      <div class="modal-shell">
+        <div class="modal-shell__header">
+          <div class="modal-shell__heading">
+            <h5 class="modal-shell__title">Stok Detayı</h5>
+            <p class="modal-shell__subtitle">
+              Seçili hareket hakkında özet bilgileri görüntüleyin.
+            </p>
+          </div>
+          <div class="modal-shell__header-actions">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+          </div>
+        </div>
+        <div class="modal-shell__body">
+          <dl class="row mb-0 small" id="stokDetailList"></dl>
+          <div class="mt-3 d-none" id="stokDetailLinkWrap">
+            <a id="stokDetailLink" class="btn btn-link btn-sm ps-0" href="#" target="_blank" rel="noopener">Kaynağı aç</a>
+          </div>
         </div>
       </div>
     </div>
@@ -205,68 +227,82 @@
 
 <!-- STOK EKLE MODALI -->
 <div class="modal fade" id="modalStockAdd" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <form id="frmStockAdd" class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Stok Ekle</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-      </div>
-      <div class="modal-body row g-3">
-        <div class="col-12">
-          <ul class="nav nav-pills" id="stockAddType" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" type="button" data-stock-add-type="inventory" aria-selected="true">Envanter</button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" type="button" data-stock-add-type="license" aria-selected="false">Lisans</button>
-            </li>
-          </ul>
-        </div>
-
-        <div id="hardwareFields" class="col-12">
-          <div class="row g-3 stok-row">
-            <div class="col-md-3">
-              <label class="form-label">Donanım Tipi</label>
-              <select name="donanim_tipi" class="form-select" data-lookup="donanim_tipi" id="stok_donanim_tipi" required></select>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Marka (ops.)</label>
-              <select name="marka" class="form-select" data-lookup="marka" id="stok_marka"></select>
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">Model (ops.)</label>
-              <select name="model" class="form-select" data-lookup="model" data-depends="#stok_marka" id="stok_model"></select>
-            </div>
-            <div class="col-md-2" id="rowMiktar">
-              <label class="form-label">Miktar</label>
-              <input type="number" min="1" id="miktar" name="miktar" class="form-control" required>
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">IFS No (opsiyonel)</label>
-              <input type="text" id="ifs_no" name="ifs_no" class="form-control">
-            </div>
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <form id="frmStockAdd" class="modal-content border-0 bg-transparent p-0">
+      <div class="modal-shell">
+        <div class="modal-shell__header">
+          <div class="modal-shell__heading">
+            <h5 class="modal-shell__title">Stok Ekle</h5>
+            <p class="modal-shell__subtitle">
+              Envanter veya lisans stok hareketlerini sisteme ekleyin.
+            </p>
+          </div>
+          <div class="modal-shell__header-actions">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
           </div>
         </div>
 
-        <div id="licenseFields" class="col-12 row g-3 d-none">
-          <div class="col-md-4">
-            <label class="form-label">Lisans Adı</label>
-            <select id="lisans_adi" name="lisans_adi" class="form-select" data-lookup="lisans_adi" required></select>
+        <div class="modal-shell__body stack-md">
+          <div>
+            <ul class="nav nav-pills" id="stockAddType" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" type="button" data-stock-add-type="inventory" aria-selected="true">Envanter</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" type="button" data-stock-add-type="license" aria-selected="false">Lisans</button>
+              </li>
+            </ul>
           </div>
-          <div class="col-md-4">
-            <label class="form-label">Lisans Anahtarı</label>
-            <input type="text" id="lisans_anahtari" name="lisans_anahtari" class="form-control" required>
+
+          <div id="hardwareFields">
+            <div class="form-grid form-grid--compact stok-row">
+              <div class="form-group">
+                <label class="form-label" for="stok_donanim_tipi">Donanım Tipi</label>
+                <select name="donanim_tipi" class="form-select" data-lookup="donanim_tipi" id="stok_donanim_tipi" required></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="stok_marka">Marka (ops.)</label>
+                <select name="marka" class="form-select" data-lookup="marka" id="stok_marka"></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="stok_model">Model (ops.)</label>
+                <select name="model" class="form-select" data-lookup="model" data-depends="#stok_marka" id="stok_model"></select>
+              </div>
+              <div class="form-group" id="rowMiktar">
+                <label class="form-label" for="miktar">Miktar</label>
+                <input type="number" min="1" id="miktar" name="miktar" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="ifs_no">IFS No (opsiyonel)</label>
+                <input type="text" id="ifs_no" name="ifs_no" class="form-control">
+              </div>
+            </div>
           </div>
-          <div class="col-md-4">
-            <label class="form-label">E-posta (opsiyonel)</label>
-            <input type="email" id="mail_adresi" name="mail_adresi" class="form-control">
+
+          <div id="licenseFields" class="d-none">
+            <div class="form-grid form-grid--compact">
+              <div class="form-group">
+                <label class="form-label" for="lisans_adi">Lisans Adı</label>
+                <select id="lisans_adi" name="lisans_adi" class="form-select" data-lookup="lisans_adi" required></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="lisans_anahtari">Lisans Anahtarı</label>
+                <input type="text" id="lisans_anahtari" name="lisans_anahtari" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="mail_adresi">E-posta (opsiyonel)</label>
+                <input type="email" id="mail_adresi" name="mail_adresi" class="form-control">
+              </div>
+            </div>
           </div>
         </div>
 
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-        <button class="btn btn-primary" type="submit">Kaydet</button>
+        <div class="modal-shell__footer">
+          <div class="modal-shell__actions">
+            <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">Kapat</button>
+            <button class="btn btn-primary" type="submit">Kaydet</button>
+          </div>
+        </div>
       </div>
     </form>
   </div>
@@ -274,235 +310,122 @@
 
 <!-- STOK ATAMA MODALI -->
 <div class="modal fade" id="stokAtamaModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Stok Atama</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-content border-0 bg-transparent p-0">
+      <div class="modal-shell">
+        <div class="modal-shell__header">
+          <div class="modal-shell__heading">
+            <h5 class="modal-shell__title">Stok Atama</h5>
+            <p class="modal-shell__subtitle">
+              Stok durumu tablosundan seçtiğiniz kalemi envantere, yazıcıya veya lisansa atayın.
+            </p>
+          </div>
+          <div class="modal-shell__header-actions">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+          </div>
+        </div>
+
+        <div class="modal-shell__body">
+          <form id="stockAssignForm" class="vstack gap-3">
+            <div>
+              <p class="form-label fw-semibold mb-2">Seçilen Stok</p>
+              <div id="sa_stock_alert" class="alert alert-warning py-2 px-3 small mb-0" role="alert">
+                Atama yapmak için stok durumu tablosundaki <strong>Atama</strong> düğmesini kullanınız.
+              </div>
+              <div id="sa_stock_meta" class="mt-2 d-none">
+                <div class="border rounded p-2 small bg-light-subtle">
+                  <div class="d-flex flex-wrap gap-3 align-items-center mb-1">
+                    <span class="fw-semibold" id="sa_meta_tip">-</span>
+                    <span id="sa_meta_brand_wrap" class="d-none"><span class="text-muted">Marka:</span> <span id="sa_meta_brand">-</span></span>
+                    <span id="sa_meta_model_wrap" class="d-none"><span class="text-muted">Model:</span> <span id="sa_meta_model">-</span></span>
+                    <span><span class="text-muted">IFS:</span> <span id="sa_meta_ifs">-</span></span>
+                    <span><span class="text-muted">Mevcut:</span> <span id="sa_meta_qty">0</span></span>
+                  </div>
+                  <div class="d-flex flex-wrap gap-3" id="sa_meta_license_row">
+                    <span id="sa_meta_license_wrap" class="d-none"><span class="text-muted">Lisans:</span> <span id="sa_meta_license">-</span></span>
+                    <span id="sa_meta_mail_wrap" class="d-none"><span class="text-muted">Mail:</span> <span id="sa_meta_mail">-</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label fw-semibold">Atama Türü</label>
+              <ul class="nav nav-tabs" id="sa_tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#sa_tab_lisans" type="button" role="tab">Lisans</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sa_tab_envanter" type="button" role="tab">Envanter</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sa_tab_yazici" type="button" role="tab">Yazıcı</button>
+                </li>
+              </ul>
+
+              <div class="tab-content border border-top-0 p-3 rounded-bottom">
+                <div class="tab-pane fade show active" id="sa_tab_lisans" role="tabpanel">
+                  <div class="form-grid form-grid--compact">
+                    <div class="form-group">
+                      <label class="form-label">Lisans Adı</label>
+                      <select class="form-select" id="sa_license_select" data-stock-assign="license"></select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Sorumlu</label>
+                      <select class="form-select" id="sa_license_owner"></select>
+                    </div>
+                    <div class="form-group form-grid__full">
+                      <label class="form-label">Açıklama</label>
+                      <textarea class="form-control" rows="2" id="sa_license_note" placeholder="Opsiyonel"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tab-pane fade" id="sa_tab_envanter" role="tabpanel">
+                  <div class="form-grid form-grid--compact">
+                    <div class="form-group">
+                      <label class="form-label">Envanter No</label>
+                      <select class="form-select" id="sa_inventory_select" data-stock-assign="inventory"></select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Sorumlu</label>
+                      <select class="form-select" id="sa_inventory_owner"></select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tab-pane fade" id="sa_tab_yazici" role="tabpanel">
+                  <div class="form-grid form-grid--compact">
+                    <div class="form-group">
+                      <label class="form-label">Yazıcı</label>
+                      <select class="form-select" id="sa_printer_select" data-stock-assign="printer"></select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Atama Notu</label>
+                      <input type="text" class="form-control" id="sa_printer_note" placeholder="Opsiyonel">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label" for="sa_general_note">Genel Not (opsiyonel)</label>
+              <textarea class="form-control" rows="3" id="sa_general_note" placeholder="İşlem için genel açıklama..."></textarea>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-shell__footer">
+          <div class="modal-shell__actions">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+            <button type="submit" form="stockAssignForm" class="btn btn-primary">Atamayı Kaydet</button>
+          </div>
+        </div>
       </div>
-
-      <div class="modal-body">
-        <form id="stockAssignForm" class="vstack gap-3">
-          <!-- 1) STOK SEÇ (Stok Durumu'ndan) -->
-          <div>
-            <p class="form-label fw-semibold mb-2">Seçilen Stok</p>
-            <div id="sa_stock_alert" class="alert alert-warning py-2 px-3 small mb-0" role="alert">
-              Atama yapmak için stok durumu tablosundaki <strong>Atama</strong> düğmesini kullanınız.
-            </div>
-            <div id="sa_stock_meta" class="mt-2 d-none">
-              <div class="border rounded p-2 small bg-light-subtle">
-                <div class="d-flex flex-wrap gap-3 align-items-center mb-1">
-                  <span class="fw-semibold" id="sa_meta_tip">-</span>
-                  <span id="sa_meta_brand_wrap" class="d-none"><span class="text-muted">Marka:</span> <span id="sa_meta_brand">-</span></span>
-                  <span id="sa_meta_model_wrap" class="d-none"><span class="text-muted">Model:</span> <span id="sa_meta_model">-</span></span>
-                  <span><span class="text-muted">IFS:</span> <span id="sa_meta_ifs">-</span></span>
-                  <span><span class="text-muted">Mevcut:</span> <span id="sa_meta_qty">0</span></span>
-                </div>
-                <div class="d-flex flex-wrap gap-3" id="sa_meta_license_row">
-                  <span id="sa_meta_license_wrap" class="d-none"><span class="text-muted">Lisans:</span> <span id="sa_meta_license">-</span></span>
-                  <span id="sa_meta_mail_wrap" class="d-none"><span class="text-muted">Mail:</span> <span id="sa_meta_mail">-</span></span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 2) Atama Türü -->
-          <div>
-            <label class="form-label fw-semibold">Atama Türü</label>
-            <ul class="nav nav-tabs" id="sa_tabs" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#sa_tab_lisans" type="button" role="tab">Lisans</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sa_tab_envanter" type="button" role="tab">Envanter</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sa_tab_yazici" type="button" role="tab">Yazıcı</button>
-              </li>
-            </ul>
-
-            <div class="tab-content border border-top-0 p-3 rounded-bottom">
-              <!-- LISANS -->
-              <div class="tab-pane fade show active" id="sa_tab_lisans" role="tabpanel">
-                <div class="row g-3" id="sa_license_form">
-                  <div class="col-md-6" data-auto-field>
-                    <label class="form-label">Lisans Adı</label>
-                    <input id="sa_license_name" class="form-control" data-auto-key="lisans_adi|donanim_tipi" data-auto-source="lisans" placeholder="Lisans adı" required>
-                  </div>
-                  <div class="col-md-6" data-auto-field>
-                    <label class="form-label">Lisans Anahtarı</label>
-                    <input id="sa_license_key" class="form-control" data-auto-key="lisans_anahtari" data-auto-source="lisans" placeholder="Lisans anahtarı">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Sorumlu Personel</label>
-                    <select id="sa_license_person" class="form-select" data-no-search data-auto-key="sorumlu_personel" data-auto-source="lisans">
-                      <option value="">Seçiniz...</option>
-                    </select>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Bağlı Envanter (opsiyonel)</label>
-                    <select id="sa_license_inventory" class="form-select" data-no-search data-auto-key="bagli_envanter_no" data-auto-source="lisans">
-                      <option value="">Seçiniz...</option>
-                    </select>
-                  </div>
-                  <div class="col-md-6" data-auto-field>
-                    <label class="form-label">IFS No</label>
-                    <input id="sa_license_ifs" class="form-control" data-auto-key="ifs_no" data-auto-source="lisans" placeholder="IFS No">
-                  </div>
-                  <div class="col-md-6" data-auto-field>
-                    <label class="form-label">Mail Adresi</label>
-                    <input id="sa_license_mail" type="email" class="form-control" data-auto-key="mail_adresi" data-auto-source="lisans" placeholder="ornek@firma.com">
-                  </div>
-                </div>
-              </div>
-
-              <!-- ENVANTER -->
-              <div class="tab-pane fade" id="sa_tab_envanter" role="tabpanel">
-                <div class="row g-3" id="sa_inventory_form">
-                  <div class="col-md-6">
-                    <label class="form-label">Envanter No</label>
-                    <input id="sa_inv_no" class="form-control" data-auto-key="envanter_no" data-auto-source="envanter" placeholder="ENV-000123" required>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Bilgisayar Adı</label>
-                    <input id="sa_inv_pc" class="form-control" data-auto-key="bilgisayar_adi" data-auto-source="envanter" placeholder="PC-OFIS-01">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Fabrika</label>
-                    <select id="sa_inv_factory" class="form-select" data-no-search data-auto-key="fabrika" data-auto-source="envanter">
-                      <option value="">Seçiniz...</option>
-                    </select>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Departman</label>
-                    <select id="sa_inv_department" class="form-select" data-no-search data-auto-key="departman" data-auto-source="envanter">
-                      <option value="">Seçiniz...</option>
-                    </select>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Kullanım Alanı</label>
-                    <select id="sa_inv_usage" class="form-select" data-no-search data-auto-key="kullanim_alani" data-auto-source="envanter">
-                      <option value="">Seçiniz...</option>
-                    </select>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Sorumlu Personel</label>
-                    <select id="sa_inv_person" class="form-select" data-no-search data-auto-key="sorumlu_personel" data-auto-source="envanter">
-                      <option value="">Seçiniz...</option>
-                    </select>
-                  </div>
-                  <div class="col-md-6" data-auto-field>
-                    <label class="form-label">Donanım Tipi</label>
-                    <input id="sa_inv_hardware" class="form-control" data-auto-key="donanim_tipi" placeholder="Donanım tipi">
-                  </div>
-                  <div class="col-md-6" data-auto-field>
-                    <label class="form-label">Marka</label>
-                    <input id="sa_inv_brand" class="form-control" data-auto-key="marka" placeholder="Marka">
-                  </div>
-                  <div class="col-md-6" data-auto-field>
-                    <label class="form-label">Model</label>
-                    <input id="sa_inv_model" class="form-control" data-auto-key="model" placeholder="Model">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Seri No</label>
-                    <input id="sa_inv_serial" class="form-control" data-auto-key="seri_no" data-auto-source="envanter" placeholder="Seri no">
-                  </div>
-                  <div class="col-md-6" data-auto-field>
-                    <label class="form-label">IFS No</label>
-                    <input id="sa_inv_ifs" class="form-control" data-auto-key="ifs_no" placeholder="IFS No">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Bağlı Makina No</label>
-                    <input id="sa_inv_machine" class="form-control" data-auto-key="bagli_envanter_no" data-auto-source="envanter" placeholder="Makina no">
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label">Notlar (opsiyonel)</label>
-                    <textarea id="sa_inv_note" class="form-control" rows="2" data-auto-key="notlar" data-auto-source="envanter" placeholder="Ek bilgi"></textarea>
-                  </div>
-                </div>
-              </div>
-
-              <!-- YAZICI -->
-              <div class="tab-pane fade" id="sa_tab_yazici" role="tabpanel">
-                <div class="row g-3" id="sa_printer_form">
-                  <div class="col-md-6">
-                    <label class="form-label">Envanter No</label>
-                    <input id="sa_prn_no" class="form-control" data-auto-key="envanter_no" data-auto-source="yazici" placeholder="PRN-000123" required>
-                  </div>
-                  <div class="col-md-6" data-auto-field>
-                    <label class="form-label">Marka</label>
-                    <input id="sa_prn_brand" class="form-control" data-auto-key="marka" placeholder="Marka">
-                  </div>
-                  <div class="col-md-6" data-auto-field>
-                    <label class="form-label">Model</label>
-                    <input id="sa_prn_model" class="form-control" data-auto-key="model" placeholder="Model">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Kullanım Alanı</label>
-                    <select id="sa_prn_usage" class="form-select" data-no-search data-auto-key="kullanim_alani" data-auto-source="yazici">
-                      <option value="">Seçiniz...</option>
-                    </select>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">IP Adresi</label>
-                    <input id="sa_prn_ip" class="form-control" data-auto-key="ip_adresi" data-auto-source="yazici" placeholder="192.168.x.x">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">MAC</label>
-                    <input id="sa_prn_mac" class="form-control" data-auto-key="mac" data-auto-source="yazici" placeholder="AA:BB:CC:DD:EE:FF">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Hostname</label>
-                    <input id="sa_prn_host" class="form-control" data-auto-key="hostname" data-auto-source="yazici" placeholder="Yazıcı adı">
-                  </div>
-                  <div class="col-md-6" data-auto-field>
-                    <label class="form-label">IFS No</label>
-                    <input id="sa_prn_ifs" class="form-control" data-auto-key="ifs_no" placeholder="IFS No">
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label">Notlar (opsiyonel)</label>
-                    <textarea id="sa_prn_note" class="form-control" rows="2" data-auto-key="notlar" data-auto-source="yazici" placeholder="Ek bilgi"></textarea>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 3) Genel Alanlar -->
-          <div class="row g-3">
-            <div class="col-md-4">
-              <label class="form-label">Miktar</label>
-              <input id="sa_miktar" type="number" class="form-control" value="1" min="1" readonly>
-              <div class="form-text">Atamalar tekil kayıt oluşturur.</div>
-            </div>
-            <div class="col-md-8">
-              <label class="form-label">Notlar (opsiyonel)</label>
-              <input id="sa_not" type="text" class="form-control" placeholder="İsteğe bağlı açıklama">
-            </div>
-          </div>
-        </form>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-        <button id="sa_submit" class="btn btn-primary">Atamayı Yap</button>
-  </div>
+    </div>
   </div>
 </div>
-</div>
-</div>
-
-<!-- Lookup ile doldurulacak örnek selectler -->
-<div class="d-none" id="lookup-demo-selects">
-  <select id="stok_durumu_select" class="form-select" name="stok_durumu"></select>
-  <select id="islem_select" class="form-select" name="islem"></select>
-  <select id="donanim_tipi_select" class="form-select" name="donanim_tipi"></select>
-  <!-- <select id="ifs_no_select" class="form-select" name="ifs_no"></select> -->
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script src="/static/js/stock.js"></script>
 <script>
 async function fillSelect(id, entity) {
   const el = document.getElementById(id);

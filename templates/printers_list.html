@@ -1,75 +1,88 @@
 {% extends "base.html" %} {% block title %}Yazıcı Takip{% endblock %} {% block
 content %}
-<div class="container-fluid p-3">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h5 class="mb-0">Yazıcılar</h5>
-    <div class="d-flex align-items-center gap-2 flex-wrap">
-      <a
-        href="#"
-        class="btn btn-success btn-sm d-flex align-items-center gap-1"
-        title="Yeni Ekle"
-        data-bs-toggle="modal"
-        data-bs-target="#addModal"
-      >
-        <i class="bi bi-plus-lg"></i>
-        <span>Ekle</span>
-      </a>
-      {% with fault_entity='printer', fault_prefix='printer',
-      fault_label='Yazıcı Arızalı Durum' %} {% include
-      'partials/_fault_controls.html' %} {% endwith %}
-      <div class="dropdown">
-        <button
-          class="btn btn-outline-primary btn-sm dropdown-toggle"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          Excel
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li>
-            <a class="dropdown-item" href="/printers/export">Dışa Aktar</a>
-          </li>
-          <li>
-            <form
-              action="/printers/import"
-              method="post"
-              enctype="multipart/form-data"
-            >
-              <input
-                type="file"
-                name="file"
-                id="printerExcel"
-                class="d-none"
-                onchange="this.form.submit()"
-              />
-              <label for="printerExcel" class="dropdown-item mb-0"
-                >İçe Aktar</label
-              >
-            </form>
-          </li>
-        </ul>
+<div class="container-fluid py-4">
+  <div class="page-shell">
+    <header class="page-header">
+      <div class="page-header__heading">
+        <span class="eyebrow text-primary">Yazıcı Takip</span>
+        <h1 class="page-header__title">Yazıcılar</h1>
+        <p class="page-header__subtitle">
+          Tüm yazıcı envanterini görüntüleyin, durumlarını yönetin ve hızlıca aksiyon alın.
+        </p>
       </div>
-      <button class="btn btn-outline-secondary btn-sm" id="filterBtn">
-        Filtre
-      </button>
-      <button
-        class="btn btn-outline-secondary btn-sm d-none"
-        id="clearFilterBtn"
-      >
-        Temizle
-      </button>
-      <input
-        type="text"
-        id="searchInput"
-        class="form-control form-control-sm"
-        placeholder="Ara..."
-      />
-    </div>
-  </div>
+      <div class="page-header__actions page-actions">
+        <div class="page-actions__group">
+          <a
+            href="#"
+            class="btn btn-success btn-sm d-flex align-items-center gap-1"
+            title="Yeni Ekle"
+            data-bs-toggle="modal"
+            data-bs-target="#addModal"
+          >
+            <i class="bi bi-plus-lg"></i>
+            <span>Ekle</span>
+          </a>
+          {% with fault_entity='printer', fault_prefix='printer',
+          fault_label='Yazıcı Arızalı Durum' %} {% include
+          'partials/_fault_controls.html' %} {% endwith %}
+          <div class="dropdown">
+            <button
+              class="btn btn-outline-primary btn-sm dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Excel
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <a class="dropdown-item" href="/printers/export">Dışa Aktar</a>
+              </li>
+              <li>
+                <form
+                  action="/printers/import"
+                  method="post"
+                  enctype="multipart/form-data"
+                >
+                  <input
+                    type="file"
+                    name="file"
+                    id="printerExcel"
+                    class="d-none"
+                    onchange="this.form.submit()"
+                  />
+                  <label for="printerExcel" class="dropdown-item mb-0"
+                    >İçe Aktar</label
+                  >
+                </form>
+              </li>
+            </ul>
+          </div>
+          <button class="btn btn-outline-secondary btn-sm" id="filterBtn">
+            Filtre
+          </button>
+          <button
+            class="btn btn-outline-secondary btn-sm d-none"
+            id="clearFilterBtn"
+          >
+            Temizle
+          </button>
+        </div>
+        <div class="page-actions__group page-actions__group--grow">
+          <label for="searchInput" class="visually-hidden">Ara</label>
+          <input
+            type="text"
+            id="searchInput"
+            class="form-control form-control-sm"
+            placeholder="Ara..."
+          />
+        </div>
+      </div>
+    </header>
 
-  <div class="table-responsive">
-    <table class="table table-sm align-middle table-rounded">
+    <div class="page-card soft-card">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle table-rounded">
       <thead class="table-light">
         <tr>
           <th data-field="id">ID</th>
@@ -130,33 +143,45 @@ content %}
         </tr>
         {% endfor %}
       </tbody>
-    </table>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- Yeni Ekle Modal -->
 <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Yazıcı Ekle</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <form
-          method="post"
-          action="/printers/create"
-          class="needs-validation"
-          novalidate
-        >
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Envanter No</label>
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <form
+      method="post"
+      action="/printers/create"
+      class="modal-content border-0 bg-transparent p-0 needs-validation"
+      novalidate
+    >
+      <div class="modal-shell">
+        <div class="modal-shell__header">
+          <div class="modal-shell__heading">
+            <h5 class="modal-shell__title">Yazıcı Ekle</h5>
+            <p class="modal-shell__subtitle">
+              Yeni bir yazıcıyı envantere ekleyin ve temel yapılandırmasını belirleyin.
+            </p>
+          </div>
+          <div class="modal-shell__header-actions">
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Kapat"
+            ></button>
+          </div>
+        </div>
+
+        <div class="modal-shell__body">
+          <div class="modal-form-grid">
+            <div class="form-group">
+              <label class="form-label" for="printerEnvanter">Envanter No</label>
               <input
+                id="printerEnvanter"
                 name="envanter_no"
                 type="text"
                 class="form-control"
@@ -165,8 +190,8 @@ content %}
               />
             </div>
 
-            <div class="col-md-6">
-              <label class="form-label">Yazıcı Markası</label>
+            <div class="form-group">
+              <label class="form-label" for="selYaziciMarka">Yazıcı Markası</label>
               <select
                 name="yazici_markasi"
                 class="form-select"
@@ -180,8 +205,8 @@ content %}
               </select>
             </div>
 
-            <div class="col-md-6">
-              <label class="form-label">Yazıcı Modeli</label>
+            <div class="form-group">
+              <label class="form-label" for="selYaziciModel">Yazıcı Modeli</label>
               <select
                 name="yazici_modeli"
                 class="form-select"
@@ -196,9 +221,9 @@ content %}
               >
             </div>
 
-            <div class="col-md-6">
-              <label class="form-label">Kullanım Alanı</label>
-              <select name="kullanim_alani" class="form-select" required>
+            <div class="form-group">
+              <label class="form-label" for="printerUsage">Kullanım Alanı</label>
+              <select id="printerUsage" name="kullanim_alani" class="form-select" required>
                 <option value="">Seçiniz...</option>
                 {% for k in kullanim_alanlari %}
                 <option value="{{ k.name }}">{{ k.name }}</option>
@@ -206,9 +231,10 @@ content %}
               </select>
             </div>
 
-            <div class="col-md-4">
-              <label class="form-label">IP Adresi</label>
+            <div class="form-group">
+              <label class="form-label" for="printerIp">IP Adresi</label>
               <input
+                id="printerIp"
                 name="ip_adresi"
                 type="text"
                 class="form-control"
@@ -216,9 +242,10 @@ content %}
                 placeholder="10.0.0.10"
               />
             </div>
-            <div class="col-md-4">
-              <label class="form-label">MAC</label>
+            <div class="form-group">
+              <label class="form-label" for="printerMac">MAC</label>
               <input
+                id="printerMac"
                 name="mac"
                 type="text"
                 class="form-control"
@@ -226,9 +253,10 @@ content %}
                 placeholder="AA:BB:CC:DD:EE:FF"
               />
             </div>
-            <div class="col-md-4">
-              <label class="form-label">Hostname</label>
+            <div class="form-group">
+              <label class="form-label" for="printerHostname">Hostname</label>
               <input
+                id="printerHostname"
                 name="hostname"
                 type="text"
                 class="form-control"
@@ -237,11 +265,12 @@ content %}
               />
             </div>
 
-            <div class="col-md-6">
-              <label class="form-label"
-                >IFS No <small class="text-muted">(zorunlu değil)</small></label
-              >
+            <div class="form-group">
+              <label class="form-label" for="printerIfs">
+                IFS No <small class="text-muted">(opsiyonel)</small>
+              </label>
               <input
+                id="printerIfs"
                 name="ifs_no"
                 type="text"
                 class="form-control"
@@ -249,20 +278,22 @@ content %}
               />
             </div>
           </div>
+        </div>
 
-          <div class="mt-3 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Kaydet</button>
+        <div class="modal-shell__footer">
+          <div class="modal-shell__actions">
             <button
               type="button"
-              class="btn btn-secondary"
+              class="btn btn-outline-secondary"
               data-bs-dismiss="modal"
             >
               İptal
             </button>
+            <button type="submit" class="btn btn-primary">Kaydet</button>
           </div>
-        </form>
+        </div>
       </div>
-    </div>
+    </form>
   </div>
 </div>
 
@@ -272,28 +303,42 @@ content %}
 
 <!-- Filtre Modal -->
 <div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <form id="filterForm" class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Filtrele</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <div id="filterRows"></div>
-      </div>
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-secondary btn-sm"
-          data-bs-dismiss="modal"
-        >
-          Kapat
-        </button>
-        <button type="submit" class="btn btn-primary btn-sm">Uygula</button>
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <form id="filterForm" class="modal-content border-0 bg-transparent p-0">
+      <div class="modal-shell">
+        <div class="modal-shell__header">
+          <div class="modal-shell__heading">
+            <h5 class="modal-shell__title">Yazıcıları Filtrele</h5>
+            <p class="modal-shell__subtitle">
+              Marka, model veya sorumlu gibi kriterlerle listeyi daraltın.
+            </p>
+          </div>
+          <div class="modal-shell__header-actions">
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Kapat"
+            ></button>
+          </div>
+        </div>
+
+        <div class="modal-shell__body">
+          <div id="filterRows" class="stack-sm"></div>
+        </div>
+
+        <div class="modal-shell__footer">
+          <div class="modal-shell__actions">
+            <button
+              type="button"
+              class="btn btn-outline-secondary btn-sm"
+              data-bs-dismiss="modal"
+            >
+              Vazgeç
+            </button>
+            <button type="submit" class="btn btn-primary btn-sm">Uygula</button>
+          </div>
+        </div>
       </div>
     </form>
   </div>
@@ -301,66 +346,82 @@ content %}
 
 <!-- ATAMA MODAL -->
 <div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
-    <form class="modal-content" id="assignForm">
-      <div class="modal-header">
-        <h6 class="modal-title">
-          Atama Yap — <span id="assignPrinterLabel"></span>
-        </h6>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" id="assignPrinterId" name="printer_id" />
-
-        <div class="mb-2">
-          <label class="form-label">Fabrika</label>
-          <select id="selFabrika" name="fabrika" class="form-select">
-            <option value="">Seçiniz</option>
-            {% for f in factories %}
-            <option value="{{ f }}">{{ f }}</option>
-            {% endfor %}
-          </select>
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <form class="modal-content border-0 bg-transparent p-0" id="assignForm">
+      <div class="modal-shell">
+        <div class="modal-shell__header">
+          <div class="modal-shell__heading">
+            <h5 class="modal-shell__title">
+              Yazıcıyı Ata — <span id="assignPrinterLabel"></span>
+            </h5>
+            <p class="modal-shell__subtitle">
+              Yazıcı için fabrika, kullanım alanı ve sorumlu bilgilerini güncelleyin.
+            </p>
+          </div>
+          <div class="modal-shell__header-actions">
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Kapat"
+            ></button>
+          </div>
         </div>
 
-        <div class="mb-2">
-          <label class="form-label">Kullanım Alanı</label>
-          <select id="selKullanim" name="kullanim_alani" class="form-select">
-            <option value="">Seçiniz</option>
-            {% for a in areas %}
-            <option value="{{ a }}">{{ a }}</option>
-            {% endfor %}
-          </select>
+        <div class="modal-shell__body">
+          <input type="hidden" id="assignPrinterId" name="printer_id" />
+
+          <div class="modal-form-grid">
+            <div class="form-group">
+              <label class="form-label" for="selFabrika">Fabrika</label>
+              <select id="selFabrika" name="fabrika" class="form-select">
+                <option value="">Seçiniz</option>
+                {% for f in factories %}
+                <option value="{{ f }}">{{ f }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="selKullanim">Kullanım Alanı</label>
+              <select id="selKullanim" name="kullanim_alani" class="form-select">
+                <option value="">Seçiniz</option>
+                {% for a in areas %}
+                <option value="{{ a }}">{{ a }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="selPersonel">Sorumlu Personel</label>
+              <select id="selPersonel" name="sorumlu_personel" class="form-select">
+                <option value="">Seçiniz</option>
+                {% for u in users %}
+                <option value="{{ u }}">{{ u }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="selBagliEnv">Bağlı Olduğu Envanter</label>
+              <select id="selBagliEnv" name="bagli_envanter_no" class="form-select">
+                <option value="">Seçiniz</option>
+                {% for inv in inventory_nos %}
+                <option value="{{ inv }}">{{ inv }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
         </div>
 
-        <div class="mb-2">
-          <label class="form-label">Sorumlu Personel</label>
-          <select id="selPersonel" name="sorumlu_personel" class="form-select">
-            <option value="">Seçiniz</option>
-            {% for u in users %}
-            <option value="{{ u }}">{{ u }}</option>
-            {% endfor %}
-          </select>
+        <div class="modal-shell__footer">
+          <div class="modal-shell__actions">
+            <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">
+              İptal
+            </button>
+            <button class="btn btn-success" type="submit">Atamayı Kaydet</button>
+          </div>
         </div>
-
-        <div class="mb-2">
-          <label class="form-label">Bağlı Olduğu Envanter</label>
-          <select id="selBagliEnv" name="bagli_envanter_no" class="form-select">
-            <option value="">Seçiniz</option>
-            {% for inv in inventory_nos %}
-            <option value="{{ inv }}">{{ inv }}</option>
-            {% endfor %}
-          </select>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">
-          İptal
-        </button>
-        <button class="btn btn-success" type="submit">Atamayı Kaydet</button>
       </div>
     </form>
   </div>
@@ -368,34 +429,51 @@ content %}
 
 <!-- HURDA MODAL -->
 <div class="modal fade" id="scrapModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <form id="scrapForm" class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Hurdaya Ayır</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" id="scrapPrinterId" />
-        <p>Bu envanter hurdaya ayrılacak. Onaylıyor musunuz?</p>
-        <div class="mb-2">
-          <label class="form-label">Açıklama (opsiyonel)</label>
-          <textarea
-            name="reason"
-            class="form-control"
-            rows="3"
-            placeholder="Hurda sebebi / not"
-          ></textarea>
+  <div class="modal-dialog modal-dialog-centered">
+    <form id="scrapForm" class="modal-content border-0 bg-transparent p-0">
+      <div class="modal-shell">
+        <div class="modal-shell__header">
+          <div class="modal-shell__heading">
+            <h5 class="modal-shell__title">Hurdaya Ayır</h5>
+            <p class="modal-shell__subtitle">
+              Yazıcı hurdaya ayrılmadan önce kısa bir açıklama ekleyin.
+            </p>
+          </div>
+          <div class="modal-shell__header-actions">
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Kapat"
+            ></button>
+          </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">
-          Vazgeç
-        </button>
-        <button class="btn btn-danger" type="submit">Hurdaya Ayır</button>
+
+        <div class="modal-shell__body">
+          <input type="hidden" id="scrapPrinterId" />
+          <p class="mb-2">Bu envanter hurdaya ayrılacak. Onaylıyor musunuz?</p>
+          <div class="modal-form-grid">
+            <div class="form-group modal-form-grid--full">
+              <label class="form-label" for="scrapReason">Açıklama (opsiyonel)</label>
+              <textarea
+                id="scrapReason"
+                name="reason"
+                class="form-control"
+                rows="3"
+                placeholder="Hurda sebebi / not"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-shell__footer">
+          <div class="modal-shell__actions">
+            <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">
+              Vazgeç
+            </button>
+            <button class="btn btn-danger" type="submit">Hurdaya Ayır</button>
+          </div>
+        </div>
       </div>
     </form>
   </div>

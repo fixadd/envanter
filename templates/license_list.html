@@ -1,116 +1,132 @@
 {% extends "base.html" %} {% block title %}Lisans Takip{% endblock %} {% block
 content %}
-<div id="licenses-list" class="container-fluid p-2 content">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h5 class="mb-0">Lisans</h5>
-    <div class="d-flex align-items-center gap-2 flex-wrap">
-      <a
-        href="#"
-        class="btn btn-success btn-sm d-flex align-items-center gap-1"
-        title="Yeni Ekle"
-        data-bs-toggle="modal"
-        data-bs-target="#addModal"
-      >
-        <i class="bi bi-plus-lg"></i>
-        <span>Ekle</span>
-      </a>
-      <div class="dropdown">
-        <button
-          class="btn btn-outline-primary btn-sm dropdown-toggle"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          Excel
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" href="/lisans/export">Dışa Aktar</a></li>
-          <li>
-            <form
-              action="/lisans/import"
-              method="post"
-              enctype="multipart/form-data"
-            >
-              <input
-                type="file"
-                name="file"
-                id="licExcel"
-                class="d-none"
-                onchange="this.form.submit()"
-              />
-              <label for="licExcel" class="dropdown-item mb-0">İçe Aktar</label>
-            </form>
-          </li>
-        </ul>
+<div id="licenses-list" class="container-fluid py-4">
+  <div class="page-shell">
+    <header class="page-header">
+      <div class="page-header__heading">
+        <span class="eyebrow text-primary">Lisans Takip</span>
+        <h1 class="page-header__title">Lisanslar</h1>
+        <p class="page-header__subtitle">
+          Envanterinizdeki yazılım lisanslarını görüntüleyin, aktarın ve yönetin.
+        </p>
       </div>
-      <button class="btn btn-outline-secondary btn-sm" id="filterBtn">
-        Filtre
-      </button>
-      <button
-        class="btn btn-outline-secondary btn-sm d-none"
-        id="clearFilterBtn"
-      >
-        Temizle
-      </button>
-      <input
-        type="text"
-        id="searchInput"
-        class="form-control form-control-sm"
-        placeholder="Ara..."
-      />
-    </div>
-  </div>
-  <div class="table-responsive">
-    <table
-      id="licensesTable"
-      class="table table-hover align-middle table-rounded"
-    >
-      <thead>
-        <tr>
-          <th data-field="no">No</th>
-          <th data-field="lisans_adi">Lisans Adı</th>
-          <th data-field="lisans_anahtari">Key</th>
-          <th data-field="sorumlu_personel">Sorumlu</th>
-          <th data-field="bagli_envanter_no">Bağlı Envanter</th>
-          <th data-field="mail_adresi">E-posta</th>
-          <th data-field="durum">Durum</th>
-          <th class="actions text-start">İşlemler</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in items %}
-        <tr
-          data-id="{{ row.id }}"
-          data-personel="{{ row.sorumlu_personel or '' }}"
-          data-bagli="{{ row.bagli_envanter_no or '' }}"
-          data-durum="{{ row.durum or '' }}"
+      <div class="page-header__actions page-actions">
+        <div class="page-actions__group">
+          <a
+            href="#"
+            class="btn btn-success btn-sm d-flex align-items-center gap-1"
+            title="Yeni Ekle"
+            data-bs-toggle="modal"
+            data-bs-target="#addModal"
+          >
+            <i class="bi bi-plus-lg"></i>
+            <span>Ekle</span>
+          </a>
+          <div class="dropdown">
+            <button
+              class="btn btn-outline-primary btn-sm dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Excel
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="/lisans/export">Dışa Aktar</a></li>
+              <li>
+                <form
+                  action="/lisans/import"
+                  method="post"
+                  enctype="multipart/form-data"
+                >
+                  <input
+                    type="file"
+                    name="file"
+                    id="licExcel"
+                    class="d-none"
+                    onchange="this.form.submit()"
+                  />
+                  <label for="licExcel" class="dropdown-item mb-0">İçe Aktar</label>
+                </form>
+              </li>
+            </ul>
+          </div>
+          <button class="btn btn-outline-secondary btn-sm" id="filterBtn">
+            Filtre
+          </button>
+          <button
+            class="btn btn-outline-secondary btn-sm d-none"
+            id="clearFilterBtn"
+          >
+            Temizle
+          </button>
+        </div>
+        <div class="page-actions__group page-actions__group--grow">
+          <label for="searchInput" class="visually-hidden">Ara</label>
+          <input
+            type="text"
+            id="searchInput"
+            class="form-control form-control-sm"
+            placeholder="Ara..."
+          />
+        </div>
+      </div>
+    </header>
+
+    <div class="page-card soft-card">
+      <div class="table-responsive">
+        <table
+          id="licensesTable"
+          class="table table-hover align-middle table-rounded"
         >
-          <td>{{ row.id }}</td>
-          <td>{{ row.lisans_adi }}</td>
-          <td class="text-truncate" style="max-width: 180px">
-            {{ row.lisans_key }}
-          </td>
-          <td>{{ row.sorumlu_personel or '-' }}</td>
-          <td>{{ row.bagli_envanter_no or '-' }}</td>
-          <td>{{ row.mail_adresi or '-' }}</td>
-          <td>
-            {% if row.durum == 'hurda' %}
-            <span class="badge bg-secondary">Hurda</span>
-            {% elif row.durum == 'arızalı' %}
-            <span class="badge text-bg-warning text-dark">Arızalı</span>
-            {% else %}
-            <span class="badge bg-success">Aktif</span>
-            {% endif %}
-          </td>
-          <td class="actions">
-            {% set entity = 'lisans' %} {% set row_id = row.id %} {% set
-            fault_status = row.durum %} {% include 'partials/_actions_menu.html'
-            %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+          <thead>
+            <tr>
+              <th data-field="no">No</th>
+              <th data-field="lisans_adi">Lisans Adı</th>
+              <th data-field="lisans_anahtari">Key</th>
+              <th data-field="sorumlu_personel">Sorumlu</th>
+              <th data-field="bagli_envanter_no">Bağlı Envanter</th>
+              <th data-field="mail_adresi">E-posta</th>
+              <th data-field="durum">Durum</th>
+              <th class="actions text-start">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in items %}
+            <tr
+              data-id="{{ row.id }}"
+              data-personel="{{ row.sorumlu_personel or '' }}"
+              data-bagli="{{ row.bagli_envanter_no or '' }}"
+              data-durum="{{ row.durum or '' }}"
+            >
+              <td>{{ row.id }}</td>
+              <td>{{ row.lisans_adi }}</td>
+              <td class="text-truncate" style="max-width: 180px">
+                {{ row.lisans_key }}
+              </td>
+              <td>{{ row.sorumlu_personel or '-' }}</td>
+              <td>{{ row.bagli_envanter_no or '-' }}</td>
+              <td>{{ row.mail_adresi or '-' }}</td>
+              <td>
+                {% if row.durum == 'hurda' %}
+                <span class="badge bg-secondary">Hurda</span>
+                {% elif row.durum == 'arızalı' %}
+                <span class="badge text-bg-warning text-dark">Arızalı</span>
+                {% else %}
+                <span class="badge bg-success">Aktif</span>
+                {% endif %}
+              </td>
+              <td class="actions">
+                {% set entity = 'lisans' %} {% set row_id = row.id %} {% set
+                fault_status = row.durum %} {% include
+                'partials/_actions_menu.html' %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -120,26 +136,35 @@ content %}
 
 <!-- Yeni Ekle Modal -->
 <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Lisans Ekle</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <form
-          method="post"
-          action="/lisans/create"
-          class="needs-validation"
-          novalidate
-        >
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Lisans Adı</label>
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <form
+      method="post"
+      action="/lisans/create"
+      class="modal-content border-0 bg-transparent p-0 needs-validation"
+      novalidate
+    >
+      <div class="modal-shell">
+        <div class="modal-shell__header">
+          <div class="modal-shell__heading">
+            <h5 class="modal-shell__title">Lisans Ekle</h5>
+            <p class="modal-shell__subtitle">
+              Yeni bir lisans kaydı oluşturarak stokunuzu güncel tutun.
+            </p>
+          </div>
+          <div class="modal-shell__header-actions">
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Kapat"
+            ></button>
+          </div>
+        </div>
+
+        <div class="modal-shell__body">
+          <div class="modal-form-grid">
+            <div class="form-group">
+              <label class="form-label" for="selLisansAdi">Lisans Adı</label>
               <select
                 id="selLisansAdi"
                 name="lisans_adi"
@@ -152,9 +177,10 @@ content %}
                 {% endfor %}
               </select>
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Lisans Anahtarı</label>
+            <div class="form-group">
+              <label class="form-label" for="lisansAnahtari">Lisans Anahtarı</label>
               <input
+                id="lisansAnahtari"
                 name="lisans_anahtari"
                 type="text"
                 class="form-control"
@@ -163,8 +189,8 @@ content %}
               />
             </div>
 
-            <div class="col-md-6">
-              <label class="form-label">Sorumlu Personel</label>
+            <div class="form-group">
+              <label class="form-label" for="selPersonelAdd">Sorumlu Personel</label>
               <select
                 id="selPersonelAdd"
                 name="sorumlu_personel"
@@ -177,9 +203,14 @@ content %}
               </select>
             </div>
 
-            <div class="col-md-6">
-              <label class="form-label">Bağlı Olduğu Envanter No</label>
-              <select name="bagli_envanter_no" class="form-select" required>
+            <div class="form-group">
+              <label class="form-label" for="bagliEnvanter">Bağlı Olduğu Envanter No</label>
+              <select
+                id="bagliEnvanter"
+                name="bagli_envanter_no"
+                class="form-select"
+                required
+              >
                 <option value="">Seçiniz...</option>
                 {% for inv in envanterler %}
                 <option value="{{ inv.no }}">{{ inv.no }}</option>
@@ -187,11 +218,12 @@ content %}
               </select>
             </div>
 
-            <div class="col-md-6">
-              <label class="form-label"
-                >IFS No <small class="text-muted">(zorunlu değil)</small></label
-              >
+            <div class="form-group">
+              <label class="form-label" for="ifsNo">
+                IFS No <small class="text-muted">(opsiyonel)</small>
+              </label>
               <input
+                id="ifsNo"
                 name="ifs_no"
                 type="text"
                 class="form-control"
@@ -199,9 +231,10 @@ content %}
               />
             </div>
 
-            <div class="col-md-6">
-              <label class="form-label">E-posta (opsiyonel)</label>
+            <div class="form-group">
+              <label class="form-label" for="lisansEmail">E-posta (opsiyonel)</label>
               <input
+                id="lisansEmail"
                 name="mail_adresi"
                 type="email"
                 class="form-control"
@@ -209,47 +242,63 @@ content %}
               />
             </div>
           </div>
+        </div>
 
-          <div class="mt-3 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Kaydet</button>
+        <div class="modal-shell__footer">
+          <div class="modal-shell__actions">
             <button
               type="button"
-              class="btn btn-secondary"
+              class="btn btn-outline-secondary"
               data-bs-dismiss="modal"
             >
               İptal
             </button>
+            <button type="submit" class="btn btn-primary">Kaydet</button>
           </div>
-        </form>
+        </div>
       </div>
-    </div>
+    </form>
   </div>
 </div>
 
 <!-- Filtre Modal -->
 <div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <form id="filterForm" class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Filtrele</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <div id="filterRows"></div>
-      </div>
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-secondary btn-sm"
-          data-bs-dismiss="modal"
-        >
-          Kapat
-        </button>
-        <button type="submit" class="btn btn-primary btn-sm">Uygula</button>
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <form id="filterForm" class="modal-content border-0 bg-transparent p-0">
+      <div class="modal-shell">
+        <div class="modal-shell__header">
+          <div class="modal-shell__heading">
+            <h5 class="modal-shell__title">Lisansları Filtrele</h5>
+            <p class="modal-shell__subtitle">
+              Birden fazla kriter belirleyerek tabloyu daraltabilirsiniz.
+            </p>
+          </div>
+          <div class="modal-shell__header-actions">
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Kapat"
+            ></button>
+          </div>
+        </div>
+
+        <div class="modal-shell__body">
+          <div id="filterRows" class="stack-sm"></div>
+        </div>
+
+        <div class="modal-shell__footer">
+          <div class="modal-shell__actions">
+            <button
+              type="button"
+              class="btn btn-outline-secondary btn-sm"
+              data-bs-dismiss="modal"
+            >
+              Vazgeç
+            </button>
+            <button type="submit" class="btn btn-primary btn-sm">Uygula</button>
+          </div>
+        </div>
       </div>
     </form>
   </div>
@@ -257,56 +306,70 @@ content %}
 
 <!-- ATAMA MODALI -->
 <div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <form method="post" id="assignForm">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Atama Yap</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-          ></button>
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <form method="post" id="assignForm" class="modal-content border-0 bg-transparent p-0">
+      <div class="modal-shell">
+        <div class="modal-shell__header">
+          <div class="modal-shell__heading">
+            <h5 class="modal-shell__title">Lisansı Ata</h5>
+            <p class="modal-shell__subtitle">
+              Lisansı bir personele veya envanter kaydına bağlayın.
+            </p>
+          </div>
+          <div class="modal-shell__header-actions">
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Kapat"
+            ></button>
+          </div>
         </div>
-        <div class="modal-body">
+
+        <div class="modal-shell__body">
           <input
             type="hidden"
             name="islem_yapan"
             value="{{ current_user.full_name if current_user else 'system' }}"
           />
-          <div class="mb-2">
-            <label class="form-label">Sorumlu Personel</label>
-            <select
-              name="sorumlu_personel"
-              class="form-select"
-              id="selPersonel"
-            >
-              <option value="">Seçiniz</option>
-              {% for u in users %}
-              <option value="{{ u }}">{{ u }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Bağlı Olduğu Envanter No</label>
-            <select name="bagli_envanter_no" class="form-select" id="selBagli">
-              <option value="">Seçiniz</option>
-              {% for inv in envanterler %}
-              <option value="{{ inv.no }}">
-                {{ inv.no }} - {{ inv.bilgisayar_adi or inv.marka }}
-              </option>
-              {% endfor %}
-            </select>
+          <div class="modal-form-grid">
+            <div class="form-group">
+              <label class="form-label" for="selPersonel">Sorumlu Personel</label>
+              <select
+                name="sorumlu_personel"
+                class="form-select"
+                id="selPersonel"
+              >
+                <option value="">Seçiniz</option>
+                {% for u in users %}
+                <option value="{{ u }}">{{ u }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="selBagli">Bağlı Olduğu Envanter No</label>
+              <select name="bagli_envanter_no" class="form-select" id="selBagli">
+                <option value="">Seçiniz</option>
+                {% for inv in envanterler %}
+                <option value="{{ inv.no }}">
+                  {{ inv.no }} - {{ inv.bilgisayar_adi or inv.marka }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
           <small class="text-muted"
             >Bu işlem lisansın geçmiş kayıtlarına eklenecek.</small
           >
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-primary" type="submit">Kaydet</button>
-          <button class="btn btn-light" type="button" data-bs-dismiss="modal">
-            İptal
-          </button>
+
+        <div class="modal-shell__footer">
+          <div class="modal-shell__actions">
+            <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">
+              İptal
+            </button>
+            <button class="btn btn-primary" type="submit">Kaydet</button>
+          </div>
         </div>
       </div>
     </form>
@@ -315,38 +378,57 @@ content %}
 
 <!-- HURDA MODALI -->
 <div class="modal fade" id="scrapModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <form id="scrapForm" class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Hurdaya Ayır</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <p>Bu lisans hurdaya ayrılacak. Onaylıyor musunuz?</p>
-        <div class="mb-2">
-          <label class="form-label">Açıklama (opsiyonel)</label>
-          <textarea
-            name="aciklama"
-            class="form-control"
-            rows="3"
-            placeholder="Hurda sebebi / not"
-          ></textarea>
+  <div class="modal-dialog modal-dialog-centered">
+    <form id="scrapForm" class="modal-content border-0 bg-transparent p-0">
+      <div class="modal-shell">
+        <div class="modal-shell__header">
+          <div class="modal-shell__heading">
+            <h5 class="modal-shell__title">Hurdaya Ayır</h5>
+            <p class="modal-shell__subtitle">
+              Lisansı hurdaya ayırmadan önce kısa bir not ekleyebilirsiniz.
+            </p>
+          </div>
+          <div class="modal-shell__header-actions">
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Kapat"
+            ></button>
+          </div>
         </div>
-        <input
-          type="hidden"
-          name="islem_yapan"
-          value="{{ current_user.full_name if current_user else 'system' }}"
-        />
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">
-          Vazgeç
-        </button>
-        <button class="btn btn-danger" type="submit">Hurdaya Ayır</button>
+
+        <div class="modal-shell__body">
+          <p class="mb-2">
+            Bu lisans hurdaya ayrılacak. Onaylıyor musunuz?
+          </p>
+          <div class="modal-form-grid">
+            <div class="form-group modal-form-grid--full">
+              <label class="form-label" for="scrapNote">Açıklama (opsiyonel)</label>
+              <textarea
+                id="scrapNote"
+                name="aciklama"
+                class="form-control"
+                rows="3"
+                placeholder="Hurda sebebi / not"
+              ></textarea>
+            </div>
+          </div>
+          <input
+            type="hidden"
+            name="islem_yapan"
+            value="{{ current_user.full_name if current_user else 'system' }}"
+          />
+        </div>
+
+        <div class="modal-shell__footer">
+          <div class="modal-shell__actions">
+            <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">
+              Vazgeç
+            </button>
+            <button class="btn btn-danger" type="submit">Hurdaya Ayır</button>
+          </div>
+        </div>
       </div>
     </form>
   </div>
