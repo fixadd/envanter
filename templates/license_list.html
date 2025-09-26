@@ -196,12 +196,7 @@ content %}
           <div class="modal-form-grid env-grid">
             <div class="form-group field">
               <label for="selLisansAdi">Lisans Adı</label>
-              <select
-                id="selLisansAdi"
-                name="lisans_adi"
-                class="ctrl"
-                required
-              >
+              <select id="selLisansAdi" name="lisans_adi" class="ctrl" required>
                 <option value="">Seçiniz</option>
                 {% for ln in license_names %}
                 <option value="{{ ln.name }}">{{ ln.name }}</option>
@@ -259,7 +254,9 @@ content %}
             </div>
 
             <div class="form-group field">
-              <label for="lisansEmail">E-posta <span class="muted">(opsiyonel)</span></label>
+              <label for="lisansEmail"
+                >E-posta <span class="muted">(opsiyonel)</span></label
+              >
               <input
                 id="lisansEmail"
                 name="mail_adresi"
@@ -390,7 +387,9 @@ content %}
           <p class="mb-2">Bu lisans hurdaya ayrılacak. Onaylıyor musunuz?</p>
           <div class="modal-form-grid env-grid">
             <div class="form-group field modal-form-grid--full span-2">
-              <label for="scrapNote">Açıklama <span class="muted">(opsiyonel)</span></label>
+              <label for="scrapNote"
+                >Açıklama <span class="muted">(opsiyonel)</span></label
+              >
               <textarea
                 id="scrapNote"
                 name="aciklama"
