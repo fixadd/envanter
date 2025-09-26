@@ -193,31 +193,31 @@ content %}
         </div>
 
         <div class="modal-shell__body">
-          <div class="modal-form-grid env-grid">
-            <div class="form-group field">
-              <label for="selLisansAdi">Lisans Adı</label>
-              <select id="selLisansAdi" name="lisans_adi" class="ctrl" required>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="selLisansAdi" class="form-label">Lisans Adı</label>
+              <select id="selLisansAdi" name="lisans_adi" class="form-select" required>
                 <option value="">Seçiniz</option>
                 {% for ln in license_names %}
                 <option value="{{ ln.name }}">{{ ln.name }}</option>
                 {% endfor %}
               </select>
             </div>
-            <div class="form-group field">
-              <label for="lisansAnahtari">Lisans Anahtarı</label>
+            <div class="col-md-6">
+              <label for="lisansAnahtari" class="form-label">Lisans Anahtarı</label>
               <input
                 id="lisansAnahtari"
                 name="lisans_anahtari"
                 type="text"
-                class="ctrl"
+                class="form-control"
                 required
                 placeholder="XXXX-XXXX-XXXX-XXXX"
               />
             </div>
 
-            <div class="form-group field">
-              <label for="selPersonelAdd">Sorumlu Personel</label>
-              <select id="selPersonelAdd" name="sorumlu_personel" class="ctrl">
+            <div class="col-md-6">
+              <label for="selPersonelAdd" class="form-label">Sorumlu Personel</label>
+              <select id="selPersonelAdd" name="sorumlu_personel" class="form-select">
                 <option value="">Seçiniz</option>
                 {% for u in users %}
                 <option value="{{ u }}">{{ u }}</option>
@@ -225,12 +225,12 @@ content %}
               </select>
             </div>
 
-            <div class="form-group field">
-              <label for="bagliEnvanter">Bağlı Olduğu Envanter No</label>
+            <div class="col-md-6">
+              <label for="bagliEnvanter" class="form-label">Bağlı Olduğu Envanter No</label>
               <select
                 id="bagliEnvanter"
                 name="bagli_envanter_no"
-                class="ctrl"
+                class="form-select"
                 required
               >
                 <option value="">Seçiniz...</option>
@@ -240,28 +240,28 @@ content %}
               </select>
             </div>
 
-            <div class="form-group field">
-              <label for="ifsNo">
+            <div class="col-md-6">
+              <label for="ifsNo" class="form-label">
                 IFS No <span class="muted">(opsiyonel)</span>
               </label>
               <input
                 id="ifsNo"
                 name="ifs_no"
                 type="text"
-                class="ctrl"
+                class="form-control"
                 placeholder="IFS numarası"
               />
             </div>
 
-            <div class="form-group field">
-              <label for="lisansEmail"
+            <div class="col-md-6">
+              <label for="lisansEmail" class="form-label"
                 >E-posta <span class="muted">(opsiyonel)</span></label
               >
               <input
                 id="lisansEmail"
                 name="mail_adresi"
                 type="email"
-                class="ctrl"
+                class="form-control"
                 placeholder="ornek@firma.com"
               />
             </div>
@@ -317,19 +317,19 @@ content %}
             name="islem_yapan"
             value="{{ current_user.full_name if current_user else 'system' }}"
           />
-          <div class="modal-form-grid env-grid">
-            <div class="form-group field">
-              <label for="selPersonel">Sorumlu Personel</label>
-              <select name="sorumlu_personel" class="ctrl" id="selPersonel">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="selPersonel" class="form-label">Sorumlu Personel</label>
+              <select name="sorumlu_personel" class="form-select" id="selPersonel">
                 <option value="">Seçiniz</option>
                 {% for u in users %}
                 <option value="{{ u }}">{{ u }}</option>
                 {% endfor %}
               </select>
             </div>
-            <div class="form-group field">
-              <label for="selBagli">Bağlı Olduğu Envanter No</label>
-              <select name="bagli_envanter_no" class="ctrl" id="selBagli">
+            <div class="col-md-6">
+              <label for="selBagli" class="form-label">Bağlı Olduğu Envanter No</label>
+              <select name="bagli_envanter_no" class="form-select" id="selBagli">
                 <option value="">Seçiniz</option>
                 {% for inv in envanterler %}
                 <option value="{{ inv.no }}">
@@ -385,15 +385,15 @@ content %}
 
         <div class="modal-shell__body">
           <p class="mb-2">Bu lisans hurdaya ayrılacak. Onaylıyor musunuz?</p>
-          <div class="modal-form-grid env-grid">
-            <div class="form-group field modal-form-grid--full span-2">
-              <label for="scrapNote"
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="scrapNote" class="form-label"
                 >Açıklama <span class="muted">(opsiyonel)</span></label
               >
               <textarea
                 id="scrapNote"
                 name="aciklama"
-                class="ctrl"
+                class="form-control"
                 rows="3"
                 placeholder="Hurda sebebi / not"
               ></textarea>
