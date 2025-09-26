@@ -494,35 +494,33 @@ block content %}
           data-bs-dismiss="modal"
         ></button>
       </div>
-      <div class="modal-body row g-3">
+      <div class="modal-body">
         <input type="hidden" name="item_id" id="assign_item_id" />
-        <div class="col-md-3">
-          <label class="form-label">Fabrika</label>
-          <select name="fabrika" id="selFabrika" class="form-select"></select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Departman</label>
-          <select
-            name="departman"
-            id="selDepartman"
-            class="form-select"
-          ></select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Sorumlu Personel</label>
-          <select
-            name="sorumlu_personel"
-            id="selPersonel"
-            class="form-select"
-          ></select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Bağlı Olduğu Envanter</label>
-          <select
-            name="bagli_envanter_no"
-            id="selBagli"
-            class="form-select"
-          ></select>
+        <div class="env-grid">
+          <div class="field">
+            <label>Fabrika</label>
+            <select name="fabrika" id="selFabrika" class="ctrl"></select>
+          </div>
+          <div class="field">
+            <label>Departman</label>
+            <select name="departman" id="selDepartman" class="ctrl"></select>
+          </div>
+          <div class="field">
+            <label>Sorumlu Personel</label>
+            <select
+              name="sorumlu_personel"
+              id="selPersonel"
+              class="ctrl"
+            ></select>
+          </div>
+          <div class="field">
+            <label>Bağlı Olduğu Envanter</label>
+            <select
+              name="bagli_envanter_no"
+              id="selBagli"
+              class="ctrl"
+            ></select>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
