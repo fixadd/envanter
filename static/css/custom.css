@@ -877,130 +877,6 @@ tr[data-href] > td:first-child {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Modal shells                                                               */
-/* -------------------------------------------------------------------------- */
-.modal-shell {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  padding: clamp(1.25rem, 1rem + 1vw, 1.75rem);
-  max-width: 720px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
-}
-
-.modal-shell__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--space-md);
-}
-
-.modal-shell__heading {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2xs);
-}
-
-.modal-shell__title {
-  margin: 0;
-  font-size: var(--font-size-lg);
-}
-
-.modal-shell__subtitle {
-  margin: 0;
-  font-size: var(--font-size-sm);
-  color: var(--color-muted);
-  max-width: 440px;
-}
-
-.modal-shell__header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.modal-shell__badge {
-  font-weight: 600;
-  padding: 0.35rem 0.75rem;
-  box-shadow: inset 0 0 0 1px var(--color-border);
-}
-
-.modal-shell__body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
-}
-
-.modal-form-grid {
-  display: grid;
-  gap: var(--space-md);
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
-
-.modal-form-grid .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2xs);
-}
-
-.modal-form-grid--full {
-  grid-column: 1 / -1;
-}
-
-.modal-shell__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-sm);
-  flex-wrap: wrap;
-}
-
-.modal-shell__note {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2xs);
-  font-size: var(--font-size-xs);
-  color: var(--color-muted);
-}
-
-.modal-shell__note i {
-  font-size: 0.95rem;
-  color: var(--color-muted);
-}
-
-.modal-shell__actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-@media (max-width: 576px) {
-  .modal-shell {
-    padding: var(--space-md);
-    border-radius: var(--radius-md);
-  }
-
-  .modal-shell__header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .modal-shell__header-actions {
-    justify-content: flex-start;
-  }
-
-  .modal-shell__subtitle {
-    max-width: none;
-  }
-}
-
-/* -------------------------------------------------------------------------- */
 /* Buttons                                                                    */
 /* -------------------------------------------------------------------------- */
 .btn,
@@ -1204,11 +1080,6 @@ nav.navbar + .container-fluid {
   padding-top: 1rem !important;
 }
 
-/* Modal içindeki form elemanları */
-.modal-body .env-grid {
-  gap: 1rem !important;
-}
-
 /* Buton grupları arası boşluk */
 .d-flex.gap-2 {
   gap: 0.5rem !important;
@@ -1278,6 +1149,7 @@ body .container-fluid {
   padding-right: 2rem !important;
 }
 
+
 .action-select.js-actions:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(245, 87, 108, 0.4) !important;
@@ -1314,48 +1186,6 @@ tr[data-fault-status="arizali"] .action-select.js-actions {
     linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%),
     url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
   box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3) !important;
-}
-
-/* ========== 3. BAĞLANTILAR SEKMESİ DÜZELTMELERİ ========== */
-
-/* Tab Navigation */
-.nav.nav-tabs {
-  border-bottom: none !important;
-  gap: 0.25rem;
-  margin-bottom: 0 !important;
-}
-
-.nav-tabs .nav-link {
-  border: 1px solid var(--color-border) !important;
-  border-bottom: 0 !important;
-  background: var(--color-surface-elevated) !important;
-  color: var(--color-heading) !important;
-  border-radius: 12px 12px 0 0 !important;
-  padding: 0.65rem 1.25rem !important;
-  font-weight: 600;
-  transition: all 0.3s ease !important;
-  margin-bottom: 0 !important;
-}
-
-.nav-tabs .nav-link:hover {
-  background: var(--color-surface) !important;
-  transform: translateY(-2px);
-}
-
-.nav-tabs .nav-link.active {
-  background: var(--color-surface) !important;
-  border-color: var(--color-border) var(--color-border) var(--color-surface) !important;
-  position: relative;
-  z-index: 2;
-}
-
-/* Tab Content */
-.tab-content {
-  background: var(--color-surface) !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: 0 12px 12px 12px !important;
-  padding: 1.5rem !important;
-  margin-top: -1px !important;
 }
 
 /* ========== 4. TABLO İÇİNDEKİ İŞLEMLER KOLONU ========== */
@@ -1410,3 +1240,451 @@ tr[data-fault-status="arizali"] .action-select.js-actions {
 - Bağlantılar sekmesi tasarımı
 - Responsive uyumluluk
 */
+
+/* =============================================================================
+   MODAL TASARIM DÜZELTMELERİ - GENEL TASARIMA UYUMLU
+============================================================================= */
+
+/* ========== 1. ENVANTER DÜZENLE MODAL - YENİDEN TASARIM ========== */
+
+/* Modal container modernizasyonu */
+.modal-dialog {
+  max-width: 900px !important;
+  margin: 1.75rem auto !important;
+}
+
+.modal-dialog-centered {
+  display: flex;
+  align-items: center;
+  min-height: calc(100% - 3.5rem);
+}
+
+/* Modal içerik modern yapı */
+.modal-content {
+  border: none !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+  background: var(--color-surface) !important;
+  overflow: hidden;
+}
+
+/* Modal header yeniden tasarım */
+.modal-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  padding: 1.5rem 2rem !important;
+  border-bottom: none !important;
+  align-items: center;
+}
+
+.modal-header .modal-title {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.modal-header .btn-close {
+  background: transparent !important;
+  opacity: 1 !important;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  filter: brightness(0) invert(1);
+}
+
+.modal-header .btn-close:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: rotate(90deg);
+}
+
+/* Envanter No badge */
+.modal-header .text-muted {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-left: auto;
+}
+
+/* Modal body düzenleme */
+.modal-body {
+  padding: 2rem !important;
+  background: var(--color-surface) !important;
+}
+
+/* Form grid sistemi - env-grid için */
+.env-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem !important;
+  margin-bottom: 0 !important;
+}
+
+@media (min-width: 768px) {
+  .env-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem !important;
+  }
+
+  .env-grid .span-2 {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Form alanları modern tasarım */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field label {
+  font-weight: 600 !important;
+  color: var(--color-heading) !important;
+  font-size: 0.875rem !important;
+  margin-bottom: 0 !important;
+  letter-spacing: 0.01em;
+}
+
+.field label .muted {
+  color: var(--color-muted) !important;
+  font-weight: 400;
+  font-size: 0.75rem;
+}
+
+/* Input ve select stil */
+.ctrl,
+.form-control,
+.form-select {
+  width: 100% !important;
+  padding: 0.75rem 1rem !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-sm) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-body) !important;
+  font-size: 0.9375rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.ctrl:focus,
+.form-control:focus,
+.form-select:focus {
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15) !important;
+  outline: none !important;
+  transform: translateY(-1px);
+}
+
+.ctrl::placeholder,
+.form-control::placeholder {
+  color: var(--color-muted) !important;
+  opacity: 0.7;
+}
+
+.ctrl:disabled,
+.ctrl[readonly] {
+  background: var(--color-surface-elevated) !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Modal footer modern stil */
+.modal-footer {
+  padding: 1.5rem 2rem !important;
+  background: var(--color-surface-elevated) !important;
+  border-top: 1px solid var(--color-border) !important;
+  gap: 0.75rem !important;
+  justify-content: flex-end !important;
+}
+
+.modal-footer .btn {
+  min-width: 100px;
+  padding: 0.625rem 1.5rem !important;
+  font-weight: 600 !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+.modal-footer .btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+}
+
+.modal-footer .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+}
+
+.modal-footer .btn-secondary,
+.modal-footer .btn-outline-secondary {
+  background: transparent !important;
+  border: 1px solid var(--color-border) !important;
+  color: var(--color-body) !important;
+}
+
+.modal-footer .btn-secondary:hover,
+.modal-footer .btn-outline-secondary:hover {
+  background: var(--color-surface-elevated) !important;
+  border-color: var(--color-border-strong) !important;
+}
+
+/* ========== 2. ATAMA MODAL - MODERN TASARIM ========== */
+
+/* Atama modalı özel stil */
+#assignModal .modal-dialog {
+  max-width: 800px !important;
+}
+
+#assignModal .modal-header {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+}
+
+#assignModal .modal-body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem !important;
+  padding: 2rem !important;
+}
+
+@media (min-width: 576px) {
+  #assignModal .modal-body {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  #assignModal .modal-body {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+#assignModal .col-md-3 {
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+}
+
+#assignModal .form-label {
+  font-weight: 600 !important;
+  color: var(--color-heading) !important;
+  font-size: 0.875rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* ========== 3. KULLANICI YÖNETİMİ TAB TASARIMI ========== */
+
+/* Tab container modern yapı */
+.nav.nav-tabs {
+  border-bottom: none !important;
+  background: var(--color-surface-elevated);
+  padding: 0.5rem;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  gap: 0.25rem;
+  margin-bottom: 0 !important;
+}
+
+.nav-tabs .nav-link {
+  border: none !important;
+  background: transparent !important;
+  color: var(--color-muted) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 0.75rem 1.25rem !important;
+  font-weight: 600 !important;
+  font-size: 0.9375rem !important;
+  transition: all 0.2s ease !important;
+  position: relative;
+  margin: 0 !important;
+}
+
+.nav-tabs .nav-link:hover {
+  background: rgba(102, 126, 234, 0.1) !important;
+  color: var(--color-heading) !important;
+}
+
+.nav-tabs .nav-link.active {
+  background: var(--color-surface) !important;
+  color: var(--color-heading) !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+}
+
+.nav-tabs .nav-link.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 3px 3px 0 0;
+}
+
+/* Tab içerik alanı */
+.tab-content {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 0 0 var(--radius-md) var(--radius-md) !important;
+  padding: 2rem !important;
+  margin-top: 0 !important;
+}
+
+/* ========== 4. GENEL MODAL BOŞLUK DÜZELTMELERİ ========== */
+
+/* Tüm modallerde tutarlı boşluklar */
+.modal {
+  padding-right: 0 !important;
+}
+
+.modal-backdrop {
+  background-color: rgba(15, 23, 42, 0.6) !important;
+  backdrop-filter: blur(4px);
+}
+
+/* Modal açılma animasyonu */
+.modal.fade .modal-dialog {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s ease;
+  transform: scale(0.95) translateY(-20px);
+  opacity: 0;
+}
+
+.modal.show .modal-dialog {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+/* ========== 5. ENVANTER EKLE MODAL - ÖZELLEŞTİRME ========== */
+
+#inventoryCreateModal .modal-dialog {
+  max-width: 900px !important;
+}
+
+#inventoryCreateModal .modal-header {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+}
+
+/* Required yıldız işareti */
+.field label.required::after {
+  content: " *";
+  color: #dc2626;
+  font-weight: 700;
+}
+
+/* ========== 6. RESPONSIVE İYİLEŞTİRMELER ========== */
+
+@media (max-width: 576px) {
+  .modal-dialog {
+    margin: 0.5rem !important;
+    max-width: calc(100% - 1rem) !important;
+  }
+
+  .modal-header {
+    padding: 1.25rem 1.5rem !important;
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.75rem;
+  }
+
+  .modal-header .text-muted {
+    margin-left: 0 !important;
+  }
+
+  .modal-body {
+    padding: 1.5rem !important;
+  }
+
+  .modal-footer {
+    padding: 1.25rem 1.5rem !important;
+    flex-direction: column;
+  }
+
+  .modal-footer .btn {
+    width: 100% !important;
+  }
+
+  .env-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  #assignModal .modal-body {
+    grid-template-columns: 1fr !important;
+  }
+
+  .nav-tabs .nav-link {
+    padding: 0.625rem 1rem !important;
+    font-size: 0.875rem !important;
+  }
+}
+
+/* ========== 7. DARK MODE DESTEĞİ ========== */
+
+body.theme-dark .modal-content {
+  background: var(--color-surface) !important;
+}
+
+body.theme-dark .modal-header {
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%) !important;
+}
+
+body.theme-dark .modal-footer {
+  background: var(--color-surface-elevated) !important;
+  border-top-color: var(--color-border) !important;
+}
+
+body.theme-dark .ctrl,
+body.theme-dark .form-control,
+body.theme-dark .form-select {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-body) !important;
+}
+
+body.theme-dark .nav.nav-tabs {
+  background: var(--color-surface-elevated);
+}
+
+/* ========== 8. ACCESSIBILITY GELİŞTİRMELERİ ========== */
+
+/* Focus görünürlüğü */
+.modal-header .btn-close:focus,
+.ctrl:focus,
+.form-control:focus,
+.form-select:focus,
+.nav-tabs .nav-link:focus {
+  outline: 3px solid rgba(102, 126, 234, 0.4) !important;
+  outline-offset: 2px;
+}
+
+/* Reduce motion desteği */
+@media (prefers-reduced-motion: reduce) {
+  .modal.fade .modal-dialog,
+  .ctrl,
+  .form-control,
+  .form-select,
+  .nav-tabs .nav-link {
+    transition: none !important;
+  }
+}
+
+/* ========== 9. PRINT STILI ========== */
+
+@media print {
+  .modal-header {
+    background: white !important;
+    color: black !important;
+    border-bottom: 2px solid black !important;
+  }
+
+  .modal-footer {
+    display: none !important;
+  }
+
+  .btn-close {
+    display: none !important;
+  }
+}
