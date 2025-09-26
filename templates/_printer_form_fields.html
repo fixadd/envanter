@@ -1,47 +1,45 @@
-<div class="env-grid">
-  <div class="field">
-    <label>Yazıcı Markası</label>
-    <select id="selYaziciMarka" name="marka_id" class="ctrl"></select>
+<div class="row g-3">
+  <div class="col-md-6">
+    <label for="selYaziciMarka" class="form-label">Yazıcı Markası</label>
+    <select id="selYaziciMarka" name="marka_id" class="form-select"></select>
   </div>
-  <div class="field">
-    <label>Yazıcı Modeli</label>
-    <select id="selYaziciModel" name="model_id" class="ctrl" disabled></select>
-    <small class="text-muted small"
-      >Not: Model listesi seçilen Markaya göre filtrelenir.</small
-    >
+  <div class="col-md-6">
+    <label for="selYaziciModel" class="form-label">Yazıcı Modeli</label>
+    <select id="selYaziciModel" name="model_id" class="form-select" disabled></select>
+    <div class="form-text">Not: Model listesi seçilen Markaya göre filtrelenir.</div>
   </div>
 
-  <div class="field">
-    <label>Kullanım Alanı</label>
+  <div class="col-md-6">
+    <label for="selYaziciKullanim" class="form-label">Kullanım Alanı</label>
     <select
       id="selYaziciKullanim"
       name="kullanim_alani_id"
-      class="ctrl"
+      class="form-select"
     ></select>
   </div>
 
-  <div class="field">
-    <label>Envanter No</label>
-    <input name="envanter_no" class="ctrl" required />
+  <div class="col-md-6">
+    <label for="printerEnvanterNo" class="form-label">Envanter No</label>
+    <input id="printerEnvanterNo" name="envanter_no" class="form-control" required />
   </div>
 
-  <div class="field">
-    <label>IP Adresi</label>
-    <input name="ip_adresi" class="ctrl" />
+  <div class="col-md-6">
+    <label for="printerIp" class="form-label">IP Adresi</label>
+    <input id="printerIp" name="ip_adresi" class="form-control" />
   </div>
 
-  <div class="field">
-    <label>MAC</label>
-    <input name="mac" class="ctrl" />
+  <div class="col-md-6">
+    <label for="printerMac" class="form-label">MAC</label>
+    <input id="printerMac" name="mac" class="form-control" />
   </div>
 
-  <div class="field">
-    <label>Hostname</label>
-    <input name="hostname" class="ctrl" />
+  <div class="col-md-6">
+    <label for="printerHostname" class="form-label">Hostname</label>
+    <input id="printerHostname" name="hostname" class="form-control" />
   </div>
 
-  <div class="field">
-    <label>IFS No</label>
-    <input name="ifs_no" class="ctrl" />
+  <div class="col-md-6">
+    <label for="printerIfs" class="form-label">IFS No</label>
+    <input id="printerIfs" name="ifs_no" class="form-control" />
   </div>
 </div>

@@ -370,10 +370,10 @@ content %}
         <div class="modal-shell__body">
           <input type="hidden" id="assignPrinterId" name="printer_id" />
 
-          <div class="modal-form-grid env-grid">
-            <div class="form-group field">
-              <label for="selFabrika">Fabrika</label>
-              <select id="selFabrika" name="fabrika" class="ctrl">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="selFabrika" class="form-label">Fabrika</label>
+              <select id="selFabrika" name="fabrika" class="form-select">
                 <option value="">Seçiniz</option>
                 {% for f in factories %}
                 <option value="{{ f }}">{{ f }}</option>
@@ -381,9 +381,9 @@ content %}
               </select>
             </div>
 
-            <div class="form-group field">
-              <label for="selKullanim">Kullanım Alanı</label>
-              <select id="selKullanim" name="kullanim_alani" class="ctrl">
+            <div class="col-md-6">
+              <label for="selKullanim" class="form-label">Kullanım Alanı</label>
+              <select id="selKullanim" name="kullanim_alani" class="form-select">
                 <option value="">Seçiniz</option>
                 {% for a in areas %}
                 <option value="{{ a }}">{{ a }}</option>
@@ -391,9 +391,9 @@ content %}
               </select>
             </div>
 
-            <div class="form-group field">
-              <label for="selPersonel">Sorumlu Personel</label>
-              <select id="selPersonel" name="sorumlu_personel" class="ctrl">
+            <div class="col-md-6">
+              <label for="selPersonel" class="form-label">Sorumlu Personel</label>
+              <select id="selPersonel" name="sorumlu_personel" class="form-select">
                 <option value="">Seçiniz</option>
                 {% for u in users %}
                 <option value="{{ u }}">{{ u }}</option>
@@ -401,9 +401,9 @@ content %}
               </select>
             </div>
 
-            <div class="form-group field">
-              <label for="selBagliEnv">Bağlı Olduğu Envanter</label>
-              <select id="selBagliEnv" name="bagli_envanter_no" class="ctrl">
+            <div class="col-md-6">
+              <label for="selBagliEnv" class="form-label">Bağlı Olduğu Envanter</label>
+              <select id="selBagliEnv" name="bagli_envanter_no" class="form-select">
                 <option value="">Seçiniz</option>
                 {% for inv in inventory_nos %}
                 <option value="{{ inv }}">{{ inv }}</option>
