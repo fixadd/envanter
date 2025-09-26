@@ -27,105 +27,105 @@ block title %}Talep Takip{% endblock %} {% block content %}
     </header>
 
     {% macro render_table(rows, empty_msg, show_actions=False) %}
-  <div class="table-responsive">
-    <table class="table table-striped table-hover table-sm align-middle">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Tür</th>
-          <th>Donanım Tipi</th>
-          <th>Marka</th>
-          <th>Model</th>
-          <th>İstenen</th>
-          <th>Karşılanan</th>
-          <th>Kalan</th>
-          <th>Envanter No</th>
-          <th>Lisans Adı</th>
-          <th>Sorumlu</th>
-          <th>Açıklama</th>
-          <th>Tarih</th>
-          {% if show_actions %}
-          <th>İşlem</th>
-          {% endif %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for t in rows %} {% set current_ifs = t.ifs_no or '-' %} {% if
-        loop.changed(current_ifs) %}
-        <tr class="table-light">
-          <td colspan="{{ 14 if show_actions else 13 }}">
-            IFS No: {{ current_ifs }}
-          </td>
-        </tr>
-        {% endif %}
-        <tr>
-          <td>{{ t.id }}</td>
-          <td>{{ t.tur }}</td>
-          <td>{{ t.donanim_tipi or '-' }}</td>
-          <td>{{ t.marka or '-' }}</td>
-          <td>{{ t.model or '-' }}</td>
-          <td>{{ t.miktar or '-' }}</td>
-          <td>{{ t.karsilanan_miktar or '-' }}</td>
-          <td>{{ t.kalan_miktar or '-' }}</td>
-          <td>{{ t.envanter_no or t.bagli_envanter_no or '-' }}</td>
-          <td>{{ t.lisans_adi or '-' }}</td>
-          <td>{{ t.sorumlu_personel or '-' }}</td>
-          <td>{{ t.aciklama or '-' }}</td>
-          <td>
-            {{ t.olusturma_tarihi.strftime('%Y-%m-%d %H:%M') }} {% if t.durum !=
-            'acik' and t.kapanma_tarihi %}
-            <br />
-            <small class="text-muted">
-              {{ 'Kapanma: ' if t.durum == 'tamamlandi' else 'İptal: ' }}{{
-              t.kapanma_tarihi.strftime('%Y-%m-%d %H:%M') }}
-            </small>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover table-sm align-middle">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Tür</th>
+            <th>Donanım Tipi</th>
+            <th>Marka</th>
+            <th>Model</th>
+            <th>İstenen</th>
+            <th>Karşılanan</th>
+            <th>Kalan</th>
+            <th>Envanter No</th>
+            <th>Lisans Adı</th>
+            <th>Sorumlu</th>
+            <th>Açıklama</th>
+            <th>Tarih</th>
+            {% if show_actions %}
+            <th>İşlem</th>
             {% endif %}
-          </td>
-          {% if show_actions %}
-          <td>
-            <div class="btn-group">
-              <button
-                class="btn btn-outline-secondary btn-sm dropdown-toggle"
-                data-bs-toggle="dropdown"
-              >
-                İşlem
-              </button>
-              <ul class="dropdown-menu">
-                <li>
-                  <a
-                    class="dropdown-item"
-                    href="#"
-                    onclick="talepIptal({{ t.id }}, {{ t.kalan_miktar }}); return false;"
-                    >İptal Et</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="dropdown-item"
-                    href="#"
-                    onclick="talepKapat({{ t.id }}, {{ t.kalan_miktar }}); return false;"
-                    >Stok Gir</a
-                  >
-                </li>
-              </ul>
-            </div>
-          </td>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in rows %} {% set current_ifs = t.ifs_no or '-' %} {% if
+          loop.changed(current_ifs) %}
+          <tr class="table-light">
+            <td colspan="{{ 14 if show_actions else 13 }}">
+              IFS No: {{ current_ifs }}
+            </td>
+          </tr>
           {% endif %}
-        </tr>
-        {% endfor %} {% if rows|length == 0 %}
-        <tr>
-          <td
-            colspan="{{ 14 if show_actions else 13 }}"
-            class="text-center text-muted"
-          >
-            {{ empty_msg }}
-          </td>
-        </tr>
-        {% endif %}
-      </tbody>
-    </table>
-  </div>
-  {% endmacro %}
+          <tr>
+            <td>{{ t.id }}</td>
+            <td>{{ t.tur }}</td>
+            <td>{{ t.donanim_tipi or '-' }}</td>
+            <td>{{ t.marka or '-' }}</td>
+            <td>{{ t.model or '-' }}</td>
+            <td>{{ t.miktar or '-' }}</td>
+            <td>{{ t.karsilanan_miktar or '-' }}</td>
+            <td>{{ t.kalan_miktar or '-' }}</td>
+            <td>{{ t.envanter_no or t.bagli_envanter_no or '-' }}</td>
+            <td>{{ t.lisans_adi or '-' }}</td>
+            <td>{{ t.sorumlu_personel or '-' }}</td>
+            <td>{{ t.aciklama or '-' }}</td>
+            <td>
+              {{ t.olusturma_tarihi.strftime('%Y-%m-%d %H:%M') }} {% if t.durum
+              != 'acik' and t.kapanma_tarihi %}
+              <br />
+              <small class="text-muted">
+                {{ 'Kapanma: ' if t.durum == 'tamamlandi' else 'İptal: ' }}{{
+                t.kapanma_tarihi.strftime('%Y-%m-%d %H:%M') }}
+              </small>
+              {% endif %}
+            </td>
+            {% if show_actions %}
+            <td>
+              <div class="btn-group">
+                <button
+                  class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                  data-bs-toggle="dropdown"
+                >
+                  İşlem
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="#"
+                      onclick="talepIptal({{ t.id }}, {{ t.kalan_miktar }}); return false;"
+                      >İptal Et</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="#"
+                      onclick="talepKapat({{ t.id }}, {{ t.kalan_miktar }}); return false;"
+                      >Stok Gir</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </td>
+            {% endif %}
+          </tr>
+          {% endfor %} {% if rows|length == 0 %}
+          <tr>
+            <td
+              colspan="{{ 14 if show_actions else 13 }}"
+              class="text-center text-muted"
+            >
+              {{ empty_msg }}
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+    {% endmacro %}
     <div class="page-card soft-card stack-md">
       <ul class="nav nav-tabs" id="talepTabs" role="tablist">
         <li class="nav-item" role="presentation">

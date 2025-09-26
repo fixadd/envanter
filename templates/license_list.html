@@ -7,7 +7,8 @@ content %}
         <span class="eyebrow text-primary">Lisans Takip</span>
         <h1 class="page-header__title">Lisanslar</h1>
         <p class="page-header__subtitle">
-          Envanterinizdeki yazılım lisanslarını görüntüleyin, aktarın ve yönetin.
+          Envanterinizdeki yazılım lisanslarını görüntüleyin, aktarın ve
+          yönetin.
         </p>
       </div>
       <div class="page-header__actions page-actions">
@@ -32,7 +33,9 @@ content %}
               Excel
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="/lisans/export">Dışa Aktar</a></li>
+              <li>
+                <a class="dropdown-item" href="/lisans/export">Dışa Aktar</a>
+              </li>
               <li>
                 <form
                   action="/lisans/import"
@@ -46,7 +49,9 @@ content %}
                     class="d-none"
                     onchange="this.form.submit()"
                   />
-                  <label for="licExcel" class="dropdown-item mb-0">İçe Aktar</label>
+                  <label for="licExcel" class="dropdown-item mb-0"
+                    >İçe Aktar</label
+                  >
                 </form>
               </li>
             </ul>
@@ -136,7 +141,9 @@ content %}
 
 <!-- Yeni Ekle Modal -->
 <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+  <div
+    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+  >
     <form
       method="post"
       action="/lisans/create"
@@ -178,7 +185,9 @@ content %}
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label" for="lisansAnahtari">Lisans Anahtarı</label>
+              <label class="form-label" for="lisansAnahtari"
+                >Lisans Anahtarı</label
+              >
               <input
                 id="lisansAnahtari"
                 name="lisans_anahtari"
@@ -190,7 +199,9 @@ content %}
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="selPersonelAdd">Sorumlu Personel</label>
+              <label class="form-label" for="selPersonelAdd"
+                >Sorumlu Personel</label
+              >
               <select
                 id="selPersonelAdd"
                 name="sorumlu_personel"
@@ -204,7 +215,9 @@ content %}
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="bagliEnvanter">Bağlı Olduğu Envanter No</label>
+              <label class="form-label" for="bagliEnvanter"
+                >Bağlı Olduğu Envanter No</label
+              >
               <select
                 id="bagliEnvanter"
                 name="bagli_envanter_no"
@@ -232,7 +245,9 @@ content %}
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="lisansEmail">E-posta (opsiyonel)</label>
+              <label class="form-label" for="lisansEmail"
+                >E-posta (opsiyonel)</label
+              >
               <input
                 id="lisansEmail"
                 name="mail_adresi"
@@ -307,7 +322,11 @@ content %}
 <!-- ATAMA MODALI -->
 <div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-    <form method="post" id="assignForm" class="modal-content border-0 bg-transparent p-0">
+    <form
+      method="post"
+      id="assignForm"
+      class="modal-content border-0 bg-transparent p-0"
+    >
       <div class="modal-shell">
         <div class="modal-shell__header">
           <div class="modal-shell__heading">
@@ -334,7 +353,9 @@ content %}
           />
           <div class="modal-form-grid">
             <div class="form-group">
-              <label class="form-label" for="selPersonel">Sorumlu Personel</label>
+              <label class="form-label" for="selPersonel"
+                >Sorumlu Personel</label
+              >
               <select
                 name="sorumlu_personel"
                 class="form-select"
@@ -347,8 +368,14 @@ content %}
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label" for="selBagli">Bağlı Olduğu Envanter No</label>
-              <select name="bagli_envanter_no" class="form-select" id="selBagli">
+              <label class="form-label" for="selBagli"
+                >Bağlı Olduğu Envanter No</label
+              >
+              <select
+                name="bagli_envanter_no"
+                class="form-select"
+                id="selBagli"
+              >
                 <option value="">Seçiniz</option>
                 {% for inv in envanterler %}
                 <option value="{{ inv.no }}">
@@ -365,7 +392,11 @@ content %}
 
         <div class="modal-shell__footer">
           <div class="modal-shell__actions">
-            <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              data-bs-dismiss="modal"
+            >
               İptal
             </button>
             <button class="btn btn-primary" type="submit">Kaydet</button>
@@ -399,12 +430,12 @@ content %}
         </div>
 
         <div class="modal-shell__body">
-          <p class="mb-2">
-            Bu lisans hurdaya ayrılacak. Onaylıyor musunuz?
-          </p>
+          <p class="mb-2">Bu lisans hurdaya ayrılacak. Onaylıyor musunuz?</p>
           <div class="modal-form-grid">
             <div class="form-group modal-form-grid--full">
-              <label class="form-label" for="scrapNote">Açıklama (opsiyonel)</label>
+              <label class="form-label" for="scrapNote"
+                >Açıklama (opsiyonel)</label
+              >
               <textarea
                 id="scrapNote"
                 name="aciklama"
@@ -423,7 +454,11 @@ content %}
 
         <div class="modal-shell__footer">
           <div class="modal-shell__actions">
-            <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">
+            <button
+              class="btn btn-outline-secondary"
+              data-bs-dismiss="modal"
+              type="button"
+            >
               Vazgeç
             </button>
             <button class="btn btn-danger" type="submit">Hurdaya Ayır</button>
