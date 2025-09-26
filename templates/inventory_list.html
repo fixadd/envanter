@@ -91,7 +91,10 @@ block content %}
             <i class="bi bi-funnel"></i>
             Filtrele
           </button>
-          <button class="btn btn-outline-secondary btn-sm d-none" id="clearFilterBtn">
+          <button
+            class="btn btn-outline-secondary btn-sm d-none"
+            id="clearFilterBtn"
+          >
             <i class="bi bi-x-circle"></i>
             Temizle
           </button>
@@ -133,7 +136,9 @@ block content %}
             >
               <td>
                 {{ row.no }} {% if row.durum == 'arızalı' %}
-                <span class="badge text-bg-warning text-dark ms-1">Arızalı</span>
+                <span class="badge text-bg-warning text-dark ms-1"
+                  >Arızalı</span
+                >
                 {% endif %}
               </td>
               <td>{{ row.fabrika }}</td>
@@ -455,13 +460,19 @@ block content %}
       <div class="modal-shell">
         <div class="modal-shell__header">
           <h5 class="modal-shell__title">Gelişmiş Filtre</h5>
-          <p class="modal-shell__subtitle">Birden fazla kritere göre filtreleyin</p>
+          <p class="modal-shell__subtitle">
+            Birden fazla kritere göre filtreleyin
+          </p>
         </div>
         <div class="modal-shell__body filter-modal-body">
           <div id="filterRows" class="filter-rows-container"></div>
         </div>
         <div class="modal-shell__footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
             İptal
           </button>
           <button type="submit" class="btn btn-primary">Uygula</button>
@@ -557,10 +568,10 @@ block content %}
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', async () => {
-    const assignModalEl = document.getElementById('assignModal');
-    const scrapModalEl = document.getElementById('scrapModal');
-    const addModalEl = document.getElementById('inventoryCreateModal');
+  document.addEventListener("DOMContentLoaded", async () => {
+    const assignModalEl = document.getElementById("assignModal");
+    const scrapModalEl = document.getElementById("scrapModal");
+    const addModalEl = document.getElementById("inventoryCreateModal");
 
     const assignModal = assignModalEl
       ? bootstrap.Modal.getOrCreateInstance(assignModalEl)
@@ -572,9 +583,9 @@ block content %}
       ? bootstrap.Modal.getOrCreateInstance(addModalEl)
       : null;
 
-    const addBtn = document.getElementById('addBtn');
+    const addBtn = document.getElementById("addBtn");
     if (addBtn && addModal) {
-      addBtn.addEventListener('click', (event) => {
+      addBtn.addEventListener("click", (event) => {
         event.preventDefault();
         addModal.show();
       });
@@ -582,21 +593,21 @@ block content %}
 
     await loadInventoryFormOptions();
 
-    await populateDistinctValues('fabrikaFilter', 'inventory', 'fabrika');
-    await populateDistinctValues('departmanFilter', 'inventory', 'departman');
+    await populateDistinctValues("fabrikaFilter", "inventory", "fabrika");
+    await populateDistinctValues("departmanFilter", "inventory", "departman");
 
     const filterSystem = new UnifiedFilterSystem({
-      tableSelector: '#inventoryTable',
-      searchInputId: 'searchInput',
+      tableSelector: "#inventoryTable",
+      searchInputId: "searchInput",
       filters: [
-        { id: 'fabrikaFilter', label: 'Fabrika', columnField: 'fabrika' },
-        { id: 'departmanFilter', label: 'Departman', columnField: 'departman' },
+        { id: "fabrikaFilter", label: "Fabrika", columnField: "fabrika" },
+        { id: "departmanFilter", label: "Departman", columnField: "departman" },
       ],
     });
     window.filterSystem = filterSystem;
 
     const tableColumns = Array.from(
-      document.querySelectorAll('#inventoryTable thead th'),
+      document.querySelectorAll("#inventoryTable thead th"),
     )
       .map((th) => ({
         name: th.textContent.trim(),
@@ -606,9 +617,9 @@ block content %}
 
     if (tableColumns.length) {
       const advancedFilter = new AdvancedFilterModal({
-        modalId: 'filterModal',
-        formId: 'filterForm',
-        triggerId: 'filterBtn',
+        modalId: "filterModal",
+        formId: "filterForm",
+        triggerId: "filterBtn",
         columns: tableColumns,
         distinctUrl:
           "{{ url_for('lookup.distinct', entity='inventory', column='__COL__') }}",
@@ -617,107 +628,107 @@ block content %}
       window.advancedFilter = advancedFilter;
     }
 
-    document.querySelectorAll('.action-select').forEach((sel) => {
-      sel.addEventListener('change', async (event) => {
+    document.querySelectorAll(".action-select").forEach((sel) => {
+      sel.addEventListener("change", async (event) => {
         const value = event.target.value;
         if (!value) return;
         const id = event.target.dataset.id;
         if (!id) return;
 
-        if (value === 'assign') {
+        if (value === "assign") {
           event.stopImmediatePropagation();
-          const row = event.target.closest('tr');
-          const assignInput = document.getElementById('assign_item_id');
+          const row = event.target.closest("tr");
+          const assignInput = document.getElementById("assign_item_id");
           if (assignInput) {
             assignInput.value = id;
           }
           await preloadAssignDropdowns(id);
           if (row) {
-            setSelectValue('selFabrika', row.dataset.fabrika);
-            setSelectValue('selDepartman', row.dataset.departman);
-            setSelectValue('selPersonel', row.dataset.sorumlu);
-            setSelectValue('selBagli', row.dataset.bagli);
+            setSelectValue("selFabrika", row.dataset.fabrika);
+            setSelectValue("selDepartman", row.dataset.departman);
+            setSelectValue("selPersonel", row.dataset.sorumlu);
+            setSelectValue("selBagli", row.dataset.bagli);
           }
           if (assignModal) assignModal.show();
-          event.target.value = '';
+          event.target.value = "";
           return;
         }
 
-        if (value === 'fault') {
+        if (value === "fault") {
           if (window.Faults) {
             event.stopImmediatePropagation();
-            window.Faults.openMarkModal('inventory', {
+            window.Faults.openMarkModal("inventory", {
               entityId: Number(id),
               entityKey:
                 event.target.dataset.entityKey ||
                 event.target.dataset.device ||
                 id,
-              deviceNo: event.target.dataset.device || '',
-              title: event.target.dataset.title || '',
+              deviceNo: event.target.dataset.device || "",
+              title: event.target.dataset.title || "",
             });
           }
-          event.target.value = '';
+          event.target.value = "";
           return;
         }
 
-        if (value === 'repair') {
+        if (value === "repair") {
           if (window.Faults) {
             event.stopImmediatePropagation();
-            window.Faults.openRepairModal('inventory', {
+            window.Faults.openRepairModal("inventory", {
               entityId: Number(id),
               entityKey:
                 event.target.dataset.entityKey ||
                 event.target.dataset.device ||
                 id,
-              deviceNo: event.target.dataset.device || '',
+              deviceNo: event.target.dataset.device || "",
             });
           }
-          event.target.value = '';
+          event.target.value = "";
           return;
         }
 
-        if (value === 'scrap') {
+        if (value === "scrap") {
           event.stopImmediatePropagation();
-          const scrapInput = document.getElementById('scrap_item_id');
+          const scrapInput = document.getElementById("scrap_item_id");
           if (scrapInput) {
             scrapInput.value = id;
           }
           if (scrapModal) scrapModal.show();
-          event.target.value = '';
+          event.target.value = "";
         }
       });
     });
 
-    const assignForm = document.getElementById('assignForm');
+    const assignForm = document.getElementById("assignForm");
     if (assignForm) {
-      assignForm.addEventListener('submit', async (event) => {
+      assignForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         const formData = new FormData(event.target);
         const response = await fetch(`{{ url_for('inventory.assign') }}`, {
-          method: 'POST',
+          method: "POST",
           body: formData,
         });
         if (response.ok) {
           window.location.reload();
         } else {
-          alert('Atama kaydedilemedi');
+          alert("Atama kaydedilemedi");
         }
       });
     }
 
-    const scrapForm = document.getElementById('scrapForm');
+    const scrapForm = document.getElementById("scrapForm");
     if (scrapForm) {
-      scrapForm.addEventListener('submit', async (event) => {
+      scrapForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         const formData = new FormData(event.target);
         const response = await fetch(`{{ url_for('inventory.scrap') }}`, {
-          method: 'POST',
+          method: "POST",
           body: formData,
         });
         if (response.ok) {
           window.location.href = `{{ url_for('inventory.hurdalar') }}`;
         } else {
-          alert('Hurdaya ayırma başarısız');
+          alert("Hurdaya ayırma başarısız");
         }
       });
     }
@@ -734,36 +745,36 @@ block content %}
               (item) =>
                 `<option value="${item.text}" data-id="${item.id}">${item.text}</option>`,
             )
-            .join('');
+            .join("");
       }
 
-      const fabrikaSel = document.getElementById('fabrika');
-      const departmanSel = document.getElementById('departman');
-      const donanimSel = document.getElementById('donanim_tipi');
-      const personelSel = document.getElementById('sorumlu_personel');
-      const markaSel = document.getElementById('marka');
-      const modelSel = document.getElementById('model');
+      const fabrikaSel = document.getElementById("fabrika");
+      const departmanSel = document.getElementById("departman");
+      const donanimSel = document.getElementById("donanim_tipi");
+      const personelSel = document.getElementById("sorumlu_personel");
+      const markaSel = document.getElementById("marka");
+      const modelSel = document.getElementById("model");
 
-      await loadOptions(fabrikaSel, '/api/picker/fabrika');
-      await loadOptions(departmanSel, '/api/picker/kullanim_alani');
-      await loadOptions(donanimSel, '/api/picker/donanim_tipi');
+      await loadOptions(fabrikaSel, "/api/picker/fabrika");
+      await loadOptions(departmanSel, "/api/picker/kullanim_alani");
+      await loadOptions(donanimSel, "/api/picker/donanim_tipi");
 
       if (personelSel && window._selects) {
         await _selects.fillChoices({
-          endpoint: '/api/picker/kullanici',
-          selectId: 'sorumlu_personel',
+          endpoint: "/api/picker/kullanici",
+          selectId: "sorumlu_personel",
           mapFn: (row) => ({ value: row.text, label: row.text }),
         });
         _selects.enableRemoteSearch(
-          'sorumlu_personel',
-          '/api/picker/kullanici',
+          "sorumlu_personel",
+          "/api/picker/kullanici",
           () => ({}),
           (row) => ({ value: row.text, label: row.text }),
         );
       }
 
       if (markaSel) {
-        const response = await fetch('/api/picker/marka');
+        const response = await fetch("/api/picker/marka");
         const brands = await response.json();
         markaSel.innerHTML =
           '<option value="">Seçiniz...</option>' +
@@ -772,33 +783,37 @@ block content %}
               (brand) =>
                 `<option value="${brand.text}" data-id="${brand.id}">${brand.text}</option>`,
             )
-            .join('');
-        markaSel.addEventListener('change', async () => {
+            .join("");
+        markaSel.addEventListener("change", async () => {
           const option = markaSel.options[markaSel.selectedIndex];
           const brandId = option && option.dataset.id;
           if (!modelSel) return;
           modelSel.innerHTML = '<option value="">Seçiniz...</option>';
           modelSel.disabled = !brandId;
           if (!brandId) return;
-          const modelResponse = await fetch(`/api/picker/model?marka_id=${brandId}`);
+          const modelResponse = await fetch(
+            `/api/picker/model?marka_id=${brandId}`,
+          );
           const models = await modelResponse.json();
           modelSel.innerHTML += models
-            .map((model) => `<option value="${model.text}">${model.text}</option>`)
-            .join('');
+            .map(
+              (model) => `<option value="${model.text}">${model.text}</option>`,
+            )
+            .join("");
         });
       }
     }
 
     async function preloadAssignDropdowns(itemId) {
       const [factories, departments, users, inventories] = await Promise.all([
-        fetch(`{{ url_for('inventory.assign_sources') }}?type=fabrika`).then((r) =>
-          r.json(),
+        fetch(`{{ url_for('inventory.assign_sources') }}?type=fabrika`).then(
+          (r) => r.json(),
         ),
-        fetch(`{{ url_for('inventory.assign_sources') }}?type=departman`).then((r) =>
-          r.json(),
+        fetch(`{{ url_for('inventory.assign_sources') }}?type=departman`).then(
+          (r) => r.json(),
         ),
-        fetch(`{{ url_for('inventory.assign_sources') }}?type=users`).then((r) =>
-          r.json(),
+        fetch(`{{ url_for('inventory.assign_sources') }}?type=users`).then(
+          (r) => r.json(),
         ),
         fetch(
           `{{ url_for('inventory.assign_sources') }}?type=envanter&exclude_id=` +
@@ -806,10 +821,10 @@ block content %}
         ).then((r) => r.json()),
       ]);
 
-      fillSelect('selFabrika', factories);
-      fillSelect('selDepartman', departments);
-      fillSelect('selPersonel', users);
-      fillSelect('selBagli', inventories);
+      fillSelect("selFabrika", factories);
+      fillSelect("selDepartman", departments);
+      fillSelect("selPersonel", users);
+      fillSelect("selBagli", inventories);
     }
 
     function fillSelect(selectId, items) {
@@ -819,18 +834,20 @@ block content %}
         '<option value="">Seçiniz</option>' +
         items
           .map((item) => `<option value="${item.id}">${item.text}</option>`)
-          .join('');
+          .join("");
     }
 
     function setSelectValue(selectId, value) {
       const selectEl = document.getElementById(selectId);
       if (!selectEl) return;
-      const normalized = value || '';
+      const normalized = value || "";
       if (
         normalized &&
-        !Array.from(selectEl.options).some((option) => option.value === normalized)
+        !Array.from(selectEl.options).some(
+          (option) => option.value === normalized,
+        )
       ) {
-        const option = document.createElement('option');
+        const option = document.createElement("option");
         option.value = normalized;
         option.textContent = normalized;
         selectEl.appendChild(option);
