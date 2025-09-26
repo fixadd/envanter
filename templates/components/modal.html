@@ -1,23 +1,32 @@
-{% macro modal(id, title, dialog_class="", form_attrs=None, footer=None, content_class="") -%}
+{% macro modal(id, title, dialog_class="", form_attrs=None, footer=None, content_class="", subtitle=None) -%}
 <div class="modal fade" id="{{ id }}" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog {{ dialog_class }}">
     {%- if form_attrs is not none %}
-    <form {{ form_attrs|xmlattr }} class="modal-content{% if content_class %} {{ content_class }}{% endif %}">
+    <form {{ form_attrs|xmlattr }} class="modal-content border-0 bg-transparent p-0">
     {%- else %}
-    <div class="modal-content{% if content_class %} {{ content_class }}{% endif %}">
+    <div class="modal-content border-0 bg-transparent p-0">
     {%- endif %}
-      <div class="modal-header">
-        <h5 class="modal-title">{{ title }}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      <div class="modal-shell">
+        <div class="modal-shell__header">
+          <div class="modal-shell__heading">
+            <h5 class="modal-shell__title">{{ title }}</h5>
+            {%- if subtitle %}
+            <p class="modal-shell__subtitle">{{ subtitle }}</p>
+            {%- endif %}
+          </div>
+          <div class="modal-shell__header-actions">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+          </div>
+        </div>
+        <div class="modal-shell__body{% if content_class %} {{ content_class }}{% endif %}">
+          {{ caller() }}
+        </div>
+        {%- if footer %}
+        <div class="modal-shell__footer">
+          {{ footer }}
+        </div>
+        {%- endif %}
       </div>
-      <div class="modal-body">
-        {{ caller() }}
-      </div>
-      {%- if footer %}
-      <div class="modal-footer">
-        {{ footer }}
-      </div>
-      {%- endif %}
     {%- if form_attrs is not none %}
     </form>
     {%- else %}
