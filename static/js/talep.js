@@ -273,12 +273,18 @@ window.talepIptal = async function (id, mevcut) {
 
   window.talepKapat = async function (id, mevcut) {
     await initSelects();
-    fldId.value = String(id);
-    fldAdet.max = mevcut;
-    fldAdet.value = mevcut > 1 ? mevcut : 1;
-    fldAcik.value = "";
-    selMarka.value = "";
-    selModel.value = "";
+    if (fldId) fldId.value = String(id);
+    if (fldAdet) {
+      fldAdet.max = mevcut;
+      fldAdet.value = mevcut > 1 ? mevcut : 1;
+    }
+    if (fldAcik) fldAcik.value = "";
+    if (selMarka) selMarka.value = "";
+    if (selModel) selModel.value = "";
+
+    const row = Array.from(document.querySelectorAll("tbody tr")).find(
+      (tr) => tr.firstElementChild?.textContent.trim() === String(id),
+    );
     if (selTur) {
       const turAttr = (row?.dataset?.tur || "").toLowerCase();
       const normalized =
@@ -289,46 +295,44 @@ window.talepIptal = async function (id, mevcut) {
             : "envanter";
       selTur.value = normalized;
     }
-
-    const row = Array.from(document.querySelectorAll("tbody tr")).find(
-      (tr) => tr.firstElementChild?.textContent.trim() === String(id),
-    );
     const markaTxt = row?.children[2]?.textContent.trim();
     const modelTxt = row?.children[3]?.textContent.trim();
 
-    if (markaTxt && markaTxt !== "-") {
-      const opt = Array.from(selMarka.options).find(
-        (o) => o.textContent.trim() === markaTxt,
-      );
-      if (opt) {
-        selMarka.value = opt.value;
-        await _selects.fillChoices({
-          endpoint: "/api/lookup/model",
-          selectId: "tkModel",
-          params: { marka_id: selMarka.value },
-          placeholder: "Model seçiniz…",
-        });
-        if (modelTxt && modelTxt !== "-") {
-          const mOpt = Array.from(selModel.options).find(
-            (o) => o.textContent.trim() === modelTxt,
-          );
-          if (mOpt) selModel.value = mOpt.value;
+    if (selMarka && selModel) {
+      if (markaTxt && markaTxt !== "-") {
+        const opt = Array.from(selMarka.options).find(
+          (o) => o.textContent.trim() === markaTxt,
+        );
+        if (opt) {
+          selMarka.value = opt.value;
+          await _selects.fillChoices({
+            endpoint: "/api/lookup/model",
+            selectId: "tkModel",
+            params: { marka_id: selMarka.value },
+            placeholder: "Model seçiniz…",
+          });
+          if (modelTxt && modelTxt !== "-") {
+            const mOpt = Array.from(selModel.options).find(
+              (o) => o.textContent.trim() === modelTxt,
+            );
+            if (mOpt) selModel.value = mOpt.value;
+          }
+        } else {
+          await _selects.fillChoices({
+            endpoint: "/api/lookup/model",
+            selectId: "tkModel",
+            params: { marka_id: selMarka.value },
+            placeholder: "Model seçiniz…",
+          });
         }
       } else {
         await _selects.fillChoices({
           endpoint: "/api/lookup/model",
           selectId: "tkModel",
-          params: { marka_id: selMarka.value },
+          params: { marka_id: "" },
           placeholder: "Model seçiniz…",
         });
       }
-    } else {
-      await _selects.fillChoices({
-        endpoint: "/api/lookup/model",
-        selectId: "tkModel",
-        params: { marka_id: "" },
-        placeholder: "Model seçiniz…",
-      });
     }
 
     updateCloseFormFields();
