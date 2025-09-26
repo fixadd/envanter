@@ -4,18 +4,17 @@ content %}
   <div class="page-shell">
     <header class="page-header">
       <div class="page-header__heading">
-        <span class="eyebrow text-primary">Yazıcı Takip</span>
+        <span class="eyebrow text-primary">YAZICI TAKİP</span>
         <h1 class="page-header__title">Yazıcılar</h1>
         <p class="page-header__subtitle">
-          Tüm yazıcı envanterini görüntüleyin, durumlarını yönetin ve hızlıca
-          aksiyon alın.
+          Yazıcı envanterini görüntüleyin ve yönetin.
         </p>
       </div>
       <div class="page-header__actions page-actions">
         <div class="page-actions__group">
           <a
             href="#"
-            class="btn btn-success btn-sm d-flex align-items-center gap-1"
+            class="btn btn-success btn-sm"
             title="Yeni Ekle"
             data-bs-toggle="modal"
             data-bs-target="#addModal"
@@ -59,32 +58,61 @@ content %}
               </li>
             </ul>
           </div>
-          <button class="btn btn-outline-secondary btn-sm" id="filterBtn">
-            Filtre
-          </button>
-          <button
-            class="btn btn-outline-secondary btn-sm d-none"
-            id="clearFilterBtn"
-          >
-            Temizle
-          </button>
-        </div>
-        <div class="page-actions__group page-actions__group--grow">
-          <label for="searchInput" class="visually-hidden">Ara</label>
-          <input
-            type="text"
-            id="searchInput"
-            class="form-control form-control-sm"
-            placeholder="Ara..."
-          />
         </div>
       </div>
     </header>
 
-    <div class="page-card soft-card">
+    <div class="filter-search-bar">
+      <div class="filter-search-bar__row">
+        <div class="filter-search-bar__main">
+          <div class="search-wrapper">
+            <i class="bi bi-search"></i>
+            <input
+              type="text"
+              id="searchInput"
+              class="form-control form-control-sm"
+              placeholder="Yazıcı ara..."
+            />
+          </div>
+          <div class="filter-group">
+            <label for="markaFilter">Marka:</label>
+            <select id="markaFilter" class="form-select form-select-sm">
+              <option value="">Tümü</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="fabrikaFilter">Fabrika:</label>
+            <select id="fabrikaFilter" class="form-select form-select-sm">
+              <option value="">Tümü</option>
+            </select>
+          </div>
+        </div>
+        <div class="filter-search-bar__actions">
+          <button class="btn btn-primary btn-sm" id="filterBtn">
+            <i class="bi bi-funnel"></i>
+            Filtrele
+          </button>
+          <button class="btn btn-outline-secondary btn-sm d-none" id="clearFilterBtn">
+            <i class="bi bi-x-circle"></i>
+            Temizle
+          </button>
+        </div>
+      </div>
+      <div class="active-filters-section d-none" id="activeFiltersSection">
+        <div class="active-filters">
+          <span class="active-filters__label">Aktif Filtreler:</span>
+          <div id="activeFilterBadges"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-card">
       <div class="table-responsive">
-        <table class="table table-sm align-middle table-rounded">
-          <thead class="table-light">
+        <table
+          id="printersTable"
+          class="table table-sm table-hover table-rounded align-middle mb-0"
+        >
+          <thead>
             <tr>
               <th data-field="id">ID</th>
               <th data-field="marka">Marka</th>
@@ -311,49 +339,6 @@ content %}
   window.SKIP_SELECT_ENHANCE = true;
 </script>
 
-<!-- Filtre Modal -->
-<div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-    <form id="filterForm" class="modal-content border-0 bg-transparent p-0">
-      <div class="modal-shell">
-        <div class="modal-shell__header">
-          <div class="modal-shell__heading">
-            <h5 class="modal-shell__title">Yazıcıları Filtrele</h5>
-            <p class="modal-shell__subtitle">
-              Marka, model veya sorumlu gibi kriterlerle listeyi daraltın.
-            </p>
-          </div>
-          <div class="modal-shell__header-actions">
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Kapat"
-            ></button>
-          </div>
-        </div>
-
-        <div class="modal-shell__body">
-          <div id="filterRows" class="stack-sm"></div>
-        </div>
-
-        <div class="modal-shell__footer">
-          <div class="modal-shell__actions">
-            <button
-              type="button"
-              class="btn btn-outline-secondary btn-sm"
-              data-bs-dismiss="modal"
-            >
-              Vazgeç
-            </button>
-            <button type="submit" class="btn btn-primary btn-sm">Uygula</button>
-          </div>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
-
 <!-- ATAMA MODAL -->
 <div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -524,24 +509,19 @@ content %}
 />
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const filterModal = new bootstrap.Modal(
-      document.getElementById("filterModal"),
-    );
-    const searchInput = document.getElementById("searchInput");
-    const filterForm = document.getElementById("filterForm");
-    const clearBtn = document.getElementById("clearFilterBtn");
-    const filterRowsDiv = document.getElementById("filterRows");
-    const distinctUrl =
-      "{{ url_for('lookup.distinct', entity='printer', column='__COL__') }}";
-    let activeFilters = [];
-    const columns = Array.from(document.querySelectorAll("table thead th"))
-      .map((th, idx) => ({
-        idx,
-        name: th.textContent.trim(),
-        field: th.dataset.field,
-      }))
-      .filter((c) => c.field);
+  document.addEventListener("DOMContentLoaded", async () => {
+    await populateDistinctValues("markaFilter", "printer", "marka");
+    await populateDistinctValues("fabrikaFilter", "printer", "fabrika");
+
+    const filterSystem = new UnifiedFilterSystem({
+      tableSelector: "#printersTable",
+      searchInputId: "searchInput",
+      filters: [
+        { id: "markaFilter", label: "Marka", columnField: "marka" },
+        { id: "fabrikaFilter", label: "Fabrika", columnField: "fabrika" },
+      ],
+    });
+    window.filterSystem = filterSystem;
 
     const markaSel = document.getElementById("selYaziciMarka");
     const modelSel = document.getElementById("selYaziciModel");
@@ -576,115 +556,16 @@ content %}
       loadModels();
     }
 
-    // Modal tetikleyici attribute ile handle ediliyor; ek JS gerekmez.
-
-    document.getElementById("filterBtn").addEventListener("click", () => {
-      filterForm.reset();
-      filterRowsDiv.innerHTML = "";
-      createFilterRow();
-      filterModal.show();
-    });
-
-    clearBtn.addEventListener("click", () => {
-      activeFilters = [];
-      filterRows();
-      clearBtn.classList.add("d-none");
-    });
-
-    searchInput.addEventListener("input", filterRows);
-
-    function createFilterRow() {
-      const row = document.createElement("div");
-      row.className = "row g-2 align-items-center mb-2 filter-row";
-      row.innerHTML = `
-      <div class="col-5">
-        <select class="form-select form-select-sm column-select">
-          ${columns.map((c) => `<option value="${c.idx}">${c.name}</option>`).join("")}
-        </select>
-      </div>
-      <div class="col-5">
-        <select class="form-select form-select-sm value-select"></select>
-      </div>
-      <div class="col-2 d-flex gap-1">
-        <button type="button" class="btn btn-success btn-sm add-row">+</button>
-        <button type="button" class="btn btn-danger btn-sm remove-row">-</button>
-      </div>`;
-      filterRowsDiv.appendChild(row);
-      const colSel = row.querySelector(".column-select");
-      const valSel = row.querySelector(".value-select");
-      loadValues(colSel, valSel);
-      colSel.addEventListener("change", () => loadValues(colSel, valSel));
-      updateRemoveButtons();
-    }
-
-    async function loadValues(colSelect, valSelect) {
-      const col = columns.find((c) => c.idx == colSelect.value);
-      const res = await fetch(distinctUrl.replace("__COL__", col.field));
-      const data = await res.json();
-      valSelect.innerHTML =
-        '<option value="">Seçiniz</option>' +
-        data.map((v) => `<option value="${v}">${v}</option>`).join("");
-    }
-
-    function updateRemoveButtons() {
-      const rows = filterRowsDiv.querySelectorAll(".filter-row");
-      rows.forEach((r) =>
-        r
-          .querySelector(".remove-row")
-          .classList.toggle("d-none", rows.length === 1),
-      );
-    }
-
-    filterForm.addEventListener("click", (e) => {
-      if (e.target.classList.contains("add-row")) {
-        createFilterRow();
-      } else if (e.target.classList.contains("remove-row")) {
-        e.target.closest(".filter-row").remove();
-        updateRemoveButtons();
-      }
-    });
-
-    filterForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      activeFilters = [];
-      filterRowsDiv.querySelectorAll(".filter-row").forEach((row) => {
-        const col = parseInt(row.querySelector(".column-select").value, 10);
-        const val = row
-          .querySelector(".value-select")
-          .value.trim()
-          .toLowerCase();
-        if (val) activeFilters.push({ col, val });
-      });
-      filterModal.hide();
-      clearBtn.classList.toggle("d-none", activeFilters.length === 0);
-      filterRows();
-    });
-
-    function filterRows() {
-      const q = searchInput.value.toLowerCase();
-      document.querySelectorAll("tbody tr").forEach((tr) => {
-        const cells = tr.querySelectorAll("td");
-        const texts = Array.from(cells).map((td) =>
-          td.textContent.toLowerCase(),
-        );
-        let match = texts.some((t) => t.includes(q));
-        if (activeFilters.length) {
-          match =
-            match &&
-            activeFilters.every(
-              (f) => texts[f.col] && texts[f.col].includes(f.val),
-            );
-        }
-        tr.classList.toggle("d-none", !match);
-      });
-    }
-
     // Atama/Hurda işlemleri
     const assignModalEl = document.getElementById("assignModal");
-    const assignModal = new bootstrap.Modal(assignModalEl);
+    const assignModal = assignModalEl
+      ? bootstrap.Modal.getOrCreateInstance(assignModalEl)
+      : null;
     const assignForm = document.getElementById("assignForm");
     const scrapModalEl = document.getElementById("scrapModal");
-    const scrapModal = new bootstrap.Modal(scrapModalEl);
+    const scrapModal = scrapModalEl
+      ? bootstrap.Modal.getOrCreateInstance(scrapModalEl)
+      : null;
     const scrapForm = document.getElementById("scrapForm");
 
     document.querySelectorAll(".action-select").forEach((sel) => {

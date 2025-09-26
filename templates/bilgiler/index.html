@@ -1,58 +1,63 @@
 {% extends "base.html" %} {% block title %}Bilgi Merkezi{% endblock %} {% block
 content %}
-<div class="container-fluid px-0">
-  <div
-    class="d-flex flex-wrap gap-3 align-items-center justify-content-between mb-4"
-  >
-    <div>
-      <h1 class="h4 mb-1">Bilgi Merkezi</h1>
-      <p class="text-muted small mb-0">
-        Ekip içerisinde paylaşılan önemli notlar ve yönergeler.
-      </p>
-    </div>
-    <button
-      class="btn btn-primary"
-      type="button"
-      data-bs-toggle="modal"
-      data-bs-target="#bilgiModal"
-    >
-      <i class="bi bi-plus-circle me-1"></i>Yeni Bilgi Ekle
-    </button>
-  </div>
+<div class="container-fluid py-4">
+  <div class="page-shell">
+    <header class="page-header">
+      <div class="page-header__heading">
+        <span class="eyebrow text-primary">BİLGİ BANKASI</span>
+        <h1 class="page-header__title">Bilgiler</h1>
+        <p class="page-header__subtitle">
+          Bilgi ve dokümantasyonları yönetin.
+        </p>
+      </div>
+      <div class="page-header__actions page-actions">
+        <button
+          class="btn btn-success btn-sm"
+          type="button"
+          data-bs-toggle="modal"
+          data-bs-target="#bilgiModal"
+        >
+          <i class="bi bi-plus-lg"></i>
+          Yeni Bilgi
+        </button>
+      </div>
+    </header>
 
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-body">
-      <div class="row g-3 align-items-end" id="bilgiFilters">
-        <div class="col-md-3">
-          <label for="kategoriFilter" class="form-label text-muted"
-            >Kategori</label
-          >
-          <select id="kategoriFilter" class="form-select form-select-sm">
-            <option value="">Tümü</option>
-            {% for kategori in categories %}
-            <option value="{{ kategori.id }}">{{ kategori.ad }}</option>
-            {% endfor %}
-          </select>
+    <div class="filter-search-bar mb-4">
+      <div class="filter-search-bar__row">
+        <div class="filter-search-bar__main">
+          <div class="search-wrapper">
+            <i class="bi bi-search"></i>
+            <input
+              id="bilgiSearch"
+              class="form-control form-control-sm"
+              type="search"
+              placeholder="Başlık veya içerik içinde ara..."
+              value="{{ search_query }}"
+            />
+          </div>
+          <div class="filter-group">
+            <label for="kategoriFilter">Kategori:</label>
+            <select id="kategoriFilter" class="form-select form-select-sm">
+              <option value="">Tümü</option>
+              {% for kategori in categories %}
+              <option value="{{ kategori.id }}">{{ kategori.ad }}</option>
+              {% endfor %}
+            </select>
+          </div>
         </div>
-        <div class="col-md-6">
-          <label for="bilgiSearch" class="form-label text-muted">Arama</label>
-          <input
-            id="bilgiSearch"
-            class="form-control form-control-sm"
-            type="search"
-            placeholder="Başlık veya içerik içinde ara..."
-            value="{{ search_query }}"
-          />
-        </div>
-        <div class="col-md-3 text-md-end">
-          <small class="text-muted d-block"
-            >Toplam {{ (pinned_items|length + other_items|length) }}
-            kayıt</small
+        <div class="filter-search-bar__actions">
+          <button
+            class="btn btn-primary btn-sm"
+            type="button"
+            onclick="applyBilgiFilters()"
           >
+            <i class="bi bi-funnel"></i>
+            Filtrele
+          </button>
         </div>
       </div>
     </div>
-  </div>
 
   {% if pinned_items %}
   <section class="mb-5" id="pinnedBilgiler">
@@ -88,6 +93,7 @@ content %}
       {% endif %}
     </div>
   </section>
+</div>
 </div>
 
 <div class="modal fade" id="bilgiModal" tabindex="-1" aria-hidden="true">
@@ -186,6 +192,36 @@ content %}
 <script src="{{ url_for('static', path='js/bilgiler.js') }}"></script>
 <script>
   window.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('bilgiSearch');
+    const kategoriFilter = document.getElementById('kategoriFilter');
+    const bilgiCards = Array.from(document.querySelectorAll('.bilgi-card'));
+
+    function applyBilgiFilters() {
+      const searchValue = (searchInput?.value || '').toLowerCase();
+      const kategoriValue = kategoriFilter?.value || '';
+
+      bilgiCards.forEach((card) => {
+        const cardText = (card.dataset.search || card.textContent || '')
+          .toLowerCase();
+        const cardKategori = card.dataset.category || '';
+
+        const matchSearch = !searchValue || cardText.includes(searchValue);
+        const matchKategori = !kategoriValue || cardKategori === kategoriValue;
+
+        card.classList.toggle('d-none', !(matchSearch && matchKategori));
+      });
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', applyBilgiFilters);
+    }
+    if (kategoriFilter) {
+      kategoriFilter.addEventListener('change', applyBilgiFilters);
+    }
+
+    window.applyBilgiFilters = applyBilgiFilters;
+    applyBilgiFilters();
+
     initBilgiPage({
       kategori: "{{ selected_category }}",
       search: "{{ search_query }}",
