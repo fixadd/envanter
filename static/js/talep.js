@@ -38,12 +38,30 @@
     const head = `<option value="">${placeholder}</option>`;
     if (!Array.isArray(arr) || !arr.length)
       return head + '<option value="">Seçenek yok</option>';
-    return (
-      head +
-      arr
-        .map((x) => `<option value="${x.id}">${x.name || x.adi || ""}</option>`)
-        .join("")
-    );
+
+    const options = arr.map((item) => {
+      if (item == null) {
+        return '<option value=""></option>';
+      }
+
+      if (typeof item === "string" || typeof item === "number") {
+        const text = String(item);
+        return `<option value="${text}">${text}</option>`;
+      }
+
+      const value =
+        item.id ?? item.value ?? (item.text != null ? item.text : "");
+      const label =
+        item.name ||
+        item.text ||
+        item.ad ||
+        item.adi ||
+        item.label ||
+        (value !== undefined && value !== null ? String(value) : "");
+      return `<option value="${value}">${label}</option>`;
+    });
+
+    return head + options.join("");
   }
 
   function rowTemplate() {

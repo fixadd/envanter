@@ -235,6 +235,26 @@ small,
   min-width: 0;
 }
 
+.page-actions .btn,
+.page-actions .form-control,
+.page-actions .form-select {
+  min-height: var(--page-action-control-height, 2.35rem);
+}
+
+.page-actions .btn-sm,
+.page-actions .form-control-sm,
+.page-actions .form-select-sm {
+  min-height: var(--page-action-control-height-sm, 2.35rem);
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+}
+
+.page-actions .form-control,
+.page-actions .form-select {
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+}
+
 .page-card {
   background: var(--color-surface);
   border-radius: var(--radius-lg);

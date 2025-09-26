@@ -82,10 +82,25 @@ async function fillChoices({
     throw e;
   }
 
-  const choices = data.map((x) => ({
-    value: x.id,
-    label: x.name ?? x.ad ?? x.adi ?? x.text,
-  }));
+  const choices = (Array.isArray(data) ? data : []).map((item) => {
+    if (item == null) {
+      return { value: "", label: "" };
+    }
+    if (typeof item === "string" || typeof item === "number") {
+      const text = String(item);
+      return { value: text, label: text };
+    }
+    const value =
+      item.id ?? item.value ?? (item.text != null ? item.text : "");
+    const label =
+      item.name ??
+      item.text ??
+      item.ad ??
+      item.adi ??
+      item.label ??
+      (value !== undefined && value !== null ? String(value) : "");
+    return { value, label };
+  });
   setChoicesSafe(sel, choices, true, { placeholderValue: placeholder });
 }
 
