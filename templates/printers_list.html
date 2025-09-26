@@ -138,14 +138,7 @@ content %}
               data-kullanim="{{ p.kullanim_alani or '' }}"
               data-personel="{{ p.sorumlu_personel or '' }}"
               data-bagli="{{ p.bagli_envanter_no or '' }}"
-              {%
-              if
-              p.durum=""
-              ="arızalı"
-              %}class="table-warning"
-              {%
-              endif
-              %}
+              {% if p.durum == 'arızalı' %}class="table-warning"{% endif %}
             >
               <td>#{{ p.id }}</td>
               <td>{{ p.marka or '-' }}</td>
