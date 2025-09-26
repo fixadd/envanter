@@ -1,40 +1,40 @@
-<div class="env-grid">
-  <div class="field">
-    <label>Donanım Tipi</label>
-    <select id="saDonanim" class="ctrl" required></select>
+<div class="row g-3">
+  <div class="col-md-6">
+    <label for="saDonanim" class="form-label">Donanım Tipi</label>
+    <select id="saDonanim" class="form-select" required></select>
   </div>
-  <div class="field">
-    <label>IFS No</label>
-    <select id="saIfs" class="ctrl">
+  <div class="col-md-6">
+    <label for="saIfs" class="form-label">IFS No</label>
+    <select id="saIfs" class="form-select">
       <option value="">(Otomatik/tekse seçilmez)</option>
     </select>
   </div>
-  <div class="field">
-    <label>Miktar</label>
-    <input id="saMiktar" type="number" min="1" class="ctrl" required />
-    <div class="text-muted small" id="saMaxInfo"></div>
+  <div class="col-md-6">
+    <label for="saMiktar" class="form-label">Miktar</label>
+    <input id="saMiktar" type="number" min="1" class="form-control" required />
+    <div class="form-text" id="saMaxInfo"></div>
   </div>
-  <div class="field">
-    <label>Hedef Tür</label>
-    <select id="saHedefTur" class="ctrl" required>
+  <div class="col-md-6">
+    <label for="saHedefTur" class="form-label">Hedef Tür</label>
+    <select id="saHedefTur" class="form-select" required>
       <option value="envanter">Envanter</option>
       <option value="lisans">Lisans</option>
       <option value="yazici">Yazıcı</option>
     </select>
   </div>
-  <div class="field">
-    <label>Hedef Envanter No (ops)</label>
-    <input id="saHedefEnv" type="text" class="ctrl" />
+  <div class="col-md-6">
+    <label for="saHedefEnv" class="form-label">Hedef Envanter No (ops)</label>
+    <input id="saHedefEnv" type="text" class="form-control" />
   </div>
-  <div class="field">
-    <label>Sorumlu Personel</label>
-    <select id="saPersonel" class="ctrl">
+  <div class="col-md-6">
+    <label for="saPersonel" class="form-label">Sorumlu Personel</label>
+    <select id="saPersonel" class="form-select">
       <option value="">Seçiniz</option>
     </select>
   </div>
-  <div class="field">
-    <label>Kullanım Alanı</label>
-    <select id="saKullanim" class="ctrl">
+  <div class="col-md-6">
+    <label for="saKullanim" class="form-label">Kullanım Alanı</label>
+    <select id="saKullanim" class="form-select">
       <option value="">Seçiniz</option>
     </select>
   </div>

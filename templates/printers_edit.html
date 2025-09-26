@@ -34,52 +34,50 @@ content %}
       class="modal-shell__body"
       autocomplete="off"
     >
-      <div class="modal-form-grid env-grid">
-        <div class="form-group field">
-          <label for="printerMarka">Marka</label>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="printerMarka" class="form-label">Marka</label>
           <input
             type="text"
             name="marka"
             id="printerMarka"
             value="{{ p.marka or '' }}"
-            class="ctrl"
+            class="form-control"
             placeholder="Örn. HP"
             autofocus
           />
         </div>
-        <div class="form-group field">
-          <label for="printerModel">Model</label>
+        <div class="col-md-6">
+          <label for="printerModel" class="form-label">Model</label>
           <input
             type="text"
             name="model"
             id="printerModel"
             value="{{ p.model or '' }}"
-            class="ctrl"
+            class="form-control"
             placeholder="Örn. LaserJet Pro 400"
           />
         </div>
-        <div class="form-group field">
-          <label for="printerSerial">Seri No</label>
+        <div class="col-md-6">
+          <label for="printerSerial" class="form-label">Seri No</label>
           <input
             type="text"
             name="seri_no"
             id="printerSerial"
             value="{{ p.seri_no or '' }}"
-            class="ctrl"
+            class="form-control"
             placeholder="Seri numarası"
           />
         </div>
-        <div class="form-group field modal-form-grid--full span-2">
-          <label for="printerNotes">Notlar</label>
+        <div class="col-12">
+          <label for="printerNotes" class="form-label">Notlar</label>
           <textarea
             name="notlar"
             id="printerNotes"
-            class="ctrl"
+            class="form-control"
             rows="4"
             placeholder="Bakım, toner değişimi veya diğer notlar..."
-          >
-{{ p.notlar or '' }}</textarea
-          >
+          >{{ p.notlar or '' }}</textarea>
         </div>
       </div>
 
