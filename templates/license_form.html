@@ -22,7 +22,18 @@
           <select id="licenseAdi" name="adi" class="form-select" required>
             <option value="">Seçiniz...</option>
             {% for ln in license_names %}
-            <option value="{{ ln.name }}" {% if license and license.lisans_adi==ln.name %}selected{% endif %}>
+            <option
+              value="{{ ln.name }}"
+              {%
+              if
+              license
+              and
+              license.lisans_adi=""
+              ="ln.name"
+              %}selected{%
+              endif
+              %}
+            >
               {{ ln.name }}
             </option>
             {% endfor %}
@@ -40,11 +51,28 @@
         </div>
 
         <div class="col-md-6">
-          <label for="licenseSorumlu" class="form-label">Sorumlu Personel</label>
-          <select id="licenseSorumlu" name="sorumlu_personel" class="form-select">
+          <label for="licenseSorumlu" class="form-label"
+            >Sorumlu Personel</label
+          >
+          <select
+            id="licenseSorumlu"
+            name="sorumlu_personel"
+            class="form-select"
+          >
             <option value="">(Seçiniz)</option>
             {% for u in users %}
-            <option value="{{ u }}" {% if license and license.sorumlu_personel==u %}selected{% endif %}>
+            <option
+              value="{{ u }}"
+              {%
+              if
+              license
+              and
+              license.sorumlu_personel=""
+              ="u"
+              %}selected{%
+              endif
+              %}
+            >
               {{ u }}
             </option>
             {% endfor %}
@@ -52,11 +80,24 @@
         </div>
 
         <div class="col-md-6">
-          <label for="selBagliEnvanter" class="form-label">Bağlı Olduğu Envanter No</label>
+          <label for="selBagliEnvanter" class="form-label"
+            >Bağlı Olduğu Envanter No</label
+          >
           <select id="selBagliEnvanter" name="inventory_id" class="form-select">
             <option value="">(Seçimsiz)</option>
             {% for inv in envanterler %}
-            <option value="{{ inv.id }}" {% if license and license.inventory_id==inv.id %}selected{% endif %}>
+            <option
+              value="{{ inv.id }}"
+              {%
+              if
+              license
+              and
+              license.inventory_id=""
+              ="inv.id"
+              %}selected{%
+              endif
+              %}
+            >
               {{ inv.no }} — {{ inv.marka }} {{ inv.model }}
             </option>
             {% endfor %}
@@ -87,7 +128,9 @@
         <div class="col-12 d-flex gap-2 mt-3">
           <button class="btn btn-primary" type="submit">Kaydet</button>
           {% if not modal %}
-          <a class="btn btn-secondary" href="{{ url_for('license_list') }}">İptal</a>
+          <a class="btn btn-secondary" href="{{ url_for('license_list') }}"
+            >İptal</a
+          >
           {% endif %}
         </div>
       </form>

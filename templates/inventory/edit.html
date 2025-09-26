@@ -17,11 +17,22 @@ block content %}
     <div class="row g-3" id="inventory-edit-grid">
       <div class="col-md-6">
         <label class="form-label" for="inventoryNo">Envanter No</label>
-        <input id="inventoryNo" type="text" class="form-control" value="{{ item.no }}" readonly />
+        <input
+          id="inventoryNo"
+          type="text"
+          class="form-control"
+          value="{{ item.no }}"
+          readonly
+        />
       </div>
       <div class="col-md-6">
         <label class="form-label" for="inventoryName">Bilgisayar Adı</label>
-        <input id="inventoryName" name="bilgisayar_adi" type="text" class="form-control" />
+        <input
+          id="inventoryName"
+          name="bilgisayar_adi"
+          type="text"
+          class="form-control"
+        />
       </div>
       <div class="col-md-6">
         <label class="form-label" for="edit_fabrika">Fabrika</label>
@@ -29,15 +40,27 @@ block content %}
       </div>
       <div class="col-md-6">
         <label class="form-label" for="edit_departman">Departman</label>
-        <select id="edit_departman" name="departman" class="form-select"></select>
+        <select
+          id="edit_departman"
+          name="departman"
+          class="form-select"
+        ></select>
       </div>
       <div class="col-md-6">
         <label class="form-label" for="edit_donanim">Donanım Tipi</label>
-        <select id="edit_donanim" name="donanim_tipi" class="form-select"></select>
+        <select
+          id="edit_donanim"
+          name="donanim_tipi"
+          class="form-select"
+        ></select>
       </div>
       <div class="col-md-6">
         <label class="form-label" for="edit_sorumlu">Sorumlu Personel</label>
-        <select id="edit_sorumlu" name="sorumlu_personel" class="form-select"></select>
+        <select
+          id="edit_sorumlu"
+          name="sorumlu_personel"
+          class="form-select"
+        ></select>
       </div>
       <div class="col-md-6">
         <label class="form-label" for="edit_marka">Marka</label>
@@ -51,23 +74,49 @@ block content %}
       </div>
       <div class="col-md-6">
         <label class="form-label" for="inventorySerial">Seri No</label>
-        <input id="inventorySerial" name="seri_no" type="text" class="form-control" />
+        <input
+          id="inventorySerial"
+          name="seri_no"
+          type="text"
+          class="form-control"
+        />
       </div>
       <div class="col-md-6">
         <label class="form-label" for="edit_kullanim">Kullanım Alanı</label>
-        <select id="edit_kullanim" name="kullanim_alani" class="form-select"></select>
+        <select
+          id="edit_kullanim"
+          name="kullanim_alani"
+          class="form-select"
+        ></select>
       </div>
       <div class="col-md-6">
         <label class="form-label" for="inventoryIfs">IFS No</label>
-        <input id="inventoryIfs" name="ifs_no" type="text" class="form-control" />
+        <input
+          id="inventoryIfs"
+          name="ifs_no"
+          type="text"
+          class="form-control"
+        />
       </div>
       <div class="col-md-6">
-        <label class="form-label" for="inventoryLinked">Bağlı Envanter No</label>
-        <input id="inventoryLinked" name="bagli_envanter_no" type="text" class="form-control" />
+        <label class="form-label" for="inventoryLinked"
+          >Bağlı Envanter No</label
+        >
+        <input
+          id="inventoryLinked"
+          name="bagli_envanter_no"
+          type="text"
+          class="form-control"
+        />
       </div>
       <div class="col-12">
         <label class="form-label" for="inventoryNote">Not</label>
-        <textarea id="inventoryNote" name="not" class="form-control" rows="2"></textarea>
+        <textarea
+          id="inventoryNote"
+          name="not"
+          class="form-control"
+          rows="2"
+        ></textarea>
       </div>
     </div>
     <div class="mt-3 d-flex gap-2">
