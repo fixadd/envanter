@@ -1688,3 +1688,490 @@ body.theme-dark .nav.nav-tabs {
     display: none !important;
   }
 }
+/* =============================================================================
+   STOK EKLE VE LİSANS ATAMA MODAL DÜZELTMELERİ
+   
+   ❌ SORUNLAR:
+   1. Stok Ekle modal tasarımı basit ve kötü
+   2. Lisans Atama modal düzeni bozuk
+   3. Tab yapısı (Envanter/Lisans) uyumsuz
+   4. Buton renkleri genel tasarıma uymuyor
+   5. Form elemanları düzensiz
+   
+   ✅ ÇÖZÜMLER:
+   - Modern tab tasarımı
+   - Tutarlı form düzeni
+   - Gradient renkler
+   - Responsive iyileştirmeler
+============================================================================= */
+
+/* ========== 1. STOK EKLE MODAL - MODERN TASARIM ========== */
+
+/* Stok Ekle Modal Header */
+#modalStockAdd .modal-shell__header {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+  color: white !important;
+}
+
+#modalStockAdd .modal-shell__title {
+  font-size: 1.35rem !important;
+  font-weight: 700 !important;
+}
+
+#modalStockAdd .modal-shell__subtitle {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 0.9375rem !important;
+}
+
+/* Tab Navigation - Envanter/Lisans */
+#modalStockAdd .nav.nav-tabs {
+  background: transparent !important;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
+  padding: 0 !important;
+  margin-bottom: 1.5rem !important;
+  gap: 0 !important;
+}
+
+#modalStockAdd .nav-tabs .nav-link {
+  background: transparent !important;
+  border: none !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  padding: 0.875rem 1.75rem !important;
+  border-radius: 0 !important;
+  position: relative;
+  transition: all 0.3s ease !important;
+  margin: 0 !important;
+}
+
+#modalStockAdd .nav-tabs .nav-link:hover {
+  color: rgba(255, 255, 255, 0.95) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+#modalStockAdd .nav-tabs .nav-link.active {
+  color: white !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+#modalStockAdd .nav-tabs .nav-link.active::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: white;
+  border-radius: 3px 3px 0 0;
+  animation: tab-slide-in 0.3s ease;
+}
+
+@keyframes tab-slide-in {
+  from {
+    width: 0;
+    left: 50%;
+  }
+  to {
+    width: 100%;
+    left: 0;
+  }
+}
+
+/* Tab Content Area */
+#modalStockAdd .tab-content {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Form Grid - Stok Ekle */
+#modalStockAdd .modal-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem !important;
+}
+
+@media (min-width: 768px) {
+  #modalStockAdd .modal-form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  #modalStockAdd .modal-form-grid--full {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Form Labels */
+#modalStockAdd .form-label {
+  font-weight: 600 !important;
+  color: var(--color-heading) !important;
+  font-size: 0.875rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* Form Inputs */
+#modalStockAdd .form-control,
+#modalStockAdd .form-select {
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 0.75rem 1rem !important;
+  font-size: 0.9375rem !important;
+  transition: all 0.2s ease !important;
+}
+
+#modalStockAdd .form-control:focus,
+#modalStockAdd .form-select:focus {
+  border-color: #0ea5e9 !important;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15) !important;
+}
+
+/* Miktar Input Özel Stil */
+#modalStockAdd input[type="number"] {
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Footer Buttons */
+#modalStockAdd .modal-shell__footer {
+  background: var(--color-surface-elevated) !important;
+  border-top: 1px solid var(--color-border) !important;
+}
+
+#modalStockAdd .btn-primary {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+  border: none !important;
+  color: white !important;
+  padding: 0.625rem 1.75rem !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3) !important;
+}
+
+#modalStockAdd .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4) !important;
+}
+
+/* ========== 2. LİSANS ATAMA MODAL - YENİ TASARIM ========== */
+
+/* Lisans Atama Modal Header */
+#assignModal .modal-shell__header {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
+  color: white !important;
+}
+
+#assignModal .modal-shell__title {
+  font-size: 1.35rem !important;
+  font-weight: 700 !important;
+}
+
+#assignModal .modal-shell__subtitle {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 0.9375rem !important;
+  max-width: 100% !important;
+}
+
+/* Lisans Atama Form Grid */
+#assignModal .modal-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem !important;
+}
+
+@media (min-width: 576px) {
+  #assignModal .modal-form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Form Elemanları */
+#assignModal .form-label {
+  font-weight: 600 !important;
+  color: var(--color-heading) !important;
+  font-size: 0.875rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+#assignModal .form-select {
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 0.75rem 1rem !important;
+  font-size: 0.9375rem !important;
+  background-color: var(--color-surface) !important;
+  transition: all 0.2s ease !important;
+}
+
+#assignModal .form-select:focus {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15) !important;
+}
+
+/* Not Metni */
+#assignModal .text-muted {
+  font-size: 0.8125rem !important;
+  color: var(--color-muted) !important;
+  margin-top: 0.75rem !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#assignModal .text-muted::before {
+  content: "ℹ️";
+  font-size: 1rem;
+}
+
+/* Footer Buttons */
+#assignModal .btn-primary {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
+  border: none !important;
+  color: white !important;
+  padding: 0.625rem 1.75rem !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3) !important;
+}
+
+#assignModal .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4) !important;
+}
+
+#assignModal .btn-outline-secondary {
+  border: 1px solid var(--color-border) !important;
+  color: var(--color-body) !important;
+  background: transparent !important;
+  padding: 0.625rem 1.5rem !important;
+  font-weight: 600 !important;
+}
+
+#assignModal .btn-outline-secondary:hover {
+  background: var(--color-surface-elevated) !important;
+  border-color: var(--color-border-strong) !important;
+}
+
+/* ========== 3. STOK ATAMA MODAL - İYİLEŞTİRMELER ========== */
+
+/* Stok Atama Modal Header */
+#stokAtamaModal .modal-shell__header {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  color: white !important;
+}
+
+#stokAtamaModal .modal-shell__title {
+  font-size: 1.35rem !important;
+  font-weight: 700 !important;
+}
+
+#stokAtamaModal .modal-shell__subtitle {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 0.9375rem !important;
+}
+
+/* Alert Box */
+#stokAtamaModal .alert-warning {
+  background: rgba(251, 191, 36, 0.1) !important;
+  border: 1px solid rgba(251, 191, 36, 0.3) !important;
+  border-radius: var(--radius-sm) !important;
+  color: var(--color-body) !important;
+}
+
+#stokAtamaModal .alert-warning strong {
+  color: #d97706;
+  font-weight: 700;
+}
+
+/* ========== 4. TÜM MODALLER İÇİN ORTAK İYİLEŞTİRMELER ========== */
+
+/* Close Button - Tüm Modallerde */
+.modal-shell__header-actions .btn-close {
+  background: transparent !important;
+  opacity: 1 !important;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  filter: brightness(0) invert(1);
+}
+
+.modal-shell__header-actions .btn-close:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: rotate(90deg);
+}
+
+/* Modal Body Padding */
+.modal-shell__body {
+  padding: 2rem !important;
+}
+
+/* Modal Footer Alignment */
+.modal-shell__footer {
+  padding: 1.5rem 2rem !important;
+  background: var(--color-surface-elevated) !important;
+  border-top: 1px solid var(--color-border) !important;
+}
+
+.modal-shell__actions {
+  display: flex;
+  gap: 0.75rem !important;
+  align-items: center;
+}
+
+/* ========== 5. DÜZENLE BUTONU - GENEL TASARIM ========== */
+
+/* Düzenle butonu için özel renk */
+.js-actions option[value="edit"] {
+  font-weight: 600;
+}
+
+/* Select seçildiğinde renk */
+.js-actions:has(option[value="edit"]:checked) {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  background-image: 
+    linear-gradient(135deg, #10b981 0%, #059669 100%),
+    url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat, no-repeat;
+  background-position: center, right 0.5rem center;
+  background-size: auto, 1rem;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3) !important;
+}
+
+/* ========== 6. RESPONSIVE İYİLEŞTİRMELER ========== */
+
+@media (max-width: 576px) {
+  /* Modal genişlik */
+  .modal-dialog {
+    margin: 0.5rem !important;
+    max-width: calc(100% - 1rem) !important;
+  }
+  
+  /* Header düzeni */
+  .modal-shell__header {
+    padding: 1.25rem 1.5rem !important;
+  }
+  
+  /* Tab'lar mobilde */
+  #modalStockAdd .nav-tabs .nav-link {
+    padding: 0.75rem 1.25rem !important;
+    font-size: 0.9375rem !important;
+  }
+  
+  /* Form grid mobilde */
+  #modalStockAdd .modal-form-grid,
+  #assignModal .modal-form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  /* Body padding */
+  .modal-shell__body {
+    padding: 1.5rem !important;
+  }
+  
+  /* Footer buttons */
+  .modal-shell__footer {
+    padding: 1.25rem 1.5rem !important;
+  }
+  
+  .modal-shell__actions {
+    flex-direction: column-reverse;
+    width: 100%;
+  }
+  
+  .modal-shell__actions .btn {
+    width: 100% !important;
+  }
+}
+
+/* ========== 7. DARK MODE DESTEĞI ========== */
+
+body.theme-dark #modalStockAdd .modal-shell__header {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+}
+
+body.theme-dark #assignModal .modal-shell__header {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+}
+
+body.theme-dark #stokAtamaModal .modal-shell__header {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+}
+
+body.theme-dark .modal-shell__body {
+  background: var(--color-surface) !important;
+}
+
+body.theme-dark .form-control,
+body.theme-dark .form-select {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-body) !important;
+}
+
+/* ========== 8. ANİMASYONLAR ========== */
+
+/* Modal açılma animasyonu */
+.modal.fade .modal-dialog {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(0.95) translateY(-30px);
+}
+
+.modal.show .modal-dialog {
+  transform: scale(1) translateY(0);
+}
+
+/* Tab geçiş animasyonu */
+#modalStockAdd .tab-pane {
+  animation: fade-in 0.3s ease;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Input focus animasyonu */
+.form-control:focus,
+.form-select:focus {
+  transform: translateY(-1px) !important;
+}
+
+/* Button click animasyonu */
+.btn:active {
+  transform: scale(0.98) !important;
+}
+
+/* =============================================================================
+   📋 UYGULAMA TALİMATLARI:
+   
+   1. Bu kodu static/css/custom.css dosyasının EN SONUNA ekleyin
+   2. Tarayıcı cache'ini temizleyin (Ctrl+F5)
+   3. Modalları test edin:
+      - Stok Ekle (mavi gradient)
+      - Lisans Atama (mor gradient)
+      - Stok Atama (turuncu gradient)
+   
+   🎨 RENK PALETİ:
+   - Stok Ekle: Mavi (#0ea5e9 → #0284c7)
+   - Lisans Atama: Mor (#8b5cf6 → #7c3aed)
+   - Stok Atama: Turuncu (#f59e0b → #d97706)
+   - Düzenle: Yeşil (#10b981 → #059669)
+   
+   ✅ ÇÖZDÜKLERİMİZ:
+   - Tab tasarımı modernleştirildi (Envanter/Lisans)
+   - Form düzeni iyileştirildi (responsive grid)
+   - Buton renkleri tutarlı hale getirildi
+   - Animasyonlar eklendi
+   - Dark mode desteği
+   - Mobil uyumluluk
+   
+============================================================================= */
