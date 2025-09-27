@@ -1,4 +1,5 @@
-{% extends "base.html" %}{% block title %}Envanter Düzenle{% endblock %} {% block content %}
+{% extends "base.html" %}{% block title %}Envanter Düzenle{% endblock %} {%
+block content %}
 <div class="container-fluid py-4">
   <div class="modal-shell inventory-edit-shell">
     <div class="modal-shell__header inventory-edit__header">
@@ -6,7 +7,8 @@
         <div class="eyebrow text-primary mb-2">Envanter #{{ item.no }}</div>
         <h5 class="modal-shell__title">Envanter Bilgilerini Düzenle</h5>
         <p class="modal-shell__subtitle">
-          Envanterin kimlik, konum ve sorumlu bilgilerini güncelleyerek kayıtlarınızı güncel tutun.
+          Envanterin kimlik, konum ve sorumlu bilgilerini güncelleyerek
+          kayıtlarınızı güncel tutun.
         </p>
       </div>
       <div class="modal-shell__header-actions inventory-edit__actions">
@@ -14,7 +16,14 @@
           type="button"
           class="inventory-edit__close"
           data-edit-close
-          {% if not modal %}data-target-url="{{ url_for('inventory.list') }}"{% endif %}
+          {%
+          if
+          not
+          modal
+          %}data-target-url="{{ url_for('inventory.list') }}"
+          {%
+          endif
+          %}
           aria-label="Kapat"
         >
           <i class="bi bi-x-lg"></i>
@@ -58,15 +67,27 @@
         </div>
         <div class="col-md-6">
           <label class="form-label" for="edit_departman">Departman</label>
-          <select id="edit_departman" name="departman" class="form-select"></select>
+          <select
+            id="edit_departman"
+            name="departman"
+            class="form-select"
+          ></select>
         </div>
         <div class="col-md-6">
           <label class="form-label" for="edit_donanim">Donanım Tipi</label>
-          <select id="edit_donanim" name="donanim_tipi" class="form-select"></select>
+          <select
+            id="edit_donanim"
+            name="donanim_tipi"
+            class="form-select"
+          ></select>
         </div>
         <div class="col-md-6">
           <label class="form-label" for="edit_sorumlu">Sorumlu Personel</label>
-          <select id="edit_sorumlu" name="sorumlu_personel" class="form-select"></select>
+          <select
+            id="edit_sorumlu"
+            name="sorumlu_personel"
+            class="form-select"
+          ></select>
         </div>
         <div class="col-md-6">
           <label class="form-label" for="edit_marka">Marka</label>
@@ -91,7 +112,11 @@
         </div>
         <div class="col-md-6">
           <label class="form-label" for="edit_kullanim">Kullanım Alanı</label>
-          <select id="edit_kullanim" name="kullanim_alani" class="form-select"></select>
+          <select
+            id="edit_kullanim"
+            name="kullanim_alani"
+            class="form-select"
+          ></select>
         </div>
         <div class="col-md-6">
           <label class="form-label" for="inventoryIfs">IFS No</label>
@@ -105,7 +130,9 @@
           />
         </div>
         <div class="col-md-6">
-          <label class="form-label" for="inventoryLinked">Bağlı Envanter No</label>
+          <label class="form-label" for="inventoryLinked"
+            >Bağlı Envanter No</label
+          >
           <input
             id="inventoryLinked"
             name="bagli_envanter_no"
@@ -123,7 +150,9 @@
             class="form-control"
             rows="3"
             placeholder="Envanterle ilgili önemli notları girin"
-          >{{ item.not_ or '' }}</textarea>
+          >
+{{ item.not_ or '' }}</textarea
+          >
         </div>
       </div>
 
@@ -134,7 +163,10 @@
         </div>
         <div class="modal-shell__actions">
           {% if not modal %}
-          <a href="{{ url_for('inventory.list') }}" class="btn btn-outline-secondary">
+          <a
+            href="{{ url_for('inventory.list') }}"
+            class="btn btn-outline-secondary"
+          >
             İptal
           </a>
           {% endif %}
@@ -198,7 +230,8 @@
   }
 
   .inventory-edit__footer {
-    padding: clamp(1.5rem, 1.15rem + 1vw, 2rem) clamp(1.75rem, 1.35rem + 1vw, 2.5rem);
+    padding: clamp(1.5rem, 1.15rem + 1vw, 2rem)
+      clamp(1.75rem, 1.35rem + 1vw, 2.5rem);
     background: linear-gradient(
       135deg,
       rgba(37, 99, 235, 0.06) 0%,
@@ -244,7 +277,9 @@
     border: 1px solid rgba(148, 163, 184, 0.45);
     background: #f8fafc;
     padding: 0.65rem 0.95rem;
-    transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
+    transition:
+      box-shadow var(--transition-fast),
+      border-color var(--transition-fast);
   }
 
   body.theme-dark .inventory-edit-shell .form-control,
@@ -280,7 +315,9 @@
     font-size: 1.2rem;
     box-shadow: 0 18px 40px rgba(239, 68, 68, 0.28);
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
   .inventory-edit__close:hover {
