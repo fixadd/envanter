@@ -1653,12 +1653,12 @@ body .container-fluid {
 }
 
 .modal-backdrop {
-  background-color: rgba(15, 23, 42, 0.6) !important;
-  backdrop-filter: blur(4px);
+  background-color: rgba(15, 23, 42, 0.85) !important;
+  backdrop-filter: none !important;
 }
 
 .modal-backdrop.show {
-  opacity: 0.7 !important;
+  opacity: 1 !important;
 }
 
 /* Modal açılma animasyonu */
