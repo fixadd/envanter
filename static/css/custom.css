@@ -1219,72 +1219,61 @@ body .container-fluid {
   gap: 0.5rem;
 }
 
-/* Göz İkonu (Detay) Butonu - MOR-MAVİ GRADIENT */
+/* Göz İkonu (Detay) Butonu - Şeffaf Tasarım */
 .js-view {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  border: none !important;
-  color: white !important;
+  background: transparent !important;
+  border: 1px solid var(--color-border-strong) !important;
+  color: var(--color-heading) !important;
   padding: 0.4rem 0.65rem !important;
   border-radius: 8px !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3) !important;
+  box-shadow: none !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
 .js-view:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4) !important;
-  background: linear-gradient(135deg, #5568d3 0%, #6b3f99 100%) !important;
+  background: rgba(15, 23, 42, 0.06) !important;
+  color: var(--color-heading) !important;
 }
 
-.js-view:active {
-  transform: translateY(0);
+.js-view:focus {
+  outline: 3px solid rgba(15, 23, 42, 0.25);
+  outline-offset: 2px;
 }
 
 .js-view i {
   font-size: 1rem;
 }
 
-/* Select (Atama Yap / Düzenle) Dropdown - PEMBE-KIRMIZI GRADIENT */
+/* Select (Atama Yap / Düzenle) Dropdown - Şeffaf Tasarım */
 .action-select.js-actions {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
-  border: none !important;
-  color: white !important;
+  background-color: transparent !important;
+  border: 1px solid var(--color-border-strong) !important;
+  color: var(--color-heading) !important;
   font-weight: 600 !important;
   padding: 0.4rem 0.75rem !important;
   border-radius: 8px !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 2px 8px rgba(245, 87, 108, 0.3) !important;
+  box-shadow: none !important;
   cursor: pointer;
   min-width: 140px;
   appearance: none;
-  background-image:
-    linear-gradient(135deg, #f093fb 0%, #f5576c 100%),
-    url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
-  background-repeat: no-repeat, no-repeat;
-  background-position:
-    center,
-    right 0.5rem center;
-  background-size: auto, 1rem;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231f2937' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1rem;
   padding-right: 2rem !important;
 }
 
 .action-select.js-actions:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(245, 87, 108, 0.4) !important;
-  background-image:
-    linear-gradient(135deg, #e082ea 0%, #e4465b 100%),
-    url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
-}
-
-.action-select.js-actions:active {
-  transform: translateY(0);
+  background: rgba(15, 23, 42, 0.06) !important;
+  color: var(--color-heading) !important;
 }
 
 .action-select.js-actions:focus {
-  outline: 3px solid rgba(245, 87, 108, 0.3);
+  outline: 3px solid rgba(15, 23, 42, 0.25);
   outline-offset: 2px;
 }
 
@@ -1297,16 +1286,6 @@ body .container-fluid {
 
 .action-select.js-actions option:hover {
   background: #f3f4f6 !important;
-}
-
-/* Arızalı durumda buton renkleri - SARI-TURUNCU GRADIENT */
-tr[data-fault-status="arızalı"] .action-select.js-actions,
-tr[data-fault-status="arizali"] .action-select.js-actions {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
-  background-image:
-    linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%),
-    url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
-  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3) !important;
 }
 
 /* ========== 4. TABLO İÇİNDEKİ İŞLEMLER KOLONU ========== */
