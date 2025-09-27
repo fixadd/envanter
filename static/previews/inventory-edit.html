@@ -23,7 +23,12 @@
         margin: 0;
         min-height: 100vh;
         font-family: "Inter", "Segoe UI", sans-serif;
-        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #0f172a 100%);
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #1e3a8a 45%,
+          #0f172a 100%
+        );
         display: grid;
         grid-template-columns: minmax(0, 1fr);
         place-items: stretch;
@@ -34,8 +39,13 @@
         content: "";
         position: fixed;
         inset: 0;
-        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 90 90'%3E%3Cpath fill='rgba(255,255,255,0.04)' d='M90 87H0v3h90v-3Zm0-24H0v3h90v-3Zm0-24H0v3h90v-3ZM90 15H0v3h90v-3Zm0-15H0v3h90V0ZM87 0h3v90h-3V0Zm-24 0h3v90h-3V0Zm-24 0h3v90h-3V0ZM15 0h3v90h-3V0Z'/%3E%3C/svg%3E"),
-          linear-gradient(120deg, rgba(79, 70, 229, 0.35), rgba(14, 165, 233, 0.25));
+        background:
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 90 90'%3E%3Cpath fill='rgba(255,255,255,0.04)' d='M90 87H0v3h90v-3Zm0-24H0v3h90v-3Zm0-24H0v3h90v-3ZM90 15H0v3h90v-3Zm0-15H0v3h90V0ZM87 0h3v90h-3V0Zm-24 0h3v90h-3V0Zm-24 0h3v90h-3V0ZM15 0h3v90h-3V0Z'/%3E%3C/svg%3E"),
+          linear-gradient(
+            120deg,
+            rgba(79, 70, 229, 0.35),
+            rgba(14, 165, 233, 0.25)
+          );
         mix-blend-mode: screen;
         pointer-events: none;
       }
@@ -155,8 +165,8 @@
               Envanter Bilgilerini Düzenleyin
             </h1>
             <p class="inventory-edit__subtitle">
-              Bilgileri güncel tutarak ekipmanlarınızın durumunu daha kolay takip
-              edin.
+              Bilgileri güncel tutarak ekipmanlarınızın durumunu daha kolay
+              takip edin.
             </p>
           </header>
 
@@ -173,7 +183,9 @@
                 />
               </div>
               <div class="col-md-6">
-                <label class="form-label" for="inventoryName">Bilgisayar Adı</label>
+                <label class="form-label" for="inventoryName"
+                  >Bilgisayar Adı</label
+                >
                 <input
                   id="inventoryName"
                   type="text"
@@ -199,7 +211,9 @@
                 </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label" for="edit_donanim">Donanım Tipi</label>
+                <label class="form-label" for="edit_donanim"
+                  >Donanım Tipi</label
+                >
                 <select id="edit_donanim" class="form-select">
                   <option>Masaüstü</option>
                   <option selected>İş İstasyonu</option>
@@ -207,7 +221,9 @@
                 </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label" for="edit_sorumlu">Sorumlu Personel</label>
+                <label class="form-label" for="edit_sorumlu"
+                  >Sorumlu Personel</label
+                >
                 <select id="edit_sorumlu" class="form-select">
                   <option>Gökhan Yılmaz</option>
                   <option selected>Ayşe Demir</option>
@@ -240,7 +256,9 @@
                 />
               </div>
               <div class="col-md-6">
-                <label class="form-label" for="edit_kullanim">Kullanım Alanı</label>
+                <label class="form-label" for="edit_kullanim"
+                  >Kullanım Alanı</label
+                >
                 <select id="edit_kullanim" class="form-select">
                   <option>Ofis</option>
                   <option selected>Ar-Ge Laboratuvarı</option>
@@ -257,7 +275,9 @@
                 />
               </div>
               <div class="col-md-6">
-                <label class="form-label" for="inventoryLinked">Bağlı Envanter No</label>
+                <label class="form-label" for="inventoryLinked"
+                  >Bağlı Envanter No</label
+                >
                 <input
                   id="inventoryLinked"
                   type="text"
@@ -272,14 +292,18 @@
                   class="form-control"
                   rows="3"
                   placeholder="Envanterle ilgili önemli notları girin"
-                >CPU fan değişimi planlandı. Yazılım lisans güncellemesi 05.09.2024.</textarea>
+                >
+CPU fan değişimi planlandı. Yazılım lisans güncellemesi 05.09.2024.</textarea
+                >
               </div>
             </div>
 
             <div class="inventory-edit__footer">
               <div class="inventory-edit__hint">
                 <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
-                <span>Kaydettiğiniz bilgiler envanter geçmişine işlenecektir.</span>
+                <span
+                  >Kaydettiğiniz bilgiler envanter geçmişine işlenecektir.</span
+                >
               </div>
               <div class="inventory-edit__actions">
                 <button type="button" class="btn btn-outline-secondary">
@@ -375,7 +399,9 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
       }
 
       .inventory-edit__close:hover {
@@ -422,7 +448,9 @@
         border: 1px solid rgba(148, 163, 184, 0.4);
         background: rgba(248, 250, 252, 0.95);
         padding: 0.65rem 0.95rem;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease,
+        transition:
+          border-color 0.2s ease,
+          box-shadow 0.2s ease,
           background-color 0.2s ease;
       }
 
