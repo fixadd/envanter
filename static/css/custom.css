@@ -1367,33 +1367,7 @@ body .container-fluid {
 }
 
 /* Modal header sade görünüm */
-.modal-header {
-  background: var(--color-surface) !important;
-  color: var(--color-heading) !important;
-  padding: 1rem 1.5rem !important;
-  border-bottom: 1px solid var(--color-border) !important;
-  align-items: center;
-  gap: 1rem;
-}
 
-.modal-header .modal-title {
-  font-size: 1.125rem !important;
-  font-weight: 600 !important;
-  margin: 0;
-}
-
-.modal-header .btn-close {
-  opacity: 0.65 !important;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  transition: opacity 0.2s ease;
-  filter: none !important;
-}
-
-.modal-header .btn-close:hover {
-  opacity: 1 !important;
-}
 
 /* Envanter No bilgisi */
 .modal-header .text-muted {
