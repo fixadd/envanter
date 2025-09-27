@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Envanter Düzenle Önizleme</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="stylesheet" href="../css/custom.css" />
+    <link rel="stylesheet" href="../css/unified-design.css" />
+    <style>
+      :root {
+        color-scheme: light;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Inter", "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #0f172a 100%);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        place-items: stretch;
+        overflow: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 90 90'%3E%3Cpath fill='rgba(255,255,255,0.04)' d='M90 87H0v3h90v-3Zm0-24H0v3h90v-3Zm0-24H0v3h90v-3ZM90 15H0v3h90v-3Zm0-15H0v3h90V0ZM87 0h3v90h-3V0Zm-24 0h3v90h-3V0Zm-24 0h3v90h-3V0ZM15 0h3v90h-3V0Z'/%3E%3C/svg%3E"),
+          linear-gradient(120deg, rgba(79, 70, 229, 0.35), rgba(14, 165, 233, 0.25));
+        mix-blend-mode: screen;
+        pointer-events: none;
+      }
+
+      .app-preview {
+        position: relative;
+        z-index: 0;
+        display: grid;
+        grid-template-columns: 240px minmax(0, 1fr);
+        gap: 2rem;
+        padding: clamp(1.5rem, 3vw, 3rem);
+        color: rgba(226, 232, 240, 0.85);
+      }
+
+      .app-preview__sidebar,
+      .app-preview__content {
+        background: rgba(15, 23, 42, 0.45);
+        border-radius: 1.5rem;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.45);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+
+      .app-preview__sidebar {
+        padding: 1.75rem 1.5rem;
+        display: grid;
+        gap: 1rem;
+        align-content: start;
+      }
+
+      .app-preview__content {
+        padding: 1.75rem;
+        display: grid;
+        gap: 1.25rem;
+      }
+
+      .app-preview__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        background: rgba(59, 130, 246, 0.15);
+        color: rgba(191, 219, 254, 0.95);
+      }
+
+      .app-preview__row {
+        height: 3.2rem;
+        border-radius: 1rem;
+        background: rgba(15, 23, 42, 0.35);
+      }
+
+      .app-preview__text {
+        font-size: 0.85rem;
+        color: rgba(148, 163, 184, 0.9);
+      }
+
+      @media (max-width: 1080px) {
+        .app-preview {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body class="inventory-edit--modal-open">
+    <div class="app-preview">
+      <aside class="app-preview__sidebar">
+        <span class="app-preview__badge">
+          <i class="bi bi-hdd-stack"></i>
+          Envanter
+        </span>
+        <div class="app-preview__row"></div>
+        <div class="app-preview__row"></div>
+        <div class="app-preview__row" style="opacity: 0.65"></div>
+        <div class="app-preview__row" style="opacity: 0.45"></div>
+        <div class="app-preview__text">
+          Bu panel uygulamanın geri kalanını temsil eder ve popup arayüzünün
+          üzerinde nasıl görüneceğini gösterir.
+        </div>
+      </aside>
+      <main class="app-preview__content">
+        <div class="app-preview__badge" style="justify-self: start">
+          <i class="bi bi-pencil-square"></i>
+          Envanter Düzenleme
+        </div>
+        <div class="app-preview__row" style="height: 4rem"></div>
+        <div class="app-preview__row" style="height: 4rem; opacity: 0.7"></div>
+        <div class="app-preview__row" style="height: 4rem; opacity: 0.55"></div>
+        <p class="app-preview__text" style="max-width: 28rem">
+          Popup açıldığında arka plan içerikleri bulanıklaşarak erişilemez olur.
+          Bu önizleme, yeni tasarımın sistem temasına nasıl uyum sağladığını
+          gösterir.
+        </p>
+      </main>
+    </div>
+
+    <section
+      class="inventory-edit"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="inventory-edit-title"
+    >
+      <div class="inventory-edit__backdrop"></div>
+      <div class="inventory-edit__dialog" role="document">
+        <div class="inventory-edit__card" tabindex="-1">
+          <button type="button" class="inventory-edit__close">
+            <span class="visually-hidden">Pencereyi kapat</span>
+            <i class="bi bi-x-lg" aria-hidden="true"></i>
+          </button>
+
+          <header class="inventory-edit__header">
+            <span class="inventory-edit__eyebrow">Envanter Yönetimi</span>
+            <h1 class="inventory-edit__title" id="inventory-edit-title">
+              Envanter Bilgilerini Düzenleyin
+            </h1>
+            <p class="inventory-edit__subtitle">
+              Bilgileri güncel tutarak ekipmanlarınızın durumunu daha kolay takip
+              edin.
+            </p>
+          </header>
+
+          <form class="inventory-edit__form" novalidate>
+            <div class="row g-3" id="inventory-edit-grid">
+              <div class="col-md-6">
+                <label class="form-label" for="inventoryNo">Envanter No</label>
+                <input
+                  id="inventoryNo"
+                  type="text"
+                  class="form-control"
+                  value="INV-2024-0871"
+                  readonly
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="inventoryName">Bilgisayar Adı</label>
+                <input
+                  id="inventoryName"
+                  type="text"
+                  class="form-control"
+                  value="BT-WS-01"
+                  placeholder="Örn. BT-WS-01"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="edit_fabrika">Fabrika</label>
+                <select id="edit_fabrika" class="form-select">
+                  <option>Merkez Kampüs</option>
+                  <option>İzmit Tesisi</option>
+                  <option selected>Teknopark</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="edit_departman">Departman</label>
+                <select id="edit_departman" class="form-select">
+                  <option>Üretim</option>
+                  <option selected>Bilgi Teknolojileri</option>
+                  <option>Bakım</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="edit_donanim">Donanım Tipi</label>
+                <select id="edit_donanim" class="form-select">
+                  <option>Masaüstü</option>
+                  <option selected>İş İstasyonu</option>
+                  <option>Dizüstü</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="edit_sorumlu">Sorumlu Personel</label>
+                <select id="edit_sorumlu" class="form-select">
+                  <option>Gökhan Yılmaz</option>
+                  <option selected>Ayşe Demir</option>
+                  <option>Kerem Uçar</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="edit_marka">Marka</label>
+                <select id="edit_marka" class="form-select">
+                  <option>HP</option>
+                  <option selected>Dell</option>
+                  <option>Lenovo</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="edit_model">Model</label>
+                <select id="edit_model" class="form-select">
+                  <option>Precision 3460</option>
+                  <option selected>Precision 5680</option>
+                  <option>OptiPlex 7410</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="inventorySerial">Seri No</label>
+                <input
+                  id="inventorySerial"
+                  type="text"
+                  class="form-control"
+                  value="SN-98Q2-TR01"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="edit_kullanim">Kullanım Alanı</label>
+                <select id="edit_kullanim" class="form-select">
+                  <option>Ofis</option>
+                  <option selected>Ar-Ge Laboratuvarı</option>
+                  <option>Üretim Hattı</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="inventoryIfs">IFS No</label>
+                <input
+                  id="inventoryIfs"
+                  type="text"
+                  class="form-control"
+                  value="IFS-235879"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="inventoryLinked">Bağlı Envanter No</label>
+                <input
+                  id="inventoryLinked"
+                  type="text"
+                  class="form-control"
+                  value="INV-2024-0724"
+                />
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="inventoryNote">Not</label>
+                <textarea
+                  id="inventoryNote"
+                  class="form-control"
+                  rows="3"
+                  placeholder="Envanterle ilgili önemli notları girin"
+                >CPU fan değişimi planlandı. Yazılım lisans güncellemesi 05.09.2024.</textarea>
+              </div>
+            </div>
+
+            <div class="inventory-edit__footer">
+              <div class="inventory-edit__hint">
+                <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+                <span>Kaydettiğiniz bilgiler envanter geçmişine işlenecektir.</span>
+              </div>
+              <div class="inventory-edit__actions">
+                <button type="button" class="btn btn-outline-secondary">
+                  <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+                  Geri Dön
+                </button>
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-save me-1" aria-hidden="true"></i>
+                  Kaydet
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <style>
+      body.inventory-edit--modal-open {
+        overflow: hidden;
+      }
+
+      .inventory-edit {
+        position: fixed;
+        inset: 0;
+        z-index: 1090;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(1.5rem, 4vw, 3.5rem);
+      }
+
+      .inventory-edit__backdrop {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(
+            145deg,
+            rgba(15, 23, 42, 0.65),
+            rgba(30, 64, 175, 0.45)
+          )
+          no-repeat;
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        opacity: 0;
+        animation: inventory-edit-backdrop 0.25s ease forwards;
+      }
+
+      .inventory-edit__dialog {
+        position: relative;
+        width: min(640px, 100%);
+        z-index: 1;
+        pointer-events: none;
+        display: flex;
+        justify-content: center;
+      }
+
+      .inventory-edit__card {
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 1.5rem;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
+        padding: clamp(1.75rem, 1.55rem + 0.5vw, 2.25rem);
+        display: flex;
+        flex-direction: column;
+        gap: clamp(1.75rem, 1.55rem + 0.5vw, 2.25rem);
+        width: min(620px, calc(100vw - 2rem));
+        pointer-events: auto;
+        position: relative;
+        animation: inventory-edit-pop 0.28s ease forwards;
+        max-height: min(90vh, 960px);
+        overflow-y: auto;
+      }
+
+      .inventory-edit__card::-webkit-scrollbar {
+        width: 0.45rem;
+      }
+
+      .inventory-edit__card::-webkit-scrollbar-thumb {
+        background: rgba(15, 23, 42, 0.25);
+        border-radius: 999px;
+      }
+
+      .inventory-edit__close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        border: 1px solid rgba(15, 23, 42, 0.1);
+        background: rgba(248, 250, 252, 0.85);
+        color: rgba(15, 23, 42, 0.7);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .inventory-edit__close:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.18);
+      }
+
+      .inventory-edit__header {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding-right: 2.5rem;
+      }
+
+      .inventory-edit__eyebrow {
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: rgba(30, 41, 59, 0.7);
+        margin-bottom: 0;
+      }
+
+      .inventory-edit__title {
+        font-size: clamp(1.35rem, 1.15rem + 0.8vw, 1.9rem);
+        font-weight: 700;
+        margin-bottom: 0;
+        color: #0f172a;
+      }
+
+      .inventory-edit__subtitle {
+        margin-bottom: 0;
+        color: rgba(30, 41, 59, 0.75);
+      }
+
+      .inventory-edit__form .form-label {
+        font-weight: 600;
+        color: #0f172a;
+      }
+
+      .inventory-edit__form .form-control,
+      .inventory-edit__form .form-select {
+        border-radius: 0.9rem;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        background: rgba(248, 250, 252, 0.95);
+        padding: 0.65rem 0.95rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease,
+          background-color 0.2s ease;
+      }
+
+      .inventory-edit__form .form-control:focus,
+      .inventory-edit__form .form-select:focus {
+        border-color: rgba(37, 99, 235, 0.75);
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.18);
+        background: #ffffff;
+      }
+
+      .inventory-edit__footer {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(148, 163, 184, 0.25);
+      }
+
+      .inventory-edit__hint {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-weight: 600;
+        color: rgba(30, 41, 59, 0.8);
+        background: rgba(148, 163, 184, 0.12);
+        padding: 0.6rem 0.9rem;
+        border-radius: 0.85rem;
+      }
+
+      .inventory-edit__hint i {
+        color: #0284c7;
+      }
+
+      .inventory-edit__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      @media (max-width: 575.98px) {
+        body {
+          overflow: auto;
+        }
+
+        .app-preview {
+          display: none;
+        }
+
+        .inventory-edit {
+          padding: 1rem;
+        }
+
+        .inventory-edit__card {
+          border-radius: 1.25rem;
+          padding: 1.5rem;
+          max-height: calc(100vh - 1.5rem);
+        }
+
+        .inventory-edit__close {
+          top: 0.75rem;
+          right: 0.75rem;
+        }
+
+        .inventory-edit__actions {
+          flex-direction: column-reverse;
+          align-items: stretch;
+        }
+
+        .inventory-edit__actions .btn {
+          width: 100%;
+        }
+      }
+
+      @keyframes inventory-edit-pop {
+        from {
+          opacity: 0;
+          transform: translateY(12px) scale(0.97);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @keyframes inventory-edit-backdrop {
+        from {
+          opacity: 0;
+        }
+
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
+  </body>
+</html>
