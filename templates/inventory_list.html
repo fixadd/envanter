@@ -421,24 +421,57 @@ block content %}
     padding: 0.5rem 0.75rem;
   }
 
-  #assignModal .form-select:focus {
-    border-color: #1a73e8;
-    box-shadow: 0 0 0 0.25rem rgba(26, 115, 232, 0.25);
-    background-color: #ffffff;
+  #assignModal .modal-dialog {
+    max-width: 900px;
   }
 
-  #assignModal .btn-primary {
-    background-color: #1a73e8;
-    border-color: #1a73e8;
-    border-radius: 999px;
-    padding: 0.55rem 1.75rem;
-    font-weight: 600;
+  #assignModal .modal-content {
+    border: none;
+    border-radius: 1.25rem;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+    overflow: hidden;
   }
 
-  #assignModal .btn-primary:hover,
-  #assignModal .btn-primary:focus {
-    background-color: #1558b0;
-    border-color: #1558b0;
+  #assignModal .modal-header {
+    padding: 1.75rem 2rem;
+    background: #ffffff;
+    border-bottom: 1px solid var(--color-border, #e5e7eb);
+  }
+
+  #assignModal .modal-title {
+    font-weight: 700;
+    color: var(--color-heading, #111827);
+  }
+
+  #assignModal .modal-header .modal-subtitle {
+    font-size: 0.875rem;
+    color: var(--color-muted, #6b7280);
+    margin-top: 0.25rem;
+  }
+
+  #assignModal .modal-header .btn-close {
+    --bs-btn-close-opacity: 1;
+    --bs-btn-close-color: #ef4444;
+    --bs-btn-close-hover-opacity: 1;
+    opacity: 1;
+    filter: none;
+  }
+
+  #assignModal .modal-header .btn-close:hover {
+    --bs-btn-close-color: #dc2626;
+  }
+
+  #assignModal .modal-body {
+    padding: 2rem;
+    background: #ffffff;
+  }
+
+  #assignModal .env-grid {
+    margin-bottom: 0;
+  }
+
+  #assignModal .ctrl {
+    border-radius: var(--radius-sm, 0.75rem);
   }
   .is-invalid {
     border-color: #dc3545 !important;
@@ -484,10 +517,17 @@ block content %}
 
 <!-- Atama Modal -->
 <div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+  <div
+    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+  >
     <form id="assignForm" class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Envanter Atama</h5>
+        <div>
+          <h5 class="modal-title">Envanter Atama</h5>
+          <p class="modal-subtitle mb-0">
+            Envanteri ilgili personel ve departmanla eşleştirin.
+          </p>
+        </div>
         <button
           type="button"
           class="btn-close"
@@ -496,30 +536,24 @@ block content %}
       </div>
       <div class="modal-body">
         <input type="hidden" name="item_id" id="assign_item_id" />
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label for="selFabrika" class="form-label">Fabrika</label>
-            <select name="fabrika" id="selFabrika" class="form-select"></select>
+        <div class="env-grid" id="envanter-atama">
+          <div class="field">
+            <label for="selFabrika">Fabrika</label>
+            <select name="fabrika" id="selFabrika" class="ctrl"></select>
           </div>
-          <div class="col-md-6">
-            <label for="selDepartman" class="form-label">Departman</label>
-            <select name="departman" id="selDepartman" class="form-select"></select>
+          <div class="field">
+            <label for="selDepartman">Departman</label>
+            <select name="departman" id="selDepartman" class="ctrl"></select>
           </div>
-          <div class="col-md-6">
-            <label for="selPersonel" class="form-label">Sorumlu Personel</label>
-            <select
-              name="sorumlu_personel"
-              id="selPersonel"
-              class="form-select"
-            ></select>
+          <div class="field">
+            <label for="selPersonel">Sorumlu Personel</label>
+            <select name="sorumlu_personel" id="selPersonel" class="ctrl"></select>
           </div>
-          <div class="col-md-6">
-            <label for="selBagli" class="form-label">Bağlı Olduğu Envanter</label>
-            <select
-              name="bagli_envanter_no"
-              id="selBagli"
-              class="form-select"
-            ></select>
+          <div class="field">
+            <label for="selBagli">
+              Bağlı Olduğu Envanter <span class="muted">(Opsiyonel)</span>
+            </label>
+            <select name="bagli_envanter_no" id="selBagli" class="ctrl"></select>
           </div>
         </div>
       </div>
