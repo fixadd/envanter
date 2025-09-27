@@ -1,34 +1,6 @@
 {% extends "base.html" %}{% block title %}Envanter Düzenle{% endblock %} {%
 block content %}
-<div class="inventory-edit-shell">
-    <div class="modal-shell__header inventory-edit__header">
-      <div class="modal-shell__heading inventory-edit__heading">
-        <h5 class="modal-shell__title">Envanter Bilgilerini Düzenle</h5>
-        <p class="modal-shell__subtitle">
-          Envanterin kimlik, konum ve sorumlu bilgilerini güncelleyerek
-          kayıtlarınızı güncel tutun.
-        </p>
-      </div>
-      <div class="modal-shell__header-actions inventory-edit__actions">
-        <button
-          type="button"
-          class="inventory-edit__close"
-          data-edit-close
-          {%
-          if
-          not
-          modal
-          %}data-target-url="{{ url_for('inventory.list') }}"
-          {%
-          endif
-          %}
-          aria-label="Kapat"
-        >
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
-    </div>
-
+  <div class="inventory-edit-shell">
     <form
       method="post"
       action="{{ '?modal=1' if modal else '' }}"
@@ -37,6 +9,34 @@ block content %}
       autocomplete="off"
       novalidate
     >
+      <div class="inventory-edit__intro">
+        <div class="modal-shell__heading inventory-edit__heading">
+          <h5 class="modal-shell__title">Envanter Bilgilerini Düzenle</h5>
+          <p class="modal-shell__subtitle">
+            Envanterin kimlik, konum ve sorumlu bilgilerini güncelleyerek
+            kayıtlarınızı güncel tutun.
+          </p>
+        </div>
+        <div class="inventory-edit__actions">
+          <button
+            type="button"
+            class="inventory-edit__close"
+            data-edit-close
+            {%
+            if
+            not
+            modal
+            %}data-target-url="{{ url_for('inventory.list') }}"
+            {%
+            endif
+            %}
+            aria-label="Kapat"
+          >
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </div>
+
       <div class="row g-3" id="inventory-edit-grid">
         <div class="col-md-6">
           <label class="form-label" for="inventoryNo">Envanter No</label>
@@ -213,21 +213,6 @@ block content %}
     overflow: hidden;
   }
 
-  .inventory-edit__header {
-    background: var(--color-surface);
-    border-bottom: 1px solid rgba(148, 163, 184, 0.35);
-    padding: clamp(1.75rem, 1.25rem + 1.5vw, 2.5rem);
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: var(--space-md);
-  }
-
-  body.theme-dark .inventory-edit__header {
-    background: rgba(15, 23, 42, 0.85);
-    border-bottom: 1px solid rgba(148, 163, 184, 0.45);
-  }
-
   .inventory-edit__heading .modal-shell__title {
     font-size: 1.5rem;
     font-weight: 700;
@@ -243,6 +228,24 @@ block content %}
   .inventory-edit-shell form.modal-shell__body {
     padding: clamp(1.75rem, 1.35rem + 1vw, 2.5rem);
     background: var(--color-surface);
+  }
+
+  .inventory-edit__intro {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-md);
+    padding-bottom: clamp(1.25rem, 0.95rem + 0.8vw, 1.75rem);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+    margin-bottom: clamp(1.5rem, 1.1rem + 0.9vw, 2rem);
+  }
+
+  body.theme-dark .inventory-edit__intro {
+    border-bottom: 1px solid rgba(148, 163, 184, 0.38);
+  }
+
+  .inventory-edit__actions {
+    display: inline-flex;
   }
 
   .inventory-edit__footer {
@@ -368,7 +371,7 @@ block content %}
   }
 
   @media (max-width: 575.98px) {
-    .inventory-edit__header {
+    .inventory-edit__intro {
       flex-direction: column;
       align-items: stretch;
     }
