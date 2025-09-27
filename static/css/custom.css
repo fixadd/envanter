@@ -1686,7 +1686,27 @@ tr[data-fault-status="arizali"] .action-select.js-actions {
 }
 
 #inventoryCreateModal .modal-header {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  background: #ffffff !important;
+  color: var(--color-heading, #111827) !important;
+  border-bottom: 1px solid var(--color-border, #e5e7eb) !important;
+}
+
+#inventoryCreateModal .modal-header .modal-title {
+  color: inherit !important;
+}
+
+#inventoryCreateModal .modal-header .text-muted {
+  background: rgba(15, 23, 42, 0.05) !important;
+  color: #6b7280 !important;
+}
+
+#inventoryCreateModal .modal-header .btn-close {
+  background-color: #ef4444 !important;
+  filter: invert(1) !important;
+}
+
+#inventoryCreateModal .modal-header .btn-close:hover {
+  background-color: #dc2626 !important;
 }
 
 /* Required yıldız işareti */
