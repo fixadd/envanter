@@ -1,7 +1,6 @@
 {% extends "base.html" %}{% block title %}Envanter Düzenle{% endblock %} {%
 block content %}
-<div class="container-fluid py-4">
-  <div class="modal-shell inventory-edit-shell">
+<div class="inventory-edit-shell">
     <div class="modal-shell__header inventory-edit__header">
       <div class="modal-shell__heading inventory-edit__heading">
         <div class="eyebrow text-primary mb-2">Envanter #{{ item.no }}</div>
@@ -183,7 +182,7 @@ block content %}
 <style>
   .inventory-edit-shell {
     max-width: 1000px;
-    margin: 0 auto;
+    margin: clamp(2rem, 1.5rem + 2vw, 3rem) auto;
     border-radius: 1.5rem;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
