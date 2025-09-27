@@ -1,639 +1,652 @@
-{% extends "base.html" %}{% block title %}Envanter Düzenle{% endblock %} {% block content %}
-  <section
-    class="inventory-edit"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="inventory-edit-title"
-  >
-    <div class="inventory-edit__backdrop" data-inventory-edit-close></div>
-    <div class="inventory-edit__dialog" role="document">
-      <div class="inventory-edit__card" tabindex="-1">
-        <button
-          type="button"
-          class="inventory-edit__close"
-          data-inventory-edit-close
-        >
-          <span class="visually-hidden">Pencereyi kapat</span>
-          <i class="bi bi-x-lg" aria-hidden="true"></i>
-        </button>
+{% extends "base.html" %}{% block title %}Envanter Düzenle{% endblock %} {%
+block content %}
+<section
+  class="inventory-edit"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="inventory-edit-title"
+>
+  <div class="inventory-edit__backdrop" data-inventory-edit-close></div>
+  <div class="inventory-edit__dialog" role="document">
+    <div class="inventory-edit__card" tabindex="-1">
+      <button
+        type="button"
+        class="inventory-edit__close"
+        data-inventory-edit-close
+      >
+        <span class="visually-hidden">Pencereyi kapat</span>
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </button>
 
-        <header class="inventory-edit__header">
-          <span class="inventory-edit__eyebrow">Envanter Yönetimi</span>
-          <h1 class="inventory-edit__title" id="inventory-edit-title">
-            Envanter Bilgilerini Düzenleyin
-          </h1>
-          <p class="inventory-edit__subtitle">
-            Bilgileri güncel tutarak ekipmanlarınızın durumunu daha kolay takip
-            edin.
-          </p>
-        </header>
+      <header class="inventory-edit__header">
+        <span class="inventory-edit__eyebrow">Envanter Yönetimi</span>
+        <h1 class="inventory-edit__title" id="inventory-edit-title">
+          Envanter Bilgilerini Düzenleyin
+        </h1>
+        <p class="inventory-edit__subtitle">
+          Bilgileri güncel tutarak ekipmanlarınızın durumunu daha kolay takip
+          edin.
+        </p>
+      </header>
 
-        <form
-          method="post"
-          action="{{ '?modal=1' if modal else '' }}"
-          id="inventory-edit-form"
-          class="inventory-edit__form needs-validation"
-          autocomplete="off"
-          novalidate
-        >
-          <div class="row g-3" id="inventory-edit-grid">
-            <div class="col-md-6">
-              <label class="form-label" for="inventoryNo">Envanter No</label>
-              <input
-                id="inventoryNo"
-                type="text"
-                class="form-control"
-                value="{{ item.no }}"
-                readonly
-              />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="inventoryName">Bilgisayar Adı</label>
-              <input
-                id="inventoryName"
-                name="bilgisayar_adi"
-                type="text"
-                class="form-control"
-                value="{{ item.bilgisayar_adi or '' }}"
-                placeholder="Örn. BT-WS-01"
-              />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="edit_fabrika">Fabrika</label>
-              <select id="edit_fabrika" name="fabrika" class="form-select"></select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="edit_departman">Departman</label>
-              <select
-                id="edit_departman"
-                name="departman"
-                class="form-select"
-              ></select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="edit_donanim">Donanım Tipi</label>
-              <select
-                id="edit_donanim"
-                name="donanim_tipi"
-                class="form-select"
-              ></select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="edit_sorumlu">Sorumlu Personel</label>
-              <select
-                id="edit_sorumlu"
-                name="sorumlu_personel"
-                class="form-select"
-              ></select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="edit_marka">Marka</label>
-              <select id="edit_marka" name="marka" class="form-select"></select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="edit_model">Model</label>
-              <select id="edit_model" name="model" class="form-select" disabled>
-                <option value="">Önce marka seçiniz...</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="inventorySerial">Seri No</label>
-              <input
-                id="inventorySerial"
-                name="seri_no"
-                type="text"
-                class="form-control"
-                value="{{ item.seri_no or '' }}"
-                placeholder="Seri numarası"
-              />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="edit_kullanim">Kullanım Alanı</label>
-              <select
-                id="edit_kullanim"
-                name="kullanim_alani"
-                class="form-select"
-              ></select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="inventoryIfs">IFS No</label>
-              <input
-                id="inventoryIfs"
-                name="ifs_no"
-                type="text"
-                class="form-control"
-                value="{{ item.ifs_no or '' }}"
-                placeholder="IFS referansı"
-              />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="inventoryLinked">Bağlı Envanter No</label>
-              <input
-                id="inventoryLinked"
-                name="bagli_envanter_no"
-                type="text"
-                class="form-control"
-                value="{{ item.bagli_envanter_no or '' }}"
-                placeholder="Varsa bağlı envanter"
-              />
-            </div>
-            <div class="col-12">
-              <label class="form-label" for="inventoryNote">Not</label>
-              <textarea
-                id="inventoryNote"
-                name="not"
-                class="form-control"
-                rows="3"
-                placeholder="Envanterle ilgili önemli notları girin"
-              >{{ item.not_ or '' }}</textarea>
-            </div>
+      <form
+        method="post"
+        action="{{ '?modal=1' if modal else '' }}"
+        id="inventory-edit-form"
+        class="inventory-edit__form needs-validation"
+        autocomplete="off"
+        novalidate
+      >
+        <div class="row g-3" id="inventory-edit-grid">
+          <div class="col-md-6">
+            <label class="form-label" for="inventoryNo">Envanter No</label>
+            <input
+              id="inventoryNo"
+              type="text"
+              class="form-control"
+              value="{{ item.no }}"
+              readonly
+            />
           </div>
-
-          <div class="inventory-edit__footer">
-            <div class="inventory-edit__hint">
-              <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
-              <span
-                >Kaydettiğiniz bilgiler envanter geçmişine işlenecektir.</span
-              >
-            </div>
-            <div class="inventory-edit__actions">
-              {% if not modal %}
-              <a
-                href="{{ url_for('inventory.list') }}"
-                class="btn btn-outline-secondary"
-              >
-                İptal
-              </a>
-              {% endif %}
-              <button type="submit" class="btn btn-primary">
-                <i class="bi bi-save me-1" aria-hidden="true"></i>
-                Kaydet
-              </button>
-            </div>
+          <div class="col-md-6">
+            <label class="form-label" for="inventoryName">Bilgisayar Adı</label>
+            <input
+              id="inventoryName"
+              name="bilgisayar_adi"
+              type="text"
+              class="form-control"
+              value="{{ item.bilgisayar_adi or '' }}"
+              placeholder="Örn. BT-WS-01"
+            />
           </div>
-        </form>
-      </div>
+          <div class="col-md-6">
+            <label class="form-label" for="edit_fabrika">Fabrika</label>
+            <select
+              id="edit_fabrika"
+              name="fabrika"
+              class="form-select"
+            ></select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="edit_departman">Departman</label>
+            <select
+              id="edit_departman"
+              name="departman"
+              class="form-select"
+            ></select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="edit_donanim">Donanım Tipi</label>
+            <select
+              id="edit_donanim"
+              name="donanim_tipi"
+              class="form-select"
+            ></select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="edit_sorumlu"
+              >Sorumlu Personel</label
+            >
+            <select
+              id="edit_sorumlu"
+              name="sorumlu_personel"
+              class="form-select"
+            ></select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="edit_marka">Marka</label>
+            <select id="edit_marka" name="marka" class="form-select"></select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="edit_model">Model</label>
+            <select id="edit_model" name="model" class="form-select" disabled>
+              <option value="">Önce marka seçiniz...</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="inventorySerial">Seri No</label>
+            <input
+              id="inventorySerial"
+              name="seri_no"
+              type="text"
+              class="form-control"
+              value="{{ item.seri_no or '' }}"
+              placeholder="Seri numarası"
+            />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="edit_kullanim">Kullanım Alanı</label>
+            <select
+              id="edit_kullanim"
+              name="kullanim_alani"
+              class="form-select"
+            ></select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="inventoryIfs">IFS No</label>
+            <input
+              id="inventoryIfs"
+              name="ifs_no"
+              type="text"
+              class="form-control"
+              value="{{ item.ifs_no or '' }}"
+              placeholder="IFS referansı"
+            />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="inventoryLinked"
+              >Bağlı Envanter No</label
+            >
+            <input
+              id="inventoryLinked"
+              name="bagli_envanter_no"
+              type="text"
+              class="form-control"
+              value="{{ item.bagli_envanter_no or '' }}"
+              placeholder="Varsa bağlı envanter"
+            />
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="inventoryNote">Not</label>
+            <textarea
+              id="inventoryNote"
+              name="not"
+              class="form-control"
+              rows="3"
+              placeholder="Envanterle ilgili önemli notları girin"
+            >
+{{ item.not_ or '' }}</textarea
+            >
+          </div>
+        </div>
+
+        <div class="inventory-edit__footer">
+          <div class="inventory-edit__hint">
+            <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+            <span>Kaydettiğiniz bilgiler envanter geçmişine işlenecektir.</span>
+          </div>
+          <div class="inventory-edit__actions">
+            {% if not modal %}
+            <a
+              href="{{ url_for('inventory.list') }}"
+              class="btn btn-outline-secondary"
+            >
+              İptal
+            </a>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-save me-1" aria-hidden="true"></i>
+              Kaydet
+            </button>
+          </div>
+        </div>
+      </form>
     </div>
-  </section>
+  </div>
+</section>
 
-  <style>
-    body.inventory-edit--modal-open {
-      overflow: hidden;
-    }
+<style>
+  body.inventory-edit--modal-open {
+    overflow: hidden;
+  }
 
+  .inventory-edit {
+    position: fixed;
+    inset: 0;
+    z-index: 1090;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(1.5rem, 4vw, 3.5rem);
+  }
+
+  .inventory-edit__backdrop {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(
+        145deg,
+        rgba(15, 23, 42, 0.65),
+        rgba(30, 64, 175, 0.45)
+      )
+      no-repeat;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0;
+    animation: inventory-edit-backdrop 0.25s ease forwards;
+  }
+
+  .inventory-edit__dialog {
+    position: relative;
+    width: min(640px, 100%);
+    z-index: 1;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+  }
+
+  .inventory-edit__card {
+    background: transparent;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    box-shadow: none;
+    padding: clamp(1.75rem, 1.55rem + 0.5vw, 2.25rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.75rem, 1.55rem + 0.5vw, 2.25rem);
+    width: min(620px, calc(100vw - 2rem));
+    pointer-events: auto;
+    position: relative;
+    animation: inventory-edit-pop 0.28s ease forwards;
+    max-height: min(90vh, 960px);
+    overflow-y: auto;
+  }
+
+  .inventory-edit__card::-webkit-scrollbar {
+    width: 0.45rem;
+  }
+
+  .inventory-edit__card::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.25);
+    border-radius: 999px;
+  }
+
+  body.theme-dark .inventory-edit__card::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.35);
+  }
+
+  body.theme-dark .inventory-edit__card {
+    background: transparent;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    box-shadow: none;
+  }
+
+  .inventory-edit__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    background: rgba(248, 250, 252, 0.85);
+    color: rgba(15, 23, 42, 0.7);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .inventory-edit__close:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.18);
+  }
+
+  body.theme-dark .inventory-edit__close {
+    background: rgba(30, 41, 59, 0.7);
+    border-color: rgba(148, 163, 184, 0.25);
+    color: rgba(226, 232, 240, 0.85);
+  }
+
+  .inventory-edit__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-right: 2.5rem;
+  }
+
+  .inventory-edit__eyebrow {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: rgba(30, 41, 59, 0.7);
+    margin-bottom: 0;
+  }
+
+  body.theme-dark .inventory-edit__eyebrow {
+    color: rgba(148, 163, 184, 0.85);
+  }
+
+  .inventory-edit__title {
+    font-size: clamp(1.35rem, 1.15rem + 0.8vw, 1.9rem);
+    font-weight: 700;
+    margin-bottom: 0;
+    color: var(--color-heading, #0f172a);
+  }
+
+  body.theme-dark .inventory-edit__title {
+    color: rgba(226, 232, 240, 0.95);
+  }
+
+  .inventory-edit__subtitle {
+    margin-bottom: 0;
+    color: rgba(30, 41, 59, 0.75);
+  }
+
+  body.theme-dark .inventory-edit__subtitle {
+    color: rgba(148, 163, 184, 0.9);
+  }
+
+  .inventory-edit__form .form-label {
+    font-weight: 600;
+    color: var(--color-heading, #0f172a);
+  }
+
+  body.theme-dark .inventory-edit__form .form-label {
+    color: rgba(226, 232, 240, 0.9);
+  }
+
+  .inventory-edit__form .form-control,
+  .inventory-edit__form .form-select {
+    border-radius: 0.9rem;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    background: rgba(248, 250, 252, 0.95);
+    padding: 0.65rem 0.95rem;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .inventory-edit__form .form-control:focus,
+  .inventory-edit__form .form-select:focus {
+    border-color: rgba(37, 99, 235, 0.75);
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.18);
+    background: #ffffff;
+  }
+
+  body.theme-dark .inventory-edit__form .form-control,
+  body.theme-dark .inventory-edit__form .form-select {
+    background: rgba(15, 23, 42, 0.75);
+    border-color: rgba(148, 163, 184, 0.35);
+    color: rgba(226, 232, 240, 0.9);
+  }
+
+  body.theme-dark .inventory-edit__form .form-control:focus,
+  body.theme-dark .inventory-edit__form .form-select:focus {
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+  }
+
+  .inventory-edit__footer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.25);
+  }
+
+  body.theme-dark .inventory-edit__footer {
+    border-top-color: rgba(148, 163, 184, 0.35);
+  }
+
+  .inventory-edit__hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 600;
+    color: rgba(30, 41, 59, 0.8);
+    background: rgba(148, 163, 184, 0.12);
+    padding: 0.6rem 0.9rem;
+    border-radius: 0.85rem;
+  }
+
+  .inventory-edit__hint i {
+    color: #0284c7;
+  }
+
+  body.theme-dark .inventory-edit__hint {
+    color: rgba(226, 232, 240, 0.85);
+    background: rgba(30, 41, 59, 0.6);
+  }
+
+  .inventory-edit__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 575.98px) {
     .inventory-edit {
-      position: fixed;
-      inset: 0;
-      z-index: 1090;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: clamp(1.5rem, 4vw, 3.5rem);
-    }
-
-    .inventory-edit__backdrop {
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(
-          145deg,
-          rgba(15, 23, 42, 0.65),
-          rgba(30, 64, 175, 0.45)
-        )
-        no-repeat;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      opacity: 0;
-      animation: inventory-edit-backdrop 0.25s ease forwards;
-    }
-
-    .inventory-edit__dialog {
-      position: relative;
-      width: min(640px, 100%);
-      z-index: 1;
-      pointer-events: none;
-      display: flex;
-      justify-content: center;
+      padding: 1rem;
     }
 
     .inventory-edit__card {
-      background: var(--color-surface, #ffffff);
-      border-radius: 1.5rem;
-      border: none;
-      box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
-      padding: clamp(1.75rem, 1.55rem + 0.5vw, 2.25rem);
-      display: flex;
-      flex-direction: column;
-      gap: clamp(1.75rem, 1.55rem + 0.5vw, 2.25rem);
-      width: min(620px, calc(100vw - 2rem));
-      pointer-events: auto;
-      position: relative;
-      animation: inventory-edit-pop 0.28s ease forwards;
-      max-height: min(90vh, 960px);
-      overflow-y: auto;
-    }
-
-    .inventory-edit__card::-webkit-scrollbar {
-      width: 0.45rem;
-    }
-
-    .inventory-edit__card::-webkit-scrollbar-thumb {
-      background: rgba(15, 23, 42, 0.25);
-      border-radius: 999px;
-    }
-
-    body.theme-dark .inventory-edit__card::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.35);
-    }
-
-    body.theme-dark .inventory-edit__card {
-      background: rgba(15, 23, 42, 0.92);
-      border: none;
-      box-shadow: 0 28px 56px rgba(2, 6, 23, 0.55);
+      border-radius: 1.25rem;
+      padding: 1.5rem;
+      max-height: calc(100vh - 1.5rem);
     }
 
     .inventory-edit__close {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      width: 2.5rem;
-      height: 2.5rem;
-      border-radius: 50%;
-      border: 1px solid rgba(15, 23, 42, 0.1);
-      background: rgba(248, 250, 252, 0.85);
-      color: rgba(15, 23, 42, 0.7);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .inventory-edit__close:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.18);
-    }
-
-    body.theme-dark .inventory-edit__close {
-      background: rgba(30, 41, 59, 0.7);
-      border-color: rgba(148, 163, 184, 0.25);
-      color: rgba(226, 232, 240, 0.85);
-    }
-
-    .inventory-edit__header {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      padding-right: 2.5rem;
-    }
-
-    .inventory-edit__eyebrow {
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: rgba(30, 41, 59, 0.7);
-      margin-bottom: 0;
-    }
-
-    body.theme-dark .inventory-edit__eyebrow {
-      color: rgba(148, 163, 184, 0.85);
-    }
-
-    .inventory-edit__title {
-      font-size: clamp(1.35rem, 1.15rem + 0.8vw, 1.9rem);
-      font-weight: 700;
-      margin-bottom: 0;
-      color: var(--color-heading, #0f172a);
-    }
-
-    body.theme-dark .inventory-edit__title {
-      color: rgba(226, 232, 240, 0.95);
-    }
-
-    .inventory-edit__subtitle {
-      margin-bottom: 0;
-      color: rgba(30, 41, 59, 0.75);
-    }
-
-    body.theme-dark .inventory-edit__subtitle {
-      color: rgba(148, 163, 184, 0.9);
-    }
-
-    .inventory-edit__form .form-label {
-      font-weight: 600;
-      color: var(--color-heading, #0f172a);
-    }
-
-    body.theme-dark .inventory-edit__form .form-label {
-      color: rgba(226, 232, 240, 0.9);
-    }
-
-    .inventory-edit__form .form-control,
-    .inventory-edit__form .form-select {
-      border-radius: 0.9rem;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      background: rgba(248, 250, 252, 0.95);
-      padding: 0.65rem 0.95rem;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease,
-        background-color 0.2s ease;
-    }
-
-    .inventory-edit__form .form-control:focus,
-    .inventory-edit__form .form-select:focus {
-      border-color: rgba(37, 99, 235, 0.75);
-      box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.18);
-      background: #ffffff;
-    }
-
-    body.theme-dark .inventory-edit__form .form-control,
-    body.theme-dark .inventory-edit__form .form-select {
-      background: rgba(15, 23, 42, 0.75);
-      border-color: rgba(148, 163, 184, 0.35);
-      color: rgba(226, 232, 240, 0.9);
-    }
-
-    body.theme-dark .inventory-edit__form .form-control:focus,
-    body.theme-dark .inventory-edit__form .form-select:focus {
-      box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
-    }
-
-    .inventory-edit__footer {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid rgba(148, 163, 184, 0.25);
-    }
-
-    body.theme-dark .inventory-edit__footer {
-      border-top-color: rgba(148, 163, 184, 0.35);
-    }
-
-    .inventory-edit__hint {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      font-weight: 600;
-      color: rgba(30, 41, 59, 0.8);
-      background: rgba(148, 163, 184, 0.12);
-      padding: 0.6rem 0.9rem;
-      border-radius: 0.85rem;
-    }
-
-    .inventory-edit__hint i {
-      color: #0284c7;
-    }
-
-    body.theme-dark .inventory-edit__hint {
-      color: rgba(226, 232, 240, 0.85);
-      background: rgba(30, 41, 59, 0.6);
+      top: 0.75rem;
+      right: 0.75rem;
     }
 
     .inventory-edit__actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.75rem;
-      flex-wrap: wrap;
+      flex-direction: column-reverse;
+      align-items: stretch;
     }
 
-    @media (max-width: 575.98px) {
-      .inventory-edit {
-        padding: 1rem;
-      }
+    .inventory-edit__actions .btn {
+      width: 100%;
+    }
+  }
 
-      .inventory-edit__card {
-        border-radius: 1.25rem;
-        padding: 1.5rem;
-        max-height: calc(100vh - 1.5rem);
-      }
+  @keyframes inventory-edit-pop {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.97);
+    }
 
-      .inventory-edit__close {
-        top: 0.75rem;
-        right: 0.75rem;
-      }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
 
-      .inventory-edit__actions {
-        flex-direction: column-reverse;
-        align-items: stretch;
-      }
+  @keyframes inventory-edit-backdrop {
+    from {
+      opacity: 0;
+    }
 
-      .inventory-edit__actions .btn {
-        width: 100%;
+    to {
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  window.SKIP_SELECT_ENHANCE = true;
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    document.body.classList.add("inventory-edit--modal-open");
+    const cleanup = () =>
+      document.body.classList.remove("inventory-edit--modal-open");
+    window.addEventListener("beforeunload", cleanup);
+
+    const dialogCard = document.querySelector(".inventory-edit__card");
+    if (dialogCard) {
+      try {
+        dialogCard.focus({ preventScroll: true });
+      } catch (err) {
+        dialogCard.focus();
       }
     }
 
-    @keyframes inventory-edit-pop {
-      from {
-        opacity: 0;
-        transform: translateY(12px) scale(0.97);
+    const fallbackUrl = "{{ url_for('inventory.list') }}";
+    const hasUsableHistory = () => {
+      if (!document.referrer) return false;
+      try {
+        const ref = new URL(document.referrer);
+        return ref.origin === window.location.origin;
+      } catch (err) {
+        return false;
       }
-
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
+    };
+    let closing = false;
+    const closeDialog = (event) => {
+      if (closing) return;
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
       }
-    }
+      closing = true;
+      cleanup();
 
-    @keyframes inventory-edit-backdrop {
-      from {
-        opacity: 0;
+      if (window.history.length > 1 && hasUsableHistory()) {
+        window.history.back();
+        window.setTimeout(() => {
+          if (!document.hidden) {
+            window.location.href = fallbackUrl;
+          }
+        }, 300);
+      } else {
+        window.location.href = fallbackUrl;
       }
+    };
 
-      to {
-        opacity: 1;
-      }
-    }
-  </style>
-
-  <script>
-    window.SKIP_SELECT_ENHANCE = true;
-  </script>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-      document.body.classList.add("inventory-edit--modal-open");
-      const cleanup = () =>
-        document.body.classList.remove("inventory-edit--modal-open");
-      window.addEventListener("beforeunload", cleanup);
-
-      const dialogCard = document.querySelector(".inventory-edit__card");
-      if (dialogCard) {
-        try {
-          dialogCard.focus({ preventScroll: true });
-        } catch (err) {
-          dialogCard.focus();
-        }
-      }
-
-      const fallbackUrl = "{{ url_for('inventory.list') }}";
-      const hasUsableHistory = () => {
-        if (!document.referrer) return false;
-        try {
-          const ref = new URL(document.referrer);
-          return ref.origin === window.location.origin;
-        } catch (err) {
-          return false;
-        }
-      };
-      let closing = false;
-      const closeDialog = (event) => {
-        if (closing) return;
-        if (event) {
-          event.preventDefault();
-          event.stopPropagation();
-        }
-        closing = true;
-        cleanup();
-
-        if (window.history.length > 1 && hasUsableHistory()) {
-          window.history.back();
-          window.setTimeout(() => {
-            if (!document.hidden) {
-              window.location.href = fallbackUrl;
-            }
-          }, 300);
-        } else {
-          window.location.href = fallbackUrl;
-        }
-      };
-
-      document
-        .querySelectorAll("[data-inventory-edit-close]")
-        .forEach((trigger) => {
-          trigger.addEventListener("click", closeDialog);
-        });
-
-      document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
-          closeDialog(event);
-        }
+    document
+      .querySelectorAll("[data-inventory-edit-close]")
+      .forEach((trigger) => {
+        trigger.addEventListener("click", closeDialog);
       });
 
-      const current = {{ {
-        "bilgisayar_adi": item.bilgisayar_adi or "",
-        "fabrika": item.fabrika or "",
-        "departman": item.departman or "",
-        "donanim": item.donanim_tipi or "",
-        "sorumlu": item.sorumlu_personel or "",
-        "marka": item.marka or "",
-        "model": item.model or "",
-        "seri_no": item.seri_no or "",
-        "kullanim": item.kullanim_alani or "",
-        "ifs_no": item.ifs_no or "",
-        "bagli": item.bagli_envanter_no or "",
-        "not": item.not_ or "",
-      } | tojson }};
-
-      function setInputValue(name, value) {
-        const el = document.querySelector(`[name="${name}"]`);
-        if (el) el.value = value || "";
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeDialog(event);
       }
+    });
 
-      setInputValue("bilgisayar_adi", current.bilgisayar_adi);
-      setInputValue("seri_no", current.seri_no);
-      setInputValue("ifs_no", current.ifs_no);
-      setInputValue("bagli_envanter_no", current.bagli);
-      setInputValue("not", current.not);
+    const current = {{ {
+      "bilgisayar_adi": item.bilgisayar_adi or "",
+      "fabrika": item.fabrika or "",
+      "departman": item.departman or "",
+      "donanim": item.donanim_tipi or "",
+      "sorumlu": item.sorumlu_personel or "",
+      "marka": item.marka or "",
+      "model": item.model or "",
+      "seri_no": item.seri_no or "",
+      "kullanim": item.kullanim_alani or "",
+      "ifs_no": item.ifs_no or "",
+      "bagli": item.bagli_envanter_no or "",
+      "not": item.not_ or "",
+    } | tojson }};
 
-      async function loadOptions(selectEl, url, selectedValue) {
-        if (!selectEl) return;
-        let data = [];
-        try {
-          const res = await fetch(url);
-          if (res.ok) {
-            data = (await res.json()) || [];
-          }
-        } catch (err) {
-          console.error("Seçenekler yüklenemedi", err);
-        }
-        selectEl.innerHTML =
-          '<option value="">Seçiniz...</option>' +
-          data
-            .map(
-              (o) =>
-                `<option value="${o.text}" data-id="${o.id}">${o.text}</option>`
-            )
-            .join("");
-        setSelectValue(selectEl, selectedValue);
-      }
+    function setInputValue(name, value) {
+      const el = document.querySelector(`[name="${name}"]`);
+      if (el) el.value = value || "";
+    }
 
-      function setSelectValue(selectEl, value) {
-        if (!selectEl) return;
-        const val = value || "";
-        if (val && !Array.from(selectEl.options).some((opt) => opt.value === val)) {
-          const opt = document.createElement("option");
-          opt.value = val;
-          opt.textContent = val;
-          selectEl.appendChild(opt);
-        }
-        selectEl.value = val;
-      }
+    setInputValue("bilgisayar_adi", current.bilgisayar_adi);
+    setInputValue("seri_no", current.seri_no);
+    setInputValue("ifs_no", current.ifs_no);
+    setInputValue("bagli_envanter_no", current.bagli);
+    setInputValue("not", current.not);
 
-      const fabrikaSel = document.getElementById("edit_fabrika");
-      const departmanSel = document.getElementById("edit_departman");
-      const donanimSel = document.getElementById("edit_donanim");
-      const sorumluSel = document.getElementById("edit_sorumlu");
-      const markaSel = document.getElementById("edit_marka");
-      const modelSel = document.getElementById("edit_model");
-      const kullanimSel = document.getElementById("edit_kullanim");
-
-      await loadOptions(fabrikaSel, "/api/picker/fabrika", current.fabrika);
-      await loadOptions(departmanSel, "/api/picker/kullanim_alani", current.departman);
-      await loadOptions(donanimSel, "/api/picker/donanim_tipi", current.donanim);
-      await loadOptions(kullanimSel, "/api/picker/kullanim_alani", current.kullanim);
-
-      await loadOptions(sorumluSel, "/api/picker/kullanici", current.sorumlu);
-
-      let brands = [];
+    async function loadOptions(selectEl, url, selectedValue) {
+      if (!selectEl) return;
+      let data = [];
       try {
-        const brandRes = await fetch("/api/picker/marka");
-        if (brandRes.ok) {
-          brands = (await brandRes.json()) || [];
+        const res = await fetch(url);
+        if (res.ok) {
+          data = (await res.json()) || [];
         }
       } catch (err) {
-        console.error("Marka listesi alınamadı", err);
+        console.error("Seçenekler yüklenemedi", err);
       }
-      markaSel.innerHTML =
+      selectEl.innerHTML =
         '<option value="">Seçiniz...</option>' +
-        brands
+        data
           .map(
-            (b) =>
-              `<option value="${b.text}" data-id="${b.id}">${b.text}</option>`
+            (o) =>
+              `<option value="${o.text}" data-id="${o.id}">${o.text}</option>`
           )
           .join("");
-      setSelectValue(markaSel, current.marka);
+      setSelectValue(selectEl, selectedValue);
+    }
 
-      async function populateModels(selectedBrandValue, selectedModelValue) {
-        if (!modelSel) return;
-        const opt = Array.from(markaSel.options).find(
-          (option) => option.value === (selectedBrandValue || "")
-        );
-        const brandId = opt && opt.dataset.id;
-        modelSel.innerHTML = '<option value="">Seçiniz...</option>';
-        modelSel.disabled = !brandId;
-        if (!brandId) {
-          setSelectValue(modelSel, selectedModelValue);
-          return;
-        }
-        let models = [];
-        try {
-          const res = await fetch(`/api/picker/model?marka_id=${brandId}`);
-          if (res.ok) {
-            models = (await res.json()) || [];
-          }
-        } catch (err) {
-          console.error("Model listesi alınamadı", err);
-        }
-        modelSel.innerHTML += models
-          .map((m) => `<option value="${m.text}">${m.text}</option>`)
-          .join("");
-        setSelectValue(modelSel, selectedModelValue);
+    function setSelectValue(selectEl, value) {
+      if (!selectEl) return;
+      const val = value || "";
+      if (val && !Array.from(selectEl.options).some((opt) => opt.value === val)) {
+        const opt = document.createElement("option");
+        opt.value = val;
+        opt.textContent = val;
+        selectEl.appendChild(opt);
       }
+      selectEl.value = val;
+    }
 
-      await populateModels(current.marka, current.model);
+    const fabrikaSel = document.getElementById("edit_fabrika");
+    const departmanSel = document.getElementById("edit_departman");
+    const donanimSel = document.getElementById("edit_donanim");
+    const sorumluSel = document.getElementById("edit_sorumlu");
+    const markaSel = document.getElementById("edit_marka");
+    const modelSel = document.getElementById("edit_model");
+    const kullanimSel = document.getElementById("edit_kullanim");
 
-      markaSel.addEventListener("change", async () => {
-        await populateModels(markaSel.value, "");
-      });
+    await loadOptions(fabrikaSel, "/api/picker/fabrika", current.fabrika);
+    await loadOptions(departmanSel, "/api/picker/kullanim_alani", current.departman);
+    await loadOptions(donanimSel, "/api/picker/donanim_tipi", current.donanim);
+    await loadOptions(kullanimSel, "/api/picker/kullanim_alani", current.kullanim);
+
+    await loadOptions(sorumluSel, "/api/picker/kullanici", current.sorumlu);
+
+    let brands = [];
+    try {
+      const brandRes = await fetch("/api/picker/marka");
+      if (brandRes.ok) {
+        brands = (await brandRes.json()) || [];
+      }
+    } catch (err) {
+      console.error("Marka listesi alınamadı", err);
+    }
+    markaSel.innerHTML =
+      '<option value="">Seçiniz...</option>' +
+      brands
+        .map(
+          (b) =>
+            `<option value="${b.text}" data-id="${b.id}">${b.text}</option>`
+        )
+        .join("");
+    setSelectValue(markaSel, current.marka);
+
+    async function populateModels(selectedBrandValue, selectedModelValue) {
+      if (!modelSel) return;
+      const opt = Array.from(markaSel.options).find(
+        (option) => option.value === (selectedBrandValue || "")
+      );
+      const brandId = opt && opt.dataset.id;
+      modelSel.innerHTML = '<option value="">Seçiniz...</option>';
+      modelSel.disabled = !brandId;
+      if (!brandId) {
+        setSelectValue(modelSel, selectedModelValue);
+        return;
+      }
+      let models = [];
+      try {
+        const res = await fetch(`/api/picker/model?marka_id=${brandId}`);
+        if (res.ok) {
+          models = (await res.json()) || [];
+        }
+      } catch (err) {
+        console.error("Model listesi alınamadı", err);
+      }
+      modelSel.innerHTML += models
+        .map((m) => `<option value="${m.text}">${m.text}</option>`)
+        .join("");
+      setSelectValue(modelSel, selectedModelValue);
+    }
+
+    await populateModels(current.marka, current.model);
+
+    markaSel.addEventListener("change", async () => {
+      await populateModels(markaSel.value, "");
     });
-  </script>
+  });
+</script>
 {% endblock %}
