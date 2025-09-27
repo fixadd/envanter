@@ -179,6 +179,26 @@ block content %}
 </div>
 
 <style>
+  body.theme-default.inventory-edit-page,
+  body.theme-green.inventory-edit-page,
+  body.theme-red.inventory-edit-page,
+  body.theme-purple.inventory-edit-page {
+    background: var(--color-surface);
+  }
+
+  body.theme-dark.inventory-edit-page {
+    background: rgba(15, 23, 42, 0.96);
+  }
+
+  body.inventory-edit-page.anim-gradient {
+    animation: none;
+    background-size: auto;
+  }
+
+  body.inventory-edit-page #bg {
+    display: none !important;
+  }
+
   .inventory-edit-shell {
     max-width: 1000px;
     margin: clamp(2rem, 1.5rem + 2vw, 3rem) auto;
@@ -375,6 +395,11 @@ block content %}
 
 <script>
   document.addEventListener("DOMContentLoaded", async () => {
+    document.body.classList.add("inventory-edit-page");
+    window.addEventListener("beforeunload", () => {
+      document.body.classList.remove("inventory-edit-page");
+    });
+
     const closeBtn = document.querySelector("[data-edit-close]");
     if (closeBtn) {
       closeBtn.addEventListener("click", (event) => {
