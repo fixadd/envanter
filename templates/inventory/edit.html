@@ -216,10 +216,10 @@
     }
 
     .inventory-edit__card {
-      background: var(--color-surface, #ffffff);
+      background: transparent;
       border-radius: 1.5rem;
-      border: none;
-      box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      box-shadow: none;
       padding: clamp(1.75rem, 1.55rem + 0.5vw, 2.25rem);
       display: flex;
       flex-direction: column;
@@ -246,9 +246,9 @@
     }
 
     body.theme-dark .inventory-edit__card {
-      background: rgba(15, 23, 42, 0.92);
-      border: none;
-      box-shadow: 0 28px 56px rgba(2, 6, 23, 0.55);
+      background: transparent;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      box-shadow: none;
     }
 
     .inventory-edit__close {
