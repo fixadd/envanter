@@ -1359,61 +1359,55 @@ body .container-fluid {
   min-height: calc(100% - 3.5rem);
 }
 
-/* Modal içerik modern yapı */
+/* Modal içerik temel yapı */
 .modal-content {
-  border: none !important;
-  border-radius: var(--radius-lg) !important;
-  box-shadow: var(--shadow-lg) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-md) !important;
   background: var(--color-surface) !important;
-  overflow: hidden;
 }
 
-/* Modal header yeniden tasarım */
+/* Modal header sade görünüm */
 .modal-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  color: white !important;
-  padding: 1.5rem 2rem !important;
-  border-bottom: none !important;
+  background: var(--color-surface) !important;
+  color: var(--color-heading) !important;
+  padding: 1rem 1.5rem !important;
+  border-bottom: 1px solid var(--color-border) !important;
   align-items: center;
+  gap: 1rem;
 }
 
 .modal-header .modal-title {
-  font-size: 1.25rem !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.02em;
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
   margin: 0;
 }
 
 .modal-header .btn-close {
-  background: transparent !important;
-  opacity: 1 !important;
+  opacity: 0.65 !important;
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  transition: all 0.2s ease;
-  filter: brightness(0) invert(1);
+  transition: opacity 0.2s ease;
+  filter: none !important;
 }
 
 .modal-header .btn-close:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  transform: rotate(90deg);
+  opacity: 1 !important;
 }
 
-/* Envanter No badge */
+/* Envanter No bilgisi */
 .modal-header .text-muted {
-  background: rgba(255, 255, 255, 0.2) !important;
-  color: white !important;
-  padding: 0.35rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  display: inline-block;
+  background: transparent !important;
+  color: var(--color-muted) !important;
+  padding: 0;
+  border-radius: 0;
+  font-weight: 500;
   margin-left: auto;
 }
 
 /* Modal body düzenleme */
 .modal-body {
-  padding: 2rem !important;
+  padding: 1.5rem !important;
   background: var(--color-surface) !important;
 }
 
