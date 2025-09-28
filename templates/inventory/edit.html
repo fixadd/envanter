@@ -1,204 +1,211 @@
 {% extends "base.html" %}{% block title %}Envanter Düzenle{% endblock %} {%
 block content %}
-<section
-  class="inventory-edit"
+<div
+  class="modal d-block position-static inventory-edit-modal"
+  tabindex="-1"
   role="dialog"
   aria-modal="true"
   aria-labelledby="inventory-edit-title"
 >
-  <div class="inventory-edit__dialog" role="document">
-    <div class="inventory-edit__card" tabindex="-1">
-      <button
-        type="button"
-        class="inventory-edit__close"
-        data-inventory-edit-close
-      >
-        <span class="visually-hidden">Pencereyi kapat</span>
-        <i class="bi bi-x-lg" aria-hidden="true"></i>
-      </button>
+  <div
+    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+  >
+    <div class="modal-content border-0 bg-transparent p-0" tabindex="-1">
+      <div class="modal-shell">
+        <div class="modal-shell__header">
+          <div class="modal-shell__heading">
+            <span class="eyebrow text-primary mb-1">Envanter Yönetimi</span>
+            <h1 class="modal-shell__title h3 mb-2" id="inventory-edit-title">
+              Envanter Bilgilerini Düzenleyin
+            </h1>
+            <p class="modal-shell__subtitle mb-0">
+              Bilgileri güncel tutarak ekipmanlarınızın durumunu daha kolay
+              takip edin.
+            </p>
+          </div>
+          <div class="modal-shell__header-actions">
+            <button
+              type="button"
+              class="btn-close"
+              data-inventory-edit-close
+              aria-label="Pencereyi kapat"
+            ></button>
+          </div>
+        </div>
 
-      <header class="inventory-edit__header">
-        <span class="inventory-edit__eyebrow">Envanter Yönetimi</span>
-        <h1 class="inventory-edit__title" id="inventory-edit-title">
-          Envanter Bilgilerini Düzenleyin
-        </h1>
-        <p class="inventory-edit__subtitle">
-          Bilgileri güncel tutarak ekipmanlarınızın durumunu daha kolay takip
-          edin.
-        </p>
-      </header>
-
-      <form
-        method="post"
-        action="{{ '?modal=1' if modal else '' }}"
-        id="inventory-edit-form"
-        class="inventory-edit__form needs-validation"
-        autocomplete="off"
-        novalidate
-      >
-        <div class="row g-3" id="inventory-edit-grid">
-          <div class="col-md-6">
-            <label class="form-label" for="inventoryNo">Envanter No</label>
-            <input
-              id="inventoryNo"
-              type="text"
-              class="form-control"
-              value="{{ item.no }}"
-              readonly
-            />
-          </div>
-          <div class="col-md-6">
-            <label class="form-label" for="inventoryName">Bilgisayar Adı</label>
-            <input
-              id="inventoryName"
-              name="bilgisayar_adi"
-              type="text"
-              class="form-control"
-              value="{{ item.bilgisayar_adi or '' }}"
-              placeholder="Örn. BT-WS-01"
-            />
-          </div>
-          <div class="col-md-6">
-            <label class="form-label" for="edit_fabrika">Fabrika</label>
-            <select
-              id="edit_fabrika"
-              name="fabrika"
-              class="form-select"
-            ></select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label" for="edit_departman">Departman</label>
-            <select
-              id="edit_departman"
-              name="departman"
-              class="form-select"
-            ></select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label" for="edit_donanim">Donanım Tipi</label>
-            <select
-              id="edit_donanim"
-              name="donanim_tipi"
-              class="form-select"
-            ></select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label" for="edit_sorumlu"
-              >Sorumlu Personel</label
-            >
-            <select
-              id="edit_sorumlu"
-              name="sorumlu_personel"
-              class="form-select"
-            ></select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label" for="edit_marka">Marka</label>
-            <select id="edit_marka" name="marka" class="form-select"></select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label" for="edit_model">Model</label>
-            <select id="edit_model" name="model" class="form-select" disabled>
-              <option value="">Önce marka seçiniz...</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label" for="inventorySerial">Seri No</label>
-            <input
-              id="inventorySerial"
-              name="seri_no"
-              type="text"
-              class="form-control"
-              value="{{ item.seri_no or '' }}"
-              placeholder="Seri numarası"
-            />
-          </div>
-          <div class="col-md-6">
-            <label class="form-label" for="edit_kullanim">Kullanım Alanı</label>
-            <select
-              id="edit_kullanim"
-              name="kullanim_alani"
-              class="form-select"
-            ></select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label" for="inventoryIfs">IFS No</label>
-            <input
-              id="inventoryIfs"
-              name="ifs_no"
-              type="text"
-              class="form-control"
-              value="{{ item.ifs_no or '' }}"
-              placeholder="IFS referansı"
-            />
-          </div>
-          <div class="col-md-6">
-            <label class="form-label" for="inventoryLinked"
-              >Bağlı Envanter No</label
-            >
-            <input
-              id="inventoryLinked"
-              name="bagli_envanter_no"
-              type="text"
-              class="form-control"
-              value="{{ item.bagli_envanter_no or '' }}"
-              placeholder="Varsa bağlı envanter"
-            />
-          </div>
-          <div class="col-12">
-            <label class="form-label" for="inventoryNote">Not</label>
-            <textarea
-              id="inventoryNote"
-              name="not"
-              class="form-control"
-              rows="3"
-              placeholder="Envanterle ilgili önemli notları girin"
-            >
+        <form
+          method="post"
+          action="{{ '?modal=1' if modal else '' }}"
+          id="inventory-edit-form"
+          class="modal-shell__body needs-validation"
+          autocomplete="off"
+          novalidate
+        >
+          <div class="row g-3" id="inventory-edit-grid">
+            <div class="col-md-6">
+              <label class="form-label" for="inventoryNo">Envanter No</label>
+              <input
+                id="inventoryNo"
+                type="text"
+                class="form-control"
+                value="{{ item.no }}"
+                readonly
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="inventoryName"
+                >Bilgisayar Adı</label
+              >
+              <input
+                id="inventoryName"
+                name="bilgisayar_adi"
+                type="text"
+                class="form-control"
+                value="{{ item.bilgisayar_adi or '' }}"
+                placeholder="Örn. BT-WS-01"
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="edit_fabrika">Fabrika</label>
+              <select
+                id="edit_fabrika"
+                name="fabrika"
+                class="form-select"
+              ></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="edit_departman">Departman</label>
+              <select
+                id="edit_departman"
+                name="departman"
+                class="form-select"
+              ></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="edit_donanim">Donanım Tipi</label>
+              <select
+                id="edit_donanim"
+                name="donanim_tipi"
+                class="form-select"
+              ></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="edit_sorumlu"
+                >Sorumlu Personel</label
+              >
+              <select
+                id="edit_sorumlu"
+                name="sorumlu_personel"
+                class="form-select"
+              ></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="edit_marka">Marka</label>
+              <select id="edit_marka" name="marka" class="form-select"></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="edit_model">Model</label>
+              <select id="edit_model" name="model" class="form-select" disabled>
+                <option value="">Önce marka seçiniz...</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="inventorySerial">Seri No</label>
+              <input
+                id="inventorySerial"
+                name="seri_no"
+                type="text"
+                class="form-control"
+                value="{{ item.seri_no or '' }}"
+                placeholder="Seri numarası"
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="edit_kullanim"
+                >Kullanım Alanı</label
+              >
+              <select
+                id="edit_kullanim"
+                name="kullanim_alani"
+                class="form-select"
+              ></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="inventoryIfs">IFS No</label>
+              <input
+                id="inventoryIfs"
+                name="ifs_no"
+                type="text"
+                class="form-control"
+                value="{{ item.ifs_no or '' }}"
+                placeholder="IFS referansı"
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="inventoryLinked"
+                >Bağlı Envanter No</label
+              >
+              <input
+                id="inventoryLinked"
+                name="bagli_envanter_no"
+                type="text"
+                class="form-control"
+                value="{{ item.bagli_envanter_no or '' }}"
+                placeholder="Varsa bağlı envanter"
+              />
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="inventoryNote">Not</label>
+              <textarea
+                id="inventoryNote"
+                name="not"
+                class="form-control"
+                rows="3"
+                placeholder="Envanterle ilgili önemli notları girin"
+              >
 {{ item.not_ or '' }}</textarea
-            >
+              >
+            </div>
           </div>
-        </div>
 
-        <div class="inventory-edit__footer">
-          <div class="inventory-edit__hint">
-            <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
-            <span>Kaydettiğiniz bilgiler envanter geçmişine işlenecektir.</span>
+          <div class="modal-shell__footer">
+            <div class="modal-shell__note">
+              <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+              <span
+                >Kaydettiğiniz bilgiler envanter geçmişine işlenecektir.</span
+              >
+            </div>
+            <div class="modal-shell__actions">
+              {% if not modal %}
+              <a
+                href="{{ url_for('inventory.list') }}"
+                class="btn btn-outline-secondary"
+              >
+                İptal
+              </a>
+              {% endif %}
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save me-1" aria-hidden="true"></i>
+                Kaydet
+              </button>
+            </div>
           </div>
-          <div class="inventory-edit__actions">
-            {% if not modal %}
-            <a
-              href="{{ url_for('inventory.list') }}"
-              class="btn btn-outline-secondary"
-            >
-              İptal
-            </a>
-            {% endif %}
-            <button type="submit" class="btn btn-primary">
-              <i class="bi bi-save me-1" aria-hidden="true"></i>
-              Kaydet
-            </button>
-          </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   </div>
-</section>
-
-
+</div>
 
 <script>
   document.addEventListener("DOMContentLoaded", async () => {
-    document.body.classList.add("inventory-edit--modal-open");
-    const cleanup = () =>
-      document.body.classList.remove("inventory-edit--modal-open");
-    window.addEventListener("beforeunload", cleanup);
-
-    const dialogCard = document.querySelector(".inventory-edit__card");
-    if (dialogCard) {
+    const dialogContent = document.querySelector(
+      ".inventory-edit-modal .modal-content"
+    );
+    if (dialogContent) {
       try {
-        dialogCard.focus({ preventScroll: true });
+        dialogContent.focus({ preventScroll: true });
       } catch (err) {
-        dialogCard.focus();
+        dialogContent.focus();
       }
     }
 
@@ -220,7 +227,6 @@ block content %}
         event.stopPropagation();
       }
       closing = true;
-      cleanup();
 
       if (window.history.length > 1 && hasUsableHistory()) {
         window.history.back();
