@@ -57,7 +57,8 @@
         const selectedOption = sel.options[sel.selectedIndex];
         const title = (sel.dataset.editModalTitle || selectedOption?.text || "").trim();
         const size = sel.dataset.editModalSize || "lg";
-        openModal(`${url}?modal=1`, title, { size });
+        const chrome = sel.dataset.editModalChrome || "default";
+        openModal(`${url}?modal=1`, title, { size, chrome });
       } else {
         go(url);
       }

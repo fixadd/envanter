@@ -13,6 +13,7 @@ filtered_actions.values = filtered_actions.values + [(value, label)] %} {% endif
 %} {% endfor %} {% set actions = filtered_actions.values %} {% endif %}
 {% set edit_modal_size = edit_modal_size|default('lg') %}
 {% set edit_modal_title = edit_modal_title|default('') %}
+{% set edit_modal_chrome = edit_modal_chrome|default('default') %}
 
 <div class="d-flex align-items-center">
   <button
@@ -34,6 +35,7 @@ filtered_actions.values = filtered_actions.values + [(value, label)] %} {% endif
     data-entity-key="{{ fault_entity_key or '' }}"
     data-edit-modal-size="{{ edit_modal_size }}"
     data-edit-modal-title="{{ edit_modal_title }}"
+    data-edit-modal-chrome="{{ edit_modal_chrome }}"
   >
     <option value="">Seçiniz...</option>
     {% for value, label in actions %}
