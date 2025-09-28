@@ -150,7 +150,8 @@ block content %}
                 fault_mode = True %} {% set fault_device = row.no %} {% set
                 fault_title = (row.marka ~ ' ' ~ row.model)|trim %} {% set
                 fault_entity_key = row.no %} {% set fault_status = row.durum %}
-                {% include 'partials/_actions_menu.html' %}
+                {% set edit_modal_chrome = 'frameless' %} {% include
+                'partials/_actions_menu.html' %}
               </td>
             </tr>
             {% endfor %}
