@@ -1430,6 +1430,11 @@ body .modal.inventory-edit-modal .modal-content {
   font-size: 0.75rem;
 }
 
+.muted {
+  color: var(--bs-secondary-color, #6c757d);
+  font-weight: 400;
+}
+
 /* Input ve select stil */
 .ctrl,
 .form-control,
@@ -1509,11 +1514,13 @@ body .modal.inventory-edit-modal .modal-content {
 
 /* ========== 2. ATAMA MODAL - MODERN TASARIM ========== */
 
-#assignModal .modal-dialog {
+#assignModal .modal-dialog,
+.inventory-edit-modal .modal-dialog {
   max-width: 900px !important;
 }
 
-#assignModal .modal-content {
+#assignModal .modal-content,
+.inventory-edit-modal .modal-content {
   border-radius: 1.25rem !important;
   border: none !important;
   background: var(--color-surface, #ffffff) !important;
@@ -1521,7 +1528,8 @@ body .modal.inventory-edit-modal .modal-content {
   overflow: hidden;
 }
 
-#assignModal .modal-header {
+#assignModal .modal-header,
+.inventory-edit-modal .modal-header {
   padding: 1.75rem 2rem !important;
   background: var(--color-surface, #ffffff) !important;
   border-bottom: 1px solid var(--color-border, #e5e7eb) !important;
@@ -1529,42 +1537,50 @@ body .modal.inventory-edit-modal .modal-content {
   gap: 1.25rem;
 }
 
-#assignModal .modal-title {
+#assignModal .modal-title,
+.inventory-edit-modal .modal-title {
   font-size: 1.25rem !important;
   font-weight: 700 !important;
   color: var(--color-heading, #111827) !important;
 }
 
-#assignModal .modal-subtitle {
+#assignModal .modal-subtitle,
+.inventory-edit-modal .modal-subtitle {
   font-size: 0.875rem !important;
   color: var(--color-muted, #6b7280) !important;
   margin-top: 0.35rem !important;
 }
 
-#assignModal .modal-header .btn-close {
+#assignModal .modal-header .btn-close,
+.inventory-edit-modal .modal-header .btn-close {
   background-color: #ef4444 !important;
   filter: invert(1) !important;
   opacity: 1 !important;
 }
 
-#assignModal .modal-header .btn-close:hover {
+#assignModal .modal-header .btn-close:hover,
+.inventory-edit-modal .modal-header .btn-close:hover {
   background-color: #dc2626 !important;
 }
 
-#assignModal .modal-body {
+#assignModal .modal-body,
+.inventory-edit-modal .modal-body {
   padding: 2rem !important;
   background: var(--color-surface, #ffffff) !important;
 }
 
-#assignModal .modal-body .env-grid {
+#assignModal .modal-body .env-grid,
+.inventory-edit-modal .modal-body .env-grid {
   gap: 1.5rem !important;
 }
 
-#assignModal .modal-body .field {
+#assignModal .modal-body .field,
+.inventory-edit-modal .modal-body .field {
   margin: 0 !important;
 }
 
-#assignModal .ctrl {
+#assignModal .ctrl,
+.inventory-edit-modal .ctrl {
   border-radius: var(--radius-sm) !important;
 }
 

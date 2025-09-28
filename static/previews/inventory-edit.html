@@ -155,188 +155,175 @@
       <div
         class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
       >
-        <div class="modal-content border-0 bg-transparent p-0" tabindex="-1">
-          <div class="modal-shell">
-            <div class="modal-header border-0 pb-0 align-items-start">
-              <div class="modal-shell__heading">
-                <span class="eyebrow text-primary mb-1">Envanter Yönetimi</span>
-                <h1
-                  class="modal-shell__title h3 mb-2"
-                  id="inventory-edit-title"
-                >
-                  Envanter Bilgilerini Düzenleyin
-                </h1>
-                <p class="modal-shell__subtitle mb-0">
-                  Bilgileri güncel tutarak ekipmanlarınızın durumunu daha kolay
-                  takip edin.
-                </p>
+        <form
+          class="modal-content needs-validation"
+          autocomplete="off"
+          novalidate
+          tabindex="-1"
+        >
+          <div class="modal-header align-items-start">
+            <div>
+              <span class="eyebrow text-primary d-block mb-1"
+                >Envanter Yönetimi</span
+              >
+              <h5 class="modal-title" id="inventory-edit-title">
+                Envanter Bilgilerini Düzenleyin
+              </h5>
+              <p class="modal-subtitle mb-0">
+                Bilgileri güncel tutarak ekipmanlarınızın durumunu daha kolay
+                takip edin.
+              </p>
+            </div>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              data-inventory-edit-close
+              aria-label="Pencereyi kapat"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <div class="env-grid">
+              <div class="field">
+                <label for="previewInventoryNo">Envanter No</label>
+                <input
+                  id="previewInventoryNo"
+                  type="text"
+                  class="ctrl"
+                  value="INV-2024-0871"
+                  readonly
+                />
               </div>
-              <div class="modal-shell__header-actions ms-auto">
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-inventory-edit-close
-                  aria-label="Pencereyi kapat"
-                ></button>
+              <div class="field">
+                <label for="previewInventoryName">Bilgisayar Adı</label>
+                <input
+                  id="previewInventoryName"
+                  type="text"
+                  class="ctrl"
+                  value="BT-WS-01"
+                  placeholder="Örn. BT-WS-01"
+                />
+              </div>
+              <div class="field">
+                <label for="previewFabrika">Fabrika</label>
+                <select id="previewFabrika" class="ctrl">
+                  <option>Merkez Kampüs</option>
+                  <option>İzmit Tesisi</option>
+                  <option selected>Teknopark</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="previewDepartman">Departman</label>
+                <select id="previewDepartman" class="ctrl">
+                  <option>Üretim</option>
+                  <option selected>Bilgi Teknolojileri</option>
+                  <option>Bakım</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="previewDonanim">Donanım Tipi</label>
+                <select id="previewDonanim" class="ctrl">
+                  <option>Masaüstü</option>
+                  <option selected>İş İstasyonu</option>
+                  <option>Dizüstü</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="previewSorumlu">Sorumlu Personel</label>
+                <select id="previewSorumlu" class="ctrl">
+                  <option>Gökhan Yılmaz</option>
+                  <option selected>Ayşe Demir</option>
+                  <option>Kerem Uçar</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="previewMarka">Marka</label>
+                <select id="previewMarka" class="ctrl">
+                  <option>HP</option>
+                  <option selected>Dell</option>
+                  <option>Lenovo</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="previewModel">Model</label>
+                <select id="previewModel" class="ctrl">
+                  <option>Precision 3460</option>
+                  <option selected>Precision 5680</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="previewSerial">Seri No</label>
+                <input
+                  id="previewSerial"
+                  type="text"
+                  class="ctrl"
+                  value="SN-DS-8823-TR"
+                />
+              </div>
+              <div class="field">
+                <label for="previewUsage">Kullanım Alanı</label>
+                <select id="previewUsage" class="ctrl">
+                  <option selected>Ofis</option>
+                  <option>Üretim Alanı</option>
+                  <option>Laboratuvar</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="previewIfs">IFS No</label>
+                <input
+                  id="previewIfs"
+                  type="text"
+                  class="ctrl"
+                  value="IFS-235879"
+                />
+              </div>
+              <div class="field">
+                <label for="previewLinked">Bağlı Envanter No</label>
+                <input
+                  id="previewLinked"
+                  type="text"
+                  class="ctrl"
+                  value="INV-2024-0724"
+                />
+              </div>
+              <div class="field span-2">
+                <label for="previewNote">Not</label>
+                <textarea
+                  id="previewNote"
+                  class="ctrl"
+                  rows="3"
+                  placeholder="Envanterle ilgili önemli notları girin"
+                >
+CPU fan değişimi planlandı. Yazılım lisans güncellemesi 05.09.2024.</textarea
+                >
               </div>
             </div>
-
-            <form class="modal-body pt-0" novalidate>
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label" for="previewInventoryNo"
-                    >Envanter No</label
-                  >
-                  <input
-                    id="previewInventoryNo"
-                    type="text"
-                    class="form-control"
-                    value="INV-2024-0871"
-                    readonly
-                  />
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="previewInventoryName"
-                    >Bilgisayar Adı</label
-                  >
-                  <input
-                    id="previewInventoryName"
-                    type="text"
-                    class="form-control"
-                    value="BT-WS-01"
-                    placeholder="Örn. BT-WS-01"
-                  />
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="previewFabrika">Fabrika</label>
-                  <select id="previewFabrika" class="form-select">
-                    <option>Merkez Kampüs</option>
-                    <option>İzmit Tesisi</option>
-                    <option selected>Teknopark</option>
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="previewDepartman"
-                    >Departman</label
-                  >
-                  <select id="previewDepartman" class="form-select">
-                    <option>Üretim</option>
-                    <option selected>Bilgi Teknolojileri</option>
-                    <option>Bakım</option>
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="previewDonanim"
-                    >Donanım Tipi</label
-                  >
-                  <select id="previewDonanim" class="form-select">
-                    <option>Masaüstü</option>
-                    <option selected>İş İstasyonu</option>
-                    <option>Dizüstü</option>
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="previewSorumlu"
-                    >Sorumlu Personel</label
-                  >
-                  <select id="previewSorumlu" class="form-select">
-                    <option>Gökhan Yılmaz</option>
-                    <option selected>Ayşe Demir</option>
-                    <option>Kerem Uçar</option>
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="previewMarka">Marka</label>
-                  <select id="previewMarka" class="form-select">
-                    <option>HP</option>
-                    <option selected>Dell</option>
-                    <option>Lenovo</option>
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="previewModel">Model</label>
-                  <select id="previewModel" class="form-select">
-                    <option>Precision 3460</option>
-                    <option selected>Precision 5680</option>
-                    <option>OptiPlex 7410</option>
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="previewSerial">Seri No</label>
-                  <input
-                    id="previewSerial"
-                    type="text"
-                    class="form-control"
-                    value="SN-98Q2-TR01"
-                  />
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="previewKullanim"
-                    >Kullanım Alanı</label
-                  >
-                  <select id="previewKullanim" class="form-select">
-                    <option>Ofis</option>
-                    <option selected>Ar-Ge Laboratuvarı</option>
-                    <option>Üretim Hattı</option>
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="previewIfs">IFS No</label>
-                  <input
-                    id="previewIfs"
-                    type="text"
-                    class="form-control"
-                    value="IFS-235879"
-                  />
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="previewLinked"
-                    >Bağlı Envanter No</label
-                  >
-                  <input
-                    id="previewLinked"
-                    type="text"
-                    class="form-control"
-                    value="INV-2024-0724"
-                  />
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="previewNote">Not</label>
-                  <textarea
-                    id="previewNote"
-                    class="form-control"
-                    rows="3"
-                    placeholder="Envanterle ilgili önemli notları girin"
-                  >
-CPU fan değişimi planlandı. Yazılım lisans güncellemesi 05.09.2024.</textarea
-                  >
-                </div>
-              </div>
-              <div
-                class="modal-footer border-0 pt-0 flex-column flex-lg-row gap-3 align-items-stretch align-items-lg-center"
-              >
-                <div class="d-flex align-items-start gap-2 text-muted small w-100">
-                  <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
-                  <span>
-                    Kaydettiğiniz bilgiler envanter geçmişine işlenecektir.
-                  </span>
-                </div>
-                <div
-                  class="d-flex gap-2 w-100 justify-content-end ms-lg-auto justify-content-lg-end"
-                >
-                  <button type="button" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
-                    Geri Dön
-                  </button>
-                  <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-save me-1" aria-hidden="true"></i>
-                    Kaydet
-                  </button>
-                </div>
-              </div>
-            </form>
           </div>
-        </div>
+
+          <div
+            class="modal-footer flex-column flex-lg-row gap-3 align-items-stretch align-items-lg-center"
+          >
+            <div class="d-flex align-items-start gap-2 text-muted small w-100">
+              <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+              <span
+                >Kaydettiğiniz bilgiler envanter geçmişine işlenecektir.</span
+              >
+            </div>
+            <div
+              class="d-flex gap-2 w-100 justify-content-end ms-lg-auto justify-content-lg-end"
+            >
+              <button type="button" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+                Geri Dön
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save me-1" aria-hidden="true"></i>
+                Kaydet
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   </body>
