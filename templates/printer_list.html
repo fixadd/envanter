@@ -94,50 +94,81 @@ content %}
           ></button>
         </div>
         <div class="modal-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Marka</label>
+          <div class="env-grid" id="yazici-ekle-grid">
+            <div class="field">
+              <label for="selYaziciMarka">Marka</label>
               <select
                 id="selYaziciMarka"
                 name="marka_id"
-                class="form-select"
+                class="ctrl"
+                required
               ></select>
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Model</label>
+            <div class="field">
+              <label for="selYaziciModel">Model</label>
               <select
                 id="selYaziciModel"
                 name="model_id"
-                class="form-select"
+                class="ctrl"
+                required
               ></select>
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Kullanım Alanı</label>
+            <div class="field">
+              <label for="selYaziciKullanim">Kullanım Alanı</label>
               <select
                 id="selYaziciKullanim"
                 name="kullanim_alani_id"
-                class="form-select"
+                class="ctrl"
+                required
               ></select>
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Envanter No</label>
-              <input name="envanter_no" class="form-control" required />
+            <div class="field">
+              <label for="printerEnvanterNo">Envanter No</label>
+              <input
+                id="printerEnvanterNo"
+                name="envanter_no"
+                class="ctrl"
+                required
+                placeholder="ENV-000123"
+              />
             </div>
-            <div class="col-md-4">
-              <label class="form-label">IP Adresi</label>
-              <input name="ip_adresi" class="form-control" />
+            <div class="field">
+              <label for="printerIp">IP Adresi</label>
+              <input
+                id="printerIp"
+                name="ip_adresi"
+                class="ctrl"
+                placeholder="10.0.0.10"
+              />
             </div>
-            <div class="col-md-4">
-              <label class="form-label">MAC</label>
-              <input name="mac" class="form-control" />
+            <div class="field">
+              <label for="printerMac">MAC</label>
+              <input
+                id="printerMac"
+                name="mac"
+                class="ctrl"
+                placeholder="AA:BB:CC:DD:EE:FF"
+              />
             </div>
-            <div class="col-md-4">
-              <label class="form-label">Hostname</label>
-              <input name="hostname" class="form-control" />
+            <div class="field">
+              <label for="printerHostname">Hostname</label>
+              <input
+                id="printerHostname"
+                name="hostname"
+                class="ctrl"
+                placeholder="PRN-OFIS-01"
+              />
             </div>
-            <div class="col-md-4">
-              <label class="form-label">IFS No</label>
-              <input name="ifs_no" class="form-control" />
+            <div class="field">
+              <label for="printerIfs"
+                >IFS No <span class="muted">(opsiyonel)</span></label
+              >
+              <input
+                id="printerIfs"
+                name="ifs_no"
+                class="ctrl"
+                placeholder="IFS-12345"
+              />
             </div>
           </div>
         </div>

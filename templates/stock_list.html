@@ -454,102 +454,99 @@ content %}
               </div>
 
               <div id="hardwareFields">
-                <div class="form-grid form-grid--compact stok-row">
-                  <div class="form-group">
-                    <label class="form-label" for="stok_donanim_tipi"
-                      >Donanım Tipi</label
-                    >
+                <div class="env-grid stok-row" id="stok-donanim-grid">
+                  <div class="field">
+                    <label for="stok_donanim_tipi">Donanım Tipi</label>
                     <select
                       name="donanim_tipi"
-                      class="form-select"
+                      class="ctrl"
                       data-lookup="donanim_tipi"
                       id="stok_donanim_tipi"
                       required
                     ></select>
                   </div>
-                  <div class="form-group">
-                    <label class="form-label" for="stok_marka"
-                      >Marka (ops.)</label
+                  <div class="field">
+                    <label for="stok_marka"
+                      >Marka <span class="muted">(ops.)</span></label
                     >
                     <select
                       name="marka"
-                      class="form-select"
+                      class="ctrl"
                       data-lookup="marka"
                       id="stok_marka"
                     ></select>
                   </div>
-                  <div class="form-group">
-                    <label class="form-label" for="stok_model"
-                      >Model (ops.)</label
+                  <div class="field">
+                    <label for="stok_model"
+                      >Model <span class="muted">(ops.)</span></label
                     >
                     <select
                       name="model"
-                      class="form-select"
+                      class="ctrl"
                       data-lookup="model"
                       data-depends="#stok_marka"
                       id="stok_model"
                     ></select>
                   </div>
-                  <div class="form-group" id="rowMiktar">
-                    <label class="form-label" for="miktar">Miktar</label>
+                  <div class="field" id="rowMiktar">
+                    <label for="miktar">Miktar</label>
                     <input
                       type="number"
                       min="1"
                       id="miktar"
                       name="miktar"
-                      class="form-control"
+                      class="ctrl"
                       required
                     />
                   </div>
-                  <div class="form-group">
-                    <label class="form-label" for="ifs_no"
-                      >IFS No (opsiyonel)</label
+                  <div class="field">
+                    <label for="ifs_no"
+                      >IFS No <span class="muted">(opsiyonel)</span></label
                     >
                     <input
                       type="text"
                       id="ifs_no"
                       name="ifs_no"
-                      class="form-control"
+                      class="ctrl"
+                      placeholder="IFS numarası"
                     />
                   </div>
                 </div>
               </div>
 
               <div id="licenseFields" class="d-none">
-                <div class="form-grid form-grid--compact">
-                  <div class="form-group">
-                    <label class="form-label" for="lisans_adi"
-                      >Lisans Adı</label
-                    >
+                <div class="env-grid" id="stok-lisans-grid">
+                  <div class="field">
+                    <label for="lisans_adi">Lisans Adı</label>
                     <select
                       id="lisans_adi"
                       name="lisans_adi"
-                      class="form-select"
+                      class="ctrl"
                       data-lookup="lisans_adi"
                       required
                     ></select>
                   </div>
-                  <div class="form-group">
-                    <label class="form-label" for="lisans_anahtari"
-                      >Lisans Anahtarı</label
-                    >
+                  <div class="field">
+                    <label for="lisans_anahtari">Lisans Anahtarı</label>
                     <input
                       type="text"
                       id="lisans_anahtari"
                       name="lisans_anahtari"
-                      class="form-control"
+                      class="ctrl"
                       required
+                      placeholder="XXXX-XXXX-XXXX-XXXX"
                     />
                   </div>
-                  <div class="form-group">
-                    <label class="form-label" for="mail_adresi"
-                      >E-posta (opsiyonel)</label
+                  <div class="field">
+                    <label for="mail_adresi"
+                      >E-posta <span class="muted">(opsiyonel)</span></label
                     >
                     <input
                       type="email"
                       id="mail_adresi"
                       name="mail_adresi"
-                      class="form-control"
+                      class="ctrl"
+                      placeholder="ornek@firma.com"
                     />
                   </div>
                 </div>
