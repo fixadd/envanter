@@ -195,9 +195,19 @@ document.addEventListener("DOMContentLoaded", () => {
 function stopRowClick(e) { e.stopPropagation(); }
 
 function openModal(url, title="", options={}) {
+  const modalEl = document.getElementById("iframeModal");
   const frame = document.getElementById("iframeModalFrame");
-  frame.src = url;
-  document.getElementById("iframeModalTitle").textContent = title;
+  const chrome = (options && options.chrome) || "default";
+  if (modalEl) {
+    modalEl.classList.toggle("iframe-modal--frameless", chrome === "frameless");
+  }
+  if (frame) {
+    frame.src = url;
+  }
+  const titleEl = document.getElementById("iframeModalTitle");
+  if (titleEl) {
+    titleEl.textContent = chrome === "frameless" ? "" : title;
+  }
   const dialog = document.querySelector("#iframeModal .modal-dialog");
   if (dialog) {
     const sizeClasses = [
@@ -231,7 +241,7 @@ function openModal(url, title="", options={}) {
       dialog.classList.add("modal-lg");
     }
   }
-  const modal = new bootstrap.Modal(document.getElementById("iframeModal"));
+  const modal = new bootstrap.Modal(modalEl);
   modal.show();
 }
 window.openModal = openModal;
@@ -242,7 +252,8 @@ document.addEventListener("click", (e) => {
   e.preventDefault();
   const title = link.dataset.modalTitle || link.textContent?.trim() || "";
   const size = link.dataset.modalSize || undefined;
-  openModal(link.dataset.modalUrl, title, { size });
+  const chrome = link.dataset.modalChrome || "default";
+  openModal(link.dataset.modalUrl, title, { size, chrome });
 });
 
 window.addEventListener("message", (e) => {
@@ -260,6 +271,18 @@ window.addEventListener("message", (e) => {
     tr[data-href]:hover { background-color: #f8f9fa; }
     @media (hover:hover) {
       tr[data-href]:hover > td { transition: background-color .12s ease-in-out; }
+    }
+    #iframeModal.iframe-modal--frameless .modal-content {
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+    }
+    #iframeModal.iframe-modal--frameless .modal-body {
+      padding: 0;
+      background: transparent;
+    }
+    #iframeModal.iframe-modal--frameless .modal-header {
+      display: none;
     }
     </style>
     {% endblock %}
