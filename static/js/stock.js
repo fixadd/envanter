@@ -161,9 +161,54 @@
 
   const TYPE_LABELS = {
     envanter: "Envanter",
-    lisans: "Yazılım",
+    lisans: "Lisans",
     yazici: "Yazıcı",
   };
+
+  const LICENSE_TYPE_KEYS = new Set([
+    "lisans",
+    "lisanslar",
+    "license",
+    "software",
+    "yazilim",
+  ]);
+  const PRINTER_TYPE_KEYS = new Set(["yazici", "printer"]);
+
+  function normaliseCategoryValue(value) {
+    if (value === null || value === undefined) return "";
+    return String(value).trim().toLowerCase();
+  }
+
+  function matchesCategory(value, keys) {
+    if (!value) return false;
+    if (keys.has(value)) return true;
+    const lastSegment = value.includes(":") ? value.split(":").pop() : value;
+    if (lastSegment && keys.has(lastSegment)) return true;
+    for (const key of keys) {
+      if (value.includes(key)) return true;
+    }
+    return false;
+  }
+
+  function detectItemCategory(item) {
+    const candidates = [];
+    const base = normaliseCategoryValue(
+      baseSourceType(item?.item_type || item?.source_type),
+    );
+    if (base) candidates.push(base);
+    const rawType = normaliseCategoryValue(item?.item_type);
+    if (rawType) candidates.push(rawType);
+    const sourceType = normaliseCategoryValue(item?.source_type);
+    if (sourceType) candidates.push(sourceType);
+
+    if (candidates.some((value) => matchesCategory(value, LICENSE_TYPE_KEYS))) {
+      return "license";
+    }
+    if (candidates.some((value) => matchesCategory(value, PRINTER_TYPE_KEYS))) {
+      return "printer";
+    }
+    return "inventory";
+  }
 
   function updateSystemRoomButtons() {
     const addBtn = dom.one("#btnSystemRoomAdd");
@@ -1357,19 +1402,14 @@
         const licenseItems = [];
         const systemItems = [];
         items.forEach((item) => {
-          const type = baseSourceType(item?.item_type || item?.source_type);
           if (item?.system_room) {
             systemItems.push(item);
             return;
           }
-          if (
-            type === "lisans" ||
-            type === "license" ||
-            type === "yazilim" ||
-            type === "software"
-          ) {
+          const category = detectItemCategory(item);
+          if (category === "license") {
             licenseItems.push(item);
-          } else if (type === "yazici" || type === "printer") {
+          } else if (category === "printer") {
             printerItems.push(item);
           } else {
             inventoryItems.push(item);
@@ -1705,6 +1745,7 @@
     } else if (
       moduleParam === "license" ||
       moduleParam === "lisans" ||
+      moduleParam === "lisanslar" ||
       moduleParam === "software" ||
       moduleParam === "yazilim"
     ) {
