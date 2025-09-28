@@ -1531,6 +1531,14 @@ body .container-fluid {
   gap: 1.25rem;
 }
 
+.inventory-edit-modal .modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--color-surface, #ffffff);
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.08);
+}
+
 #assignModal .modal-title,
 .inventory-edit-modal .modal-title {
   font-size: 1.25rem !important;
