@@ -1,6 +1,5 @@
-{% extends "base.html" %} {% block title %}Lisans {{ 'Düzenle' if license else 'Ekle' }}{% endblock %}
-{% block content %}
-{% if license %}
+{% extends "base.html" %} {% block title %}Lisans {{ 'Düzenle' if license else
+'Ekle' }}{% endblock %} {% block content %} {% if license %}
 <div
   class="modal fade show license-edit-modal"
   id="licenseEditModal"
@@ -11,7 +10,9 @@
   style="display: block"
   data-bs-backdrop="static"
 >
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+  <div
+    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+  >
     <form
       method="post"
       action="{{ form_action }}{{ '?modal=1' if modal else '' }}"
@@ -24,9 +25,12 @@
       <div class="modal-header align-items-start">
         <div>
           <span class="eyebrow text-primary d-block mb-1">Lisans Yönetimi</span>
-          <h5 class="modal-title" id="license-edit-title">Lisans Bilgilerini Güncelleyin</h5>
+          <h5 class="modal-title" id="license-edit-title">
+            Lisans Bilgilerini Güncelleyin
+          </h5>
           <p class="modal-subtitle mb-0">
-            Lisans kayıtlarını güncel tutarak kullanım ve atama geçmişini netleştirin.
+            Lisans kayıtlarını güncel tutarak kullanım ve atama geçmişini
+            netleştirin.
           </p>
         </div>
         <button
@@ -46,7 +50,13 @@
               {% for ln in license_names %}
               <option
                 value="{{ ln.name }}"
-                {% if license.lisans_adi == ln.name %}selected{% endif %}
+                {%
+                if
+                license.lisans_adi=""
+                ="ln.name"
+                %}selected{%
+                endif
+                %}
               >
                 {{ ln.name }}
               </option>
@@ -70,7 +80,16 @@
             <select id="licenseSorumlu" name="sorumlu_personel" class="ctrl">
               <option value="">(Seçiniz)</option>
               {% for u in users %}
-              <option value="{{ u }}" {% if license.sorumlu_personel==u %}selected{% endif %}>
+              <option
+                value="{{ u }}"
+                {%
+                if
+                license.sorumlu_personel=""
+                ="u"
+                %}selected{%
+                endif
+                %}
+              >
                 {{ u }}
               </option>
               {% endfor %}
@@ -82,7 +101,16 @@
             <select id="selBagliEnvanter" name="inventory_id" class="ctrl">
               <option value="">Seçimsiz</option>
               {% for inv in envanterler %}
-              <option value="{{ inv.id }}" {% if license.inventory_id==inv.id %}selected{% endif %}>
+              <option
+                value="{{ inv.id }}"
+                {%
+                if
+                license.inventory_id=""
+                ="inv.id"
+                %}selected{%
+                endif
+                %}
+              >
                 {{ inv.no }} — {{ inv.marka }} {{ inv.model }}
               </option>
               {% endfor %}
@@ -114,12 +142,16 @@
         </div>
       </div>
 
-      <div class="modal-footer flex-column flex-lg-row gap-3 align-items-stretch align-items-lg-center">
+      <div
+        class="modal-footer flex-column flex-lg-row gap-3 align-items-stretch align-items-lg-center"
+      >
         <div class="d-flex align-items-start gap-2 text-muted small w-100">
           <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
           <span>Değişiklikler lisans geçmişine kaydedilecektir.</span>
         </div>
-        <div class="d-flex gap-2 w-100 justify-content-end ms-lg-auto justify-content-lg-end">
+        <div
+          class="d-flex gap-2 w-100 justify-content-end ms-lg-auto justify-content-lg-end"
+        >
           {% if not modal %}
           <a href="/lisans/{{ license.id }}" class="btn btn-outline-secondary">
             İptal
@@ -141,10 +173,14 @@
     <div>
       <span class="eyebrow text-primary d-block mb-1">Lisans Yönetimi</span>
       <h4 class="mb-0">Lisans {{ 'Düzenle' if license else 'Ekle' }}</h4>
-      <p class="text-muted mb-0">Yeni lisans kayıtları oluşturun veya mevcut bir lisansı güncelleyin.</p>
+      <p class="text-muted mb-0">
+        Yeni lisans kayıtları oluşturun veya mevcut bir lisansı güncelleyin.
+      </p>
     </div>
     {% if not modal %}
-    <a class="btn btn-light" href="{{ url_for('license_list') }}">← Listeye Dön</a>
+    <a class="btn btn-light" href="{{ url_for('license_list') }}"
+      >← Listeye Dön</a
+    >
     {% endif %}
   </div>
 
@@ -159,7 +195,18 @@
         <select id="licenseAdi" name="adi" class="ctrl" required>
           <option value="">Seçiniz...</option>
           {% for ln in license_names %}
-          <option value="{{ ln.name }}" {% if license and license.lisans_adi==ln.name %}selected{% endif %}>
+          <option
+            value="{{ ln.name }}"
+            {%
+            if
+            license
+            and
+            license.lisans_adi=""
+            ="ln.name"
+            %}selected{%
+            endif
+            %}
+          >
             {{ ln.name }}
           </option>
           {% endfor %}
@@ -182,7 +229,18 @@
         <select id="licenseSorumlu" name="sorumlu_personel" class="ctrl">
           <option value="">(Seçiniz)</option>
           {% for u in users %}
-          <option value="{{ u }}" {% if license and license.sorumlu_personel==u %}selected{% endif %}>
+          <option
+            value="{{ u }}"
+            {%
+            if
+            license
+            and
+            license.sorumlu_personel=""
+            ="u"
+            %}selected{%
+            endif
+            %}
+          >
             {{ u }}
           </option>
           {% endfor %}
@@ -190,11 +248,24 @@
       </div>
 
       <div class="field">
-        <label for="selBagliEnvanter" class="form-label">Bağlı Olduğu Envanter No</label>
+        <label for="selBagliEnvanter" class="form-label"
+          >Bağlı Olduğu Envanter No</label
+        >
         <select id="selBagliEnvanter" name="inventory_id" class="ctrl">
           <option value="">(Seçimsiz)</option>
           {% for inv in envanterler %}
-          <option value="{{ inv.id }}" {% if license and license.inventory_id==inv.id %}selected{% endif %}>
+          <option
+            value="{{ inv.id }}"
+            {%
+            if
+            license
+            and
+            license.inventory_id=""
+            ="inv.id"
+            %}selected{%
+            endif
+            %}
+          >
             {{ inv.no }} — {{ inv.marka }} {{ inv.model }}
           </option>
           {% endfor %}
@@ -228,16 +299,16 @@
         <div class="d-flex gap-2 justify-content-end">
           <button class="btn btn-primary" type="submit">Kaydet</button>
           {% if not modal %}
-          <a class="btn btn-secondary" href="{{ url_for('license_list') }}">İptal</a>
+          <a class="btn btn-secondary" href="{{ url_for('license_list') }}"
+            >İptal</a
+          >
           {% endif %}
         </div>
       </div>
     </form>
   </div>
 </div>
-{% endif %}
-{% endblock %}
-{% block scripts %} {{ super() }}
+{% endif %} {% endblock %} {% block scripts %} {{ super() }}
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     if (window.Choices) {
