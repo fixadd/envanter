@@ -55,7 +55,11 @@
       const url = `/${entity}/${id}/${map[val]}`;
       if (val === "edit" && window.openModal) {
         const selectedOption = sel.options[sel.selectedIndex];
-        const title = (sel.dataset.editModalTitle || selectedOption?.text || "").trim();
+        const title = (
+          sel.dataset.editModalTitle ||
+          selectedOption?.text ||
+          ""
+        ).trim();
         const size = sel.dataset.editModalSize || "lg";
         const chrome = sel.dataset.editModalChrome || "default";
         openModal(`${url}?modal=1`, title, { size, chrome });
