@@ -1,11 +1,14 @@
 {% extends "base.html" %}{% block title %}Envanter Düzenle{% endblock %} {%
 block content %}
 <div
-  class="modal d-block position-static inventory-edit-modal"
+  class="modal fade show inventory-edit-modal"
+  id="inventoryEditModal"
   tabindex="-1"
   role="dialog"
   aria-modal="true"
   aria-labelledby="inventory-edit-title"
+  style="display: block;"
+  data-bs-backdrop="static"
 >
   <div
     class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
@@ -177,9 +180,16 @@ block content %}
     </form>
   </div>
 </div>
+<div class="modal-backdrop fade show"></div>
 
 <script>
   document.addEventListener("DOMContentLoaded", async () => {
+    const applyModalOpen = () => document.body.classList.add("modal-open");
+    const removeModalOpen = () => document.body.classList.remove("modal-open");
+
+    applyModalOpen();
+    window.addEventListener("beforeunload", removeModalOpen);
+
     const dialogContent = document.querySelector(
       ".inventory-edit-modal .modal-content"
     );
@@ -209,6 +219,7 @@ block content %}
         event.stopPropagation();
       }
       closing = true;
+      removeModalOpen();
 
       if (window.history.length > 1 && hasUsableHistory()) {
         window.history.back();
