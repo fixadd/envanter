@@ -207,9 +207,18 @@ block title %}Talep Takip{% endblock %} {% block content %}
 form_attrs={"id": "talepForm", "autocomplete": "off"},
 footer=talep_modal_footer, ) %}
 <!-- IFS -->
-<div class="mb-3">
-  <label class="form-label">IFS No</label>
-  <input id="ifs_no" name="ifs_no" class="form-control" placeholder="IFS No" />
+<div class="env-grid" id="talep-ekle-grid">
+  <div class="field span-2">
+    <label for="ifs_no"
+      >IFS No <span class="muted">(opsiyonel)</span></label
+    >
+    <input
+      id="ifs_no"
+      name="ifs_no"
+      class="ctrl"
+      placeholder="IFS-0001"
+    />
+  </div>
 </div>
 
 <!-- Kalemler tablosu -->
@@ -248,21 +257,45 @@ footer=talep_modal_footer, ) %}
 {% endset %} {% call modal( "talepKapatModal", "Stok Girişi", form_attrs={"id":
 "talepKapatForm"}, footer=talep_kapat_footer, ) %}
 <input type="hidden" id="tkTalepId" />
-<div class="mb-3">
-  <label class="form-label">Miktar</label>
-  <input type="number" id="tkAdet" class="form-control" min="1" value="1" />
-</div>
-<div class="mb-3">
-  <label class="form-label">Marka</label>
-  <select id="tkMarka" class="form-select"></select>
-</div>
-<div class="mb-3">
-  <label class="form-label">Model</label>
-  <select id="tkModel" class="form-select"></select>
-</div>
-<div class="mb-3">
-  <label class="form-label">Not (opsiyonel)</label>
-  <input type="text" id="tkAciklama" class="form-control" />
+<div class="env-grid" id="talep-kapat-grid">
+  <div class="field">
+    <label for="tkAdet">Miktar</label>
+    <input
+      type="number"
+      id="tkAdet"
+      class="ctrl"
+      min="1"
+      value="1"
+      required
+    />
+  </div>
+  <div class="field">
+    <label for="tkTur">Ürün Türü</label>
+    <select id="tkTur" class="ctrl">
+      <option value="envanter">Envanter</option>
+      <option value="yazici">Yazıcı</option>
+      <option value="lisans">Lisans</option>
+    </select>
+  </div>
+  <div class="field">
+    <label for="tkMarka">Marka</label>
+    <select id="tkMarka" class="ctrl"></select>
+  </div>
+  <div class="field">
+    <label for="tkModel">Model</label>
+    <select id="tkModel" class="ctrl"></select>
+  </div>
+  <div class="field span-2">
+    <label for="tkAciklama"
+      >Not <span class="muted">(opsiyonel)</span></label
+    >
+    <input
+      type="text"
+      id="tkAciklama"
+      class="ctrl"
+      placeholder="Ek bilgi"
+    />
+  </div>
 </div>
 {% endcall %}
 
