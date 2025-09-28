@@ -1,99 +1,112 @@
-{% extends "base.html" %} {% block title %}Yazıcı Düzenle{% endblock %} {% block
-content %}
-<div class="container-fluid py-4">
-  <div class="modal-shell">
-    <div class="modal-shell__header">
-      <div class="modal-shell__heading">
-        <div class="eyebrow text-primary mb-1">Yazıcı #{{ p.id }}</div>
-        <h5 class="modal-shell__title">Yazıcı Bilgilerini Düzenle</h5>
-        <p class="modal-shell__subtitle">
-          {{ ((p.marka or '-') ~ ' ' ~ (p.model or '')) | trim }}{% if p.seri_no
-          %} • Seri No: {{ p.seri_no }}{% endif %}
-        </p>
-      </div>
-      <div class="modal-shell__header-actions">
-        {% if p.envanter_no %}
-        <span class="badge rounded-pill bg-light text-muted modal-shell__badge">
-          {{ p.envanter_no }}
-        </span>
-        {% endif %} {% if not modal %}
-        <a
-          href="/printers/{{ p.id }}"
-          class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1"
-        >
-          <i class="bi bi-arrow-left-short"></i>
-          Geri
-        </a>
-        {% endif %}
-      </div>
-    </div>
-
+{% extends "base.html" %}{% block title %}Yazıcı Düzenle{% endblock %}{% block content %}
+<div
+  class="modal fade show printer-edit-modal"
+  id="printerEditModal"
+  tabindex="-1"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="printer-edit-title"
+  style="display: block"
+  data-bs-backdrop="static"
+>
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <form
       method="post"
       action="{{ '?modal=1' if modal else '' }}"
-      class="modal-shell__body"
+      id="printer-edit-form"
+      class="modal-content needs-validation"
       autocomplete="off"
+      novalidate
+      tabindex="-1"
     >
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label for="printerMarka" class="form-label">Marka</label>
-          <input
-            type="text"
-            name="marka"
-            id="printerMarka"
-            value="{{ p.marka or '' }}"
-            class="form-control"
-            placeholder="Örn. HP"
-            autofocus
-          />
+      <div class="modal-header align-items-start">
+        <div>
+          <span class="eyebrow text-primary d-block mb-1">Yazıcı Yönetimi</span>
+          <h5 class="modal-title" id="printer-edit-title">Yazıcı Bilgilerini Düzenleyin</h5>
+          <p class="modal-subtitle mb-0">
+            Yazıcı envanteri kayıtlarını güncel tutarak bakım ve takibi kolaylaştırın.
+          </p>
         </div>
-        <div class="col-md-6">
-          <label for="printerModel" class="form-label">Model</label>
-          <input
-            type="text"
-            name="model"
-            id="printerModel"
-            value="{{ p.model or '' }}"
-            class="form-control"
-            placeholder="Örn. LaserJet Pro 400"
-          />
-        </div>
-        <div class="col-md-6">
-          <label for="printerSerial" class="form-label">Seri No</label>
-          <input
-            type="text"
-            name="seri_no"
-            id="printerSerial"
-            value="{{ p.seri_no or '' }}"
-            class="form-control"
-            placeholder="Seri numarası"
-          />
-        </div>
-        <div class="col-12">
-          <label for="printerNotes" class="form-label">Notlar</label>
-          <textarea
-            name="notlar"
-            id="printerNotes"
-            class="form-control"
-            rows="4"
-            placeholder="Bakım, toner değişimi veya diğer notlar..."
-          >{{ p.notlar or '' }}</textarea>
+        <button
+          type="button"
+          class="btn-close"
+          data-printer-edit-close
+          aria-label="Pencereyi kapat"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="env-grid" id="printer-edit-grid">
+          <div class="field">
+            <label for="printerId">Kayıt No</label>
+            <input
+              id="printerId"
+              type="text"
+              class="ctrl"
+              value="#{{ p.id }}{{ ' • ' ~ p.envanter_no if p.envanter_no }}"
+              readonly
+            />
+          </div>
+          <div class="field">
+            <label for="printerMarka">Marka</label>
+            <input
+              type="text"
+              name="marka"
+              id="printerMarka"
+              value="{{ p.marka or '' }}"
+              class="ctrl"
+              placeholder="Örn. HP"
+              autofocus
+            />
+          </div>
+          <div class="field">
+            <label for="printerModel">Model</label>
+            <input
+              type="text"
+              name="model"
+              id="printerModel"
+              value="{{ p.model or '' }}"
+              class="ctrl"
+              placeholder="Örn. LaserJet Pro 400"
+            />
+          </div>
+          <div class="field">
+            <label for="printerSerial">Seri No</label>
+            <input
+              type="text"
+              name="seri_no"
+              id="printerSerial"
+              value="{{ p.seri_no or '' }}"
+              class="ctrl"
+              placeholder="Seri numarası"
+            />
+          </div>
+          <div class="field span-2">
+            <label for="printerNotes">Notlar</label>
+            <textarea
+              name="notlar"
+              id="printerNotes"
+              class="ctrl"
+              rows="4"
+              placeholder="Bakım, toner değişimi veya diğer notlar..."
+            >{{ p.notlar or '' }}</textarea>
+          </div>
         </div>
       </div>
 
-      <div class="modal-shell__footer">
-        <div class="modal-shell__note">
-          <i class="bi bi-clock-history"></i>
-          <span>Kaydettiğiniz değişiklikler yazıcı geçmişine eklenir.</span>
+      <div class="modal-footer flex-column flex-lg-row gap-3 align-items-stretch align-items-lg-center">
+        <div class="d-flex align-items-start gap-2 text-muted small w-100">
+          <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+          <span>Kaydedilen bilgiler yazıcı geçmişine işlenecektir.</span>
         </div>
-        <div class="modal-shell__actions">
+        <div class="d-flex gap-2 w-100 justify-content-end ms-lg-auto justify-content-lg-end">
           {% if not modal %}
           <a href="/printers/{{ p.id }}" class="btn btn-outline-secondary">
             İptal
           </a>
           {% endif %}
           <button type="submit" class="btn btn-primary">
-            <i class="bi bi-save me-1"></i>
+            <i class="bi bi-save me-1" aria-hidden="true"></i>
             Kaydet
           </button>
         </div>
@@ -101,4 +114,79 @@ content %}
     </form>
   </div>
 </div>
+<div class="modal-backdrop fade show"></div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const applyModalOpen = () => document.body.classList.add("modal-open");
+    const removeModalOpen = () => document.body.classList.remove("modal-open");
+    const isEmbedded = window.self !== window.top;
+
+    applyModalOpen();
+    window.addEventListener("beforeunload", removeModalOpen);
+
+    const dialogContent = document.querySelector(
+      ".printer-edit-modal .modal-content"
+    );
+    if (dialogContent) {
+      try {
+        dialogContent.focus({ preventScroll: true });
+      } catch (err) {
+        dialogContent.focus();
+      }
+    }
+
+    const fallbackUrl = "/printers/{{ p.id }}";
+    const hasUsableHistory = () => {
+      if (!document.referrer) return false;
+      try {
+        const ref = new URL(document.referrer);
+        return ref.origin === window.location.origin;
+      } catch (err) {
+        return false;
+      }
+    };
+
+    let closing = false;
+    const closeDialog = (event) => {
+      if (closing) return;
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      closing = true;
+      removeModalOpen();
+
+      if (isEmbedded) {
+        try {
+          window.parent.postMessage("modal-close", "*");
+        } catch (err) {}
+        return;
+      }
+
+      if (window.history.length > 1 && hasUsableHistory()) {
+        window.history.back();
+        window.setTimeout(() => {
+          if (!document.hidden) {
+            window.location.href = fallbackUrl;
+          }
+        }, 300);
+      } else {
+        window.location.href = fallbackUrl;
+      }
+    };
+
+    document
+      .querySelectorAll("[data-printer-edit-close]")
+      .forEach((trigger) => {
+        trigger.addEventListener("click", closeDialog);
+      });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeDialog(event);
+      }
+    });
+  });
+</script>
 {% endblock %}

@@ -1,102 +1,244 @@
-{% extends "base.html" %} {% block title %}Lisans {{ 'Düzenle' if license else
-'Ekle' }}{% endblock %} {% block content %}
+{% extends "base.html" %} {% block title %}Lisans {{ 'Düzenle' if license else 'Ekle' }}{% endblock %}
+{% block content %}
+{% if license %}
+<div
+  class="modal fade show license-edit-modal"
+  id="licenseEditModal"
+  tabindex="-1"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="license-edit-title"
+  style="display: block"
+  data-bs-backdrop="static"
+>
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <form
+      method="post"
+      action="{{ form_action }}{{ '?modal=1' if modal else '' }}"
+      id="license-edit-form"
+      class="modal-content needs-validation"
+      autocomplete="off"
+      novalidate
+      tabindex="-1"
+    >
+      <div class="modal-header align-items-start">
+        <div>
+          <span class="eyebrow text-primary d-block mb-1">Lisans Yönetimi</span>
+          <h5 class="modal-title" id="license-edit-title">Lisans Bilgilerini Güncelleyin</h5>
+          <p class="modal-subtitle mb-0">
+            Lisans kayıtlarını güncel tutarak kullanım ve atama geçmişini netleştirin.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="btn-close"
+          data-license-edit-close
+          aria-label="Pencereyi kapat"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="env-grid" id="license-edit-grid">
+          <div class="field">
+            <label for="licenseAdi">Lisans Adı</label>
+            <select id="licenseAdi" name="adi" class="ctrl" required>
+              <option value="">Seçiniz...</option>
+              {% for ln in license_names %}
+              <option
+                value="{{ ln.name }}"
+                {% if license.lisans_adi == ln.name %}selected{% endif %}
+              >
+                {{ ln.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="licenseKey">Lisans Anahtarı</label>
+            <input
+              id="licenseKey"
+              name="anahtar"
+              class="ctrl"
+              value="{{ license.anahtar or '' }}"
+              placeholder="XXXX-XXXX-XXXX-XXXX"
+            />
+          </div>
+
+          <div class="field">
+            <label for="licenseSorumlu">Sorumlu Personel</label>
+            <select id="licenseSorumlu" name="sorumlu_personel" class="ctrl">
+              <option value="">(Seçiniz)</option>
+              {% for u in users %}
+              <option value="{{ u }}" {% if license.sorumlu_personel==u %}selected{% endif %}>
+                {{ u }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="selBagliEnvanter">Bağlı Olduğu Envanter</label>
+            <select id="selBagliEnvanter" name="inventory_id" class="ctrl">
+              <option value="">Seçimsiz</option>
+              {% for inv in envanterler %}
+              <option value="{{ inv.id }}" {% if license.inventory_id==inv.id %}selected{% endif %}>
+                {{ inv.no }} — {{ inv.marka }} {{ inv.model }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="licenseIfs">IFS No</label>
+            <input
+              id="licenseIfs"
+              name="ifs_no"
+              class="ctrl"
+              value="{{ license.ifs_no or '' }}"
+              placeholder="IFS referansı"
+            />
+          </div>
+
+          <div class="field">
+            <label for="licenseMail">Mail Adresi</label>
+            <input
+              id="licenseMail"
+              type="email"
+              name="mail_adresi"
+              class="ctrl"
+              value="{{ license.mail_adresi or '' }}"
+              placeholder="ornek@firma.com"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer flex-column flex-lg-row gap-3 align-items-stretch align-items-lg-center">
+        <div class="d-flex align-items-start gap-2 text-muted small w-100">
+          <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+          <span>Değişiklikler lisans geçmişine kaydedilecektir.</span>
+        </div>
+        <div class="d-flex gap-2 w-100 justify-content-end ms-lg-auto justify-content-lg-end">
+          {% if not modal %}
+          <a href="/lisans/{{ license.id }}" class="btn btn-outline-secondary">
+            İptal
+          </a>
+          {% endif %}
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save me-1" aria-hidden="true"></i>
+            Kaydet
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+{% else %}
 <div class="container-fluid p-3 content">
   <div class="d-flex align-items-center justify-content-between mb-3">
-    <h4 class="mb-0">Lisans {{ 'Düzenle' if license else 'Ekle' }}</h4>
+    <div>
+      <span class="eyebrow text-primary d-block mb-1">Lisans Yönetimi</span>
+      <h4 class="mb-0">Lisans {{ 'Düzenle' if license else 'Ekle' }}</h4>
+      <p class="text-muted mb-0">Yeni lisans kayıtları oluşturun veya mevcut bir lisansı güncelleyin.</p>
+    </div>
     {% if not modal %}
-    <a class="btn btn-light" href="{{ url_for('license_list') }}"
-      >← Listeye Dön</a
-    >
+    <a class="btn btn-light" href="{{ url_for('license_list') }}">← Listeye Dön</a>
     {% endif %}
   </div>
 
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <form
-        method="post"
-        action="{{ form_action }}{{ '?modal=1' if modal else '' }}"
-        class="row g-3"
-      >
-        <div class="col-md-6">
-          <label for="licenseAdi" class="form-label">Lisans Adı</label>
-          <select id="licenseAdi" name="adi" class="form-select" required>
-            <option value="">Seçiniz...</option>
-            {% for ln in license_names %}
-            <option value="{{ ln.name }}" {% if license and license.lisans_adi==ln.name %}selected{% endif %}>
-              {{ ln.name }}
-            </option>
-            {% endfor %}
-          </select>
-        </div>
+  <div class="soft-card shadow-sm p-3">
+    <form
+      method="post"
+      action="{{ form_action }}{{ '?modal=1' if modal else '' }}"
+      class="env-grid"
+    >
+      <div class="field">
+        <label for="licenseAdi" class="form-label">Lisans Adı</label>
+        <select id="licenseAdi" name="adi" class="ctrl" required>
+          <option value="">Seçiniz...</option>
+          {% for ln in license_names %}
+          <option value="{{ ln.name }}" {% if license and license.lisans_adi==ln.name %}selected{% endif %}>
+            {{ ln.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
 
-        <div class="col-md-6">
-          <label for="licenseKey" class="form-label">Lisans Anahtarı</label>
-          <input
-            id="licenseKey"
-            name="anahtar"
-            class="form-control"
-            value="{{ license.anahtar if license else '' }}"
-          />
-        </div>
+      <div class="field">
+        <label for="licenseKey" class="form-label">Lisans Anahtarı</label>
+        <input
+          id="licenseKey"
+          name="anahtar"
+          class="ctrl"
+          value="{{ license.anahtar if license else '' }}"
+          placeholder="XXXX-XXXX-XXXX-XXXX"
+        />
+      </div>
 
-        <div class="col-md-6">
-          <label for="licenseSorumlu" class="form-label">Sorumlu Personel</label>
-          <select id="licenseSorumlu" name="sorumlu_personel" class="form-select">
-            <option value="">(Seçiniz)</option>
-            {% for u in users %}
-            <option value="{{ u }}" {% if license and license.sorumlu_personel==u %}selected{% endif %}>
-              {{ u }}
-            </option>
-            {% endfor %}
-          </select>
-        </div>
+      <div class="field">
+        <label for="licenseSorumlu" class="form-label">Sorumlu Personel</label>
+        <select id="licenseSorumlu" name="sorumlu_personel" class="ctrl">
+          <option value="">(Seçiniz)</option>
+          {% for u in users %}
+          <option value="{{ u }}" {% if license and license.sorumlu_personel==u %}selected{% endif %}>
+            {{ u }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
 
-        <div class="col-md-6">
-          <label for="selBagliEnvanter" class="form-label">Bağlı Olduğu Envanter No</label>
-          <select id="selBagliEnvanter" name="inventory_id" class="form-select">
-            <option value="">(Seçimsiz)</option>
-            {% for inv in envanterler %}
-            <option value="{{ inv.id }}" {% if license and license.inventory_id==inv.id %}selected{% endif %}>
-              {{ inv.no }} — {{ inv.marka }} {{ inv.model }}
-            </option>
-            {% endfor %}
-          </select>
-        </div>
+      <div class="field">
+        <label for="selBagliEnvanter" class="form-label">Bağlı Olduğu Envanter No</label>
+        <select id="selBagliEnvanter" name="inventory_id" class="ctrl">
+          <option value="">(Seçimsiz)</option>
+          {% for inv in envanterler %}
+          <option value="{{ inv.id }}" {% if license and license.inventory_id==inv.id %}selected{% endif %}>
+            {{ inv.no }} — {{ inv.marka }} {{ inv.model }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
 
-        <div class="col-md-6">
-          <label for="licenseIfs" class="form-label">IFS No</label>
-          <input
-            id="licenseIfs"
-            name="ifs_no"
-            class="form-control"
-            value="{{ license.ifs_no if license else '' }}"
-          />
-        </div>
+      <div class="field">
+        <label for="licenseIfs" class="form-label">IFS No</label>
+        <input
+          id="licenseIfs"
+          name="ifs_no"
+          class="ctrl"
+          value="{{ license.ifs_no if license else '' }}"
+          placeholder="IFS referansı"
+        />
+      </div>
 
-        <div class="col-md-6">
-          <label for="licenseMail" class="form-label">Mail Adresi</label>
-          <input
-            id="licenseMail"
-            type="email"
-            name="mail_adresi"
-            class="form-control"
-            value="{{ license.mail_adresi if license else '' }}"
-          />
-        </div>
+      <div class="field">
+        <label for="licenseMail" class="form-label">Mail Adresi</label>
+        <input
+          id="licenseMail"
+          type="email"
+          name="mail_adresi"
+          class="ctrl"
+          value="{{ license.mail_adresi if license else '' }}"
+          placeholder="ornek@firma.com"
+        />
+      </div>
 
-        <div class="col-12 d-flex gap-2 mt-3">
+      <div class="field span-2">
+        <div class="d-flex gap-2 justify-content-end">
           <button class="btn btn-primary" type="submit">Kaydet</button>
           {% if not modal %}
           <a class="btn btn-secondary" href="{{ url_for('license_list') }}">İptal</a>
           {% endif %}
         </div>
-      </form>
-    </div>
+      </div>
+    </form>
   </div>
 </div>
-{% endblock %} {% block scripts %} {{ super() }}
+{% endif %}
+{% endblock %}
+{% block scripts %} {{ super() }}
 <script>
-  // Aramalı select (Choices varsa)
   document.addEventListener("DOMContentLoaded", () => {
     if (window.Choices) {
       new Choices("#selBagliEnvanter", {
@@ -105,5 +247,76 @@
       });
     }
   });
+
+  const licenseModalEl = document.querySelector(".license-edit-modal");
+  if (licenseModalEl) {
+    const applyModalOpen = () => document.body.classList.add("modal-open");
+    const removeModalOpen = () => document.body.classList.remove("modal-open");
+    const isEmbedded = window.self !== window.top;
+
+    applyModalOpen();
+    window.addEventListener("beforeunload", removeModalOpen);
+
+    const dialogContent = licenseModalEl.querySelector(".modal-content");
+    if (dialogContent) {
+      try {
+        dialogContent.focus({ preventScroll: true });
+      } catch (err) {
+        dialogContent.focus();
+      }
+    }
+
+    const fallbackUrl = "/lisans/{{ license.id if license else '' }}";
+    const hasUsableHistory = () => {
+      if (!document.referrer) return false;
+      try {
+        const ref = new URL(document.referrer);
+        return ref.origin === window.location.origin;
+      } catch (err) {
+        return false;
+      }
+    };
+
+    let closing = false;
+    const closeDialog = (event) => {
+      if (closing) return;
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      closing = true;
+      removeModalOpen();
+
+      if (isEmbedded) {
+        try {
+          window.parent.postMessage("modal-close", "*");
+        } catch (err) {}
+        return;
+      }
+
+      if (window.history.length > 1 && hasUsableHistory()) {
+        window.history.back();
+        window.setTimeout(() => {
+          if (!document.hidden && fallbackUrl) {
+            window.location.href = fallbackUrl;
+          }
+        }, 300);
+      } else if (fallbackUrl) {
+        window.location.href = fallbackUrl;
+      }
+    };
+
+    licenseModalEl
+      .querySelectorAll("[data-license-edit-close]")
+      .forEach((trigger) => {
+        trigger.addEventListener("click", closeDialog);
+      });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeDialog(event);
+      }
+    });
+  }
 </script>
 {% endblock %}
