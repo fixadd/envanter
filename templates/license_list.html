@@ -71,14 +71,6 @@ content %}
               placeholder="Lisans ara..."
             />
           </div>
-          <div class="filter-group">
-            <label for="durumFilter">Durum:</label>
-            <select id="durumFilter" class="form-select form-select-sm">
-              <option value="">Tümü</option>
-              <option value="aktif">Aktif</option>
-              <option value="bos">Boş</option>
-            </select>
-          </div>
         </div>
         <div class="filter-search-bar__actions">
           <button class="btn btn-primary btn-sm" id="filterBtn">
@@ -116,7 +108,6 @@ content %}
               <th data-field="sorumlu_personel">Sorumlu</th>
               <th data-field="bagli_envanter_no">Bağlı Envanter</th>
               <th data-field="mail_adresi">E-posta</th>
-              <th data-field="durum">Durum</th>
               <th class="actions text-start">İşlemler</th>
             </tr>
           </thead>
@@ -126,7 +117,6 @@ content %}
               data-id="{{ row.id }}"
               data-personel="{{ row.sorumlu_personel or '' }}"
               data-bagli="{{ row.bagli_envanter_no or '' }}"
-              data-durum="{{ row.durum or '' }}"
             >
               <td>{{ row.id }}</td>
               <td>{{ row.lisans_adi }}</td>
@@ -136,17 +126,6 @@ content %}
               <td>{{ row.sorumlu_personel or '-' }}</td>
               <td>{{ row.bagli_envanter_no or '-' }}</td>
               <td>{{ row.mail_adresi or '-' }}</td>
-              <td>
-                {% if row.durum == 'hurda' %}
-                <span class="badge bg-secondary">Hurda</span>
-                {% elif row.durum == 'stok' %}
-                <span class="badge text-bg-info text-dark">Stokta</span>
-                {% elif row.durum == 'arızalı' %}
-                <span class="badge text-bg-warning text-dark">Arızalı</span>
-                {% else %}
-                <span class="badge bg-success">Aktif</span>
-                {% endif %}
-              </td>
               <td class="actions">
                 {% set entity = 'lisans' %} {% set row_id = row.id %} {% set
                 fault_status = row.durum %} {% include
@@ -442,7 +421,7 @@ content %}
     window.filterSystem = new UnifiedFilterSystem({
       tableSelector: "#licensesTable",
       searchInputId: "searchInput",
-      filters: [{ id: "durumFilter", label: "Durum", columnField: "durum" }],
+      filters: [],
     });
 
     // Mevcut atama/hurda işlemleri
