@@ -237,8 +237,8 @@ window.talepIptal = async function (id, mevcut) {
   const selModel = document.getElementById("tkModel");
   const fldAcik = document.getElementById("tkAciklama");
   const selTur = document.getElementById("tkTur");
-  const markaWrap = selMarka?.closest(".mb-3");
-  const modelWrap = selModel?.closest(".mb-3");
+  const markaWrap = selMarka?.closest(".field, .mb-3");
+  const modelWrap = selModel?.closest(".field, .mb-3");
 
   let initialized = false;
   async function initSelects() {
