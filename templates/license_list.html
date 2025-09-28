@@ -139,6 +139,8 @@ content %}
               <td>
                 {% if row.durum == 'hurda' %}
                 <span class="badge bg-secondary">Hurda</span>
+                {% elif row.durum == 'stok' %}
+                <span class="badge text-bg-info text-dark">Stokta</span>
                 {% elif row.durum == 'arızalı' %}
                 <span class="badge text-bg-warning text-dark">Arızalı</span>
                 {% else %}
@@ -196,12 +198,7 @@ content %}
           <div class="env-grid" id="lisans-ekle-grid">
             <div class="field">
               <label for="selLisansAdi">Lisans Adı</label>
-              <select
-                id="selLisansAdi"
-                name="lisans_adi"
-                class="ctrl"
-                required
-              >
+              <select id="selLisansAdi" name="lisans_adi" class="ctrl" required>
                 <option value="">Seçiniz</option>
                 {% for ln in license_names %}
                 <option value="{{ ln.name }}">{{ ln.name }}</option>
@@ -324,8 +321,14 @@ content %}
           />
           <div class="row g-3">
             <div class="col-md-6">
-              <label for="selPersonel" class="form-label">Sorumlu Personel</label>
-              <select name="sorumlu_personel" class="form-select" id="selPersonel">
+              <label for="selPersonel" class="form-label"
+                >Sorumlu Personel</label
+              >
+              <select
+                name="sorumlu_personel"
+                class="form-select"
+                id="selPersonel"
+              >
                 <option value="">Seçiniz</option>
                 {% for u in users %}
                 <option value="{{ u }}">{{ u }}</option>
@@ -333,8 +336,14 @@ content %}
               </select>
             </div>
             <div class="col-md-6">
-              <label for="selBagli" class="form-label">Bağlı Olduğu Envanter No</label>
-              <select name="bagli_envanter_no" class="form-select" id="selBagli">
+              <label for="selBagli" class="form-label"
+                >Bağlı Olduğu Envanter No</label
+              >
+              <select
+                name="bagli_envanter_no"
+                class="form-select"
+                id="selBagli"
+              >
                 <option value="">Seçiniz</option>
                 {% for inv in envanterler %}
                 <option value="{{ inv.no }}">
