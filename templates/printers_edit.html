@@ -1,4 +1,5 @@
-{% extends "base.html" %}{% block title %}Yazıcı Düzenle{% endblock %}{% block content %}
+{% extends "base.html" %}{% block title %}Yazıcı Düzenle{% endblock %}{% block
+content %}
 <div
   class="modal fade show printer-edit-modal"
   id="printerEditModal"
@@ -9,7 +10,9 @@
   style="display: block"
   data-bs-backdrop="static"
 >
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+  <div
+    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+  >
     <form
       method="post"
       action="{{ '?modal=1' if modal else '' }}"
@@ -22,9 +25,12 @@
       <div class="modal-header align-items-start">
         <div>
           <span class="eyebrow text-primary d-block mb-1">Yazıcı Yönetimi</span>
-          <h5 class="modal-title" id="printer-edit-title">Yazıcı Bilgilerini Düzenleyin</h5>
+          <h5 class="modal-title" id="printer-edit-title">
+            Yazıcı Bilgilerini Düzenleyin
+          </h5>
           <p class="modal-subtitle mb-0">
-            Yazıcı envanteri kayıtlarını güncel tutarak bakım ve takibi kolaylaştırın.
+            Yazıcı envanteri kayıtlarını güncel tutarak bakım ve takibi
+            kolaylaştırın.
           </p>
         </div>
         <button
@@ -89,17 +95,23 @@
               class="ctrl"
               rows="4"
               placeholder="Bakım, toner değişimi veya diğer notlar..."
-            >{{ p.notlar or '' }}</textarea>
+            >
+{{ p.notlar or '' }}</textarea
+            >
           </div>
         </div>
       </div>
 
-      <div class="modal-footer flex-column flex-lg-row gap-3 align-items-stretch align-items-lg-center">
+      <div
+        class="modal-footer flex-column flex-lg-row gap-3 align-items-stretch align-items-lg-center"
+      >
         <div class="d-flex align-items-start gap-2 text-muted small w-100">
           <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
           <span>Kaydedilen bilgiler yazıcı geçmişine işlenecektir.</span>
         </div>
-        <div class="d-flex gap-2 w-100 justify-content-end ms-lg-auto justify-content-lg-end">
+        <div
+          class="d-flex gap-2 w-100 justify-content-end ms-lg-auto justify-content-lg-end"
+        >
           {% if not modal %}
           <a href="/printers/{{ p.id }}" class="btn btn-outline-secondary">
             İptal
@@ -126,7 +138,7 @@
     window.addEventListener("beforeunload", removeModalOpen);
 
     const dialogContent = document.querySelector(
-      ".printer-edit-modal .modal-content"
+      ".printer-edit-modal .modal-content",
     );
     if (dialogContent) {
       try {

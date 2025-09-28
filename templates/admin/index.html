@@ -536,7 +536,9 @@ content %}
 
 <!-- ===== Kullanıcı Oluştur Modal ===== -->
 <div class="modal fade" id="modalUserCreate" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+  <div
+    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+  >
     <form
       class="modal-content needs-validation"
       method="post"
@@ -545,10 +547,13 @@ content %}
     >
       <div class="modal-header align-items-start">
         <div>
-          <span class="eyebrow text-primary d-block mb-1">Kullanıcı Yönetimi</span>
+          <span class="eyebrow text-primary d-block mb-1"
+            >Kullanıcı Yönetimi</span
+          >
           <h5 class="modal-title">Yeni Kullanıcı Oluşturun</h5>
           <p class="modal-subtitle mb-0">
-            Sistem erişimi için yeni kullanıcı hesapları ekleyin ve rolleri belirleyin.
+            Sistem erişimi için yeni kullanıcı hesapları ekleyin ve rolleri
+            belirleyin.
           </p>
         </div>
         <button
@@ -601,18 +606,30 @@ content %}
                 name="is_admin"
                 id="create_is_admin"
               />
-              <label class="form-check-label" for="create_is_admin">Admin yetkisi ver</label>
+              <label class="form-check-label" for="create_is_admin"
+                >Admin yetkisi ver</label
+              >
             </div>
           </div>
         </div>
       </div>
-      <div class="modal-footer flex-column flex-lg-row gap-3 align-items-stretch align-items-lg-center">
+      <div
+        class="modal-footer flex-column flex-lg-row gap-3 align-items-stretch align-items-lg-center"
+      >
         <div class="d-flex align-items-start gap-2 text-muted small w-100">
           <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
-          <span>Oluşturulan kullanıcı ilk girişte şifresini güncelleyebilir.</span>
+          <span
+            >Oluşturulan kullanıcı ilk girişte şifresini güncelleyebilir.</span
+          >
         </div>
-        <div class="d-flex gap-2 w-100 justify-content-end ms-lg-auto justify-content-lg-end">
-          <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">
+        <div
+          class="d-flex gap-2 w-100 justify-content-end ms-lg-auto justify-content-lg-end"
+        >
+          <button
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+            type="button"
+          >
             İptal
           </button>
           <button class="btn btn-primary" type="submit">
@@ -627,7 +644,9 @@ content %}
 
 <!-- ===== Kullanıcı Düzenle Modal ===== -->
 <div class="modal fade" id="modalUserEdit" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+  <div
+    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+  >
     <form
       class="modal-content needs-validation"
       method="post"
@@ -637,10 +656,13 @@ content %}
     >
       <div class="modal-header align-items-start">
         <div>
-          <span class="eyebrow text-primary d-block mb-1">Kullanıcı Yönetimi</span>
+          <span class="eyebrow text-primary d-block mb-1"
+            >Kullanıcı Yönetimi</span
+          >
           <h5 class="modal-title">Kullanıcı Bilgilerini Düzenleyin</h5>
           <p class="modal-subtitle mb-0">
-            Hesap bilgilerini güncelleyerek yetkileri ve iletişim detaylarını doğru tutun.
+            Hesap bilgilerini güncelleyerek yetkileri ve iletişim detaylarını
+            doğru tutun.
           </p>
         </div>
         <button
@@ -692,18 +714,31 @@ content %}
                 id="edit_is_admin"
                 name="is_admin"
               />
-              <label class="form-check-label" for="edit_is_admin">Admin yetkisi ver</label>
+              <label class="form-check-label" for="edit_is_admin"
+                >Admin yetkisi ver</label
+              >
             </div>
           </div>
         </div>
       </div>
-      <div class="modal-footer flex-column flex-lg-row gap-3 align-items-stretch align-items-lg-center">
+      <div
+        class="modal-footer flex-column flex-lg-row gap-3 align-items-stretch align-items-lg-center"
+      >
         <div class="d-flex align-items-start gap-2 text-muted small w-100">
           <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
-          <span>Değişiklikler anında yürürlüğe girer ve audit kaydına işlenir.</span>
+          <span
+            >Değişiklikler anında yürürlüğe girer ve audit kaydına
+            işlenir.</span
+          >
         </div>
-        <div class="d-flex gap-2 w-100 justify-content-end ms-lg-auto justify-content-lg-end">
-          <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">
+        <div
+          class="d-flex gap-2 w-100 justify-content-end ms-lg-auto justify-content-lg-end"
+        >
+          <button
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+            type="button"
+          >
             İptal
           </button>
           <button class="btn btn-primary" type="submit">
