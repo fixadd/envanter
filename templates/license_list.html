@@ -139,6 +139,8 @@ content %}
               <td>
                 {% if row.durum == 'hurda' %}
                 <span class="badge bg-secondary">Hurda</span>
+                {% elif row.durum == 'stok' %}
+                <span class="badge text-bg-info text-dark">Stokta</span>
                 {% elif row.durum == 'arızalı' %}
                 <span class="badge text-bg-warning text-dark">Arızalı</span>
                 {% else %}
