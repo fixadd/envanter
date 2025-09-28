@@ -73,7 +73,8 @@ def printer_models(
 @router.get("/licenses/list")
 def licenses_list(db: Session = Depends(get_db)):
     active_licenses = or_(
-        models.License.durum.is_(None), models.License.durum != "hurda"
+        models.License.durum.is_(None),
+        ~models.License.durum.in_(["hurda", "stok"]),
     )
     rows = (
         db.query(models.License)

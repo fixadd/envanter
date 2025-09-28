@@ -28,7 +28,9 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
 
     active_inventory = or_(Inventory.durum.is_(None), Inventory.durum != "hurda")
     active_printers = or_(Printer.durum.is_(None), Printer.durum != "hurda")
-    active_licenses = or_(License.durum.is_(None), License.durum != "hurda")
+    active_licenses = or_(
+        License.durum.is_(None), ~License.durum.in_(["hurda", "stok"])
+    )
 
     total_inventory = (
         db.query(func.count(Inventory.id)).filter(active_inventory).scalar()
