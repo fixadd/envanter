@@ -1366,8 +1366,13 @@ body .container-fluid {
   background: var(--color-surface) !important;
 }
 
-/* Modal header sade görünüm */
+body .modal.inventory-edit-modal .modal-content {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
 
+/* Modal header sade görünüm */
 
 /* Envanter No bilgisi */
 .modal-header .text-muted {
