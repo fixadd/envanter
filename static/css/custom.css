@@ -2140,6 +2140,19 @@ body.theme-dark .nav.nav-tabs {
   transform: rotate(90deg);
 }
 
+/* Frameless iframe modal */
+#iframeModal.iframe-modal--frameless .modal-content,
+#iframeModal.iframe-modal--frameless .modal-body {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+#iframeModal.iframe-modal--frameless .modal-header {
+  display: none !important;
+}
+
 /* Modal Body Padding */
 .modal-shell__body {
   padding: 2rem !important;
