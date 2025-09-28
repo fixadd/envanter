@@ -536,59 +536,107 @@ content %}
 
 <!-- ===== Kullanıcı Oluştur Modal ===== -->
 <div class="modal fade" id="modalUserCreate" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <form class="modal-content" method="post" action="/admin/users/create">
-      <div class="modal-header">
-        <h5 class="modal-title">Yeni Kullanıcı</h5>
+  <div
+    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+  >
+    <form
+      class="modal-content needs-validation"
+      method="post"
+      action="/admin/users/create"
+      novalidate
+    >
+      <div class="modal-header align-items-start">
+        <div>
+          <span class="eyebrow text-primary d-block mb-1"
+            >Kullanıcı Yönetimi</span
+          >
+          <h5 class="modal-title">Yeni Kullanıcı Oluşturun</h5>
+          <p class="modal-subtitle mb-0">
+            Sistem erişimi için yeni kullanıcı hesapları ekleyin ve rolleri
+            belirleyin.
+          </p>
+        </div>
         <button
           type="button"
           class="btn-close"
           data-bs-dismiss="modal"
+          aria-label="Kapat"
         ></button>
       </div>
-      <div class="modal-body row g-3">
-        <div class="col-md-6">
-          <label class="form-label">Kullanıcı Adı</label
-          ><input class="form-control" name="username" required />
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Şifre</label
-          ><input
-            class="form-control"
-            type="password"
-            name="password"
-            required
-          />
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Adı</label
-          ><input class="form-control" name="first_name" />
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Soyadı</label
-          ><input class="form-control" name="last_name" />
-        </div>
-        <div class="col-12">
-          <label class="form-label">E-posta</label
-          ><input class="form-control" type="email" name="email" />
-        </div>
-        <div class="col-12">
-          <div class="form-check">
+      <div class="modal-body">
+        <div class="env-grid">
+          <div class="field">
+            <label for="create_username">Kullanıcı Adı</label>
+            <input class="ctrl" id="create_username" name="username" required />
+          </div>
+          <div class="field">
+            <label for="create_password">Şifre</label>
             <input
-              class="form-check-input"
-              type="checkbox"
-              name="is_admin"
-              id="create_is_admin"
+              class="ctrl"
+              type="password"
+              id="create_password"
+              name="password"
+              required
+              placeholder="Minimum 8 karakter"
             />
-            <label class="form-check-label" for="create_is_admin">Admin</label>
+          </div>
+          <div class="field">
+            <label for="create_first_name">Adı</label>
+            <input class="ctrl" id="create_first_name" name="first_name" />
+          </div>
+          <div class="field">
+            <label for="create_last_name">Soyadı</label>
+            <input class="ctrl" id="create_last_name" name="last_name" />
+          </div>
+          <div class="field span-2">
+            <label for="create_email">E-posta</label>
+            <input
+              class="ctrl"
+              type="email"
+              id="create_email"
+              name="email"
+              placeholder="ornek@firma.com"
+            />
+          </div>
+          <div class="field span-2">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="is_admin"
+                id="create_is_admin"
+              />
+              <label class="form-check-label" for="create_is_admin"
+                >Admin yetkisi ver</label
+              >
+            </div>
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">
-          İptal
-        </button>
-        <button class="btn btn-primary" type="submit">Oluştur</button>
+      <div
+        class="modal-footer flex-column flex-lg-row gap-3 align-items-stretch align-items-lg-center"
+      >
+        <div class="d-flex align-items-start gap-2 text-muted small w-100">
+          <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+          <span
+            >Oluşturulan kullanıcı ilk girişte şifresini güncelleyebilir.</span
+          >
+        </div>
+        <div
+          class="d-flex gap-2 w-100 justify-content-end ms-lg-auto justify-content-lg-end"
+        >
+          <button
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+            type="button"
+          >
+            İptal
+          </button>
+          <button class="btn btn-primary" type="submit">
+            <i class="bi bi-person-plus" aria-hidden="true"></i>
+            Oluştur
+          </button>
+        </div>
       </div>
     </form>
   </div>
@@ -596,70 +644,108 @@ content %}
 
 <!-- ===== Kullanıcı Düzenle Modal ===== -->
 <div class="modal fade" id="modalUserEdit" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <form class="modal-content" method="post" id="formUserEdit" action="">
-      <div class="modal-header">
-        <h5 class="modal-title">Kullanıcı Düzenle</h5>
+  <div
+    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+  >
+    <form
+      class="modal-content needs-validation"
+      method="post"
+      id="formUserEdit"
+      action=""
+      novalidate
+    >
+      <div class="modal-header align-items-start">
+        <div>
+          <span class="eyebrow text-primary d-block mb-1"
+            >Kullanıcı Yönetimi</span
+          >
+          <h5 class="modal-title">Kullanıcı Bilgilerini Düzenleyin</h5>
+          <p class="modal-subtitle mb-0">
+            Hesap bilgilerini güncelleyerek yetkileri ve iletişim detaylarını
+            doğru tutun.
+          </p>
+        </div>
         <button
           type="button"
           class="btn-close"
           data-bs-dismiss="modal"
+          aria-label="Kapat"
         ></button>
       </div>
-      <div class="modal-body row g-3">
-        <div class="col-md-6">
-          <label class="form-label">Kullanıcı Adı</label
-          ><input
-            class="form-control"
-            id="edit_username"
-            name="username"
-            required
-          />
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Şifre (isteğe bağlı)</label
-          ><input
-            class="form-control"
-            type="password"
-            id="edit_password"
-            name="password"
-            placeholder="Boş bırakılırsa değişmez"
-          />
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Adı</label
-          ><input class="form-control" id="edit_first_name" name="first_name" />
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Soyadı</label
-          ><input class="form-control" id="edit_last_name" name="last_name" />
-        </div>
-        <div class="col-12">
-          <label class="form-label">E-posta</label
-          ><input
-            class="form-control"
-            type="email"
-            id="edit_email"
-            name="email"
-          />
-        </div>
-        <div class="col-12">
-          <div class="form-check">
+      <div class="modal-body">
+        <div class="env-grid">
+          <div class="field">
+            <label for="edit_username">Kullanıcı Adı</label>
+            <input class="ctrl" id="edit_username" name="username" required />
+          </div>
+          <div class="field">
+            <label for="edit_password">Şifre (isteğe bağlı)</label>
             <input
-              class="form-check-input"
-              type="checkbox"
-              id="edit_is_admin"
-              name="is_admin"
+              class="ctrl"
+              type="password"
+              id="edit_password"
+              name="password"
+              placeholder="Boş bırakılırsa değişmez"
             />
-            <label class="form-check-label" for="edit_is_admin">Admin</label>
+          </div>
+          <div class="field">
+            <label for="edit_first_name">Adı</label>
+            <input class="ctrl" id="edit_first_name" name="first_name" />
+          </div>
+          <div class="field">
+            <label for="edit_last_name">Soyadı</label>
+            <input class="ctrl" id="edit_last_name" name="last_name" />
+          </div>
+          <div class="field span-2">
+            <label for="edit_email">E-posta</label>
+            <input
+              class="ctrl"
+              type="email"
+              id="edit_email"
+              name="email"
+              placeholder="ornek@firma.com"
+            />
+          </div>
+          <div class="field span-2">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="edit_is_admin"
+                name="is_admin"
+              />
+              <label class="form-check-label" for="edit_is_admin"
+                >Admin yetkisi ver</label
+              >
+            </div>
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">
-          İptal
-        </button>
-        <button class="btn btn-primary" type="submit">Kaydet</button>
+      <div
+        class="modal-footer flex-column flex-lg-row gap-3 align-items-stretch align-items-lg-center"
+      >
+        <div class="d-flex align-items-start gap-2 text-muted small w-100">
+          <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+          <span
+            >Değişiklikler anında yürürlüğe girer ve audit kaydına
+            işlenir.</span
+          >
+        </div>
+        <div
+          class="d-flex gap-2 w-100 justify-content-end ms-lg-auto justify-content-lg-end"
+        >
+          <button
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+            type="button"
+          >
+            İptal
+          </button>
+          <button class="btn btn-primary" type="submit">
+            <i class="bi bi-save" aria-hidden="true"></i>
+            Kaydet
+          </button>
+        </div>
       </div>
     </form>
   </div>
