@@ -12,7 +12,7 @@ block content %}
   >
     <div class="modal-content border-0 bg-transparent p-0" tabindex="-1">
       <div class="modal-shell">
-        <div class="modal-shell__header">
+        <div class="modal-header border-0 pb-0 align-items-start">
           <div class="modal-shell__heading">
             <span class="eyebrow text-primary mb-1">Envanter Yönetimi</span>
             <h1 class="modal-shell__title h3 mb-2" id="inventory-edit-title">
@@ -23,7 +23,7 @@ block content %}
               takip edin.
             </p>
           </div>
-          <div class="modal-shell__header-actions">
+          <div class="modal-shell__header-actions ms-auto">
             <button
               type="button"
               class="btn-close"
@@ -37,7 +37,7 @@ block content %}
           method="post"
           action="{{ '?modal=1' if modal else '' }}"
           id="inventory-edit-form"
-          class="modal-shell__body needs-validation"
+          class="modal-body needs-validation pt-0"
           autocomplete="off"
           novalidate
         >
@@ -168,14 +168,18 @@ block content %}
             </div>
           </div>
 
-          <div class="modal-shell__footer">
-            <div class="modal-shell__note">
+          <div
+            class="modal-footer border-0 pt-0 flex-column flex-lg-row gap-3 align-items-stretch align-items-lg-center"
+          >
+            <div class="d-flex align-items-start gap-2 text-muted small w-100">
               <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
               <span
                 >Kaydettiğiniz bilgiler envanter geçmişine işlenecektir.</span
               >
             </div>
-            <div class="modal-shell__actions">
+            <div
+              class="d-flex gap-2 w-100 justify-content-end ms-lg-auto justify-content-lg-end"
+            >
               {% if not modal %}
               <a
                 href="{{ url_for('inventory.list') }}"
