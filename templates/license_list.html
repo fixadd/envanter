@@ -193,31 +193,36 @@ content %}
         </div>
 
         <div class="modal-shell__body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label for="selLisansAdi" class="form-label">Lisans Adı</label>
-              <select id="selLisansAdi" name="lisans_adi" class="form-select" required>
+          <div class="env-grid" id="lisans-ekle-grid">
+            <div class="field">
+              <label for="selLisansAdi">Lisans Adı</label>
+              <select
+                id="selLisansAdi"
+                name="lisans_adi"
+                class="ctrl"
+                required
+              >
                 <option value="">Seçiniz</option>
                 {% for ln in license_names %}
                 <option value="{{ ln.name }}">{{ ln.name }}</option>
                 {% endfor %}
               </select>
             </div>
-            <div class="col-md-6">
-              <label for="lisansAnahtari" class="form-label">Lisans Anahtarı</label>
+            <div class="field">
+              <label for="lisansAnahtari">Lisans Anahtarı</label>
               <input
                 id="lisansAnahtari"
                 name="lisans_anahtari"
                 type="text"
-                class="form-control"
+                class="ctrl"
                 required
                 placeholder="XXXX-XXXX-XXXX-XXXX"
               />
             </div>
 
-            <div class="col-md-6">
-              <label for="selPersonelAdd" class="form-label">Sorumlu Personel</label>
-              <select id="selPersonelAdd" name="sorumlu_personel" class="form-select">
+            <div class="field">
+              <label for="selPersonelAdd">Sorumlu Personel</label>
+              <select id="selPersonelAdd" name="sorumlu_personel" class="ctrl">
                 <option value="">Seçiniz</option>
                 {% for u in users %}
                 <option value="{{ u }}">{{ u }}</option>
@@ -225,12 +230,12 @@ content %}
               </select>
             </div>
 
-            <div class="col-md-6">
-              <label for="bagliEnvanter" class="form-label">Bağlı Olduğu Envanter No</label>
+            <div class="field">
+              <label for="bagliEnvanter">Bağlı Olduğu Envanter No</label>
               <select
                 id="bagliEnvanter"
                 name="bagli_envanter_no"
-                class="form-select"
+                class="ctrl"
                 required
               >
                 <option value="">Seçiniz...</option>
@@ -240,28 +245,28 @@ content %}
               </select>
             </div>
 
-            <div class="col-md-6">
-              <label for="ifsNo" class="form-label">
-                IFS No <span class="muted">(opsiyonel)</span>
-              </label>
+            <div class="field">
+              <label for="ifsNo"
+                >IFS No <span class="muted">(opsiyonel)</span></label
+              >
               <input
                 id="ifsNo"
                 name="ifs_no"
                 type="text"
-                class="form-control"
+                class="ctrl"
                 placeholder="IFS numarası"
               />
             </div>
 
-            <div class="col-md-6">
-              <label for="lisansEmail" class="form-label"
+            <div class="field">
+              <label for="lisansEmail"
                 >E-posta <span class="muted">(opsiyonel)</span></label
               >
               <input
                 id="lisansEmail"
                 name="mail_adresi"
                 type="email"
-                class="form-control"
+                class="ctrl"
                 placeholder="ornek@firma.com"
               />
             </div>
