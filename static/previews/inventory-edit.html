@@ -157,7 +157,7 @@
       >
         <div class="modal-content border-0 bg-transparent p-0" tabindex="-1">
           <div class="modal-shell">
-            <div class="modal-shell__header">
+            <div class="modal-header border-0 pb-0 align-items-start">
               <div class="modal-shell__heading">
                 <span class="eyebrow text-primary mb-1">Envanter Yönetimi</span>
                 <h1
@@ -171,7 +171,7 @@
                   takip edin.
                 </p>
               </div>
-              <div class="modal-shell__header-actions">
+              <div class="modal-shell__header-actions ms-auto">
                 <button
                   type="button"
                   class="btn-close"
@@ -181,7 +181,7 @@
               </div>
             </div>
 
-            <form class="modal-shell__body" novalidate>
+            <form class="modal-body pt-0" novalidate>
               <div class="row g-3">
                 <div class="col-md-6">
                   <label class="form-label" for="previewInventoryNo"
@@ -312,15 +312,18 @@ CPU fan değişimi planlandı. Yazılım lisans güncellemesi 05.09.2024.</texta
                   >
                 </div>
               </div>
-
-              <div class="modal-shell__footer">
-                <div class="modal-shell__note">
+              <div
+                class="modal-footer border-0 pt-0 flex-column flex-lg-row gap-3 align-items-stretch align-items-lg-center"
+              >
+                <div class="d-flex align-items-start gap-2 text-muted small w-100">
                   <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
                   <span>
                     Kaydettiğiniz bilgiler envanter geçmişine işlenecektir.
                   </span>
                 </div>
-                <div class="modal-shell__actions">
+                <div
+                  class="d-flex gap-2 w-100 justify-content-end ms-lg-auto justify-content-lg-end"
+                >
                   <button type="button" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
                     Geri Dön
