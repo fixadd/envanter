@@ -7,7 +7,7 @@ block content %}
   role="dialog"
   aria-modal="true"
   aria-labelledby="inventory-edit-title"
-  style="display: block;"
+  style="display: block"
   data-bs-backdrop="static"
 >
   <div
@@ -186,6 +186,7 @@ block content %}
   document.addEventListener("DOMContentLoaded", async () => {
     const applyModalOpen = () => document.body.classList.add("modal-open");
     const removeModalOpen = () => document.body.classList.remove("modal-open");
+    const isEmbedded = window.self !== window.top;
 
     applyModalOpen();
     window.addEventListener("beforeunload", removeModalOpen);
@@ -220,6 +221,13 @@ block content %}
       }
       closing = true;
       removeModalOpen();
+
+      if (isEmbedded) {
+        try {
+          window.parent.postMessage("modal-close", "*");
+        } catch (err) {}
+        return;
+      }
 
       if (window.history.length > 1 && hasUsableHistory()) {
         window.history.back();
