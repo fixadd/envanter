@@ -1261,7 +1261,7 @@ body .container-fluid {
   min-width: 140px;
   appearance: none;
   background-image: none !important;
-  --bs-form-select-bg-img: none;
+
   padding-right: 1rem !important;
 }
 
