@@ -1260,21 +1260,21 @@ body .container-fluid {
   cursor: pointer;
   min-width: 140px;
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231f2937' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
-  background-repeat: no-repeat;
-  background-position: right 0.5rem center;
-  background-size: 1rem;
-  padding-right: 2rem !important;
+  background-image: none !important;
+  --bs-form-select-bg-img: none;
+  padding-right: 1rem !important;
 }
 
 .action-select.js-actions:hover {
   background: rgba(15, 23, 42, 0.06) !important;
   color: var(--color-heading) !important;
+  background-image: none !important;
 }
 
 .action-select.js-actions:focus {
   outline: 3px solid rgba(15, 23, 42, 0.25);
   outline-offset: 2px;
+  background-image: none !important;
 }
 
 /* Dropdown Options */
@@ -2206,14 +2206,6 @@ body.theme-dark .nav.nav-tabs {
 /* Select seçildiğinde renk */
 .js-actions:has(option[value="edit"]:checked) {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-  background-image:
-    linear-gradient(135deg, #10b981 0%, #059669 100%),
-    url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
-  background-repeat: no-repeat, no-repeat;
-  background-position:
-    center,
-    right 0.5rem center;
-  background-size: auto, 1rem;
   color: white !important;
   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3) !important;
 }
