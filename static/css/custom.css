@@ -1555,14 +1555,19 @@ body .container-fluid {
 
 #assignModal .modal-header .btn-close,
 .inventory-edit-modal .modal-header .btn-close {
+  --bs-btn-close-color: #fff !important;
+  color: #fff !important;
+  --bs-btn-close-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") !important;
   background-color: #ef4444 !important;
-  filter: invert(1) !important;
+  border-radius: 999px !important;
   opacity: 1 !important;
+  transition: background-color var(--transition-fast, 0.2s ease);
 }
 
 #assignModal .modal-header .btn-close:hover,
 .inventory-edit-modal .modal-header .btn-close:hover {
   background-color: #dc2626 !important;
+  --bs-btn-close-opacity: 1 !important;
 }
 
 #assignModal .modal-body,
