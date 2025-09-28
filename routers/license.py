@@ -318,6 +318,7 @@ def stock_license(
     lic.sorumlu_personel = None
     lic.bagli_envanter_no = None
     lic.inventory_id = None
+    lic.durum = "stok"
 
     create_stock_log(
         db,
@@ -420,7 +421,9 @@ def edit_quick_license(
 def license_list(
     request: Request, db: Session = Depends(get_db), current_user=Depends(current_user)
 ):
-    active_licenses = or_(License.durum.is_(None), License.durum != "hurda")
+    active_licenses = or_(
+        License.durum.is_(None), ~License.durum.in_(["hurda", "stok"])
+    )
     items = db.query(License).filter(active_licenses).all()
     users = [
         r[0]

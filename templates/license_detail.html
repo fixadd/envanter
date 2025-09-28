@@ -46,7 +46,17 @@ content %}
         </tr>
         <tr>
           <th>Durum</th>
-          <td>{{ item.durum }}</td>
+          <td>
+            {% if item.durum == 'hurda' %}
+            <span class="badge bg-secondary">Hurda</span>
+            {% elif item.durum == 'stok' %}
+            <span class="badge text-bg-info text-dark">Stokta</span>
+            {% elif item.durum == 'arızalı' %}
+            <span class="badge text-bg-warning text-dark">Arızalı</span>
+            {% else %}
+            <span class="badge bg-success">Aktif</span>
+            {% endif %}
+          </td>
         </tr>
       </tbody>
     </table>
