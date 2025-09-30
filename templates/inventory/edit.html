@@ -68,34 +68,169 @@ block content %}
             />
           </div>
           <div class="field">
-            <label for="edit_fabrika">Fabrika</label>
-            <select id="edit_fabrika" name="fabrika" class="ctrl"></select>
+            <label for="edit_fabrika_display">Fabrika</label>
+            <div class="picker-inline">
+              <input type="hidden" id="edit_fabrika_id" />
+              <input
+                id="edit_fabrika_display"
+                name="fabrika"
+                type="text"
+                class="ctrl lookup-display"
+                value="{{ item.fabrika or '' }}"
+                placeholder="Seçiniz..."
+                readonly
+                data-entity="fabrika"
+                data-target="edit_fabrika_id"
+              />
+              <button
+                type="button"
+                class="pick-btn"
+                data-entity="fabrika"
+                data-target="edit_fabrika_id"
+                data-display="edit_fabrika_display"
+                aria-label="Fabrika seç"
+              >
+                ≡
+              </button>
+            </div>
           </div>
           <div class="field">
-            <label for="edit_departman">Departman</label>
-            <select id="edit_departman" name="departman" class="ctrl"></select>
+            <label for="edit_departman_display">Departman</label>
+            <div class="picker-inline">
+              <input type="hidden" id="edit_departman_id" />
+              <input
+                id="edit_departman_display"
+                name="departman"
+                type="text"
+                class="ctrl lookup-display"
+                value="{{ item.departman or '' }}"
+                placeholder="Seçiniz..."
+                readonly
+                data-entity="departman"
+                data-target="edit_departman_id"
+              />
+              <button
+                type="button"
+                class="pick-btn"
+                data-entity="departman"
+                data-target="edit_departman_id"
+                data-display="edit_departman_display"
+                aria-label="Departman seç"
+              >
+                ≡
+              </button>
+            </div>
           </div>
           <div class="field">
-            <label for="edit_donanim">Donanım Tipi</label>
-            <select id="edit_donanim" name="donanim_tipi" class="ctrl"></select>
+            <label for="edit_donanim_display">Donanım Tipi</label>
+            <div class="picker-inline">
+              <input type="hidden" id="edit_donanim_id" />
+              <input
+                id="edit_donanim_display"
+                name="donanim_tipi"
+                type="text"
+                class="ctrl lookup-display"
+                value="{{ item.donanim_tipi or '' }}"
+                placeholder="Seçiniz..."
+                readonly
+                data-entity="donanim_tipi"
+                data-target="edit_donanim_id"
+              />
+              <button
+                type="button"
+                class="pick-btn"
+                data-entity="donanim_tipi"
+                data-target="edit_donanim_id"
+                data-display="edit_donanim_display"
+                aria-label="Donanım tipi seç"
+              >
+                ≡
+              </button>
+            </div>
           </div>
           <div class="field">
-            <label for="edit_sorumlu">Sorumlu Personel</label>
-            <select
-              id="edit_sorumlu"
-              name="sorumlu_personel"
-              class="ctrl"
-            ></select>
+            <label for="edit_sorumlu_display">Sorumlu Personel</label>
+            <div class="picker-inline">
+              <input type="hidden" id="edit_sorumlu_id" />
+              <input
+                id="edit_sorumlu_display"
+                name="sorumlu_personel"
+                type="text"
+                class="ctrl lookup-display"
+                value="{{ item.sorumlu_personel or '' }}"
+                placeholder="Seçiniz..."
+                readonly
+                data-entity="sorumlu_personel"
+                data-target="edit_sorumlu_id"
+              />
+              <button
+                type="button"
+                class="pick-btn"
+                data-entity="sorumlu_personel"
+                data-target="edit_sorumlu_id"
+                data-display="edit_sorumlu_display"
+                aria-label="Sorumlu personel seç"
+              >
+                ≡
+              </button>
+            </div>
           </div>
           <div class="field">
-            <label for="edit_marka">Marka</label>
-            <select id="edit_marka" name="marka" class="ctrl"></select>
+            <label for="edit_marka_display">Marka</label>
+            <div class="picker-inline">
+              <input type="hidden" id="edit_marka_id" />
+              <input
+                id="edit_marka_display"
+                name="marka"
+                type="text"
+                class="ctrl lookup-display"
+                value="{{ item.marka or '' }}"
+                placeholder="Seçiniz..."
+                readonly
+                data-entity="marka"
+                data-target="edit_marka_id"
+              />
+              <button
+                type="button"
+                class="pick-btn"
+                data-entity="marka"
+                data-target="edit_marka_id"
+                data-display="edit_marka_display"
+                aria-label="Marka seç"
+              >
+                ≡
+              </button>
+            </div>
           </div>
           <div class="field">
-            <label for="edit_model">Model</label>
-            <select id="edit_model" name="model" class="ctrl" disabled>
-              <option value="">Önce marka seçiniz...</option>
-            </select>
+            <label for="edit_model_display">Model</label>
+            <div class="picker-inline">
+              <input type="hidden" id="edit_model_id" data-store="id" />
+              <input
+                id="edit_model_display"
+                name="model"
+                type="text"
+                class="ctrl lookup-display"
+                value="{{ item.model or '' }}"
+                placeholder="Önce marka seçiniz..."
+                readonly
+                data-entity="model"
+                data-target="edit_model_id"
+                data-parent="edit_marka_id"
+              />
+              <button
+                type="button"
+                class="pick-btn"
+                data-entity="model"
+                data-target="edit_model_id"
+                data-display="edit_model_display"
+                data-parent="edit_marka_id"
+                aria-label="Model seç"
+                disabled
+              >
+                ≡
+              </button>
+            </div>
           </div>
           <div class="field">
             <label for="inventorySerial">Seri No</label>
@@ -109,12 +244,31 @@ block content %}
             />
           </div>
           <div class="field">
-            <label for="edit_kullanim">Kullanım Alanı</label>
-            <select
-              id="edit_kullanim"
-              name="kullanim_alani"
-              class="ctrl"
-            ></select>
+            <label for="edit_kullanim_display">Kullanım Alanı</label>
+            <div class="picker-inline">
+              <input type="hidden" id="edit_kullanim_id" />
+              <input
+                id="edit_kullanim_display"
+                name="kullanim_alani"
+                type="text"
+                class="ctrl lookup-display"
+                value="{{ item.kullanim_alani or '' }}"
+                placeholder="Seçiniz..."
+                readonly
+                data-entity="kullanim_alani"
+                data-target="edit_kullanim_id"
+              />
+              <button
+                type="button"
+                class="pick-btn"
+                data-entity="kullanim_alani"
+                data-target="edit_kullanim_id"
+                data-display="edit_kullanim_display"
+                aria-label="Kullanım alanı seç"
+              >
+                ≡
+              </button>
+            </div>
           </div>
           <div class="field">
             <label for="inventoryIfs">IFS No</label>
@@ -181,6 +335,201 @@ block content %}
   </div>
 </div>
 <div class="modal-backdrop fade show"></div>
+
+<div id="picker-modal" class="picker-modal" hidden>
+  <div class="picker-card">
+    <div class="picker-head">
+      <strong id="picker-title">Seçim</strong>
+      <button type="button" class="picker-close" aria-label="Kapat">×</button>
+    </div>
+    <div class="picker-search">
+      <input
+        id="picker-search"
+        type="text"
+        placeholder="Ara / yeni değer yaz..."
+      />
+      <button type="button" class="picker-add" id="picker-add">Ekle</button>
+    </div>
+    <div id="picker-list" class="picker-list"></div>
+    <div class="picker-foot">
+      <button type="button" class="btn btn-light" id="picker-cancel">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .inventory-edit-modal .picker-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .inventory-edit-modal .picker-inline .lookup-display {
+    flex: 1 1 auto;
+    cursor: pointer;
+    background-color: #fff;
+  }
+  .inventory-edit-modal .picker-inline .lookup-display::placeholder {
+    color: #9ca3af;
+  }
+  .inventory-edit-modal .picker-inline .pick-btn {
+    flex: 0 0 auto;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    color: #111827;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    line-height: 1;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+  .inventory-edit-modal .picker-inline .pick-btn:hover:not(.is-disabled) {
+    background: #eef2ff;
+    border-color: #6366f1;
+    color: #4338ca;
+  }
+  .inventory-edit-modal .picker-inline .pick-btn:active:not(.is-disabled) {
+    transform: translateY(1px);
+  }
+  .inventory-edit-modal .picker-inline .pick-btn.is-disabled,
+  .inventory-edit-modal .picker-inline .pick-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+  }
+  .picker-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(2px);
+    z-index: 1080;
+  }
+  .picker-modal:not([hidden]) {
+    display: flex;
+  }
+  .picker-card {
+    width: min(420px, 100%);
+    background: #ffffff;
+    border-radius: 1rem;
+    box-shadow: 0 40px 90px rgba(15, 23, 42, 0.25);
+    display: flex;
+    flex-direction: column;
+  }
+  .picker-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .picker-close {
+    border: none;
+    background: transparent;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: #64748b;
+    cursor: pointer;
+  }
+  .picker-search {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .picker-search input {
+    flex: 1 1 auto;
+    border: 1px solid #d1d5db;
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.95rem;
+  }
+  .picker-add {
+    border: none;
+    border-radius: 0.75rem;
+    background: #4338ca;
+    color: #fff;
+    font-weight: 600;
+    padding: 0.5rem 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .picker-add:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #a5b4fc;
+  }
+  .picker-list {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .picker-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+    gap: 0.75rem;
+  }
+  .picker-row:nth-child(even) {
+    background: #f8fafc;
+  }
+  .picker-name {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #0f172a;
+    font-weight: 500;
+  }
+  .picker-actions {
+    display: inline-flex;
+    gap: 0.5rem;
+  }
+  .picker-select,
+  .picker-del {
+    border: none;
+    border-radius: 999px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .picker-select {
+    background: #4f46e5;
+    color: #fff;
+  }
+  .picker-select:hover {
+    background: #3730a3;
+  }
+  .picker-del {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+  .picker-del:hover {
+    background: #fecaca;
+  }
+  .picker-empty {
+    padding: 1.25rem;
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.9rem;
+  }
+  .picker-foot {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>
+
+<script src="{{ url_for('static', path='js/mini-picker.js') }}"></script>
 
 <script>
   document.addEventListener("DOMContentLoaded", async () => {
@@ -279,106 +628,257 @@ block content %}
     setInputValue("bagli_envanter_no", current.bagli);
     setInputValue("not", current.not);
 
-    async function loadOptions(selectEl, url, selectedValue) {
-      if (!selectEl) return;
-      let data = [];
+    const optionCache = new Map();
+
+    function makeCacheKey(endpoint, params) {
+      const entries = Object.entries(params || {})
+        .filter(([_, v]) => v !== undefined && v !== null && v !== "")
+        .sort(([a], [b]) => a.localeCompare(b));
+      const query = entries
+        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+        .join("&");
+      return `${endpoint}?${query}`;
+    }
+
+    async function fetchOptions(endpoint, params = {}) {
+      const key = makeCacheKey(endpoint, params);
+      if (optionCache.has(key)) {
+        return optionCache.get(key);
+      }
       try {
-        const res = await fetch(url);
-        if (res.ok) {
-          data = (await res.json()) || [];
+        const url = new URL(endpoint, window.location.origin);
+        Object.entries(params || {}).forEach(([k, v]) => {
+          if (v !== undefined && v !== null && v !== "") {
+            url.searchParams.set(k, v);
+          }
+        });
+        const res = await fetch(url, { headers: { Accept: "application/json" } });
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
         }
+        const data = (await res.json()) || [];
+        optionCache.set(key, data);
+        return data;
       } catch (err) {
-        console.error("Seçenekler yüklenemedi", err);
+        console.error("Seçenek listesi alınamadı", endpoint, err);
+        optionCache.set(key, []);
+        return [];
       }
-      selectEl.innerHTML =
-        '<option value="">Seçiniz...</option>' +
-        data
-          .map(
-            (o) =>
-              `<option value="${o.text}" data-id="${o.id}">${o.text}</option>`
-          )
-          .join("");
-      setSelectValue(selectEl, selectedValue);
     }
 
-    function setSelectValue(selectEl, value) {
-      if (!selectEl) return;
-      const val = value || "";
-      if (val && !Array.from(selectEl.options).some((opt) => opt.value === val)) {
-        const opt = document.createElement("option");
-        opt.value = val;
-        opt.textContent = val;
-        selectEl.appendChild(opt);
-      }
-      selectEl.value = val;
-    }
-
-    const fabrikaSel = document.getElementById("edit_fabrika");
-    const departmanSel = document.getElementById("edit_departman");
-    const donanimSel = document.getElementById("edit_donanim");
-    const sorumluSel = document.getElementById("edit_sorumlu");
-    const markaSel = document.getElementById("edit_marka");
-    const modelSel = document.getElementById("edit_model");
-    const kullanimSel = document.getElementById("edit_kullanim");
-
-    await loadOptions(fabrikaSel, "/api/picker/fabrika", current.fabrika);
-    await loadOptions(departmanSel, "/api/picker/kullanim_alani", current.departman);
-    await loadOptions(donanimSel, "/api/picker/donanim_tipi", current.donanim);
-    await loadOptions(kullanimSel, "/api/picker/kullanim_alani", current.kullanim);
-
-    await loadOptions(sorumluSel, "/api/picker/kullanici", current.sorumlu);
-
-    let brands = [];
-    try {
-      const brandRes = await fetch("/api/picker/marka");
-      if (brandRes.ok) {
-        brands = (await brandRes.json()) || [];
-      }
-    } catch (err) {
-      console.error("Marka listesi alınamadı", err);
-    }
-    markaSel.innerHTML =
-      '<option value="">Seçiniz...</option>' +
-      brands
-        .map(
-          (b) =>
-            `<option value="${b.text}" data-id="${b.id}">${b.text}</option>`
-        )
-        .join("");
-    setSelectValue(markaSel, current.marka);
-
-    async function populateModels(selectedBrandValue, selectedModelValue) {
-      if (!modelSel) return;
-      const opt = Array.from(markaSel.options).find(
-        (option) => option.value === (selectedBrandValue || "")
+    function findExactMatch(options, text) {
+      const target = (text || "").trim().toLowerCase();
+      if (!target) return null;
+      return (
+        options.find(
+          (row) => (row.text || "").trim().toLowerCase() === target
+        ) || null
       );
-      const brandId = opt && opt.dataset.id;
-      modelSel.innerHTML = '<option value="">Seçiniz...</option>';
-      modelSel.disabled = !brandId;
-      if (!brandId) {
-        setSelectValue(modelSel, selectedModelValue);
+    }
+
+    async function resolveOption(endpoint, text, params = {}) {
+      if (!text) return null;
+      const base = await fetchOptions(endpoint, params);
+      let match = findExactMatch(base, text);
+      if (match) return match;
+      if (!("q" in params)) {
+        const withQuery = await fetchOptions(endpoint, {
+          ...params,
+          q: text,
+        });
+        match = findExactMatch(withQuery, text);
+      }
+      return match || null;
+    }
+
+    const pickerFields = [
+      {
+        entity: "fabrika",
+        hiddenId: "edit_fabrika_id",
+        displayId: "edit_fabrika_display",
+        currentKey: "fabrika",
+        endpoint: "/api/picker/fabrika",
+      },
+      {
+        entity: "departman",
+        hiddenId: "edit_departman_id",
+        displayId: "edit_departman_display",
+        currentKey: "departman",
+        endpoint: "/api/picker/kullanim_alani",
+      },
+      {
+        entity: "donanim_tipi",
+        hiddenId: "edit_donanim_id",
+        displayId: "edit_donanim_display",
+        currentKey: "donanim",
+        endpoint: "/api/picker/donanim_tipi",
+      },
+      {
+        entity: "sorumlu_personel",
+        hiddenId: "edit_sorumlu_id",
+        displayId: "edit_sorumlu_display",
+        currentKey: "sorumlu",
+        endpoint: "/api/picker/kullanici",
+      },
+      {
+        entity: "kullanim_alani",
+        hiddenId: "edit_kullanim_id",
+        displayId: "edit_kullanim_display",
+        currentKey: "kullanim",
+        endpoint: "/api/picker/kullanim_alani",
+      },
+    ];
+
+    async function prefillPickerField(field) {
+      const display = document.getElementById(field.displayId);
+      const hidden = document.getElementById(field.hiddenId);
+      if (display) {
+        display.value = current[field.currentKey] || "";
+      }
+      if (!hidden) return null;
+      hidden.value = "";
+      hidden.dataset.id = "";
+      hidden.dataset.text = "";
+      const textValue = current[field.currentKey];
+      if (!textValue) {
+        return null;
+      }
+      const match = await resolveOption(field.endpoint, textValue, field.params);
+      if (match) {
+        hidden.value = match.id;
+        hidden.dataset.id = match.id;
+        hidden.dataset.text = match.text;
+        return match.id;
+      }
+      return null;
+    }
+
+    for (const field of pickerFields) {
+      await prefillPickerField(field);
+    }
+
+    const markaField = {
+      entity: "marka",
+      hiddenId: "edit_marka_id",
+      displayId: "edit_marka_display",
+      currentKey: "marka",
+      endpoint: "/api/picker/marka",
+    };
+    await prefillPickerField(markaField);
+
+    const markaHidden = document.getElementById(markaField.hiddenId);
+    const markaDisplay = document.getElementById(markaField.displayId);
+    let currentBrandId = markaHidden
+      ? markaHidden.dataset.id || markaHidden.value
+      : "";
+
+    const modelField = {
+      entity: "model",
+      hiddenId: "edit_model_id",
+      displayId: "edit_model_display",
+      currentKey: "model",
+      endpoint: "/api/picker/model",
+      parentHiddenId: markaField.hiddenId,
+    };
+
+    async function fillModelForBrand(brandId, modelText) {
+      const modelHidden = document.getElementById(modelField.hiddenId);
+      const modelDisplay = document.getElementById(modelField.displayId);
+      if (modelDisplay) {
+        modelDisplay.value = modelText || "";
+      }
+      if (!modelHidden) return;
+      modelHidden.value = "";
+      modelHidden.dataset.id = "";
+      modelHidden.dataset.text = "";
+      if (!brandId || !modelText) {
         return;
       }
-      let models = [];
-      try {
-        const res = await fetch(`/api/picker/model?marka_id=${brandId}`);
-        if (res.ok) {
-          models = (await res.json()) || [];
-        }
-      } catch (err) {
-        console.error("Model listesi alınamadı", err);
+      const match = await resolveOption(modelField.endpoint, modelText, {
+        marka_id: brandId,
+      });
+      if (match) {
+        modelHidden.value = match.id;
+        modelHidden.dataset.id = match.id;
+        modelHidden.dataset.text = match.text;
       }
-      modelSel.innerHTML += models
-        .map((m) => `<option value="${m.text}">${m.text}</option>`)
-        .join("");
-      setSelectValue(modelSel, selectedModelValue);
     }
 
-    await populateModels(current.marka, current.model);
+    await fillModelForBrand(currentBrandId, current.model);
 
-    markaSel.addEventListener("change", async () => {
-      await populateModels(markaSel.value, "");
-    });
+    function updateModelAvailability() {
+      const modelButton = document.querySelector(
+        '.inventory-edit-modal .pick-btn[data-entity="model"]'
+      );
+      const modelInput = document.getElementById(modelField.displayId);
+      const enabled = Boolean(currentBrandId);
+      if (modelButton) {
+        modelButton.disabled = !enabled;
+        modelButton.classList.toggle("is-disabled", !enabled);
+      }
+      if (modelInput) {
+        modelInput.placeholder = enabled
+          ? "Seçiniz..."
+          : "Önce marka seçiniz...";
+      }
+    }
+
+    function clearModelSelection() {
+      const modelHidden = document.getElementById(modelField.hiddenId);
+      const modelDisplay = document.getElementById(modelField.displayId);
+      if (modelHidden) {
+        modelHidden.value = "";
+        modelHidden.dataset.id = "";
+        modelHidden.dataset.text = "";
+      }
+      if (modelDisplay) {
+        modelDisplay.value = "";
+      }
+      current.model = "";
+    }
+
+    updateModelAvailability();
+
+    function attachPickerSync(field) {
+      const hidden = document.getElementById(field.hiddenId);
+      const display = document.getElementById(field.displayId);
+      if (!hidden) return;
+      hidden.addEventListener("picker:change", (event) => {
+        const detail = event.detail || {};
+        const text = detail.text || "";
+        current[field.currentKey] = text;
+        if (display && display.value !== text) {
+          display.value = text;
+        }
+        hidden.dataset.id = detail.id || hidden.value || "";
+        hidden.dataset.text = text;
+      });
+    }
+
+    for (const field of [...pickerFields, markaField, modelField]) {
+      attachPickerSync(field);
+    }
+
+    if (markaHidden) {
+      markaHidden.addEventListener("picker:change", (event) => {
+        const detail = event.detail || {};
+        const newBrandId =
+          detail.id ||
+          markaHidden.dataset.id ||
+          markaHidden.value ||
+          "";
+        currentBrandId = newBrandId;
+        const brandText =
+          detail.text || markaHidden.dataset.text || markaHidden.value || "";
+        current.marka = brandText;
+        if (markaDisplay && markaDisplay.value !== brandText) {
+          markaDisplay.value = brandText;
+        }
+        clearModelSelection();
+        updateModelAvailability();
+      });
+    }
+
   });
 </script>
 {% endblock %}
