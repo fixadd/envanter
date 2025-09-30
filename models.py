@@ -68,12 +68,28 @@ def _is_sqlite_url(url: str | URL) -> bool:
 
 
 def engine_kwargs_for_url(url: str | URL) -> dict[str, Any]:
+    """Return safe keyword arguments for :func:`create_engine`.
+
+    The helper normalises SQLite URLs so that tests can override the
+    ``poolclass`` (e.g. to use :class:`StaticPool`) without running into the
+    ``multiple values for keyword argument`` error that SQLAlchemy raises when
+    the same kwarg is passed twice. To keep backwards compatibility for the
+    application code we expose the pool selection via a separate helper.
+    """
+
     if _is_sqlite_url(url):
-        parsed = url if isinstance(url, URL) else make_url(url)
-        kwargs: dict[str, Any] = {"connect_args": {"check_same_thread": False}}
-        if parsed.database in (None, "", ":memory:"):
-            kwargs["poolclass"] = StaticPool
-        return kwargs
+        return {"connect_args": {"check_same_thread": False}}
+    return {}
+
+
+def engine_pool_kwargs(url: str | URL) -> dict[str, Any]:
+    """Return optional pool-related kwargs for SQLite memory databases."""
+
+    if not _is_sqlite_url(url):
+        return {}
+    parsed = url if isinstance(url, URL) else make_url(url)
+    if parsed.database in (None, "", ":memory:"):
+        return {"poolclass": StaticPool}
     return {}
 
 
@@ -83,7 +99,9 @@ if _is_sqlite_url(database_url):
     if db_path and db_path != ":memory:":
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
 
-engine = create_engine(DATABASE_URL, **engine_kwargs_for_url(database_url))
+_engine_kwargs = engine_kwargs_for_url(database_url)
+_engine_kwargs.update(engine_pool_kwargs(database_url))
+engine = create_engine(DATABASE_URL, **_engine_kwargs)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 
