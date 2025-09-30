@@ -161,7 +161,9 @@
 
     async function fetchPickerItems(url) {
       try {
-        const res = await fetch(url, { headers: { Accept: "application/json" } });
+        const res = await fetch(url, {
+          headers: { Accept: "application/json" },
+        });
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`);
         }

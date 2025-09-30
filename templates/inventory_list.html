@@ -697,7 +697,9 @@ block content %}
           items
             .map((item) => {
               const dataId =
-                item.id !== undefined && item.id !== null ? ` data-id="${item.id}"` : "";
+                item.id !== undefined && item.id !== null
+                  ? ` data-id="${item.id}"`
+                  : "";
               return `<option value="${item.text}"${dataId}>${item.text}</option>`;
             })
             .join("");
@@ -765,12 +767,13 @@ block content %}
     }
 
     async function preloadAssignDropdowns(itemId) {
-      const [factories, departmentsPrimary, departmentsFallback, users] = await Promise.all([
-        fetchPickerItems("/api/picker/fabrika"),
-        fetchPickerItems("/api/picker/kullanim_alani"),
-        fetchPickerItems("/inventory/assign/sources?type=departman"),
-        fetchPickerItems("/api/picker/kullanici"),
-      ]);
+      const [factories, departmentsPrimary, departmentsFallback, users] =
+        await Promise.all([
+          fetchPickerItems("/api/picker/fabrika"),
+          fetchPickerItems("/api/picker/kullanim_alani"),
+          fetchPickerItems("/inventory/assign/sources?type=departman"),
+          fetchPickerItems("/api/picker/kullanici"),
+        ]);
 
       const departments = departmentsPrimary.length
         ? departmentsPrimary
