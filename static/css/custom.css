@@ -1612,21 +1612,21 @@ body .container-fluid {
   justify-content: space-between;
   gap: 1.5rem;
   padding: 1.75rem 2rem;
-  background: var(--color-surface, #ffffff);
-  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%);
+  color: #ffffff;
 }
 
 .assign-card__title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--color-heading, #111827);
+  color: inherit;
   margin: 0;
 }
 
 .assign-card__subtitle {
   margin: 0.35rem 0 0;
   font-size: 0.95rem;
-  color: var(--color-muted, #6b7280);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .assign-card__close {
