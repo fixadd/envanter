@@ -87,8 +87,8 @@ endblock %} {% block content %}
       </div>
       <div class="collapse w-100 mt-2 pt-3" id="inventoryChangeHistory">
         <div class="table-responsive">
-          {% set islem_map = { "assign": "Atama", "edit": "Düzenleme",
-          "scrap": "Hurdaya Ayır" } %}
+          {% set islem_map = { "assign": "Atama", "edit": "Düzenleme", "scrap":
+          "Hurdaya Ayır" } %}
           <table class="table table-sm table-striped mb-0 table-rounded">
             <thead>
               <tr>
@@ -108,18 +108,22 @@ endblock %} {% block content %}
 
                 <!-- Önce -->
                 <td>
-                  {% if log.before_json %} {% for k, v in log.before_json.items() %}
+                  {% if log.before_json %} {% for k, v in
+                  log.before_json.items() %}
                   <div>
-                    <strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v }}
+                    <strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v
+                    }}
                   </div>
                   {% endfor %} {% else %} Yok {% endif %}
                 </td>
 
                 <!-- Sonra -->
                 <td>
-                  {% if log.after_json %} {% for k, v in log.after_json.items() %}
+                  {% if log.after_json %} {% for k, v in log.after_json.items()
+                  %}
                   <div>
-                    <strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v }}
+                    <strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v
+                    }}
                   </div>
                   {% endfor %} {% else %} Yok {% endif %}
                 </td>
