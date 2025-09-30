@@ -192,12 +192,12 @@
   function dispatchChange(detail) {
     if (current.hidden) {
       current.hidden.dispatchEvent(
-        new CustomEvent("picker:change", { bubbles: true, detail })
+        new CustomEvent("picker:change", { bubbles: true, detail }),
       );
     }
     if (current.display) {
       current.display.dispatchEvent(
-        new CustomEvent("picker:change", { bubbles: true, detail })
+        new CustomEvent("picker:change", { bubbles: true, detail }),
       );
     }
   }
@@ -275,8 +275,7 @@
         entity: current.entity,
         storedAs: current.storeAs,
       };
-      const storedValue =
-        current.storeAs === "text" ? detail.text : detail.id;
+      const storedValue = current.storeAs === "text" ? detail.text : detail.id;
       if (current.hidden) {
         current.hidden.value = storedValue || "";
         current.hidden.dataset.id = detail.id;
@@ -312,7 +311,7 @@
   // ≡ butonlarını bağla (admin/kullanıcı fark etmez; kapsayıcı id’ni değiştir)
   document
     .querySelectorAll(
-      "#admin-urun-ekle .pick-btn, #urun-ekle .pick-btn, .inventory-edit-modal .pick-btn"
+      "#admin-urun-ekle .pick-btn, #urun-ekle .pick-btn, .inventory-edit-modal .pick-btn",
     )
     .forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -339,7 +338,8 @@
     const input = e.target.closest("input.lookup-display");
     if (!input) return;
     const entity =
-      input.dataset.entity || (input.id ? input.id.replace("_display", "") : null);
+      input.dataset.entity ||
+      (input.id ? input.id.replace("_display", "") : null);
     if (!entity) return;
     const hiddenId = input.dataset.target || entity;
     const chipKey = input.dataset.chip || hiddenId || entity;
