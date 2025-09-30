@@ -9,7 +9,7 @@ endblock %} {% block content %}
   </div>
 
   <div class="row g-3">
-    <div class="col-lg-6">
+    <div class="col-lg-8 col-xl-7">
       <div class="card">
         <div class="card-header">Temel Bilgiler</div>
         <div class="card-body">
@@ -44,71 +44,6 @@ endblock %} {% block content %}
         </div>
       </div>
     </div>
-
-    <div class="col-lg-6">
-      <div class="card">
-        <div class="card-header">Değişiklik Geçmişi</div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            {% set islem_map = { "assign": "Atama", "edit": "Düzenleme",
-            "scrap": "Hurdaya Ayır" } %}
-            <table class="table table-sm table-striped mb-0 table-rounded">
-              <thead>
-                <tr>
-                  <th>İşlem</th>
-                  <th>Önce</th>
-                  <th>Sonra</th>
-                  <th>Not</th>
-                  <th>Kullanıcı</th>
-                  <th>Tarih</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for log in logs %}
-                <tr>
-                  <!-- İşlem Türkçeleştirme -->
-                  <td>{{ islem_map.get(log.action, log.action) }}</td>
-
-                  <!-- Önce -->
-                  <td>
-                    {% if log.before_json %} {% for k, v in
-                    log.before_json.items() %}
-                    <div>
-                      <strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v
-                      }}
-                    </div>
-                    {% endfor %} {% else %} Yok {% endif %}
-                  </td>
-
-                  <!-- Sonra -->
-                  <td>
-                    {% if log.after_json %} {% for k, v in
-                    log.after_json.items() %}
-                    <div>
-                      <strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v
-                      }}
-                    </div>
-                    {% endfor %} {% else %} Yok {% endif %}
-                  </td>
-
-                  <!-- Not / Kullanıcı -->
-                  <td>{{ log.note or '' }}</td>
-                  <td>{{ log.actor }}</td>
-
-                  <!-- Tarih (saliseyi atıyoruz) -->
-                  <td>{{ log.created_at.strftime("%d.%m.%Y %H:%M:%S") }}</td>
-                </tr>
-                {% else %}
-                <tr>
-                  <td colspan="6" class="text-muted">Henüz değişiklik yok</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <h6 class="mt-4">Bağlı Lisanslar</h6>
@@ -135,7 +70,82 @@ endblock %} {% block content %}
     {% endfor %} {% else %}
     <li class="list-group-item text-muted">Kayıtlı lisans yok.</li>
     {% endif %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <span>Değişiklik Geçmişi</span>
+      <button
+        class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#inventoryChangeHistory"
+        aria-expanded="false"
+        aria-controls="inventoryChangeHistory"
+      >
+        <span>Göster</span>
+        <i class="bi bi-chevron-down collapse-chevron"></i>
+      </button>
+    </li>
   </ul>
+
+  <div class="collapse mt-3" id="inventoryChangeHistory">
+    <div class="card">
+      <div class="card-header">Değişiklik Geçmişi</div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          {% set islem_map = { "assign": "Atama", "edit": "Düzenleme",
+          "scrap": "Hurdaya Ayır" } %}
+          <table class="table table-sm table-striped mb-0 table-rounded">
+            <thead>
+              <tr>
+                <th>İşlem</th>
+                <th>Önce</th>
+                <th>Sonra</th>
+                <th>Not</th>
+                <th>Kullanıcı</th>
+                <th>Tarih</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for log in logs %}
+              <tr>
+                <!-- İşlem Türkçeleştirme -->
+                <td>{{ islem_map.get(log.action, log.action) }}</td>
+
+                <!-- Önce -->
+                <td>
+                  {% if log.before_json %} {% for k, v in log.before_json.items() %}
+                  <div>
+                    <strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v }}
+                  </div>
+                  {% endfor %} {% else %} Yok {% endif %}
+                </td>
+
+                <!-- Sonra -->
+                <td>
+                  {% if log.after_json %} {% for k, v in log.after_json.items() %}
+                  <div>
+                    <strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v }}
+                  </div>
+                  {% endfor %} {% else %} Yok {% endif %}
+                </td>
+
+                <!-- Not / Kullanıcı -->
+                <td>{{ log.note or '' }}</td>
+                <td>{{ log.actor }}</td>
+
+                <!-- Tarih (saliseyi atıyoruz) -->
+                <td>{{ log.created_at.strftime("%d.%m.%Y %H:%M:%S") }}</td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="6" class="text-muted">Henüz değişiklik yok</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="modal fade" id="licenseDetailModal" tabindex="-1">
     <div class="modal-dialog">
@@ -165,6 +175,32 @@ endblock %} {% block content %}
         ).show();
       });
     });
+  </script>
+  <script>
+    const changeHistoryCollapse = document.getElementById(
+      "inventoryChangeHistory",
+    );
+    if (changeHistoryCollapse) {
+      changeHistoryCollapse.addEventListener("show.bs.collapse", () => {
+        const toggleIcon = document.querySelector(
+          '[data-bs-target="#inventoryChangeHistory"] .collapse-chevron',
+        );
+        if (toggleIcon) {
+          toggleIcon.classList.remove("bi-chevron-down");
+          toggleIcon.classList.add("bi-chevron-up");
+        }
+      });
+
+      changeHistoryCollapse.addEventListener("hide.bs.collapse", () => {
+        const toggleIcon = document.querySelector(
+          '[data-bs-target="#inventoryChangeHistory"] .collapse-chevron',
+        );
+        if (toggleIcon) {
+          toggleIcon.classList.remove("bi-chevron-up");
+          toggleIcon.classList.add("bi-chevron-down");
+        }
+      });
+    }
   </script>
 </div>
 {% endblock %}
