@@ -37,7 +37,15 @@ content %}
                 {% for u in users %}
                 <option
                   value="{{ u }}"
-                  {% if license and license.sorumlu_personel==u %}selected{% endif %}
+                  {%
+                  if
+                  license
+                  and
+                  license.sorumlu_personel=""
+                  ="u"
+                  %}selected{%
+                  endif
+                  %}
                 >
                   {{ u }}
                 </option>
@@ -46,14 +54,27 @@ content %}
             </div>
             <div class="field">
               <label for="assignInventory"
-                >Bağlı Olduğu Envanter <span class="muted">(Opsiyonel)</span></label
+                >Bağlı Olduğu Envanter
+                <span class="muted">(Opsiyonel)</span></label
               >
-              <select id="assignInventory" name="bagli_envanter_no" class="ctrl">
+              <select
+                id="assignInventory"
+                name="bagli_envanter_no"
+                class="ctrl"
+              >
                 <option value="">Seçiniz</option>
                 {% for inv in envanterler %}
                 <option
                   value="{{ inv.no }}"
-                  {% if license and license.bagli_envanter_no==inv.no %}selected{% endif %}
+                  {%
+                  if
+                  license
+                  and
+                  license.bagli_envanter_no=""
+                  ="inv.no"
+                  %}selected{%
+                  endif
+                  %}
                 >
                   {{ inv.no }} - {{ inv.bilgisayar_adi or inv.marka }}
                 </option>
@@ -62,8 +83,12 @@ content %}
             </div>
           </div>
           <div class="assign-card__actions">
-            <a class="btn btn-secondary" href="{{ url_for('license_list') }}">İptal</a>
-            <button class="btn btn-primary" type="submit">Atamayı Kaydet</button>
+            <a class="btn btn-secondary" href="{{ url_for('license_list') }}"
+              >İptal</a
+            >
+            <button class="btn btn-primary" type="submit">
+              Atamayı Kaydet
+            </button>
           </div>
         </form>
       </div>
