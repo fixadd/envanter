@@ -50,13 +50,7 @@
               {% for ln in license_names %}
               <option
                 value="{{ ln.name }}"
-                {%
-                if
-                license.lisans_adi=""
-                ="ln.name"
-                %}selected{%
-                endif
-                %}
+                {% if license.lisans_adi == ln.name %}selected{% endif %}
               >
                 {{ ln.name }}
               </option>
@@ -82,13 +76,7 @@
               {% for u in users %}
               <option
                 value="{{ u }}"
-                {%
-                if
-                license.sorumlu_personel=""
-                ="u"
-                %}selected{%
-                endif
-                %}
+                {% if license.sorumlu_personel == u %}selected{% endif %}
               >
                 {{ u }}
               </option>
@@ -103,13 +91,7 @@
               {% for inv in envanterler %}
               <option
                 value="{{ inv.id }}"
-                {%
-                if
-                license.inventory_id=""
-                ="inv.id"
-                %}selected{%
-                endif
-                %}
+                {% if license.inventory_id|string == inv.id|string %}selected{% endif %}
               >
                 {{ inv.no }} — {{ inv.marka }} {{ inv.model }}
               </option>
@@ -197,15 +179,7 @@
           {% for ln in license_names %}
           <option
             value="{{ ln.name }}"
-            {%
-            if
-            license
-            and
-            license.lisans_adi=""
-            ="ln.name"
-            %}selected{%
-            endif
-            %}
+            {% if license and license.lisans_adi == ln.name %}selected{% endif %}
           >
             {{ ln.name }}
           </option>
@@ -231,15 +205,7 @@
           {% for u in users %}
           <option
             value="{{ u }}"
-            {%
-            if
-            license
-            and
-            license.sorumlu_personel=""
-            ="u"
-            %}selected{%
-            endif
-            %}
+            {% if license and license.sorumlu_personel == u %}selected{% endif %}
           >
             {{ u }}
           </option>
@@ -256,15 +222,7 @@
           {% for inv in envanterler %}
           <option
             value="{{ inv.id }}"
-            {%
-            if
-            license
-            and
-            license.inventory_id=""
-            ="inv.id"
-            %}selected{%
-            endif
-            %}
+            {% if license and license.inventory_id|string == inv.id|string %}selected{% endif %}
           >
             {{ inv.no }} — {{ inv.marka }} {{ inv.model }}
           </option>
