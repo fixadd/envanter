@@ -1591,6 +1591,125 @@ body .container-fluid {
   border-radius: var(--radius-sm) !important;
 }
 
+/* ========== Lisans atama sayfası ========== */
+
+.assign-page {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.assign-card {
+  background: var(--color-surface, #ffffff);
+  border-radius: 1.25rem;
+  border: 1px solid var(--color-border, #e5e7eb);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+  overflow: hidden;
+}
+
+.assign-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.75rem 2rem;
+  background: var(--color-surface, #ffffff);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.assign-card__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-heading, #111827);
+  margin: 0;
+}
+
+.assign-card__subtitle {
+  margin: 0.35rem 0 0;
+  font-size: 0.95rem;
+  color: var(--color-muted, #6b7280);
+}
+
+.assign-card__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 1.5rem;
+  text-decoration: none;
+  box-shadow: 0 18px 30px rgba(239, 68, 68, 0.35);
+  transition: all var(--transition-fast, 0.2s ease);
+}
+
+.assign-card__close:hover {
+  background: #dc2626;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.assign-card__close:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.35);
+}
+
+.assign-card__body {
+  padding: 2rem;
+  background: var(--color-surface, #ffffff);
+}
+
+.assign-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.assign-card__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+@media (max-width: 992px) {
+  .assign-page {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .assign-card {
+    border-radius: 1rem;
+  }
+
+  .assign-card__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .assign-card__close {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 576px) {
+  .assign-card__body {
+    padding: 1.5rem;
+  }
+
+  .assign-card__close {
+    width: 38px;
+    height: 38px;
+    font-size: 1.35rem;
+  }
+
+  .assign-card__actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+}
+
 /* ========== 3. KULLANICI YÖNETİMİ TAB TASARIMI ========== */
 
 /* Tab container modern yapı */
