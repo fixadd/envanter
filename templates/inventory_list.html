@@ -425,11 +425,13 @@ block content %}
             <label for="selBagli">
               Bağlı Olduğu Envanter <span class="muted">(Opsiyonel)</span>
             </label>
-            <select
+            <input
+              type="text"
               name="bagli_envanter_no"
               id="selBagli"
               class="ctrl"
-            ></select>
+              placeholder="Bağlı envanter numarasını girin"
+            />
           </div>
         </div>
       </div>
@@ -713,26 +715,15 @@ block content %}
     }
 
     async function preloadAssignDropdowns(itemId) {
-      const [factories, departments, users, inventories] = await Promise.all([
-        fetch(`{{ url_for('inventory.assign_sources') }}?type=fabrika`).then(
-          (r) => r.json(),
-        ),
-        fetch(`{{ url_for('inventory.assign_sources') }}?type=departman`).then(
-          (r) => r.json(),
-        ),
-        fetch(`{{ url_for('inventory.assign_sources') }}?type=users`).then(
-          (r) => r.json(),
-        ),
-        fetch(
-          `{{ url_for('inventory.assign_sources') }}?type=envanter&exclude_id=` +
-            itemId,
-        ).then((r) => r.json()),
+      const [factories, departments, users] = await Promise.all([
+        fetch("/api/picker/fabrika").then((r) => r.json()),
+        fetch("/api/picker/kullanim_alani").then((r) => r.json()),
+        fetch("/api/picker/kullanici").then((r) => r.json()),
       ]);
 
       fillSelect("selFabrika", factories);
       fillSelect("selDepartman", departments);
       fillSelect("selPersonel", users);
-      fillSelect("selBagli", inventories);
     }
 
     function fillSelect(selectId, items) {
@@ -740,8 +731,11 @@ block content %}
       if (!selectEl) return;
       selectEl.innerHTML =
         '<option value="">Seçiniz</option>' +
-        items
-          .map((item) => `<option value="${item.id}">${item.text}</option>`)
+        (items || [])
+          .map((item) => {
+            const text = item && item.text ? item.text : "";
+            return `<option value="${text}">${text}</option>`;
+          })
           .join("");
     }
 
@@ -749,18 +743,22 @@ block content %}
       const selectEl = document.getElementById(selectId);
       if (!selectEl) return;
       const normalized = value || "";
-      if (
-        normalized &&
-        !Array.from(selectEl.options).some(
-          (option) => option.value === normalized,
-        )
-      ) {
-        const option = document.createElement("option");
-        option.value = normalized;
-        option.textContent = normalized;
-        selectEl.appendChild(option);
+      if (selectEl.tagName === "SELECT") {
+        if (
+          normalized &&
+          !Array.from(selectEl.options).some(
+            (option) => option.value === normalized,
+          )
+        ) {
+          const option = document.createElement("option");
+          option.value = normalized;
+          option.textContent = normalized;
+          selectEl.appendChild(option);
+        }
+        selectEl.value = normalized;
+      } else {
+        selectEl.value = normalized;
       }
-      selectEl.value = normalized;
     }
   });
 </script>
