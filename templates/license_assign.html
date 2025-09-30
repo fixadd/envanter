@@ -1,45 +1,72 @@
 {% extends "base.html" %} {% block title %}Lisans Atama{% endblock %} {% block
 content %}
-<div class="container-fluid p-3 content">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h4 class="mb-0">Lisans Atama</h4>
-    <a class="btn btn-light" href="{{ url_for('license_list') }}">← Listeye Dön</a>
-  </div>
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <form method="post" action="/lisans/{{ license.id }}/assign" class="row g-3">
-        <input
-          type="hidden"
-          name="islem_yapan"
-          value="{{ current_user.full_name if current_user else 'system' }}"
-        />
-        <div class="col-md-6">
-          <label for="assignSorumlu" class="form-label">Sorumlu Personel</label>
-          <select id="assignSorumlu" name="sorumlu_personel" class="form-select">
-            <option value="">Seçiniz</option>
-            {% for u in users %}
-            <option value="{{ u }}" {% if license and license.sorumlu_personel==u %}selected{% endif %}>
-              {{ u }}
-            </option>
-            {% endfor %}
-          </select>
+<div class="container-fluid content p-4">
+  <div class="assign-page">
+    <div class="assign-card">
+      <div class="assign-card__header">
+        <div>
+          <h4 class="assign-card__title">Lisans Atama</h4>
+          <p class="assign-card__subtitle">
+            Lisansı ilgili personel ve envanter kaydıyla eşleştirin.
+          </p>
         </div>
-        <div class="col-md-6">
-          <label for="assignInventory" class="form-label">Bağlı Olduğu Envanter No</label>
-          <select id="assignInventory" name="bagli_envanter_no" class="form-select">
-            <option value="">Seçiniz</option>
-            {% for inv in envanterler %}
-            <option value="{{ inv.no }}" {% if license and license.bagli_envanter_no==inv.no %}selected{% endif %}>
-              {{ inv.no }} - {{ inv.bilgisayar_adi or inv.marka }}
-            </option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-12 d-flex gap-2 mt-3">
-          <button class="btn btn-primary" type="submit">Kaydet</button>
-          <a class="btn btn-secondary" href="{{ url_for('license_list') }}">İptal</a>
-        </div>
-      </form>
+        <a
+          href="{{ url_for('license_list') }}"
+          class="assign-card__close"
+          aria-label="Listeye dön"
+        >
+          <span aria-hidden="true">&times;</span>
+        </a>
+      </div>
+      <div class="assign-card__body">
+        <form
+          method="post"
+          action="/lisans/{{ license.id }}/assign"
+          class="assign-form"
+        >
+          <input
+            type="hidden"
+            name="islem_yapan"
+            value="{{ current_user.full_name if current_user else 'system' }}"
+          />
+          <div class="env-grid" id="license-assign-grid">
+            <div class="field">
+              <label for="assignSorumlu">Sorumlu Personel</label>
+              <select id="assignSorumlu" name="sorumlu_personel" class="ctrl">
+                <option value="">Seçiniz</option>
+                {% for u in users %}
+                <option
+                  value="{{ u }}"
+                  {% if license and license.sorumlu_personel==u %}selected{% endif %}
+                >
+                  {{ u }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="field">
+              <label for="assignInventory"
+                >Bağlı Olduğu Envanter <span class="muted">(Opsiyonel)</span></label
+              >
+              <select id="assignInventory" name="bagli_envanter_no" class="ctrl">
+                <option value="">Seçiniz</option>
+                {% for inv in envanterler %}
+                <option
+                  value="{{ inv.no }}"
+                  {% if license and license.bagli_envanter_no==inv.no %}selected{% endif %}
+                >
+                  {{ inv.no }} - {{ inv.bilgisayar_adi or inv.marka }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="assign-card__actions">
+            <a class="btn btn-secondary" href="{{ url_for('license_list') }}">İptal</a>
+            <button class="btn btn-primary" type="submit">Atamayı Kaydet</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </div>
