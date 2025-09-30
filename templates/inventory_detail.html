@@ -70,26 +70,22 @@ endblock %} {% block content %}
     {% endfor %} {% else %}
     <li class="list-group-item text-muted">Kayıtlı lisans yok.</li>
     {% endif %}
-    <li class="list-group-item d-flex justify-content-between align-items-center">
-      <span>Değişiklik Geçmişi</span>
-      <button
-        class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#inventoryChangeHistory"
-        aria-expanded="false"
-        aria-controls="inventoryChangeHistory"
-      >
-        <span>Göster</span>
-        <i class="bi bi-chevron-down collapse-chevron"></i>
-      </button>
-    </li>
-  </ul>
-
-  <div class="collapse mt-3" id="inventoryChangeHistory">
-    <div class="card">
-      <div class="card-header">Değişiklik Geçmişi</div>
-      <div class="card-body p-0">
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <span>Değişiklik Geçmişi</span>
+        <button
+          class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#inventoryChangeHistory"
+          aria-expanded="false"
+          aria-controls="inventoryChangeHistory"
+        >
+          <span>Göster</span>
+          <i class="bi bi-chevron-down collapse-chevron"></i>
+        </button>
+      </div>
+      <div class="collapse w-100 mt-2 pt-3" id="inventoryChangeHistory">
         <div class="table-responsive">
           {% set islem_map = { "assign": "Atama", "edit": "Düzenleme",
           "scrap": "Hurdaya Ayır" } %}
@@ -144,8 +140,8 @@ endblock %} {% block content %}
           </table>
         </div>
       </div>
-    </div>
-  </div>
+    </li>
+  </ul>
 
   <div class="modal fade" id="licenseDetailModal" tabindex="-1">
     <div class="modal-dialog">
