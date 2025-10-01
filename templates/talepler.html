@@ -150,15 +150,8 @@ footer=talep_modal_footer, ) %}
 <!-- IFS -->
 <div class="env-grid" id="talep-ekle-grid">
   <div class="field span-2">
-    <label for="ifs_no"
-      >IFS No <span class="muted">(opsiyonel)</span></label
-    >
-    <input
-      id="ifs_no"
-      name="ifs_no"
-      class="ctrl"
-      placeholder="IFS-0001"
-    />
+    <label for="ifs_no">IFS No <span class="muted">(opsiyonel)</span></label>
+    <input id="ifs_no" name="ifs_no" class="ctrl" placeholder="IFS-0001" />
   </div>
 </div>
 
@@ -201,14 +194,7 @@ footer=talep_modal_footer, ) %}
 <div class="env-grid" id="talep-kapat-grid">
   <div class="field">
     <label for="tkAdet">Miktar</label>
-    <input
-      type="number"
-      id="tkAdet"
-      class="ctrl"
-      min="1"
-      value="1"
-      required
-    />
+    <input type="number" id="tkAdet" class="ctrl" min="1" value="1" required />
   </div>
   <div class="field">
     <label for="tkTur">Ürün Türü</label>
@@ -227,15 +213,8 @@ footer=talep_modal_footer, ) %}
     <select id="tkModel" class="ctrl"></select>
   </div>
   <div class="field span-2">
-    <label for="tkAciklama"
-      >Not <span class="muted">(opsiyonel)</span></label
-    >
-    <input
-      type="text"
-      id="tkAciklama"
-      class="ctrl"
-      placeholder="Ek bilgi"
-    />
+    <label for="tkAciklama">Not <span class="muted">(opsiyonel)</span></label>
+    <input type="text" id="tkAciklama" class="ctrl" placeholder="Ek bilgi" />
   </div>
 </div>
 {% endcall %} {% endblock %} {% block scripts %} {{ super() }}
