@@ -1817,6 +1817,102 @@ body.theme-dark .modal-footer {
   border-top-color: var(--color-border) !important;
 }
 
+/* =============================================================================
+   GLOBAL ALERT MODAL VARIANT STYLES
+============================================================================= */
+
+#globalAlertModal[class*="modal-variant-"] .modal-content {
+  overflow: hidden;
+}
+
+#globalAlertModal[class*="modal-variant-"] .modal-header,
+#globalAlertModal[class*="modal-variant-"] .modal-footer {
+  border: 0 !important;
+  background-color: rgba(var(--alert-variant-rgb, var(--bs-primary-rgb)), 1) !important;
+  color: var(--alert-variant-contrast, #fff) !important;
+}
+
+body.theme-dark #globalAlertModal[class*="modal-variant-"] .modal-header,
+body.theme-dark #globalAlertModal[class*="modal-variant-"] .modal-footer {
+  background-color: rgba(var(--alert-variant-rgb, var(--bs-primary-rgb)), 1) !important;
+}
+
+#globalAlertModal[class*="modal-variant-"] .modal-title,
+#globalAlertModal[class*="modal-variant-"] .modal-footer .btn {
+  color: inherit !important;
+}
+
+#globalAlertModal[class*="modal-variant-"] .modal-body {
+  background-color: rgba(var(--alert-variant-rgb, var(--bs-primary-rgb)), 0.1) !important;
+  color: var(--alert-variant-color, inherit) !important;
+}
+
+#globalAlertModal[class*="modal-variant-"] .modal-body br + br {
+  display: none;
+}
+
+#globalAlertModal.modal-variant-primary {
+  --alert-variant-rgb: var(--bs-primary-rgb);
+  --alert-variant-color: var(--bs-primary);
+  --alert-variant-contrast: #fff;
+}
+
+#globalAlertModal.modal-variant-secondary {
+  --alert-variant-rgb: var(--bs-secondary-rgb);
+  --alert-variant-color: var(--bs-secondary);
+  --alert-variant-contrast: #fff;
+}
+
+#globalAlertModal.modal-variant-success {
+  --alert-variant-rgb: var(--bs-success-rgb);
+  --alert-variant-color: var(--bs-success);
+  --alert-variant-contrast: #fff;
+}
+
+#globalAlertModal.modal-variant-danger {
+  --alert-variant-rgb: var(--bs-danger-rgb);
+  --alert-variant-color: var(--bs-danger);
+  --alert-variant-contrast: #fff;
+}
+
+#globalAlertModal.modal-variant-warning {
+  --alert-variant-rgb: var(--bs-warning-rgb);
+  --alert-variant-color: var(--bs-warning);
+  --alert-variant-contrast: var(--bs-dark);
+}
+
+#globalAlertModal.modal-variant-info {
+  --alert-variant-rgb: var(--bs-info-rgb);
+  --alert-variant-color: var(--bs-info);
+  --alert-variant-contrast: #fff;
+}
+
+#globalAlertModal.modal-variant-light {
+  --alert-variant-rgb: var(--bs-light-rgb);
+  --alert-variant-color: var(--bs-dark);
+  --alert-variant-contrast: var(--bs-dark);
+}
+
+#globalAlertModal.modal-variant-dark {
+  --alert-variant-rgb: var(--bs-dark-rgb);
+  --alert-variant-color: var(--bs-dark);
+  --alert-variant-contrast: #fff;
+}
+
+#globalAlertModal[class*="modal-variant-"] .modal-header .btn-close {
+  background: transparent;
+  opacity: 0.65;
+}
+
+#globalAlertModal[class*="modal-variant-"] .modal-header .btn-close.btn-close-white {
+  filter: invert(1) grayscale(100%);
+  opacity: 0.85;
+}
+
+#globalAlertModal[class*="modal-variant-"] .modal-header .btn-close:hover {
+  opacity: 1;
+}
+
 body.theme-dark .ctrl,
 body.theme-dark .form-control,
 body.theme-dark .form-select {
