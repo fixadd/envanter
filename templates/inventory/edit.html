@@ -676,7 +676,7 @@ block content %}
       );
     }
 
-    async function resolveOption(endpoint, text, params = {}) {
+    async function resolveOption(endpoint, text, params = {}, fallback) {
       if (!text) return null;
       const base = await fetchOptions(endpoint, params);
       let match = findExactMatch(base, text);
@@ -687,6 +687,13 @@ block content %}
           q: text,
         });
         match = findExactMatch(withQuery, text);
+      }
+      if (!match && fallback && fallback.endpoint) {
+        const fallbackOptions = await fetchOptions(
+          fallback.endpoint,
+          fallback.params || {},
+        );
+        match = findExactMatch(fallbackOptions, text);
       }
       return match || null;
     }
@@ -705,6 +712,7 @@ block content %}
         displayId: "edit_departman_display",
         currentKey: "departman",
         endpoint: "/api/picker/kullanim_alani",
+        fallbackEndpoint: "/inventory/assign/sources?type=departman",
       },
       {
         entity: "donanim_tipi",
@@ -743,7 +751,14 @@ block content %}
       if (!textValue) {
         return null;
       }
-      const match = await resolveOption(field.endpoint, textValue, field.params);
+      const match = await resolveOption(
+        field.endpoint,
+        textValue,
+        field.params,
+        field.fallbackEndpoint
+          ? { endpoint: field.fallbackEndpoint, params: field.fallbackParams }
+          : null,
+      );
       if (match) {
         hidden.value = match.id;
         hidden.dataset.id = match.id;
