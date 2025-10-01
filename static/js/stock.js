@@ -1065,8 +1065,12 @@
         alert("Geçersiz miktar");
         return;
       }
-      if (!window.confirm(`${qty} adet hurdaya ayrılacak. Onaylıyor musunuz?`))
-        return;
+      const confirmed = await showConfirm({
+        message: `${qty} adet hurdaya ayrılacak. Onaylıyor musunuz?`,
+        confirmLabel: "Onayla",
+        confirmVariant: "danger",
+      });
+      if (!confirmed) return;
       const payload = {
         donanim_tipi: item.donanim_tipi,
         marka: item.marka,

@@ -137,7 +137,12 @@
     if (!card) return;
     const id = button.dataset.id;
     if (!id) return;
-    if (!confirm("Bu bilgiyi silmek istediğinizden emin misiniz?")) return;
+    const confirmed = await showConfirm({
+      message: "Bu bilgiyi silmek istediğinizden emin misiniz?",
+      confirmLabel: "Sil",
+      confirmVariant: "danger",
+    });
+    if (!confirmed) return;
 
     try {
       const response = await fetch(`/bilgiler/${id}`, { method: "DELETE" });
