@@ -1,14 +1,35 @@
 {% extends "base.html" %} {% block title %}Yazıcı Ekle{% endblock %} {% block
 content %}
-<div class="container-fluid p-3">
-  <h5 class="mb-3">Yazıcı Ekle</h5>
-  <form method="post" action="/printers">
-    {% include "_printer_form_fields.html" %}
-    <div class="mt-3">
-      <button class="btn btn-primary btn-sm">Kaydet</button>
-      <a href="/printers" class="btn btn-outline-secondary btn-sm">İptal</a>
+<div class="container-fluid py-4">
+  <div class="page-shell">
+    <header class="page-header">
+      <div class="page-header__heading">
+        <span class="eyebrow text-primary">YAZICI YÖNETİMİ</span>
+        <h1 class="page-header__title">Yazıcı Ekle</h1>
+        <p class="page-header__subtitle">
+          Yazıcı envanterinizi güncel tutmak için yeni kayıtlar oluşturun.
+        </p>
+      </div>
+      <div class="page-header__actions page-actions">
+        <div class="page-actions__group">
+          <a href="/printers" class="btn btn-light btn-sm">← Listeye Dön</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-card soft-card">
+      <form method="post" action="/printers" class="stack-md">
+        {% include "_printer_form_fields.html" %}
+
+        <div class="modal-shell__footer modal-shell__footer--inline">
+          <div class="modal-shell__actions justify-content-end">
+            <a href="/printers" class="btn btn-outline-secondary">İptal</a>
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+          </div>
+        </div>
+      </form>
     </div>
-  </form>
+  </div>
 </div>
 <script>
   document.addEventListener("DOMContentLoaded", async () => {
