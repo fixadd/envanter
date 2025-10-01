@@ -133,7 +133,61 @@
       </div>
     </div>
 
+    <!-- global alert modal -->
+    <div
+      class="modal fade"
+      id="globalAlertModal"
+      tabindex="-1"
+      aria-labelledby="globalAlertTitle"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="globalAlertTitle">Bilgi</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body" id="globalAlertBody"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="globalAlertOk" data-bs-dismiss="modal">
+              Tamam
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- global confirm modal -->
+    <div
+      class="modal fade"
+      id="globalConfirmModal"
+      tabindex="-1"
+      aria-labelledby="globalConfirmTitle"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="globalConfirmTitle">Onay</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body" id="globalConfirmBody"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="globalConfirmCancel" data-bs-dismiss="modal">
+              İptal
+            </button>
+            <button type="button" class="btn btn-primary" id="globalConfirmOk">
+              Onayla
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-container position-fixed top-0 end-0 p-3" id="globalToastContainer"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', path='js/notifications.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="{{ url_for('static', path='js/picker.js') }}"></script>
     <script defer src="/static/js/selects.js"></script>

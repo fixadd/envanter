@@ -131,7 +131,7 @@ content %}
                     <button
                       type="submit"
                       class="btn btn-outline-danger btn-sm"
-                      onclick="return confirm('\'{{ u.username }}\' kullanıcısını silmek istediğinize emin misiniz?')"
+                      onclick="return window.handleConfirm(this, event, { message: '\"{{ u.username }}\" kullanıcısını silmek istediğinize emin misiniz?', confirmLabel: 'Sil', confirmVariant: 'danger' })"
                     >
                       Sil
                     </button>
@@ -928,7 +928,14 @@ content %}
     });
 
     async function delItem(id, value) {
-      if (!confirm(`Silinsin mi?\n${value}`)) return;
+      if (
+        !(await showConfirm({
+          message: `Silinsin mi?\n${value}`,
+          confirmLabel: "Sil",
+          confirmVariant: "danger",
+        }))
+      )
+        return;
       try {
         const r = await fetch(
           `/api/ref/${encodeURIComponent(current.type)}/${id}`,

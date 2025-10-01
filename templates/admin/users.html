@@ -271,7 +271,7 @@ block content %}
   const btnDelete = document.getElementById("btnDeleteUser");
   const deleteForm = document.getElementById("deleteForm");
   if (btnDelete && deleteForm) {
-    btnDelete.addEventListener("click", (ev) => {
+    btnDelete.addEventListener("click", async (ev) => {
       ev.preventDefault();
       const row = getSelectedRow();
       if (!row) {
@@ -283,11 +283,12 @@ block content %}
         alert("Admin hesabı silinemez.");
         return;
       }
-      if (
-        !confirm(
-          `'${username}' kullanıcısını silmek istediğinize emin misiniz?`,
-        )
-      )
+      const confirmed = await showConfirm({
+        message: `"${username}" kullanıcısını silmek istediğinize emin misiniz?`,
+        confirmLabel: "Sil",
+        confirmVariant: "danger",
+      });
+      if (!confirmed)
         return;
       const id = row.dataset.id;
       deleteForm.setAttribute("action", `/admin/users/${id}/delete`);

@@ -346,7 +346,12 @@
       closeModal();
     } else if (e.target.classList.contains("picker-del")) {
       if (!current.allowDelete) return;
-      if (!confirm("Silinsin mi?")) return;
+      const confirmed = await showConfirm({
+        message: "Silinsin mi?",
+        confirmLabel: "Sil",
+        confirmVariant: "danger",
+      });
+      if (!confirmed) return;
       const url = `${current.endpoint}/${encodeURIComponent(row.dataset.id)}`;
       const delRes = await fetch(url, { method: "DELETE" });
       if (delRes.ok) {
