@@ -17,25 +17,142 @@
   // Basit cache
   const cache = {};
 
+  const fetchErrorState = { lookup: false, model: false };
+
+  let fetchAlertEl = null;
+  let fetchAlertMsgEl = null;
+
+  function ensureFetchAlert() {
+    if (fetchAlertEl || !talepForm) return fetchAlertEl;
+    const wrapper = document.createElement("div");
+    wrapper.className =
+      "alert alert-danger alert-dismissible fade d-none mb-3 d-flex align-items-center";
+    wrapper.setAttribute("role", "alert");
+    wrapper.id = "talep-fetch-alert";
+    const msg = document.createElement("div");
+    msg.className = "me-3 flex-fill js-talep-alert-msg";
+    const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "btn-close";
+    closeBtn.setAttribute("aria-label", "Kapat");
+    closeBtn.addEventListener("click", () => {
+      wrapper.classList.add("d-none");
+      wrapper.classList.remove("show");
+    });
+    wrapper.appendChild(msg);
+    wrapper.appendChild(closeBtn);
+    talepForm.prepend(wrapper);
+    fetchAlertEl = wrapper;
+    fetchAlertMsgEl = msg;
+    return fetchAlertEl;
+  }
+
+  function showFetchError(message) {
+    if (!talepForm) {
+      window.alert(message);
+      return;
+    }
+    ensureFetchAlert();
+    if (!fetchAlertEl || !fetchAlertMsgEl) return;
+    fetchAlertMsgEl.textContent = message;
+    fetchAlertEl.classList.remove("d-none");
+    fetchAlertEl.classList.add("show");
+  }
+
+  function hideFetchError() {
+    if (!fetchAlertEl) return;
+    fetchAlertEl.classList.add("d-none");
+    fetchAlertEl.classList.remove("show");
+  }
+
+  function setSelectDisabledForError(select, disabled, originalDisabled) {
+    if (!select) return;
+    if (disabled) {
+      if (!select.dataset.disabledDueToError) {
+        const state =
+          typeof originalDisabled === "boolean"
+            ? originalDisabled
+            : select.disabled;
+        select.dataset.disabledDueToError = state ? "1" : "0";
+      }
+      select.disabled = true;
+    } else if (select.dataset.disabledDueToError) {
+      const wasDisabled = select.dataset.disabledDueToError === "1";
+      select.disabled = wasDisabled;
+      delete select.dataset.disabledDueToError;
+    }
+  }
+
+  function setStaticSelectsDisabled(disabled) {
+    tableBody
+      ?.querySelectorAll(".sel-donanim, .sel-marka")
+      .forEach((sel) => setSelectDisabledForError(sel, disabled));
+  }
+
+  function setFetchError(scope, hasError, message) {
+    fetchErrorState[scope] = hasError;
+    if (hasError) {
+      if (scope === "lookup") {
+        setStaticSelectsDisabled(true);
+      }
+      showFetchError(message);
+      return;
+    }
+
+    if (scope === "lookup") {
+      setStaticSelectsDisabled(false);
+    }
+
+    if (!fetchErrorState.lookup && !fetchErrorState.model) {
+      hideFetchError();
+    }
+  }
+
   async function getLookup(name) {
     if (cache[name]) return cache[name];
-    const r = await fetch(`/api/lookup/${name}`);
-    if (!r.ok) return [];
-    const data = await r.json(); // [{id, name}]
-    cache[name] = data;
-    return data;
+    try {
+      const r = await fetch(`/api/lookup/${name}`);
+      if (!r.ok) {
+        const text = await r.text().catch(() => "");
+        throw new Error(text || `HTTP ${r.status}`);
+      }
+      const data = await r.json(); // [{id, name}]
+      cache[name] = data;
+      return data;
+    } catch (err) {
+      console.error(`Lookup ${name} alınırken hata oluştu`, err);
+      setFetchError(
+        "lookup",
+        true,
+        "Seçim listeleri yüklenirken bir hata oluştu. Lütfen bağlantınızı kontrol edip tekrar deneyin.",
+      );
+      return null;
+    }
   }
 
   async function getModelsByBrand(brandId) {
     const key = `model_${brandId}`;
     if (cache[key]) return cache[key];
-    const r = await fetch(
-      `/api/lookup/model?marka_id=${encodeURIComponent(brandId)}`,
-    );
-    if (!r.ok) return [];
-    const data = await r.json(); // [{id, name}]
-    cache[key] = data;
-    return data;
+    try {
+      const r = await fetch(
+        `/api/lookup/model?marka_id=${encodeURIComponent(brandId)}`,
+      );
+      if (!r.ok) {
+        const text = await r.text().catch(() => "");
+        throw new Error(text || `HTTP ${r.status}`);
+      }
+      const data = await r.json(); // [{id, name}]
+      cache[key] = data;
+      return data;
+    } catch (err) {
+      console.error(`Marka ${brandId} modelleri alınırken hata oluştu`, err);
+      setFetchError(
+        "model",
+        true,
+        "Seçilen markaya ait modeller alınırken bir hata oluştu. Lütfen tekrar deneyin.",
+      );
+      return null;
+    }
   }
 
   function updateRemoveButtons() {
@@ -126,10 +243,19 @@
       getLookup("marka"),
     ]);
 
+    if (!Array.isArray(donanimlar) || !Array.isArray(markalar)) {
+      setSelectDisabledForError(donanimSel, true);
+      setSelectDisabledForError(markaSel, true);
+      modelSel.innerHTML = '<option value="">Seçiniz…</option>';
+      modelSel.disabled = true;
+      return;
+    }
+
     donanimSel.innerHTML = optionHtml(donanimlar);
     markaSel.innerHTML = optionHtml(markalar);
     modelSel.innerHTML = '<option value="">Seçiniz…</option>';
     modelSel.disabled = true;
+    setFetchError("lookup", false);
   }
 
   async function onBrandChange(tr, brandId) {
@@ -139,11 +265,30 @@
       modelSel.disabled = true;
       return;
     }
+    const prevInnerHTML = modelSel.innerHTML;
+    const prevValue = modelSel.value;
+    const wasDisabledBeforeLoading = modelSel.disabled;
     modelSel.disabled = true;
     modelSel.innerHTML = "<option>Yükleniyor…</option>";
     const modeller = await getModelsByBrand(brandId);
+    if (!Array.isArray(modeller)) {
+      modelSel.innerHTML = prevInnerHTML;
+      modelSel.value = prevValue;
+      setSelectDisabledForError(modelSel, true, wasDisabledBeforeLoading);
+      return;
+    }
     modelSel.innerHTML = optionHtml(modeller);
+    if (prevValue) {
+      const hasPrevOption = Array.from(modelSel.options).some(
+        (opt) => opt.value === prevValue,
+      );
+      modelSel.value = hasPrevOption ? prevValue : "";
+    } else {
+      modelSel.value = "";
+    }
+    setSelectDisabledForError(modelSel, false);
     modelSel.disabled = !modeller.length;
+    setFetchError("model", false);
   }
 
   async function addRow() {
