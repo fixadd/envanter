@@ -1,17 +1,16 @@
 from datetime import datetime
-from io import BytesIO
 from typing import Literal, Optional
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from openpyxl import Workbook
 from sqlalchemy import Integer, cast
 from sqlalchemy.orm import Session
 
 from database import get_db
 from models import Brand, HardwareType, Model, Talep, TalepDurum, TalepTuru
 from utils.http import get_or_404, validate_adet
+from utils.requests_export import export_requests_workbook
 
 templates = Jinja2Templates(directory="templates")
 router = APIRouter(prefix="/talepler", tags=["Talepler"])
@@ -249,56 +248,43 @@ def convert_request(
 
 @router.get("/export.xlsx", name="talep_export_excel")
 def export_excel(db: Session = Depends(get_db)):
-    wb = Workbook()
-    ws = wb.active
-    ws.append(
-        [
-            "ID",
-            "Tür",
-            "Donanım Tipi",
-            "IFS No",
-            "İstenen",
-            "Karşılanan",
-            "Kalan",
-            "Marka",
-            "Model",
-            "Envanter No",
-            "Lisans Adı",
-            "Sorumlu",
-            "Açıklama",
-            "Durum",
-            "Tarih",
-        ]
-    )
     rows = db.query(Talep).order_by(Talep.id.asc()).all()
-    for t in rows:
-        ws.append(
-            [
-                t.id,
-                str(t.tur),
-                t.donanim_tipi,
-                t.ifs_no,
-                t.miktar,
-                t.karsilanan_miktar,
-                t.kalan_miktar,
-                t.marka,
-                t.model,
-                t.envanter_no or t.bagli_envanter_no,
-                t.lisans_adi,
-                t.sorumlu_personel,
-                t.aciklama,
-                t.durum.value,
-                t.olusturma_tarihi.strftime("%Y-%m-%d %H:%M"),
-            ]
-        )
 
-    stream = BytesIO()
-    wb.save(stream)
-    stream.seek(0)
+    headers = [
+        "ID",
+        "Tür",
+        "Donanım Tipi",
+        "IFS No",
+        "İstenen",
+        "Karşılanan",
+        "Kalan",
+        "Marka",
+        "Model",
+        "Envanter No",
+        "Lisans Adı",
+        "Sorumlu",
+        "Açıklama",
+        "Durum",
+        "Tarih",
+    ]
 
-    headers = {"Content-Disposition": "attachment; filename=talepler.xlsx"}
-    return StreamingResponse(
-        stream,
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers=headers,
-    )
+    def build_row(talep: Talep):
+        return [
+            talep.id,
+            str(talep.tur),
+            talep.donanim_tipi,
+            talep.ifs_no,
+            talep.miktar,
+            talep.karsilanan_miktar,
+            talep.kalan_miktar,
+            talep.marka,
+            talep.model,
+            talep.envanter_no or talep.bagli_envanter_no,
+            talep.lisans_adi,
+            talep.sorumlu_personel,
+            talep.aciklama,
+            talep.durum.value,
+            talep.olusturma_tarihi.strftime("%Y-%m-%d %H:%M"),
+        ]
+
+    return export_requests_workbook(rows, headers, build_row)
