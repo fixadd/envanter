@@ -74,14 +74,13 @@ content %}
     return content ? content.replace(/\/$/, "") : "/api";
   }
 
-  const STOCK_STATUS_URL = `${getApiRoot()}/stock/status`;
-
   async function loadStokDurumu() {
     const tbody = document.getElementById("stok-tbody");
     if (!tbody) return;
     tbody.innerHTML = `<tr><td colspan="2">Yükleniyor…</td></tr>`;
     try {
-      const res = await fetch(STOCK_STATUS_URL, {
+      const url = `${getApiRoot()}/stock/status`;
+      const res = await fetch(url, {
         headers: { Accept: "application/json" },
         credentials: "same-origin",
       });
