@@ -2282,7 +2282,7 @@ body.theme-dark .nav.nav-tabs {
 /* ========== 4. TÜM MODALLER İÇİN ORTAK İYİLEŞTİRMELER ========== */
 
 /* Close Button - Tüm Modallerde */
-.modal-shell__header-actions .btn-close {
+.modal-shell__header-actions .btn-close.btn-close-danger {
   background: transparent !important;
   opacity: 1 !important;
   width: 32px;
@@ -2292,11 +2292,18 @@ body.theme-dark .nav.nav-tabs {
   color: var(--bs-danger);
   --bs-btn-close-color: var(--bs-danger);
   --bs-btn-close-opacity: 1;
+  --bs-btn-close-hover-opacity: 1;
+  --bs-btn-close-focus-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+  --bs-btn-close-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23dc3545'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e");
 }
 
-.modal-shell__header-actions .btn-close:hover {
+.modal-shell__header-actions .btn-close.btn-close-danger:hover {
   background: rgba(220, 53, 69, 0.15) !important;
   transform: rotate(90deg);
+}
+
+.modal-shell__header-actions .btn-close.btn-close-danger:focus-visible {
+  box-shadow: var(--bs-btn-close-focus-shadow) !important;
 }
 
 /* Frameless iframe modal */
