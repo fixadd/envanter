@@ -1,5 +1,7 @@
-{% extends "base.html" %}{% block title %}Envanter Düzenle{% endblock %} {%
-block content %}
+{% extends "base.html" %}
+{% from "partials/inventory_form_fields.html" import inventory_form_fields %}
+{% block title %}Envanter Düzenle{% endblock %}
+{% block content %}
 <div
   class="modal fade show inventory-edit-modal"
   id="inventoryEditModal"
@@ -45,290 +47,31 @@ block content %}
       </div>
 
       <div class="modal-body">
-        <div class="env-grid" id="inventory-edit-grid">
-          <div class="field">
-            <label for="inventoryNo">Envanter No</label>
-            <input
-              id="inventoryNo"
-              type="text"
-              class="ctrl"
-              value="{{ item.no }}"
-              readonly
-            />
-          </div>
-          <div class="field">
-            <label for="inventoryName">Bilgisayar Adı</label>
-            <input
-              id="inventoryName"
-              name="bilgisayar_adi"
-              type="text"
-              class="ctrl"
-              value="{{ item.bilgisayar_adi or '' }}"
-              placeholder="Örn. BT-WS-01"
-            />
-          </div>
-          <div class="field">
-            <label for="edit_fabrika_display">Fabrika</label>
-            <div class="picker-inline">
-              <input type="hidden" id="edit_fabrika_id" />
-              <input
-                id="edit_fabrika_display"
-                name="fabrika"
-                type="text"
-                class="ctrl lookup-display"
-                value="{{ item.fabrika or '' }}"
-                placeholder="Seçiniz..."
-                readonly
-                data-entity="fabrika"
-                data-target="edit_fabrika_id"
-              />
-              <button
-                type="button"
-                class="pick-btn"
-                data-entity="fabrika"
-                data-target="edit_fabrika_id"
-                data-display="edit_fabrika_display"
-                aria-label="Fabrika seç"
-              >
-                ≡
-              </button>
-            </div>
-          </div>
-          <div class="field">
-            <label for="edit_departman_display">Departman</label>
-            <div class="picker-inline">
-              <input type="hidden" id="edit_departman_id" />
-              <input
-                id="edit_departman_display"
-                name="departman"
-                type="text"
-                class="ctrl lookup-display"
-                value="{{ item.departman or '' }}"
-                placeholder="Seçiniz..."
-                readonly
-                data-entity="departman"
-                data-target="edit_departman_id"
-              />
-              <button
-                type="button"
-                class="pick-btn"
-                data-entity="departman"
-                data-target="edit_departman_id"
-                data-display="edit_departman_display"
-                aria-label="Departman seç"
-              >
-                ≡
-              </button>
-            </div>
-          </div>
-          <div class="field">
-            <label for="edit_donanim_display">Donanım Tipi</label>
-            <div class="picker-inline">
-              <input type="hidden" id="edit_donanim_id" />
-              <input
-                id="edit_donanim_display"
-                name="donanim_tipi"
-                type="text"
-                class="ctrl lookup-display"
-                value="{{ item.donanim_tipi or '' }}"
-                placeholder="Seçiniz..."
-                readonly
-                data-entity="donanim_tipi"
-                data-target="edit_donanim_id"
-              />
-              <button
-                type="button"
-                class="pick-btn"
-                data-entity="donanim_tipi"
-                data-target="edit_donanim_id"
-                data-display="edit_donanim_display"
-                aria-label="Donanım tipi seç"
-              >
-                ≡
-              </button>
-            </div>
-          </div>
-          <div class="field">
-            <label for="edit_sorumlu_display">Sorumlu Personel</label>
-            <div class="picker-inline">
-              <input type="hidden" id="edit_sorumlu_id" />
-              <input
-                id="edit_sorumlu_display"
-                name="sorumlu_personel"
-                type="text"
-                class="ctrl lookup-display"
-                value="{{ item.sorumlu_personel or '' }}"
-                placeholder="Seçiniz..."
-                readonly
-                data-entity="sorumlu_personel"
-                data-target="edit_sorumlu_id"
-              />
-              <button
-                type="button"
-                class="pick-btn"
-                data-entity="sorumlu_personel"
-                data-target="edit_sorumlu_id"
-                data-display="edit_sorumlu_display"
-                aria-label="Sorumlu personel seç"
-              >
-                ≡
-              </button>
-            </div>
-          </div>
-          <div class="field">
-            <label for="edit_marka_display">Marka</label>
-            <div class="picker-inline">
-              <input type="hidden" id="edit_marka_id" />
-              <input
-                id="edit_marka_display"
-                name="marka"
-                type="text"
-                class="ctrl lookup-display"
-                value="{{ item.marka or '' }}"
-                placeholder="Seçiniz..."
-                readonly
-                data-entity="marka"
-                data-target="edit_marka_id"
-              />
-              <button
-                type="button"
-                class="pick-btn"
-                data-entity="marka"
-                data-target="edit_marka_id"
-                data-display="edit_marka_display"
-                aria-label="Marka seç"
-              >
-                ≡
-              </button>
-            </div>
-          </div>
-          <div class="field">
-            <label for="edit_model_display">Model</label>
-            <div class="picker-inline">
-              <input type="hidden" id="edit_model_id" data-store="id" />
-              <input
-                id="edit_model_display"
-                name="model"
-                type="text"
-                class="ctrl lookup-display"
-                value="{{ item.model or '' }}"
-                placeholder="Önce marka seçiniz..."
-                readonly
-                data-entity="model"
-                data-target="edit_model_id"
-                data-parent="edit_marka_id"
-              />
-              <button
-                type="button"
-                class="pick-btn"
-                data-entity="model"
-                data-target="edit_model_id"
-                data-display="edit_model_display"
-                data-parent="edit_marka_id"
-                aria-label="Model seç"
-                disabled
-              >
-                ≡
-              </button>
-            </div>
-          </div>
-          <div class="field">
-            <label for="inventorySerial">Seri No</label>
-            <input
-              id="inventorySerial"
-              name="seri_no"
-              type="text"
-              class="ctrl"
-              value="{{ item.seri_no or '' }}"
-              placeholder="Seri numarası"
-            />
-          </div>
-          <div class="field">
-            <label for="edit_kullanim_display">Kullanım Alanı</label>
-            <div class="picker-inline">
-              <input type="hidden" id="edit_kullanim_id" />
-              <input
-                id="edit_kullanim_display"
-                name="kullanim_alani"
-                type="text"
-                class="ctrl lookup-display"
-                value="{{ item.kullanim_alani or '' }}"
-                placeholder="Seçiniz..."
-                readonly
-                data-entity="kullanim_alani"
-                data-target="edit_kullanim_id"
-              />
-              <button
-                type="button"
-                class="pick-btn"
-                data-entity="kullanim_alani"
-                data-target="edit_kullanim_id"
-                data-display="edit_kullanim_display"
-                aria-label="Kullanım alanı seç"
-              >
-                ≡
-              </button>
-            </div>
-          </div>
-          <div class="field">
-            <label for="inventoryIfs">IFS No</label>
-            <input
-              id="inventoryIfs"
-              name="ifs_no"
-              type="text"
-              class="ctrl"
-              value="{{ item.ifs_no or '' }}"
-              placeholder="IFS referansı"
-            />
-          </div>
-          <div class="field">
-            <label for="inventoryLinked">Bağlı Envanter No</label>
-            <input
-              id="inventoryLinked"
-              name="bagli_envanter_no"
-              type="text"
-              class="ctrl"
-              value="{{ item.bagli_envanter_no or '' }}"
-              placeholder="Varsa bağlı envanter"
-            />
-          </div>
-          <div class="field span-2">
-            <label for="inventoryNote">Not</label>
-            <textarea
-              id="inventoryNote"
-              name="not"
-              class="ctrl"
-              rows="3"
-              placeholder="Envanterle ilgili önemli notları girin"
-            >
-{{ item.not_ or '' }}</textarea
-            >
-          </div>
-        </div>
+        {{ inventory_form_fields(mode='edit', item=item) }}
       </div>
 
-      <div
-        class="modal-footer flex-column flex-lg-row gap-3 align-items-stretch align-items-lg-center"
-      >
-        <div class="d-flex align-items-start gap-2 text-muted small w-100">
-          <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
-          <span>Kaydettiğiniz bilgiler envanter geçmişine işlenecektir.</span>
-        </div>
-        <div
-          class="d-flex gap-2 w-100 justify-content-end ms-lg-auto justify-content-lg-end"
-        >
-          {% if not modal %}
-          <a
-            href="{{ url_for('inventory.list') }}"
-            class="btn btn-outline-secondary"
-          >
-            İptal
-          </a>
-          {% endif %}
-          <button type="submit" class="btn btn-primary">
-            <i class="bi bi-save me-1" aria-hidden="true"></i>
-            Kaydet
-          </button>
+      <div class="modal-footer">
+        <div class="row g-3 align-items-center w-100">
+          <div class="col-lg d-flex align-items-start gap-2 text-muted small">
+            <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+            <span>Kaydettiğiniz bilgiler envanter geçmişine işlenecektir.</span>
+          </div>
+          <div class="col-lg-auto ms-lg-auto">
+            <div class="d-flex gap-2 justify-content-end">
+              {% if not modal %}
+              <a
+                href="{{ url_for('inventory.list') }}"
+                class="btn btn-secondary"
+              >
+                İptal
+              </a>
+              {% endif %}
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save me-1" aria-hidden="true"></i>
+                Kaydet
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </form>
@@ -358,49 +101,6 @@ block content %}
 </div>
 
 <style>
-  .inventory-edit-modal .picker-inline {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .inventory-edit-modal .picker-inline .lookup-display {
-    flex: 1 1 auto;
-    cursor: pointer;
-    background-color: #fff;
-  }
-  .inventory-edit-modal .picker-inline .lookup-display::placeholder {
-    color: #9ca3af;
-  }
-  .inventory-edit-modal .picker-inline .pick-btn {
-    flex: 0 0 auto;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 0.75rem;
-    border: 1px solid #d1d5db;
-    background: #f9fafb;
-    color: #111827;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    line-height: 1;
-    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-  }
-  .inventory-edit-modal .picker-inline .pick-btn:hover:not(.is-disabled) {
-    background: #eef2ff;
-    border-color: #6366f1;
-    color: #4338ca;
-  }
-  .inventory-edit-modal .picker-inline .pick-btn:active:not(.is-disabled) {
-    transform: translateY(1px);
-  }
-  .inventory-edit-modal .picker-inline .pick-btn.is-disabled,
-  .inventory-edit-modal .picker-inline .pick-btn:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-    background: #f3f4f6;
-    border-color: #e5e7eb;
-  }
   .picker-modal {
     position: fixed;
     inset: 0;
@@ -829,7 +529,6 @@ block content %}
       const enabled = Boolean(currentBrandId);
       if (modelButton) {
         modelButton.disabled = !enabled;
-        modelButton.classList.toggle("is-disabled", !enabled);
       }
       if (modelInput) {
         modelInput.placeholder = enabled
