@@ -2,18 +2,14 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, File, Form, Request, UploadFile
-from fastapi.responses import (
-    HTMLResponse,
-    JSONResponse,
-    PlainTextResponse,
-    StreamingResponse,
-)
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import Integer, cast
 from sqlalchemy.orm import Session
 
 from database import get_db
 from models import Brand, HardwareType, Model, Talep, TalepDurum, TalepTuru
+from utils.requests_export import export_requests_workbook
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -22,65 +18,48 @@ templates = Jinja2Templates(directory="templates")
 @router.get("/export")
 async def export_requests(db: Session = Depends(get_db)):
     """Export request records as an Excel file."""
-    from io import BytesIO
+    headers = [
+        "ID",
+        "Tür",
+        "Donanım Tipi",
+        "IFS No",
+        "İstenen",
+        "Karşılanan",
+        "Kalan",
+        "Marka",
+        "Model",
+        "Envanter No",
+        "Bağlı Envanter",
+        "Lisans Adı",
+        "Sorumlu",
+        "Açıklama",
+        "Durum",
+        "Tarih",
+    ]
 
-    from openpyxl import Workbook
+    rows = db.query(Talep).all()
 
-    wb = Workbook()
-    ws = wb.active
-    ws.append(
-        [
-            "ID",
-            "Tür",
-            "Donanım Tipi",
-            "IFS No",
-            "İstenen",
-            "Karşılanan",
-            "Kalan",
-            "Marka",
-            "Model",
-            "Envanter No",
-            "Bağlı Envanter",
-            "Lisans Adı",
-            "Sorumlu",
-            "Açıklama",
-            "Durum",
-            "Tarih",
+    def build_row(talep: Talep):
+        return [
+            talep.id,
+            talep.tur.value,
+            talep.donanim_tipi or "",
+            talep.ifs_no or "",
+            talep.miktar or "",
+            talep.karsilanan_miktar or "",
+            talep.kalan_miktar or "",
+            talep.marka or "",
+            talep.model or "",
+            talep.envanter_no or "",
+            talep.bagli_envanter_no or "",
+            talep.lisans_adi or "",
+            talep.sorumlu_personel or "",
+            talep.aciklama or "",
+            talep.durum.value,
+            talep.olusturma_tarihi.strftime("%Y-%m-%d %H:%M"),
         ]
-    )
 
-    for t in db.query(Talep).all():
-        ws.append(
-            [
-                t.id,
-                t.tur.value,
-                t.donanim_tipi or "",
-                t.ifs_no or "",
-                t.miktar or "",
-                t.karsilanan_miktar or "",
-                t.kalan_miktar or "",
-                t.marka or "",
-                t.model or "",
-                t.envanter_no or "",
-                t.bagli_envanter_no or "",
-                t.lisans_adi or "",
-                t.sorumlu_personel or "",
-                t.aciklama or "",
-                t.durum.value,
-                t.olusturma_tarihi.strftime("%Y-%m-%d %H:%M"),
-            ]
-        )
-
-    stream = BytesIO()
-    wb.save(stream)
-    stream.seek(0)
-
-    headers = {"Content-Disposition": "attachment; filename=talepler.xlsx"}
-    return StreamingResponse(
-        stream,
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers=headers,
-    )
+    return export_requests_workbook(rows, headers, build_row)
 
 
 @router.post("/import", response_class=PlainTextResponse)
