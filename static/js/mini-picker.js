@@ -354,8 +354,29 @@
         confirmVariant: "danger",
       });
       if (!confirmed) return;
-      const url = `${current.endpoint}/${encodeURIComponent(row.dataset.id)}`;
-      const delRes = await fetch(url, { method: "DELETE" });
+
+      const id = row.dataset.id;
+      if (!id) {
+        console.warn("[mini-picker] Silinecek kayıt için id bulunamadı.");
+        alert("Silme başarısız!");
+        return;
+      }
+
+      const endpoint = current.endpoint || current.fallbackEndpoint || null;
+      if (!endpoint) {
+        console.warn(
+          "[mini-picker] Silme isteği için endpoint bulunamadı:",
+          current,
+        );
+        alert("Silme desteklenmiyor!");
+        return;
+      }
+
+      const baseUrl = new URL(endpoint, location.origin);
+      if (!baseUrl.pathname.endsWith("/")) baseUrl.pathname += "/";
+      baseUrl.pathname += encodeURIComponent(id);
+
+      const delRes = await fetch(baseUrl, { method: "DELETE" });
       if (delRes.ok) {
         row.remove();
         if (!$list.children.length)
