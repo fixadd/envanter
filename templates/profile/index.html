@@ -12,19 +12,19 @@
     <div class="mb-3">
       <label for="themeSelect" class="form-label">Tema</label>
       <select name="theme" id="themeSelect" class="form-select">
-        <option value="default" {% if theme == 'default' %}selected{% endif %}>
+        <option value="default" {% if theme="" ="default" %}selected{% endif %}>
           Varsayılan
         </option>
-        <option value="dark" {% if theme == 'dark' %}selected{% endif %}>
+        <option value="dark" {% if theme="" ="dark" %}selected{% endif %}>
           Koyu
         </option>
-        <option value="green" {% if theme == 'green' %}selected{% endif %}>
+        <option value="green" {% if theme="" ="green" %}selected{% endif %}>
           Yeşil
         </option>
-        <option value="red" {% if theme == 'red' %}selected{% endif %}>
+        <option value="red" {% if theme="" ="red" %}selected{% endif %}>
           Kırmızı
         </option>
-        <option value="purple" {% if theme == 'purple' %}selected{% endif %}>
+        <option value="purple" {% if theme="" ="purple" %}selected{% endif %}>
           Mor
         </option>
       </select>
@@ -32,18 +32,30 @@
     <div class="mb-3">
       <label for="animationSelect" class="form-label">Animasyon</label>
       <select name="animation" id="animationSelect" class="form-select">
-        <option value="none" {% if animation == 'none' %}selected{% endif %}>
+        <option value="none" {% if animation="" ="none" %}selected{% endif %}>
           Yok
         </option>
         <option
           value="particles"
-          {% if animation == 'particles' %}selected{% endif %}
+          {%
+          if
+          animation=""
+          ="particles"
+          %}selected{%
+          endif
+          %}
         >
           Parçacıklar
         </option>
         <option
           value="gradient"
-          {% if animation == 'gradient' %}selected{% endif %}
+          {%
+          if
+          animation=""
+          ="gradient"
+          %}selected{%
+          endif
+          %}
         >
           Gradyan
         </option>
