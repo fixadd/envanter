@@ -190,6 +190,41 @@ def test_stock_status_handles_missing_optional_columns(db_session):
     assert item["marka"] is None
 
 
+def test_stock_status_classifies_license_without_source_type(db_session):
+    db_session.add(models.LicenseName(name="Adobe Creative Cloud"))
+    db_session.commit()
+
+    db_session.execute(text("DROP TABLE stock_logs"))
+    db_session.execute(
+        text(
+            """
+        CREATE TABLE stock_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            donanim_tipi TEXT NOT NULL,
+            miktar INTEGER NOT NULL,
+            tarih DATETIME,
+            islem TEXT NOT NULL
+        )
+        """
+        )
+    )
+    db_session.execute(
+        text(
+            """
+        INSERT INTO stock_logs (donanim_tipi, miktar, tarih, islem)
+        VALUES ('  ADOBE CREATIVE CLOUD  ', 1, CURRENT_TIMESTAMP, 'girdi')
+        """
+        )
+    )
+    db_session.commit()
+
+    items = stock_status(db_session)
+    assert items
+    item = items[0]
+    assert item["donanim_tipi"].strip() == "ADOBE CREATIVE CLOUD"
+    assert item["item_type"] == "lisans"
+
+
 def test_stock_status_detail_reflection_is_cached(monkeypatch, db_session):
     import routers.api as api_module
     import utils.stock_log as stock_log_utils
