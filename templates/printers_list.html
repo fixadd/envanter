@@ -554,6 +554,15 @@ content %}
       ? bootstrap.Modal.getOrCreateInstance(scrapModalEl)
       : null;
     const scrapForm = document.getElementById("scrapForm");
+    const selFabrika = document.getElementById("selFabrika");
+    const selKullanim = document.getElementById("selKullanim");
+    const selPersonel = document.getElementById("selPersonel");
+    const selBagliEnv = document.getElementById("selBagliEnv");
+
+    let fabrikaChoices;
+    let kullanimChoices;
+    let personelChoices;
+    let bagliEnvChoices;
 
     document.querySelectorAll(".action-select").forEach((sel) => {
       sel.addEventListener("change", (e) => {
@@ -568,10 +577,10 @@ content %}
           document.getElementById("assignPrinterId").value = printerId;
           document.getElementById("assignPrinterLabel").textContent =
             tr.dataset.label || `#${printerId}`;
-          setSelectValue("selFabrika", tr.dataset.fabrika);
-          setSelectValue("selKullanim", tr.dataset.kullanim);
-          setSelectValue("selPersonel", tr.dataset.personel);
-          setSelectValue("selBagliEnv", tr.dataset.bagli);
+          setSelectValue(selFabrika, tr.dataset.fabrika, fabrikaChoices);
+          setSelectValue(selKullanim, tr.dataset.kullanim, kullanimChoices);
+          setSelectValue(selPersonel, tr.dataset.personel, personelChoices);
+          setSelectValue(selBagliEnv, tr.dataset.bagli, bagliEnvChoices);
           assignModal.show();
           e.target.value = "";
           return;
@@ -613,17 +622,33 @@ content %}
       });
     });
 
-    function setSelectValue(selectId, value) {
-      const el = document.getElementById(selectId);
-      if (!el) return;
+    function setSelectValue(selectEl, value, choicesInstance) {
+      if (!selectEl) return;
       const val = value || "";
-      if (val && !Array.from(el.options).some((opt) => opt.value === val)) {
+      if (
+        val &&
+        !Array.from(selectEl.options).some((opt) => opt.value === val)
+      ) {
         const opt = document.createElement("option");
         opt.value = val;
         opt.textContent = val;
-        el.appendChild(opt);
+        selectEl.appendChild(opt);
+        if (choicesInstance) {
+          choicesInstance.setChoices(
+            [{ value: val, label: val }],
+            "value",
+            "label",
+            false,
+          );
+        }
       }
-      el.value = val;
+      if (choicesInstance) {
+        choicesInstance.removeActiveItems();
+        if (val) {
+          choicesInstance.setChoiceByValue(val);
+        }
+      }
+      selectEl.value = val;
     }
 
     scrapForm.addEventListener("submit", function (e) {
@@ -660,18 +685,18 @@ content %}
         .catch(() => alert("Sunucu hatası"));
     });
 
-    ["selFabrika", "selKullanim", "selPersonel", "selBagliEnv"].forEach(
-      (id) => {
-        const el = document.getElementById(id);
-        if (el) {
-          new Choices(el, {
-            removeItemButton: true,
-            searchEnabled: true,
-            shouldSort: false,
-          });
-        }
-      },
-    );
+    if (window.Choices) {
+      const options = {
+        removeItemButton: true,
+        searchEnabled: true,
+        shouldSort: false,
+      };
+
+      fabrikaChoices = selFabrika ? new Choices(selFabrika, options) : null;
+      kullanimChoices = selKullanim ? new Choices(selKullanim, options) : null;
+      personelChoices = selPersonel ? new Choices(selPersonel, options) : null;
+      bagliEnvChoices = selBagliEnv ? new Choices(selBagliEnv, options) : null;
+    }
   });
 </script>
 {% endblock %}
