@@ -102,7 +102,7 @@ content %}
                 <td>{{ u.username }}</td>
                 <td>{{ u.first_name or '' }}</td>
                 <td>{{ u.last_name or '' }}</td>
-                <td>{{ u.email or '' }}</td>
+                <td class="text-break">{{ u.email or '' }}</td>
                 <td>
                   <span
                     class="badge bg-{{ 'primary' if u.role=='admin' else 'secondary' }}"
