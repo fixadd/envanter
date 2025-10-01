@@ -348,6 +348,14 @@ def edit_printer_post(
     model: str = Form(None),
     seri_no: str = Form(None),
     notlar: str = Form(None),
+    envanter_no: str = Form(None),
+    ip_adresi: str = Form(None),
+    mac: str = Form(None),
+    hostname: str = Form(None),
+    ifs_no: str = Form(None),
+    marka_id: str = Form(None),
+    model_id: str = Form(None),
+    kullanim_alani_id: str = Form(None),
     modal: bool = False,
     db: Session = Depends(get_db),
     user=Depends(current_user),
@@ -356,7 +364,70 @@ def edit_printer_post(
     if not p:
         raise HTTPException(404, "Yazıcı bulunamadı")
 
-    new_vals = {"marka": marka, "model": model, "seri_no": seri_no, "notlar": notlar}
+    def parse_int(value: Optional[str]) -> Optional[int]:
+        if value in (None, ""):
+            return None
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return None
+
+    new_vals: Dict[str, Any] = {}
+
+    if marka_id is not None or marka is not None:
+        brand_name = marka or None
+        brand_pk = parse_int(marka_id)
+        if marka_id == "":
+            brand_name = None
+        elif brand_pk is not None:
+            brand = db.get(Brand, brand_pk)
+            brand_name = brand.name if brand else brand_name
+        new_vals["marka"] = brand_name
+
+    if model_id is not None or model is not None:
+        model_name = model or None
+        model_pk = parse_int(model_id)
+        if model_id == "":
+            model_name = None
+        elif model_pk is not None:
+            model_row = db.get(Model, model_pk)
+            model_name = model_row.name if model_row else model_name
+        new_vals["model"] = model_name
+
+    if seri_no is not None:
+        new_vals["seri_no"] = seri_no or None
+
+    if notlar is not None:
+        new_vals["notlar"] = notlar or None
+
+    if envanter_no is not None:
+        new_vals["envanter_no"] = envanter_no or None
+
+    if ip_adresi is not None:
+        new_vals["ip_adresi"] = ip_adresi or None
+
+    if mac is not None:
+        new_vals["mac"] = mac or None
+
+    if hostname is not None:
+        new_vals["hostname"] = hostname or None
+
+    if ifs_no is not None:
+        new_vals["ifs_no"] = ifs_no or None
+
+    if kullanim_alani_id is not None:
+        usage_name = None
+        usage_pk = parse_int(kullanim_alani_id)
+        if kullanim_alani_id == "":
+            usage_name = None
+        elif usage_pk is not None:
+            area = db.get(UsageArea, usage_pk)
+            usage_name = area.name if area else None
+        new_vals["kullanim_alani"] = usage_name
+
+    if not new_vals:
+        new_vals = {"marka": marka, "model": model, "seri_no": seri_no, "notlar": notlar}
+
     changes = build_changes(p, new_vals)
     for k, v in new_vals.items():
         setattr(p, k, v)
