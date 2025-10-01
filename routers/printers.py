@@ -426,7 +426,12 @@ def edit_printer_post(
         new_vals["kullanim_alani"] = usage_name
 
     if not new_vals:
-        new_vals = {"marka": marka, "model": model, "seri_no": seri_no, "notlar": notlar}
+        new_vals = {
+            "marka": marka,
+            "model": model,
+            "seri_no": seri_no,
+            "notlar": notlar,
+        }
 
     changes = build_changes(p, new_vals)
     for k, v in new_vals.items():
