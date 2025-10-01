@@ -232,7 +232,10 @@
           typeof previewWrapper.scrollIntoView === "function" &&
           previewWrapper.isConnected
         ) {
-          previewWrapper.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          previewWrapper.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+          });
         }
       }
     };
