@@ -225,6 +225,28 @@ def test_stock_status_classifies_license_without_source_type(db_session):
     assert item["item_type"] == "lisans"
 
 
+def test_stock_status_maps_license_id_to_type(db_session):
+    license_row = models.LicenseName(name="Microsoft Office 365")
+    db_session.add(license_row)
+    db_session.commit()
+
+    db_session.add(
+        StockLog(
+            donanim_tipi=str(license_row.id),
+            miktar=1,
+            islem="girdi",
+            tarih=datetime.utcnow(),
+        )
+    )
+    db_session.commit()
+
+    rows = stock_status(db_session)
+    assert rows
+    row = rows[0]
+    assert row["donanim_tipi"] == "Microsoft Office 365"
+    assert row["item_type"] == "lisans"
+
+
 def test_stock_status_detail_reflection_is_cached(monkeypatch, db_session):
     import routers.api as api_module
     import utils.stock_log as stock_log_utils

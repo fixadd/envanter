@@ -221,13 +221,28 @@ def stock_status(db: Session = Depends(get_db)):
     brand_map = {str(b.id): b.name for b in db.query(Brand).all()}
     model_map = {str(m.id): m.name for m in db.query(Model).all()}
 
+    license_value_candidates = {
+        (name or "").strip().lower() for name in license_map.values() if name
+    }
+
     items = []
     for r in status["items"]:
         donanim = r["donanim_tipi"]
+        item_type = (r.get("item_type") or "envanter").strip().lower()
+
         if donanim in hardware_map:
             donanim = hardware_map[donanim]
         elif donanim in license_map:
             donanim = license_map[donanim]
+            if item_type not in {"lisans", "yazici"}:
+                item_type = "lisans"
+
+        if (
+            item_type not in {"lisans", "yazici"}
+            and isinstance(donanim, str)
+            and donanim.strip().lower() in license_value_candidates
+        ):
+            item_type = "lisans"
 
         marka = r.get("marka") or None
         if marka and marka in brand_map:
@@ -247,7 +262,7 @@ def stock_status(db: Session = Depends(get_db)):
                 "son_islem_ts": r.get("last_tarih"),
                 "source_type": r.get("source_type"),
                 "source_id": r.get("source_id"),
-                "item_type": r.get("item_type"),
+                "item_type": item_type or None,
                 "assignment_hint": r.get("assignment_hint"),
                 "system_room": bool(r.get("system_room")),
                 "system_room_assigned_at": r.get("system_room_assigned_at"),
