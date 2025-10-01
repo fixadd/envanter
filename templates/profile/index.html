@@ -1,13 +1,13 @@
 {% extends "base.html" %}{% block title %}Profil{% endblock %} {% block content
 %}
 <h2 class="h5 mb-3">Profil</h2>
-<div class="card p-3">
+<div class="card p-3" style="width: 50%">
   <div class="mb-2"><strong>Kullanıcı Adı:</strong> {{ user.username }}</div>
   <div class="mb-2"><strong>Ad:</strong> {{ first_name }}</div>
   <div class="mb-2"><strong>Soyad:</strong> {{ last_name }}</div>
   <div class="mb-2"><strong>E-posta:</strong> {{ user.email or '' }}</div>
 </div>
-<div class="card p-3 mt-3">
+<div class="card p-3 mt-3" style="width: 50%">
   <form method="post" action="/profile/theme">
     <div class="mb-3">
       <label for="themeSelect" class="form-label">Tema</label>
