@@ -143,9 +143,6 @@ endblock %} {% block content %}
 
 <!-- Talep Aç Modal -->
 {% set talep_modal_footer %}
-<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-  Kapat
-</button>
 <button type="submit" class="btn btn-primary">Gönder</button>
 {% endset %} {% call modal( "talepModal", "Talep Aç", dialog_class="modal-xl",
 form_attrs={"id": "talepForm", "autocomplete": "off"},
