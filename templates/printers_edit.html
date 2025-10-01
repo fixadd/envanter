@@ -53,9 +53,7 @@ content %}
               readonly
             />
           </div>
-          <div class="col-12">
-            {% include "_printer_form_fields.html" %}
-          </div>
+          <div class="col-12">{% include "_printer_form_fields.html" %}</div>
           <div class="col-lg-6">
             <label for="printerSerial" class="form-label">Seri No</label>
             <input
@@ -75,7 +73,9 @@ content %}
               class="form-control"
               rows="4"
               placeholder="Bakım, toner değişimi veya diğer notlar..."
-            >{{ p.notlar or '' }}</textarea>
+            >
+{{ p.notlar or '' }}</textarea
+            >
           </div>
         </div>
       </div>
