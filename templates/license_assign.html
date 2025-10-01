@@ -4,7 +4,9 @@ content %}
   <div class="row justify-content-center">
     <div class="col-lg-8">
       <div class="card shadow-sm border-0">
-        <div class="card-header d-flex flex-column flex-md-row align-items-md-start justify-content-between gap-3">
+        <div
+          class="card-header d-flex flex-column flex-md-row align-items-md-start justify-content-between gap-3"
+        >
           <div>
             <h5 class="mb-1">Lisans Atama</h5>
             <p class="mb-0 text-muted">
@@ -36,7 +38,9 @@ content %}
             />
             <div class="row g-3" id="license-assign-grid">
               <div class="col-md-6">
-                <label for="assignSorumlu" class="form-label">Sorumlu Personel</label>
+                <label for="assignSorumlu" class="form-label"
+                  >Sorumlu Personel</label
+                >
                 <select
                   id="assignSorumlu"
                   name="sorumlu_personel"
@@ -46,7 +50,15 @@ content %}
                   {% for u in users %}
                   <option
                     value="{{ u }}"
-                    {% if license and license.sorumlu_personel==u %}selected{% endif %}
+                    {%
+                    if
+                    license
+                    and
+                    license.sorumlu_personel=""
+                    ="u"
+                    %}selected{%
+                    endif
+                    %}
                   >
                     {{ u }}
                   </option>
@@ -67,7 +79,15 @@ content %}
                   {% for inv in envanterler %}
                   <option
                     value="{{ inv.no }}"
-                    {% if license and license.bagli_envanter_no==inv.no %}selected{% endif %}
+                    {%
+                    if
+                    license
+                    and
+                    license.bagli_envanter_no=""
+                    ="inv.no"
+                    %}selected{%
+                    endif
+                    %}
                   >
                     {{ inv.no }} - {{ inv.bilgisayar_adi or inv.marka }}
                   </option>
@@ -76,8 +96,13 @@ content %}
               </div>
             </div>
           </div>
-          <div class="card-footer d-flex flex-column flex-sm-row justify-content-end gap-2">
-            <a class="btn btn-outline-secondary" href="{{ url_for('license_list') }}">
+          <div
+            class="card-footer d-flex flex-column flex-sm-row justify-content-end gap-2"
+          >
+            <a
+              class="btn btn-outline-secondary"
+              href="{{ url_for('license_list') }}"
+            >
               İptal
             </a>
             <button class="btn btn-primary" type="submit">
