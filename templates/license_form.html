@@ -42,86 +42,39 @@
       </div>
 
       <div class="modal-body">
-        <div class="env-grid" id="license-edit-grid">
-          <div class="field">
-            <label for="licenseAdi">Lisans Adı</label>
-            <select id="licenseAdi" name="adi" class="ctrl" required>
-              <option value="">Seçiniz...</option>
-              {% for ln in license_names %}
-              <option
-                value="{{ ln.name }}"
-                {% if license.lisans_adi == ln.name %}selected{% endif %}
-              >
-                {{ ln.name }}
-              </option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="licenseKey">Lisans Anahtarı</label>
-            <input
-              id="licenseKey"
-              name="anahtar"
-              class="ctrl"
-              value="{{ license.anahtar or '' }}"
-              placeholder="XXXX-XXXX-XXXX-XXXX"
-            />
-          </div>
-
-          <div class="field">
-            <label for="licenseSorumlu">Sorumlu Personel</label>
-            <select id="licenseSorumlu" name="sorumlu_personel" class="ctrl">
-              <option value="">(Seçiniz)</option>
-              {% for u in users %}
-              <option
-                value="{{ u }}"
-                {% if license.sorumlu_personel == u %}selected{% endif %}
-              >
-                {{ u }}
-              </option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="selBagliEnvanter">Bağlı Olduğu Envanter</label>
-            <select id="selBagliEnvanter" name="inventory_id" class="ctrl">
-              <option value="">Seçimsiz</option>
-              {% for inv in envanterler %}
-              <option
-                value="{{ inv.id }}"
-                {% if license.inventory_id|string == inv.id|string %}selected{% endif %}
-              >
-                {{ inv.no }} — {{ inv.marka }} {{ inv.model }}
-              </option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="licenseIfs">IFS No</label>
-            <input
-              id="licenseIfs"
-              name="ifs_no"
-              class="ctrl"
-              value="{{ license.ifs_no or '' }}"
-              placeholder="IFS referansı"
-            />
-          </div>
-
-          <div class="field">
-            <label for="licenseMail">Mail Adresi</label>
-            <input
-              id="licenseMail"
-              type="email"
-              name="mail_adresi"
-              class="ctrl"
-              value="{{ license.mail_adresi or '' }}"
-              placeholder="ornek@firma.com"
-            />
-          </div>
-        </div>
+        {% set license_form_config = {
+          "ids": {
+            "license_name": "licenseAdi",
+            "license_key": "licenseKey",
+            "responsible": "licenseSorumlu",
+            "inventory": "selBagliEnvanter",
+            "ifs": "licenseIfs",
+            "email": "licenseMail",
+          },
+          "names": {
+            "license_name": "adi",
+            "license_key": "anahtar",
+            "responsible": "sorumlu_personel",
+            "inventory": "inventory_id",
+            "ifs": "ifs_no",
+            "email": "mail_adresi",
+          },
+          "values": {
+            "license_name": license.lisans_adi if license else "",
+            "license_key": license.anahtar if license else "",
+            "responsible": license.sorumlu_personel if license else "",
+            "inventory": license.inventory_id if license else "",
+            "ifs": license.ifs_no if license else "",
+            "email": license.mail_adresi if license else "",
+          },
+          "required": ["license_name"],
+          "labels": {
+            "inventory": "Bağlı Olduğu Envanter",
+          },
+          "license_placeholder": "Seçiniz...",
+          "inventory_empty_label": "Seçimsiz",
+        } %}
+        {% include "partials/license_form_fields.html" %}
       </div>
 
       <div
@@ -170,94 +123,48 @@
     <form
       method="post"
       action="{{ form_action }}{{ '?modal=1' if modal else '' }}"
-      class="env-grid"
+      class="needs-validation"
+      novalidate
     >
-      <div class="field">
-        <label for="licenseAdi" class="form-label">Lisans Adı</label>
-        <select id="licenseAdi" name="adi" class="ctrl" required>
-          <option value="">Seçiniz...</option>
-          {% for ln in license_names %}
-          <option
-            value="{{ ln.name }}"
-            {% if license and license.lisans_adi == ln.name %}selected{% endif %}
-          >
-            {{ ln.name }}
-          </option>
-          {% endfor %}
-        </select>
-      </div>
+      {% set license_form_config = {
+        "ids": {
+          "license_name": "licenseAdi",
+          "license_key": "licenseKey",
+          "responsible": "licenseSorumlu",
+          "inventory": "selBagliEnvanter",
+          "ifs": "licenseIfs",
+          "email": "licenseMail",
+        },
+        "names": {
+          "license_name": "adi",
+          "license_key": "anahtar",
+          "responsible": "sorumlu_personel",
+          "inventory": "inventory_id",
+          "ifs": "ifs_no",
+          "email": "mail_adresi",
+        },
+        "values": {
+          "license_name": license.lisans_adi if license else "",
+          "license_key": license.anahtar if license else "",
+          "responsible": license.sorumlu_personel if license else "",
+          "inventory": license.inventory_id if license else "",
+          "ifs": license.ifs_no if license else "",
+          "email": license.mail_adresi if license else "",
+        },
+        "required": ["license_name"],
+        "labels": {
+          "inventory": "Bağlı Olduğu Envanter No",
+        },
+        "license_placeholder": "Seçiniz...",
+        "inventory_empty_label": "(Seçimsiz)",
+      } %}
+      {% include "partials/license_form_fields.html" %}
 
-      <div class="field">
-        <label for="licenseKey" class="form-label">Lisans Anahtarı</label>
-        <input
-          id="licenseKey"
-          name="anahtar"
-          class="ctrl"
-          value="{{ license.anahtar if license else '' }}"
-          placeholder="XXXX-XXXX-XXXX-XXXX"
-        />
-      </div>
-
-      <div class="field">
-        <label for="licenseSorumlu" class="form-label">Sorumlu Personel</label>
-        <select id="licenseSorumlu" name="sorumlu_personel" class="ctrl">
-          <option value="">(Seçiniz)</option>
-          {% for u in users %}
-          <option
-            value="{{ u }}"
-            {% if license and license.sorumlu_personel == u %}selected{% endif %}
-          >
-            {{ u }}
-          </option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="selBagliEnvanter" class="form-label"
-          >Bağlı Olduğu Envanter No</label
-        >
-        <select id="selBagliEnvanter" name="inventory_id" class="ctrl">
-          <option value="">(Seçimsiz)</option>
-          {% for inv in envanterler %}
-          <option
-            value="{{ inv.id }}"
-            {% if license and license.inventory_id|string == inv.id|string %}selected{% endif %}
-          >
-            {{ inv.no }} — {{ inv.marka }} {{ inv.model }}
-          </option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="licenseIfs" class="form-label">IFS No</label>
-        <input
-          id="licenseIfs"
-          name="ifs_no"
-          class="ctrl"
-          value="{{ license.ifs_no if license else '' }}"
-          placeholder="IFS referansı"
-        />
-      </div>
-
-      <div class="field">
-        <label for="licenseMail" class="form-label">Mail Adresi</label>
-        <input
-          id="licenseMail"
-          type="email"
-          name="mail_adresi"
-          class="ctrl"
-          value="{{ license.mail_adresi if license else '' }}"
-          placeholder="ornek@firma.com"
-        />
-      </div>
-
-      <div class="field span-2">
-        <div class="d-flex gap-2 justify-content-end">
+      <div class="row g-3 mt-1">
+        <div class="col-12 d-flex justify-content-end gap-2">
           <button class="btn btn-primary" type="submit">Kaydet</button>
           {% if not modal %}
-          <a class="btn btn-secondary" href="{{ url_for('license_list') }}"
+          <a class="btn btn-outline-secondary" href="{{ url_for('license_list') }}"
             >İptal</a
           >
           {% endif %}
