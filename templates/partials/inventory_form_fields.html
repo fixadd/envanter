@@ -39,58 +39,22 @@
 
     {% if is_edit %}
       <div class="col-12 col-lg-6">
-        <label for="edit_fabrika_display" class="form-label">Fabrika</label>
-        <input type="hidden" id="edit_fabrika_id" />
-        <div class="input-group">
-          <input
-            id="edit_fabrika_display"
-            name="fabrika"
-            type="text"
-            class="form-control lookup-display"
-            value="{{ (item.fabrika if item else '') or '' }}"
-            placeholder="Seçiniz..."
-            readonly
-            data-entity="fabrika"
-            data-target="edit_fabrika_id"
-          />
-          <button
-            type="button"
-            class="btn btn-outline-secondary pick-btn"
-            data-entity="fabrika"
-            data-target="edit_fabrika_id"
-            data-display="edit_fabrika_display"
-            aria-label="Fabrika seç"
-          >
-            <i class="bi bi-search"></i>
-          </button>
-        </div>
+        <label class="form-label" for="edit_fabrika">Fabrika</label>
+        <select
+          id="edit_fabrika"
+          name="fabrika"
+          class="form-select"
+          required
+        ></select>
       </div>
       <div class="col-12 col-lg-6">
-        <label for="edit_departman_display" class="form-label">Departman</label>
-        <input type="hidden" id="edit_departman_id" />
-        <div class="input-group">
-          <input
-            id="edit_departman_display"
-            name="departman"
-            type="text"
-            class="form-control lookup-display"
-            value="{{ (item.departman if item else '') or '' }}"
-            placeholder="Seçiniz..."
-            readonly
-            data-entity="departman"
-            data-target="edit_departman_id"
-          />
-          <button
-            type="button"
-            class="btn btn-outline-secondary pick-btn"
-            data-entity="departman"
-            data-target="edit_departman_id"
-            data-display="edit_departman_display"
-            aria-label="Departman seç"
-          >
-            <i class="bi bi-search"></i>
-          </button>
-        </div>
+        <label class="form-label" for="edit_departman">Departman</label>
+        <select
+          id="edit_departman"
+          name="departman"
+          class="form-select"
+          required
+        ></select>
       </div>
     {% else %}
       <div class="col-12 col-lg-6">
@@ -105,58 +69,24 @@
 
     {% if is_edit %}
       <div class="col-12 col-lg-6">
-        <label for="edit_donanim_display" class="form-label">Donanım Tipi</label>
-        <input type="hidden" id="edit_donanim_id" />
-        <div class="input-group">
-          <input
-            id="edit_donanim_display"
-            name="donanim_tipi"
-            type="text"
-            class="form-control lookup-display"
-            value="{{ (item.donanim_tipi if item else '') or '' }}"
-            placeholder="Seçiniz..."
-            readonly
-            data-entity="donanim_tipi"
-            data-target="edit_donanim_id"
-          />
-          <button
-            type="button"
-            class="btn btn-outline-secondary pick-btn"
-            data-entity="donanim_tipi"
-            data-target="edit_donanim_id"
-            data-display="edit_donanim_display"
-            aria-label="Donanım tipi seç"
-          >
-            <i class="bi bi-search"></i>
-          </button>
-        </div>
+        <label class="form-label" for="edit_donanim_tipi">Donanım Tipi</label>
+        <select
+          id="edit_donanim_tipi"
+          name="donanim_tipi"
+          class="form-select"
+          required
+        ></select>
       </div>
       <div class="col-12 col-lg-6">
-        <label for="edit_sorumlu_display" class="form-label">Sorumlu Personel</label>
-        <input type="hidden" id="edit_sorumlu_id" />
-        <div class="input-group">
-          <input
-            id="edit_sorumlu_display"
-            name="sorumlu_personel"
-            type="text"
-            class="form-control lookup-display"
-            value="{{ (item.sorumlu_personel if item else '') or '' }}"
-            placeholder="Seçiniz..."
-            readonly
-            data-entity="sorumlu_personel"
-            data-target="edit_sorumlu_id"
-          />
-          <button
-            type="button"
-            class="btn btn-outline-secondary pick-btn"
-            data-entity="sorumlu_personel"
-            data-target="edit_sorumlu_id"
-            data-display="edit_sorumlu_display"
-            aria-label="Sorumlu personel seç"
-          >
-            <i class="bi bi-search"></i>
-          </button>
-        </div>
+        <label class="form-label" for="edit_sorumlu_personel"
+          >Sorumlu Personel</label
+        >
+        <select
+          id="edit_sorumlu_personel"
+          name="sorumlu_personel"
+          class="form-select"
+          required
+        ></select>
       </div>
     {% else %}
       <div class="col-12 col-lg-6">
@@ -171,61 +101,25 @@
 
     {% if is_edit %}
       <div class="col-12 col-lg-6">
-        <label for="edit_marka_display" class="form-label">Marka</label>
-        <input type="hidden" id="edit_marka_id" />
-        <div class="input-group">
-          <input
-            id="edit_marka_display"
-            name="marka"
-            type="text"
-            class="form-control lookup-display"
-            value="{{ (item.marka if item else '') or '' }}"
-            placeholder="Seçiniz..."
-            readonly
-            data-entity="marka"
-            data-target="edit_marka_id"
-          />
-          <button
-            type="button"
-            class="btn btn-outline-secondary pick-btn"
-            data-entity="marka"
-            data-target="edit_marka_id"
-            data-display="edit_marka_display"
-            aria-label="Marka seç"
-          >
-            <i class="bi bi-search"></i>
-          </button>
-        </div>
+        <label class="form-label" for="edit_marka">Marka</label>
+        <select
+          id="edit_marka"
+          name="marka"
+          class="form-select"
+          required
+        ></select>
       </div>
       <div class="col-12 col-lg-6">
-        <label for="edit_model_display" class="form-label">Model</label>
-        <input type="hidden" id="edit_model_id" data-store="id" />
-        <div class="input-group">
-          <input
-            id="edit_model_display"
-            name="model"
-            type="text"
-            class="form-control lookup-display"
-            value="{{ (item.model if item else '') or '' }}"
-            placeholder="Önce marka seçiniz..."
-            readonly
-            data-entity="model"
-            data-target="edit_model_id"
-            data-parent="edit_marka_id"
-          />
-          <button
-            type="button"
-            class="btn btn-outline-secondary pick-btn"
-            data-entity="model"
-            data-target="edit_model_id"
-            data-display="edit_model_display"
-            data-parent="edit_marka_id"
-            aria-label="Model seç"
-            disabled
-          >
-            <i class="bi bi-search"></i>
-          </button>
-        </div>
+        <label class="form-label" for="edit_model">Model</label>
+        <select
+          id="edit_model"
+          name="model"
+          class="form-select"
+          required
+          disabled
+        >
+          <option value="">Önce marka seçiniz...</option>
+        </select>
       </div>
     {% else %}
       <div class="col-12 col-lg-6">
@@ -280,31 +174,12 @@
 
     {% if is_edit %}
       <div class="col-12 col-lg-6">
-        <label for="edit_kullanim_display" class="form-label">Kullanım Alanı</label>
-        <input type="hidden" id="edit_kullanim_id" />
-        <div class="input-group">
-          <input
-            id="edit_kullanim_display"
-            name="kullanim_alani"
-            type="text"
-            class="form-control lookup-display"
-            value="{{ (item.kullanim_alani if item else '') or '' }}"
-            placeholder="Seçiniz..."
-            readonly
-            data-entity="kullanim_alani"
-            data-target="edit_kullanim_id"
-          />
-          <button
-            type="button"
-            class="btn btn-outline-secondary pick-btn"
-            data-entity="kullanim_alani"
-            data-target="edit_kullanim_id"
-            data-display="edit_kullanim_display"
-            aria-label="Kullanım alanı seç"
-          >
-            <i class="bi bi-search"></i>
-          </button>
-        </div>
+        <label class="form-label" for="edit_kullanim_alani">Kullanım Alanı</label>
+        <select
+          id="edit_kullanim_alani"
+          name="kullanim_alani"
+          class="form-select"
+        ></select>
       </div>
     {% endif %}
 
