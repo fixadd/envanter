@@ -12,7 +12,11 @@
       endpoint: "/api/picker/donanim_tipi",
     },
     marka: { title: "MARKA", endpoint: "/api/picker/marka" },
-    departman: { title: "DEPARTMAN", endpoint: "/api/picker/kullanim_alani" }, // ürün ekledeki kullanım alanı
+    departman: {
+      title: "DEPARTMAN",
+      endpoint: "/api/picker/kullanim_alani",
+      fallbackEndpoint: "/inventory/assign/sources?type=departman",
+    }, // ürün ekledeki kullanım alanı
     sorumlu_personel: {
       title: "SORUMLU PERSONEL",
       endpoint: "/api/picker/kullanici",
@@ -59,6 +63,8 @@
     storeAs: "id",
     dependsOnId: null,
     parentParam: null,
+    fallbackEndpoint: null,
+    fallbackParams: null,
   };
 
   function getDependencyParams(entity, options) {
@@ -120,6 +126,8 @@
       storeAs: resolveStoreStrategy(hiddenEl, options.storeAs),
       dependsOnId: dep.dependsOnId || null,
       parentParam: dep.paramName || null,
+      fallbackEndpoint: meta.fallbackEndpoint || null,
+      fallbackParams: meta.fallbackParams || null,
     };
 
     $title.textContent = `${meta.title} seçin`;
@@ -139,14 +147,59 @@
   }
 
   async function load(q) {
-    const url = new URL(current.endpoint, location.origin);
-    if (q) url.searchParams.set("q", q);
-    Object.entries(current.extra || {}).forEach(([k, v]) =>
-      url.searchParams.set(k, v),
-    );
-    const res = await fetch(url, { headers: { Accept: "application/json" } });
-    const data = (await res.json()) || [];
-    render(data);
+    const params = { ...(current.extra || {}) };
+    if (q) params.q = q;
+    let data = await fetchOptions(current.endpoint, params);
+
+    if ((!data || !data.length) && current.fallbackEndpoint) {
+      const fallbackParams = { ...(current.fallbackParams || {}) };
+      let fallbackData = await fetchOptions(current.fallbackEndpoint, fallbackParams);
+      if (q && fallbackData && fallbackData.length) {
+        const qNormalized = q.trim().toLowerCase();
+        fallbackData = fallbackData.filter((item) =>
+          (item.text || "").toLowerCase().includes(qNormalized),
+        );
+      }
+      data = fallbackData;
+    }
+
+    render(data || []);
+  }
+
+  async function fetchOptions(endpoint, params = {}) {
+    try {
+      const url = new URL(endpoint, location.origin);
+      Object.entries(params || {}).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && v !== "") {
+          url.searchParams.set(k, v);
+        }
+      });
+      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      if (!res.ok) return [];
+      const payload = await res.json();
+      if (!Array.isArray(payload)) return [];
+      return payload
+        .map((row) => {
+          if (!row) return null;
+          if (typeof row === "string") {
+            const value = row.trim();
+            return value ? { id: value, text: value } : null;
+          }
+          const id = row.id ?? row.value ?? null;
+          const text =
+            row.text ??
+            row.label ??
+            row.name ??
+            row.value ??
+            (typeof row === "object" && "id" in row ? String(row.id) : "");
+          if (!text) return null;
+          return { id: id ?? text, text };
+        })
+        .filter(Boolean);
+    } catch (err) {
+      console.warn("[mini-picker] seçenekler alınamadı", endpoint, err);
+      return [];
+    }
   }
 
   function render(items) {
@@ -186,6 +239,8 @@
       storeAs: "id",
       dependsOnId: null,
       parentParam: null,
+      fallbackEndpoint: null,
+      fallbackParams: null,
     };
   }
 
