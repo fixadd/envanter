@@ -128,11 +128,14 @@ def user_edit_post(
     email: str = Form(""),
     password: str = Form(""),
     is_admin: bool = Form(False),
+    user: SessionUser = Depends(current_user),
     db: Session = Depends(get_db),
 ):
     u = db.get(User, uid)
     if not u:
         raise HTTPException(404, "Kullanıcı bulunamadı")
+    if u.role == "admin" and user.id != u.id and user.username.lower() != "admin":
+        raise HTTPException(403, "Adminler birbirini güncelleyemez")
     u.username = username
     u.first_name = first_name
     u.last_name = last_name
