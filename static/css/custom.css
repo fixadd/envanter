@@ -1828,13 +1828,19 @@ body.theme-dark .modal-footer {
 #globalAlertModal[class*="modal-variant-"] .modal-header,
 #globalAlertModal[class*="modal-variant-"] .modal-footer {
   border: 0 !important;
-  background-color: rgba(var(--alert-variant-rgb, var(--bs-primary-rgb)), 1) !important;
+  background-color: rgba(
+    var(--alert-variant-rgb, var(--bs-primary-rgb)),
+    1
+  ) !important;
   color: var(--alert-variant-contrast, #fff) !important;
 }
 
 body.theme-dark #globalAlertModal[class*="modal-variant-"] .modal-header,
 body.theme-dark #globalAlertModal[class*="modal-variant-"] .modal-footer {
-  background-color: rgba(var(--alert-variant-rgb, var(--bs-primary-rgb)), 1) !important;
+  background-color: rgba(
+    var(--alert-variant-rgb, var(--bs-primary-rgb)),
+    1
+  ) !important;
 }
 
 #globalAlertModal[class*="modal-variant-"] .modal-title,
@@ -1843,7 +1849,10 @@ body.theme-dark #globalAlertModal[class*="modal-variant-"] .modal-footer {
 }
 
 #globalAlertModal[class*="modal-variant-"] .modal-body {
-  background-color: rgba(var(--alert-variant-rgb, var(--bs-primary-rgb)), 0.1) !important;
+  background-color: rgba(
+    var(--alert-variant-rgb, var(--bs-primary-rgb)),
+    0.1
+  ) !important;
   color: var(--alert-variant-color, inherit) !important;
 }
 
@@ -1904,7 +1913,9 @@ body.theme-dark #globalAlertModal[class*="modal-variant-"] .modal-footer {
   opacity: 0.65;
 }
 
-#globalAlertModal[class*="modal-variant-"] .modal-header .btn-close.btn-close-white {
+#globalAlertModal[class*="modal-variant-"]
+  .modal-header
+  .btn-close.btn-close-white {
   filter: invert(1) grayscale(100%);
   opacity: 0.85;
 }

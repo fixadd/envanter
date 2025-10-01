@@ -41,14 +41,17 @@
     if (!text) return "primary";
     if (/başarı|tamamlandı|kaydedildi|oldu/.test(text)) return "success";
     if (/uyarı|dikkat|emin misiniz|onay/.test(text)) return "warning";
-    if (/hata|başarısız|geçersiz|olmadı|silinemez|sınırı aşıyor|fail/.test(text))
+    if (
+      /hata|başarısız|geçersiz|olmadı|silinemez|sınırı aşıyor|fail/.test(text)
+    )
       return "danger";
     return "primary";
   }
 
   function setButtonVariant(button, variant, fallback = "primary") {
     if (!button) return;
-    const finalVariant = variant && VARIANT_DEFAULTS[variant] ? variant : fallback;
+    const finalVariant =
+      variant && VARIANT_DEFAULTS[variant] ? variant : fallback;
     button.className = `btn btn-${finalVariant}`;
   }
 
@@ -56,7 +59,8 @@
 
   function applyAlertVariant(variant) {
     if (!alertModalEl) return;
-    const finalVariant = variant && VARIANT_DEFAULTS[variant] ? variant : "primary";
+    const finalVariant =
+      variant && VARIANT_DEFAULTS[variant] ? variant : "primary";
     alertModalEl.classList.remove(...VARIANT_CLASSNAMES);
     alertModalEl.classList.add(`modal-variant-${finalVariant}`);
     if (alertContentEl) {
@@ -99,7 +103,8 @@
   window.showAlert = function showAlert(message, options = {}) {
     const resolvedVariant = options.variant || detectVariant(message);
     const { title, okLabel = "Tamam" } = options;
-    alertTitleEl.textContent = title || VARIANT_DEFAULTS[resolvedVariant] || "Bilgi";
+    alertTitleEl.textContent =
+      title || VARIANT_DEFAULTS[resolvedVariant] || "Bilgi";
     alertOkBtn.textContent = okLabel;
     setButtonVariant(alertOkBtn, resolvedVariant, "primary");
     applyAlertVariant(resolvedVariant);
@@ -118,7 +123,9 @@
     if (!toastContainer) return;
     const resolvedVariant = options.variant || detectVariant(message);
     const { title = "", delay = 5000 } = options;
-    const effectiveVariant = VARIANT_DEFAULTS[resolvedVariant] ? resolvedVariant : "primary";
+    const effectiveVariant = VARIANT_DEFAULTS[resolvedVariant]
+      ? resolvedVariant
+      : "primary";
     const toastEl = document.createElement("div");
     toastEl.className = `toast text-bg-${effectiveVariant} border-0`;
     toastEl.setAttribute("role", "status");
@@ -144,7 +151,8 @@
   };
 
   window.showConfirm = function showConfirm(message, options = {}) {
-    const opts = typeof message === "object" ? { ...message } : { ...options, message };
+    const opts =
+      typeof message === "object" ? { ...message } : { ...options, message };
     const {
       message: finalMessage = "",
       title = "Onay",
@@ -181,7 +189,9 @@
 
       confirmOkBtn.addEventListener("click", onOk, { once: true });
       confirmCancelBtn.addEventListener("click", onCancel, { once: true });
-      confirmModalEl.addEventListener("hidden.bs.modal", onCancel, { once: true });
+      confirmModalEl.addEventListener("hidden.bs.modal", onCancel, {
+        once: true,
+      });
 
       confirmModal.show();
     });
@@ -189,9 +199,11 @@
 
   window.handleConfirm = function handleConfirm(trigger, event, options = {}) {
     if (event) event.preventDefault();
-    const opts = typeof options === "string" ? { message: options } : { ...options };
+    const opts =
+      typeof options === "string" ? { message: options } : { ...options };
     if (!opts.message) {
-      opts.message = trigger?.getAttribute("data-confirm-message") || "Onaylıyor musunuz?";
+      opts.message =
+        trigger?.getAttribute("data-confirm-message") || "Onaylıyor musunuz?";
     }
     window.showConfirm(opts).then((confirmed) => {
       if (!confirmed) return;

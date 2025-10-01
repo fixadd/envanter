@@ -288,8 +288,7 @@ block content %}
         confirmLabel: "Sil",
         confirmVariant: "danger",
       });
-      if (!confirmed)
-        return;
+      if (!confirmed) return;
       const id = row.dataset.id;
       deleteForm.setAttribute("action", `/admin/users/${id}/delete`);
       deleteForm.submit();
