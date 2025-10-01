@@ -2216,6 +2216,13 @@ body.theme-dark .nav.nav-tabs {
   border-top: 1px solid var(--color-border) !important;
 }
 
+.modal-shell__footer--inline {
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  margin-top: var(--space-md);
+}
+
 .modal-shell__actions {
   display: flex;
   gap: 0.75rem !important;
