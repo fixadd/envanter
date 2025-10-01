@@ -1602,18 +1602,15 @@ body .container-fluid {
   background: var(--color-surface, #ffffff) !important;
 }
 
-#assignModal .modal-body .env-grid,
-.inventory-edit-modal .modal-body .env-grid {
+#assignModal .modal-body .env-grid {
   gap: 1.5rem !important;
 }
 
-#assignModal .modal-body .field,
-.inventory-edit-modal .modal-body .field {
+#assignModal .modal-body .field {
   margin: 0 !important;
 }
 
-#assignModal .ctrl,
-.inventory-edit-modal .ctrl {
+#assignModal .ctrl {
   border-radius: var(--radius-sm) !important;
 }
 
