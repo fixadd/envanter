@@ -111,7 +111,6 @@
 
   const API_ROOT_META = getMetaApiRoot();
   const STOCK_STATUS_URL = `${API_ROOT_META}/stock/status`;
-  
 
   function baseSourceType(value) {
     if (!value) return "";
@@ -131,11 +130,13 @@
       return text ? text : null;
     };
     return {
-     item_type: ['envanter', 'lisans', 'yazici'].includes(type) ? type : 'envanter',
-     donanim_tipi: String(item.donanim_tipi || '').trim(),
-     marka: clean(item.marka),
-     model: clean(item.model),
-     ifs_no: clean(item.ifs_no),
+      item_type: ["envanter", "lisans", "yazici"].includes(type)
+        ? type
+        : "envanter",
+      donanim_tipi: String(item.donanim_tipi || "").trim(),
+      marka: clean(item.marka),
+      model: clean(item.model),
+      ifs_no: clean(item.ifs_no),
     };
   }
 
@@ -246,8 +247,10 @@
     }
 
     function detectInitialType() {
-     const active = dom.one('[data-stock-add-type].active');
-     return active?.dataset.stockAddType === 'license' ? 'license' : 'inventory';
+      const active = dom.one("[data-stock-add-type].active");
+      return active?.dataset.stockAddType === "license"
+        ? "license"
+        : "inventory";
     }
 
     function updateSectionVisibility(isLicense) {
@@ -464,7 +467,10 @@
                 item.seri_no,
               ]
                 .filter((part) => part)
-                .join(" - ") || item.envanter_no || item.id || "",
+                .join(" - ") ||
+              item.envanter_no ||
+              item.id ||
+              "",
           }));
         } catch (err) {
           printersRes = { data: [], error: err };
@@ -1065,8 +1071,12 @@
         alert("Geçersiz miktar");
         return;
       }
-      if (!window.confirm(`${qty} adet hurdaya ayrılacak. Onaylıyor musunuz?`))
-        return;
+      const confirmed = await showConfirm({
+        message: `${qty} adet hurdaya ayrılacak. Onaylıyor musunuz?`,
+        confirmLabel: "Onayla",
+        confirmVariant: "danger",
+      });
+      if (!confirmed) return;
       const payload = {
         donanim_tipi: item.donanim_tipi,
         marka: item.marka,
@@ -1671,9 +1681,7 @@
       statusTab?.addEventListener("shown.bs.tab", refreshStockStatus);
 
       dom.one("#sa_submit")?.addEventListener("click", submitAssignment);
-      dom
-        .one("#stockAssignForm")
-        ?.addEventListener("submit", submitAssignment);
+      dom.one("#stockAssignForm")?.addEventListener("submit", submitAssignment);
       bindTabChange();
       applyFieldRules();
 

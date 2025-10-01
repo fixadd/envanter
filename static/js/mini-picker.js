@@ -153,7 +153,10 @@
 
     if ((!data || !data.length) && current.fallbackEndpoint) {
       const fallbackParams = { ...(current.fallbackParams || {}) };
-      let fallbackData = await fetchOptions(current.fallbackEndpoint, fallbackParams);
+      let fallbackData = await fetchOptions(
+        current.fallbackEndpoint,
+        fallbackParams,
+      );
       if (q && fallbackData && fallbackData.length) {
         const qNormalized = q.trim().toLowerCase();
         fallbackData = fallbackData.filter((item) =>
@@ -247,12 +250,12 @@
   function dispatchChange(detail) {
     if (current.hidden) {
       current.hidden.dispatchEvent(
-        new CustomEvent("picker:change", { bubbles: true, detail })
+        new CustomEvent("picker:change", { bubbles: true, detail }),
       );
     }
     if (current.display) {
       current.display.dispatchEvent(
-        new CustomEvent("picker:change", { bubbles: true, detail })
+        new CustomEvent("picker:change", { bubbles: true, detail }),
       );
     }
   }
@@ -330,8 +333,7 @@
         entity: current.entity,
         storedAs: current.storeAs,
       };
-      const storedValue =
-        current.storeAs === "text" ? detail.text : detail.id;
+      const storedValue = current.storeAs === "text" ? detail.text : detail.id;
       if (current.hidden) {
         current.hidden.value = storedValue || "";
         current.hidden.dataset.id = detail.id;
@@ -346,7 +348,12 @@
       closeModal();
     } else if (e.target.classList.contains("picker-del")) {
       if (!current.allowDelete) return;
-      if (!confirm("Silinsin mi?")) return;
+      const confirmed = await showConfirm({
+        message: "Silinsin mi?",
+        confirmLabel: "Sil",
+        confirmVariant: "danger",
+      });
+      if (!confirmed) return;
       const url = `${current.endpoint}/${encodeURIComponent(row.dataset.id)}`;
       const delRes = await fetch(url, { method: "DELETE" });
       if (delRes.ok) {
@@ -367,7 +374,7 @@
   // ≡ butonlarını bağla (admin/kullanıcı fark etmez; kapsayıcı id’ni değiştir)
   document
     .querySelectorAll(
-      "#admin-urun-ekle .pick-btn, #urun-ekle .pick-btn, .inventory-edit-modal .pick-btn"
+      "#admin-urun-ekle .pick-btn, #urun-ekle .pick-btn, .inventory-edit-modal .pick-btn",
     )
     .forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -394,7 +401,8 @@
     const input = e.target.closest("input.lookup-display");
     if (!input) return;
     const entity =
-      input.dataset.entity || (input.id ? input.id.replace("_display", "") : null);
+      input.dataset.entity ||
+      (input.id ? input.id.replace("_display", "") : null);
     if (!entity) return;
     const hiddenId = input.dataset.target || entity;
     const chipKey = input.dataset.chip || hiddenId || entity;
