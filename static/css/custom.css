@@ -210,6 +210,18 @@ small,
   }
 }
 
+/* Talep modal action column */
+th.talep-action-col,
+td.talep-action-col {
+  width: 8%;
+}
+
+th.talep-action-col.talep-action-col--compact,
+td.talep-action-col.talep-action-col--compact {
+  width: 0;
+  white-space: nowrap;
+}
+
 .page-actions {
   display: flex;
   flex-wrap: wrap;

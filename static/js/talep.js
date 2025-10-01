@@ -10,6 +10,10 @@
     return;
   }
 
+  const actionHeader = document.querySelector(
+    "#rowsTable thead th.talep-action-col",
+  );
+
   // Basit cache
   const cache = {};
 
@@ -32,6 +36,27 @@
     const data = await r.json(); // [{id, name}]
     cache[key] = data;
     return data;
+  }
+
+  function updateRemoveButtons() {
+    if (!tableBody) return;
+    const rows = Array.from(tableBody.querySelectorAll("tr"));
+    const shouldHide = rows.length <= 1;
+
+    rows.forEach((tr) => {
+      const removeBtn = tr.querySelector(".btn-remove");
+      const actionCell = tr.querySelector(".talep-action-col");
+      if (removeBtn) {
+        removeBtn.classList.toggle("d-none", shouldHide);
+      }
+      if (actionCell) {
+        actionCell.classList.toggle("talep-action-col--compact", shouldHide);
+      }
+    });
+
+    if (actionHeader) {
+      actionHeader.classList.toggle("talep-action-col--compact", shouldHide);
+    }
   }
 
   function optionHtml(arr, placeholder = "Seçiniz…") {
@@ -84,7 +109,7 @@
       <td>
         <input type="text" class="form-control inp-aciklama" placeholder="Açıklama">
       </td>
-      <td class="text-end">
+      <td class="text-end talep-action-col">
         <button type="button" class="btn btn-outline-danger btn-sm btn-remove">Sil</button>
       </td>
     `;
@@ -135,7 +160,10 @@
     });
     removeButton?.addEventListener("click", () => {
       tr.remove();
+      updateRemoveButtons();
     });
+
+    updateRemoveButtons();
   }
 
   // Modal açıldığında ilk satırı garanti ekle
@@ -193,6 +221,8 @@
       alert("Talep kaydedilemedi.");
     }
   });
+
+  updateRemoveButtons();
 })();
 
 // Talep iptal
