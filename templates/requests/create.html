@@ -1,5 +1,83 @@
-{% extends "base.html" %}{% block title %}Talep – Oluştur{% endblock %} {% block
-content %}
-<h2 class="h5 mb-3">Talep Oluştur</h2>
-<form class="card p-3">Form...</form>
+{% extends "base.html" %}
+{% block title %}Talep – Oluştur{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="page-shell">
+    <header class="page-header">
+      <div class="page-header__heading">
+        <span class="eyebrow text-primary">Talep Yönetimi</span>
+        <h1 class="page-header__title">Yeni Talep Oluştur</h1>
+        <p class="page-header__subtitle">
+          İhtiyaç duyulan donanım veya lisansları hızlıca kaydedin ve ekiplerle
+          paylaşın.
+        </p>
+      </div>
+      <div class="page-header__actions page-actions">
+        <a href="/requests" class="btn btn-outline-secondary btn-sm">
+          Taleplere Geri Dön
+        </a>
+      </div>
+    </header>
+
+    <form id="talepForm" autocomplete="off" class="page-card soft-card stack-lg">
+      <section class="page-section stack-md">
+        <div>
+          <h2 class="section-title h6 mb-2">Talep Bilgileri</h2>
+          <p class="text-muted small mb-3">
+            Aynı IFS numarasına bağlı birden fazla kalem ekleyebilir, isteğe bağlı
+            olarak açıklama girebilirsiniz.
+          </p>
+          <div class="env-grid" id="talep-ekle-grid">
+            <div class="field span-2">
+              <label for="ifs_no">IFS No <span class="muted">(opsiyonel)</span></label>
+              <input
+                id="ifs_no"
+                name="ifs_no"
+                class="ctrl"
+                placeholder="IFS-0001"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2">
+            <div>
+              <h2 class="section-title h6 mb-0">Kalemler</h2>
+              <small class="text-muted">Her satır için donanım tipi ve miktar zorunludur.</small>
+            </div>
+            <button type="button" id="btnAddRow" class="btn btn-outline-secondary btn-sm">
+              Satır Ekle
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-sm align-middle table-rounded" id="rowsTable">
+              <thead>
+                <tr>
+                  <th style="width: 20%">Donanım Tipi</th>
+                  <th style="width: 8%">Miktar</th>
+                  <th style="width: 18%">Marka</th>
+                  <th style="width: 18%">Model</th>
+                  <th style="width: 28%">Açıklama</th>
+                  <th class="text-end talep-action-col" style="width: 8%">İşlem</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- JavaScript ile doldurulacak -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <footer class="page-section d-flex flex-wrap gap-2 justify-content-end">
+        <a href="/requests" class="btn btn-light">Vazgeç</a>
+        <button type="submit" class="btn btn-primary">Talebi Kaydet</button>
+      </footer>
+    </form>
+  </div>
+</div>
+
+<script src="{{ url_for('static', path='js/talep.js') }}"></script>
 {% endblock %}
