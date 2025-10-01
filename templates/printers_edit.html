@@ -42,62 +42,40 @@ content %}
       </div>
 
       <div class="modal-body">
-        <div class="env-grid" id="printer-edit-grid">
-          <div class="field">
-            <label for="printerId">Kayıt No</label>
+        <div class="row g-3" id="printer-edit-grid">
+          <div class="col-lg-6">
+            <label for="printerId" class="form-label">Kayıt No</label>
             <input
               id="printerId"
               type="text"
-              class="ctrl"
+              class="form-control"
               value="#{{ p.id }}{{ ' • ' ~ p.envanter_no if p.envanter_no }}"
               readonly
             />
           </div>
-          <div class="field">
-            <label for="printerMarka">Marka</label>
-            <input
-              type="text"
-              name="marka"
-              id="printerMarka"
-              value="{{ p.marka or '' }}"
-              class="ctrl"
-              placeholder="Örn. HP"
-              autofocus
-            />
+          <div class="col-12">
+            {% include "_printer_form_fields.html" %}
           </div>
-          <div class="field">
-            <label for="printerModel">Model</label>
-            <input
-              type="text"
-              name="model"
-              id="printerModel"
-              value="{{ p.model or '' }}"
-              class="ctrl"
-              placeholder="Örn. LaserJet Pro 400"
-            />
-          </div>
-          <div class="field">
-            <label for="printerSerial">Seri No</label>
+          <div class="col-lg-6">
+            <label for="printerSerial" class="form-label">Seri No</label>
             <input
               type="text"
               name="seri_no"
               id="printerSerial"
               value="{{ p.seri_no or '' }}"
-              class="ctrl"
+              class="form-control"
               placeholder="Seri numarası"
             />
           </div>
-          <div class="field span-2">
-            <label for="printerNotes">Notlar</label>
+          <div class="col-12">
+            <label for="printerNotes" class="form-label">Notlar</label>
             <textarea
               name="notlar"
               id="printerNotes"
-              class="ctrl"
+              class="form-control"
               rows="4"
               placeholder="Bakım, toner değişimi veya diğer notlar..."
-            >
-{{ p.notlar or '' }}</textarea
-            >
+            >{{ p.notlar or '' }}</textarea>
           </div>
         </div>
       </div>
@@ -193,6 +171,78 @@ content %}
       .forEach((trigger) => {
         trigger.addEventListener("click", closeDialog);
       });
+
+    const form = document.getElementById("printer-edit-form");
+    const setFormValue = (name, value) => {
+      if (!form) return;
+      const field = form.querySelector(`[name="${name}"]`);
+      if (field) field.value = value ?? "";
+    };
+
+    if (form) {
+      setFormValue("envanter_no", {{ (p.envanter_no or '')|tojson }});
+      setFormValue("ip_adresi", {{ (p.ip_adresi or '')|tojson }});
+      setFormValue("mac", {{ (p.mac or '')|tojson }});
+      setFormValue("hostname", {{ (p.hostname or '')|tojson }});
+      setFormValue("ifs_no", {{ (p.ifs_no or '')|tojson }});
+
+      const setChoiceByLabel = (select, label) => {
+        if (!select) return null;
+        const targetLabel = String(label || "").trim().toLowerCase();
+        if (!targetLabel) return null;
+        const option = Array.from(select.options).find((opt) =>
+          opt.text.trim().toLowerCase() === targetLabel,
+        );
+        if (!option) return null;
+        const inst = select._choices;
+        if (inst && option.value !== undefined) {
+          inst.setChoiceByValue(String(option.value));
+        }
+        select.value = option.value;
+        return option.value;
+      };
+
+      const initSelects = async () => {
+        if (!window._selects) return;
+        const brandSelect = form.querySelector("#selYaziciMarka");
+        const modelSelect = form.querySelector("#selYaziciModel");
+        const usageSelect = form.querySelector("#selYaziciKullanim");
+
+        if (brandSelect) {
+          await window._selects.fillChoices({
+            endpoint: "/api/lookup/marka",
+            selectId: "selYaziciMarka",
+            placeholder: "Yazıcı markası seçiniz…",
+          });
+          setChoiceByLabel(brandSelect, {{ (p.marka or '')|tojson }});
+          await window._selects.bindMarkaModel(
+            "selYaziciMarka",
+            "selYaziciModel",
+          );
+          if (modelSelect) {
+            setChoiceByLabel(modelSelect, {{ (p.model or '')|tojson }});
+          }
+          window._selects.enableRemoteSearch(
+            "selYaziciModel",
+            "/api/lookup/model",
+            () => ({ marka_id: brandSelect.value || "" }),
+          );
+        }
+
+        if (usageSelect) {
+          await window._selects.fillChoices({
+            endpoint: "/api/lookup/kullanim-alani",
+            selectId: "selYaziciKullanim",
+            placeholder: "Kullanım alanı seçiniz…",
+          });
+          setChoiceByLabel(usageSelect, {{ (p.kullanim_alani or '')|tojson }});
+        }
+      };
+
+      initSelects().catch((err) => {
+        console.error("Printer edit modal init failed", err);
+      });
+    }
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
