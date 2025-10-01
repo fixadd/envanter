@@ -1,0 +1,143 @@
+{% set cfg = license_form_config %}
+{% set ids = cfg.ids %}
+{% set names = cfg.names %}
+{% set values = cfg.values if cfg.values is defined else {} %}
+{% set required = cfg.required if cfg.required is defined else [] %}
+{% set labels = cfg.labels if cfg.labels is defined else {} %}
+{% set optional_texts = cfg.optional_texts if cfg.optional_texts is defined else {} %}
+{% set placeholders = cfg.placeholders if cfg.placeholders is defined else {} %}
+{% set license_placeholder = cfg.license_placeholder if cfg.license_placeholder is defined else 'Seçiniz...' %}
+{% set responsible_placeholder = cfg.responsible_placeholder if cfg.responsible_placeholder is defined else '(Seçiniz)' %}
+{% set inventory_empty_label = cfg.inventory_empty_label if cfg.inventory_empty_label is defined else 'Seçiniz...' %}
+{% set inventory_empty_value = cfg.inventory_empty_value if cfg.inventory_empty_value is defined else '' %}
+{% set inventory_value_attr = cfg.inventory_value_attr if cfg.inventory_value_attr is defined else 'id' %}
+{% set inventory_label_variant = cfg.inventory_label_variant if cfg.inventory_label_variant is defined else 'detailed' %}
+{% set license_value = values.license_name if values.license_name is defined and values.license_name is not none else '' %}
+{% set license_key_value = values.license_key if values.license_key is defined and values.license_key is not none else '' %}
+{% set responsible_value = values.responsible if values.responsible is defined and values.responsible is not none else '' %}
+{% set inventory_value = values.inventory if values.inventory is defined else '' %}
+{% if inventory_value is none %}
+{% set inventory_value = '' %}
+{% endif %}
+{% set ifs_value = values.ifs if values.ifs is defined and values.ifs is not none else '' %}
+{% set email_value = values.email if values.email is defined and values.email is not none else '' %}
+<div class="row g-3 license-form-fields">
+  <div class="col-12 col-md-6">
+    <label for="{{ ids.license_name }}" class="form-label">
+      {{ labels.license_name if labels.license_name is defined and labels.license_name is not none else 'Lisans Adı' }}
+      {% if optional_texts.license_name is defined %}
+      <span class="text-muted">{{ optional_texts.license_name }}</span>
+      {% endif %}
+    </label>
+    <select
+      id="{{ ids.license_name }}"
+      name="{{ names.license_name }}"
+      class="form-select"
+      {% if 'license_name' in required %}required{% endif %}
+    >
+      <option value="">{{ license_placeholder }}</option>
+      {% for ln in license_names %}
+      <option value="{{ ln.name }}" {% if ln.name == license_value %}selected{% endif %}>{{ ln.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-12 col-md-6">
+    <label for="{{ ids.license_key }}" class="form-label">
+      {{ labels.license_key if labels.license_key is defined and labels.license_key is not none else 'Lisans Anahtarı' }}
+      {% if optional_texts.license_key is defined %}
+      <span class="text-muted">{{ optional_texts.license_key }}</span>
+      {% endif %}
+    </label>
+    <input
+      id="{{ ids.license_key }}"
+      name="{{ names.license_key }}"
+      type="text"
+      class="form-control"
+      value="{{ license_key_value }}"
+      placeholder="{{ placeholders.license_key if placeholders.license_key is defined else 'XXXX-XXXX-XXXX-XXXX' }}"
+      {% if 'license_key' in required %}required{% endif %}
+    />
+  </div>
+  <div class="col-12 col-md-6">
+    <label for="{{ ids.responsible }}" class="form-label">
+      {{ labels.responsible if labels.responsible is defined and labels.responsible is not none else 'Sorumlu Personel' }}
+      {% if optional_texts.responsible is defined %}
+      <span class="text-muted">{{ optional_texts.responsible }}</span>
+      {% endif %}
+    </label>
+    <select
+      id="{{ ids.responsible }}"
+      name="{{ names.responsible }}"
+      class="form-select"
+      {% if 'responsible' in required %}required{% endif %}
+    >
+      <option value="">{{ responsible_placeholder }}</option>
+      {% for u in users %}
+      <option value="{{ u }}" {% if u == responsible_value %}selected{% endif %}>{{ u }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-12 col-md-6">
+    <label for="{{ ids.inventory }}" class="form-label">
+      {{ labels.inventory if labels.inventory is defined and labels.inventory is not none else 'Bağlı Olduğu Envanter' }}
+      {% if optional_texts.inventory is defined %}
+      <span class="text-muted">{{ optional_texts.inventory }}</span>
+      {% endif %}
+    </label>
+    <select
+      id="{{ ids.inventory }}"
+      name="{{ names.inventory }}"
+      class="form-select"
+      {% if 'inventory' in required %}required{% endif %}
+    >
+      <option value="{{ inventory_empty_value }}">{{ inventory_empty_label }}</option>
+      {% for inv in envanterler %}
+      {% set option_value = inv|attr(inventory_value_attr) %}
+      <option
+        value="{{ option_value }}"
+        {% if option_value|string == inventory_value|string %}selected{% endif %}
+      >
+        {% if inventory_label_variant == 'no_only' %}
+          {{ inv.no }}
+        {% else %}
+          {{ inv.no }}{% if inv.marka %} — {{ inv.marka }}{% endif %}{% if inv.model %} {{ inv.model }}{% endif %}
+        {% endif %}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-12 col-md-6">
+    <label for="{{ ids.ifs }}" class="form-label">
+      {{ labels.ifs if labels.ifs is defined and labels.ifs is not none else 'IFS No' }}
+      {% if optional_texts.ifs is defined %}
+      <span class="text-muted">{{ optional_texts.ifs }}</span>
+      {% endif %}
+    </label>
+    <input
+      id="{{ ids.ifs }}"
+      name="{{ names.ifs }}"
+      type="text"
+      class="form-control"
+      value="{{ ifs_value }}"
+      placeholder="{{ placeholders.ifs if placeholders.ifs is defined else 'IFS referansı' }}"
+      {% if 'ifs' in required %}required{% endif %}
+    />
+  </div>
+  <div class="col-12 col-md-6">
+    <label for="{{ ids.email }}" class="form-label">
+      {{ labels.email if labels.email is defined and labels.email is not none else 'Mail Adresi' }}
+      {% if optional_texts.email is defined %}
+      <span class="text-muted">{{ optional_texts.email }}</span>
+      {% endif %}
+    </label>
+    <input
+      id="{{ ids.email }}"
+      name="{{ names.email }}"
+      type="email"
+      class="form-control"
+      value="{{ email_value }}"
+      placeholder="{{ placeholders.email if placeholders.email is defined else 'ornek@firma.com' }}"
+      {% if 'email' in required %}required{% endif %}
+    />
+  </div>
+</div>
