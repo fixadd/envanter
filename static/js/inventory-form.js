@@ -59,7 +59,10 @@
   function ensureChoices(select) {
     if (!select) return null;
     if (select._choices) return select._choices;
-    if (global._selects && typeof global._selects.makeSearchableSelect === "function") {
+    if (
+      global._selects &&
+      typeof global._selects.makeSearchableSelect === "function"
+    ) {
       const inst = global._selects.makeSearchableSelect(select);
       return inst;
     }
@@ -80,7 +83,12 @@
       inst.clearStore();
       const data = [];
       if (placeholder !== null) {
-        data.push({ value: "", label: placeholder, disabled: false, selected: false });
+        data.push({
+          value: "",
+          label: placeholder,
+          disabled: false,
+          selected: false,
+        });
       }
       items.forEach((item) => {
         data.push({
@@ -139,10 +147,14 @@
       return null;
     }
     const options = Array.from(select.options);
-    let match = options.find((option) => (option.value || "").trim() === target);
+    let match = options.find(
+      (option) => (option.value || "").trim() === target,
+    );
     if (!match) {
       match = options.find(
-        (option) => (option.textContent || "").trim().toLowerCase() === target.toLowerCase(),
+        (option) =>
+          (option.textContent || "").trim().toLowerCase() ===
+          target.toLowerCase(),
       );
     }
     if (match) {
@@ -287,7 +299,10 @@
 
     if (kullanimSelect) {
       await loadOptions(kullanimSelect, "/api/picker/kullanim_alani");
-      setSelectedByText(kullanimSelect, values.kullanim_alani || values.kullanim);
+      setSelectedByText(
+        kullanimSelect,
+        values.kullanim_alani || values.kullanim,
+      );
     }
 
     const brandItems = await loadOptions(markaSelect, "/api/picker/marka");
@@ -298,7 +313,9 @@
       const option = markaSelect.options[markaSelect.selectedIndex];
       let brandId = getDatasetId(option);
       if (!brandId && markaSelect.value) {
-        const match = brandItems.find((item) => item.text === markaSelect.value);
+        const match = brandItems.find(
+          (item) => item.text === markaSelect.value,
+        );
         if (match) brandId = match.id;
       }
       return brandId;
