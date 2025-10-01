@@ -368,6 +368,11 @@
   });
 
   updateRemoveButtons();
+
+  // Modal dışında ayrı sayfada kullanıldığında ilk satırı otomatik ekle
+  if (!modal && tableBody && !tableBody.children.length) {
+    addRow().catch((err) => console.error("Talep satırı eklenemedi", err));
+  }
 })();
 
 // Talep iptal
