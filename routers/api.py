@@ -191,6 +191,31 @@ def stock_status_detail(db: Session = Depends(get_db)):
 
     totals_db = {t.donanim_tipi: t.toplam for t in db.query(models.StockTotal).all()}
 
+    license_name_candidates: set[str] = set()
+    try:
+        if hasattr(models, "LicenseName"):
+            license_name_candidates.update(
+                {
+                    (name or "").strip().lower()
+                    for (name,) in db.query(models.LicenseName.name).all()
+                    if name
+                }
+            )
+    except Exception:  # pragma: no cover - legacy deployments without the table
+        license_name_candidates = set()
+
+    if not license_name_candidates and hasattr(models, "License"):
+        try:
+            license_name_candidates.update(
+                {
+                    (name or "").strip().lower()
+                    for (name,) in db.query(models.License.lisans_adi).distinct().all()
+                    if name
+                }
+            )
+        except Exception:  # pragma: no cover - legacy deployments without the table
+            license_name_candidates = set()
+
     available_columns = set(get_available_columns(db))
     if not available_columns:
         available_columns = {col.name for col in models.StockLog.__table__.columns}
@@ -301,6 +326,8 @@ def stock_status_detail(db: Session = Depends(get_db)):
         if src.get("lisans_anahtari") or src.get("mail_adresi"):
             return "lisans"
         label = clean(row.donanim_tipi).lower()
+        if license_name_candidates and label in license_name_candidates:
+            return "lisans"
         if "yazici" in label or "printer" in label:
             return "yazici"
         return "envanter"
