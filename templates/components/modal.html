@@ -15,7 +15,12 @@
             {%- endif %}
           </div>
           <div class="modal-shell__header-actions">
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            <button
+              type="button"
+              class="btn-close btn-close-danger"
+              data-bs-dismiss="modal"
+              aria-label="Kapat"
+            ></button>
           </div>
         </div>
         <div class="modal-shell__body{% if content_class %} {{ content_class }}{% endif %}">
