@@ -1,4 +1,5 @@
 """Utilities for exporting request data to Excel workbooks."""
+
 from __future__ import annotations
 
 from io import BytesIO
