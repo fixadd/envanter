@@ -8,10 +8,12 @@
 
   const alertTitleEl = document.getElementById("globalAlertTitle");
   const alertBodyEl = document.getElementById("globalAlertBody");
+  const alertHeaderEl = alertModalEl.querySelector(".modal-header");
   const alertOkBtn = document.getElementById("globalAlertOk");
 
   const confirmTitleEl = document.getElementById("globalConfirmTitle");
   const confirmBodyEl = document.getElementById("globalConfirmBody");
+  const confirmHeaderEl = confirmModalEl.querySelector(".modal-header");
   const confirmCancelBtn = document.getElementById("globalConfirmCancel");
   const confirmOkBtn = document.getElementById("globalConfirmOk");
 
@@ -27,6 +29,10 @@
     light: "Bilgi",
     dark: "Bilgi",
   };
+
+  const HEADER_VARIANT_CLASSES = Object.keys(VARIANT_DEFAULTS).map(
+    (variant) => `text-bg-${variant}`,
+  );
 
   function detectVariant(message) {
     const text = (message == null ? "" : String(message)).toLowerCase();
@@ -45,6 +51,14 @@
     const finalVariant =
       variant && VARIANT_DEFAULTS[variant] ? variant : fallback;
     button.className = `btn btn-${finalVariant}`;
+  }
+
+  function setHeaderVariant(header, variant, fallback = "primary") {
+    if (!header) return;
+    header.classList.remove(...HEADER_VARIANT_CLASSES);
+    const finalVariant =
+      variant && VARIANT_DEFAULTS[variant] ? variant : fallback;
+    header.classList.add(`text-bg-${finalVariant}`);
   }
 
   function setModalBody(element, message) {
@@ -73,6 +87,7 @@
       title || VARIANT_DEFAULTS[resolvedVariant] || "Bilgi";
     alertOkBtn.textContent = okLabel;
     setButtonVariant(alertOkBtn, resolvedVariant, "primary");
+    setHeaderVariant(alertHeaderEl, resolvedVariant, "primary");
     setModalBody(alertBodyEl, message);
     return new Promise((resolve) => {
       resolveOnHide(alertModalEl, resolve);
@@ -80,8 +95,19 @@
     });
   };
 
-  window.alert = (message) => {
-    window.showAlert(message);
+  const nativeAlert = window.alert ? window.alert.bind(window) : null;
+
+  window.alert = (message, options = {}) => {
+    if (!alertModalEl) {
+      nativeAlert?.(message);
+      return undefined;
+    }
+    const opts =
+      typeof options === "string"
+        ? { variant: options }
+        : { ...(options || {}) };
+    window.showAlert(message, opts);
+    return undefined;
   };
 
   window.showToast = function showToast(message, options = {}) {
@@ -132,6 +158,8 @@
     confirmCancelBtn.textContent = cancelLabel;
     setButtonVariant(confirmOkBtn, confirmVariant, "primary");
     setButtonVariant(confirmCancelBtn, cancelVariant, "secondary");
+    const headerVariant = opts.headerVariant || confirmVariant;
+    setHeaderVariant(confirmHeaderEl, headerVariant, "primary");
     setModalBody(confirmBodyEl, finalMessage);
 
     return new Promise((resolve) => {
@@ -203,5 +231,44 @@
       }
     });
     return false;
+  };
+
+  const nativeConfirm = window.confirm ? window.confirm.bind(window) : null;
+
+  function resolveToPromise(result) {
+    return typeof Promise === "function" ? Promise.resolve(result) : result;
+  }
+
+  window.confirm = function confirmOverride(message, options = {}) {
+    if (!confirmModalEl) {
+      return resolveToPromise(nativeConfirm ? nativeConfirm(message) : true);
+    }
+    const opts =
+      typeof message === "object" ? { ...message } : { ...options, message };
+    if (!opts.message) {
+      opts.message = message == null ? "" : String(message);
+    }
+    return window.showConfirm(opts);
+  };
+
+  window.confirm.native = nativeConfirm;
+  window.confirmAsync = window.confirm;
+
+  window.notify = {
+    success(message, options = {}) {
+      return window.showToast(message, { ...options, variant: "success" });
+    },
+    info(message, options = {}) {
+      return window.showToast(message, { ...options, variant: "info" });
+    },
+    warning(message, options = {}) {
+      return window.showToast(message, { ...options, variant: "warning" });
+    },
+    danger(message, options = {}) {
+      return window.showToast(message, { ...options, variant: "danger" });
+    },
+    error(message, options = {}) {
+      return window.showToast(message, { ...options, variant: "danger" });
+    },
   };
 })();

@@ -128,7 +128,9 @@
         moveCardToGeneral(card, data.pin_count);
       }
     } catch (err) {
-      alert(err.message || "İşlem tamamlanamadı");
+      window.alert(err.message || "İşlem tamamlanamadı", {
+        variant: "danger",
+      });
     }
   }
 
@@ -137,10 +139,11 @@
     if (!card) return;
     const id = button.dataset.id;
     if (!id) return;
-    const confirmed = await showConfirm({
+    const confirmed = await window.confirm({
       message: "Bu bilgiyi silmek istediğinizden emin misiniz?",
       confirmLabel: "Sil",
       confirmVariant: "danger",
+      title: "Silme Onayı",
     });
     if (!confirmed) return;
 
@@ -172,7 +175,9 @@
         }
       }
     } catch (err) {
-      alert(err.message || "Silme işlemi başarısız");
+      window.alert(err.message || "Silme işlemi başarısız", {
+        variant: "danger",
+      });
     }
   }
 
@@ -188,7 +193,9 @@
         errorBox.textContent = "Dosya boyutu 5MB sınırını aşıyor.";
         errorBox.classList.remove("d-none");
       } else {
-        alert("Dosya boyutu 5MB sınırını aşıyor.");
+        window.alert("Dosya boyutu 5MB sınırını aşıyor.", {
+          variant: "warning",
+        });
       }
       input.value = "";
       return;
@@ -200,7 +207,9 @@
           "Sadece JPG, PNG veya GIF dosyaları yükleyebilirsiniz.";
         errorBox.classList.remove("d-none");
       } else {
-        alert("Sadece JPG, PNG veya GIF dosyaları yükleyebilirsiniz.");
+        window.alert("Sadece JPG, PNG veya GIF dosyaları yükleyebilirsiniz.", {
+          variant: "warning",
+        });
       }
       input.value = "";
       return;
@@ -250,7 +259,9 @@
             err.message || "Kaydetme sırasında bir hata oluştu";
           errorBox.classList.remove("d-none");
         } else {
-          alert(err.message || "Kaydetme sırasında bir hata oluştu");
+          window.alert(err.message || "Kaydetme sırasında bir hata oluştu", {
+            variant: "danger",
+          });
         }
       }
     });
