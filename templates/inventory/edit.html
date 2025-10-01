@@ -1,7 +1,6 @@
-{% extends "base.html" %}
-{% from "partials/inventory_form_fields.html" import inventory_form_fields %}
-{% block title %}Envanter Düzenle{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% from "partials/inventory_form_fields.html" import
+inventory_form_fields %} {% block title %}Envanter Düzenle{% endblock %} {%
+block content %}
 <div
   class="modal fade show inventory-edit-modal"
   id="inventoryEditModal"
@@ -95,7 +94,9 @@
     </div>
     <div id="picker-list" class="picker-list"></div>
     <div class="picker-foot">
-      <button type="button" class="btn btn-light" id="picker-cancel">Kapat</button>
+      <button type="button" class="btn btn-light" id="picker-cancel">
+        Kapat
+      </button>
     </div>
   </div>
 </div>
