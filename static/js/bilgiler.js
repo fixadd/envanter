@@ -218,7 +218,23 @@
     const reader = new FileReader();
     reader.onload = (ev) => {
       if (previewImg) previewImg.src = ev.target.result;
-      if (previewWrapper) previewWrapper.classList.remove("d-none");
+      if (previewWrapper) {
+        previewWrapper.classList.remove("d-none");
+        const scrollContainer =
+          previewWrapper.closest(".modal-body") ||
+          previewWrapper.closest(".modal-content");
+        if (scrollContainer && typeof scrollContainer.scrollTo === "function") {
+          scrollContainer.scrollTo({
+            top: scrollContainer.scrollHeight,
+            behavior: "smooth",
+          });
+        } else if (
+          typeof previewWrapper.scrollIntoView === "function" &&
+          previewWrapper.isConnected
+        ) {
+          previewWrapper.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+      }
     };
     reader.readAsDataURL(file);
   }
