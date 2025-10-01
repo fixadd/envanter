@@ -138,7 +138,7 @@ def bilgi_index(
 async def bilgi_create(
     request: Request,
     baslik: str = Form(...),
-    kategori_id: int | None = Form(None),
+    kategori_id: str | None = Form(None),
     icerik: str = Form(""),
     foto: UploadFile | None = File(None),
     db: Session = Depends(get_db),
@@ -154,7 +154,12 @@ async def bilgi_create(
 
     kategori_ref = None
     if kategori_id:
-        kategori_ref = db.get(BilgiKategori, kategori_id)
+        try:
+            kategori_key = int(kategori_id)
+        except (TypeError, ValueError):
+            raise HTTPException(status_code=400, detail="Geçersiz kategori seçimi")
+
+        kategori_ref = db.get(BilgiKategori, kategori_key)
         if not kategori_ref:
             raise HTTPException(status_code=400, detail="Geçersiz kategori seçimi")
 
