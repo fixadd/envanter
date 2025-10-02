@@ -1,6 +1,5 @@
-{% extends "base.html" %}
-{% block title %}Talep – Oluştur{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Talep – Oluştur{% endblock %} {%
+block content %}
 <div class="container-fluid py-4">
   <div class="page-shell">
     <header class="page-header">
@@ -19,61 +18,70 @@
       </div>
     </header>
 
-    <form id="talepForm" autocomplete="off" class="page-card soft-card stack-lg">
-      <section class="page-section stack-md">
-        <div>
-          <h2 class="section-title h6 mb-2">Talep Bilgileri</h2>
-          <p class="text-muted small mb-3">
-            Aynı IFS numarasına bağlı birden fazla kalem ekleyebilir, isteğe bağlı
-            olarak açıklama girebilirsiniz.
-          </p>
-          <div class="env-grid" id="talep-ekle-grid">
-            <div class="field span-2">
-              <label for="ifs_no">IFS No <span class="muted">(opsiyonel)</span></label>
+    <form
+      id="talepForm"
+      autocomplete="off"
+      class="page-card soft-card stack-lg talep-builder"
+    >
+      <section class="page-section stack-lg">
+        <div class="talep-highlight soft-card stack-md">
+          <div class="talep-highlight__content">
+            <div class="talep-highlight__text stack-sm">
+              <span class="talep-highlight__eyebrow">Talep Bilgileri</span>
+              <h2 class="h5 mb-0">IFS numaranızı belirleyin</h2>
+              <p class="text-muted small mb-0">
+                Aynı IFS numarasına bağlı birden fazla kalem ekleyebilirsiniz.
+                IFS numarasının girilmesi zorunludur.
+              </p>
+            </div>
+            <div class="talep-highlight__field">
+              <label class="form-label" for="ifs_no"
+                >IFS No <span class="text-danger">*</span></label
+              >
               <input
                 id="ifs_no"
                 name="ifs_no"
-                class="ctrl"
+                class="form-control"
                 placeholder="IFS-0001"
+                required
               />
             </div>
           </div>
         </div>
 
-        <div>
-          <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2">
-            <div>
-              <h2 class="section-title h6 mb-0">Kalemler</h2>
-              <small class="text-muted">Her satır için donanım tipi ve miktar zorunludur.</small>
+        <div class="talep-items-card soft-card stack-lg">
+          <div
+            class="talep-items-card__header d-flex flex-wrap justify-content-between align-items-start gap-2"
+          >
+            <div class="stack-xs">
+              <h2 class="section-title h6 mb-0">Talep Kalemleri</h2>
+              <small class="text-muted"
+                >Her kalem için donanım tipi ve miktar bilgisi zorunludur. Marka
+                ve model bilgilerini seçerek talebinizi
+                detaylandırabilirsiniz.</small
+              >
             </div>
-            <button type="button" id="btnAddRow" class="btn btn-outline-secondary btn-sm">
-              Satır Ekle
+            <button
+              type="button"
+              id="btnAddRow"
+              class="btn btn-outline-secondary btn-sm talep-add-row-btn"
+            >
+              <i class="bi bi-plus-circle"></i>
+              Kalem Ekle
             </button>
           </div>
 
-          <div class="table-responsive">
-            <table class="table table-sm align-middle table-rounded" id="rowsTable">
-              <thead>
-                <tr>
-                  <th style="width: 20%">Donanım Tipi</th>
-                  <th style="width: 8%">Miktar</th>
-                  <th style="width: 18%">Marka</th>
-                  <th style="width: 18%">Model</th>
-                  <th style="width: 28%">Açıklama</th>
-                  <th class="text-end talep-action-col" style="width: 8%">İşlem</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- JavaScript ile doldurulacak -->
-              </tbody>
-            </table>
+          <div class="talep-items stack-lg" id="talepItems">
+            <!-- JavaScript ile kalem kartları yüklenecek -->
           </div>
         </div>
       </section>
 
       <footer class="page-section d-flex flex-wrap gap-2 justify-content-end">
         <a href="/requests" class="btn btn-light">Vazgeç</a>
-        <button type="submit" class="btn btn-primary">Talebi Kaydet</button>
+        <button type="submit" class="btn btn-primary btn-gradient-primary">
+          Talebi Kaydet
+        </button>
       </footer>
     </form>
   </div>
