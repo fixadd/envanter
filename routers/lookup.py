@@ -60,6 +60,25 @@ def lookup_model(
             marka_id = row["id"] if row else None
 
     if marka_id is None:
+        # Eski lookups tablosunda tutulan modeller için geri dönüş
+        try:
+            legacy_models = (
+                db.query(Lookup.value)
+                .filter(Lookup.type == "model")
+                .filter(Lookup.value.isnot(None))
+                .order_by(Lookup.value.asc())
+                .all()
+            )
+        except Exception:  # pragma: no cover - güvenlik amaçlı
+            legacy_models = []
+
+        if legacy_models:
+            return [
+                {"id": value, "name": value}
+                for value, in legacy_models
+                if value and str(value).strip()
+            ]
+
         raise HTTPException(status_code=422, detail="marka_id gerekli")
 
     rows = (
@@ -169,20 +188,29 @@ def lookup_list(
                 except Exception:
                     pass
             if marka_id is None:
-                return []  # Model listesi marka seçimi olmadan boş dönsün
-            where.append("brand_id = :brand_id")
-            params["brand_id"] = marka_id
+                rows = []
+            else:
+                where.append("brand_id = :brand_id")
+                params["brand_id"] = marka_id
+                where_sql = (" WHERE " + " AND ".join(where)) if where else ""
+                sql = text(
+                    f"SELECT id, name FROM {table}{where_sql} ORDER BY name LIMIT :limit"
+                )
+                rows = db.execute(sql, params).mappings().all()
+        else:
+            where_sql = (" WHERE " + " AND ".join(where)) if where else ""
+            sql = text(
+                f"SELECT id, name FROM {table}{where_sql} ORDER BY name LIMIT :limit"
+            )
+            rows = db.execute(sql, params).mappings().all()
 
-        where_sql = (" WHERE " + " AND ".join(where)) if where else ""
-        sql = text(
-            f"SELECT id, name FROM {table}{where_sql} ORDER BY name LIMIT :limit"
-        )
-        rows = db.execute(sql, params).mappings().all()
-        # API'ler genellikle {id, name} döndürür; "text" gibi farklı anahtarlar
-        # istemcilerde karışıklığa yol açıyordu. Tutarlılık için "name" alanı
-        # döndürüyoruz ve eski "text" beklentisi olan istemcilerde de sorun
-        # yaşanmaması için çağrı tarafında gerekli uyarlamayı yapıyoruz.
-        return [{"id": r["id"], "name": r["name"]} for r in rows]
+        if rows:
+            # API'ler genellikle {id, name} döndürür; "text" gibi farklı anahtarlar
+            # istemcilerde karışıklığa yol açıyordu. Tutarlılık için "name" alanı
+            # döndürüyoruz ve eski "text" beklentisi olan istemcilerde de sorun
+            # yaşanmaması için çağrı tarafında gerekli uyarlamayı yapıyoruz.
+            return [{"id": r["id"], "name": r["name"]} for r in rows]
+        # Boş sonuçlarda legacy lookup tablosuna düşmeyi dene
 
     # Kolon bazlı tablo yoksa Lookup.type tablosunu dene
     try:
@@ -192,13 +220,16 @@ def lookup_list(
         q_expr = q_expr.order_by(Lookup.value.asc()).limit(limit)
         rows = [r[0] for r in q_expr.all() if r and r[0]]
         if rows:
-            return rows
+            return [{"id": value, "name": value} for value in rows]
     except Exception:
         pass
 
     # Kolon yoksa veya boş döndüyse: fallback listesi varsa onu döndür
     if entity in FALLBACK_LISTS:
         return FALLBACK_LISTS[entity]
+
+    if table:
+        return []
 
     raise HTTPException(404, "Geçersiz entity")
 
