@@ -11,11 +11,20 @@ from models import Brand, HardwareType, Model, Talep, TalepTuru
 router = APIRouter(prefix="/api/talep", tags=["Talep"])
 
 
+def _normalize_optional_text(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return None
+    cleaned = value.strip()
+    return cleaned or None
+
+
 class TalepLine(BaseModel):
     donanim_tipi_id: conint(gt=0)
     miktar: conint(gt=0)
     marka_id: Optional[int] = 0
     model_id: Optional[int] = 0
+    marka_adi: Optional[str] = None
+    model_adi: Optional[str] = None
     aciklama: Optional[str] = None
 
 
@@ -31,16 +40,19 @@ def talep_ekle(item: TalepIn, db: Session = Depends(get_db)):
 
     ids = []
     for ln in item.lines:
+        marka_value = ln.marka_id or _normalize_optional_text(ln.marka_adi)
+        model_value = ln.model_id or _normalize_optional_text(ln.model_adi)
+        aciklama = _normalize_optional_text(ln.aciklama)
         rec = Talep(
             tur=TalepTuru.AKSESUAR,
             ifs_no=item.ifs_no,
             donanim_tipi=ln.donanim_tipi_id,
-            marka=ln.marka_id or None,
-            model=ln.model_id or None,
+            marka=marka_value,
+            model=model_value,
             miktar=ln.miktar,
             karsilanan_miktar=0,
             kalan_miktar=ln.miktar,
-            aciklama=ln.aciklama,
+            aciklama=aciklama,
         )
         db.add(rec)
         db.flush()
