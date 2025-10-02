@@ -1007,6 +1007,12 @@ tr[data-href] > td:first-child {
 /* -------------------------------------------------------------------------- */
 /* Utility spacing helpers                                                    */
 /* -------------------------------------------------------------------------- */
+.stack-xs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
 .stack-sm {
   display: flex;
   flex-direction: column;
@@ -1023,6 +1029,206 @@ tr[data-href] > td:first-child {
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Talep oluşturma                                                            */
+/* -------------------------------------------------------------------------- */
+.talep-builder {
+  gap: var(--space-xl);
+}
+
+.talep-highlight,
+.talep-items-card {
+  padding: clamp(1.25rem, 1rem + 0.8vw, 1.75rem);
+  border-radius: var(--radius-lg);
+}
+
+.talep-highlight {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.14), rgba(129, 140, 248, 0.2));
+  border: 1px solid rgba(79, 70, 229, 0.18);
+  box-shadow: var(--shadow-sm);
+}
+
+.talep-highlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(129, 140, 248, 0.28), transparent 55%);
+  pointer-events: none;
+}
+
+.talep-highlight__content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.talep-highlight__text {
+  max-width: 520px;
+}
+
+.talep-highlight__eyebrow {
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-primary-strong);
+}
+
+.talep-highlight__field {
+  width: 100%;
+  max-width: 320px;
+}
+
+.talep-highlight .form-label {
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+.talep-highlight .form-control {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 768px) {
+  .talep-highlight__content {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .talep-highlight__field {
+    text-align: left;
+  }
+}
+
+.talep-items-card {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.talep-items-card__header {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  padding-bottom: var(--space-sm);
+}
+
+.talep-items-card__header .section-title {
+  font-size: clamp(1rem, 0.92rem + 0.3vw, 1.15rem);
+}
+
+.talep-add-row-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  white-space: nowrap;
+}
+
+.talep-add-row-btn .bi {
+  font-size: 1rem;
+}
+
+.talep-items {
+  padding-top: var(--space-sm);
+}
+
+.talep-item {
+  position: relative;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: clamp(1.1rem, 0.95rem + 0.4vw, 1.4rem);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.talep-item__header {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+  padding-bottom: var(--space-sm);
+}
+
+.talep-item__title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-weight: 600;
+  color: var(--color-muted-strong);
+}
+
+.talep-item__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.14);
+  color: var(--color-primary-strong);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.talep-item__index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.talep-item__grid {
+  margin-top: var(--space-sm);
+}
+
+.talep-item__grid .form-label {
+  font-weight: 600;
+  color: var(--color-muted-strong);
+}
+
+.talep-item textarea.form-control {
+  min-height: 70px;
+  resize: vertical;
+}
+
+@media (max-width: 575.98px) {
+  .talep-add-row-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .talep-highlight__content {
+    align-items: stretch;
+  }
+}
+
+.btn-gradient-primary {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: var(--shadow-md);
+}
+
+.btn-gradient-primary:hover {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #fff;
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-gradient-primary:focus-visible {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35);
+}
+
+.btn-gradient-primary:active {
+  background: linear-gradient(135deg, #4338ca, #6d28d9);
 }
 
 .inline-gap-sm {
