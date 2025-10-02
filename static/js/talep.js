@@ -16,6 +16,7 @@
 
   // Basit cache
   const cache = {};
+  const numericIdPattern = /^\d+$/;
 
   const fetchErrorState = { lookup: false, model: false };
 
@@ -134,9 +135,11 @@
     const key = `model_${brandId}`;
     if (cache[key]) return cache[key];
     try {
-      const r = await fetch(
-        `/api/lookup/model?marka_id=${encodeURIComponent(brandId)}`,
-      );
+      const isNumeric = numericIdPattern.test(String(brandId));
+      const searchParam = isNumeric
+        ? `marka_id=${encodeURIComponent(brandId)}`
+        : `marka=${encodeURIComponent(brandId)}`;
+      const r = await fetch(`/api/lookup/model?${searchParam}`);
       if (!r.ok) {
         const text = await r.text().catch(() => "");
         throw new Error(text || `HTTP ${r.status}`);
@@ -338,12 +341,36 @@
 
       const donanim_tipi_id = Number(donanimSelect?.value || 0);
       const miktar = Number(miktarInput?.value || 0);
-      const marka_id = Number(markaSelect?.value || 0);
-      const model_id = Number(modelSelect?.value || 0);
+      const markaValue = markaSelect?.value ?? "";
+      const modelValue = modelSelect?.value ?? "";
+      const marka_id = numericIdPattern.test(markaValue)
+        ? Number(markaValue)
+        : 0;
+      const model_id = numericIdPattern.test(modelValue)
+        ? Number(modelValue)
+        : 0;
+      const markaOption = markaSelect?.selectedOptions?.[0] || null;
+      const modelOption = modelSelect?.selectedOptions?.[0] || null;
+      const markaLabel = markaOption?.textContent
+        ? markaOption.textContent.trim()
+        : "";
+      const modelLabel = modelOption?.textContent
+        ? modelOption.textContent.trim()
+        : "";
+      const marka_adi = marka_id > 0 ? null : markaLabel || null;
+      const model_adi = model_id > 0 ? null : modelLabel || null;
       const aciklama = aciklamaInput?.value.trim() || null;
 
       if (donanim_tipi_id && miktar > 0) {
-        lines.push({ donanim_tipi_id, miktar, marka_id, model_id, aciklama });
+        lines.push({
+          donanim_tipi_id,
+          miktar,
+          marka_id,
+          marka_adi,
+          model_id,
+          model_adi,
+          aciklama,
+        });
       }
     });
 
