@@ -1,18 +1,27 @@
 // /static/js/talep.js
 (function () {
   const modal = document.getElementById("talepModal");
+  const cardContainer = document.getElementById("talepItems");
   const tableBody = document.querySelector("#rowsTable tbody");
+  const rowsContainer = cardContainer || tableBody;
   const addRowBtn = document.getElementById("btnAddRow");
   const talepForm = document.getElementById("talepForm");
   const ifsInput = document.getElementById("ifs_no");
 
-  if (!tableBody || !talepForm || !ifsInput) {
+  if (!rowsContainer || !talepForm || !ifsInput) {
     return;
   }
 
-  const actionHeader = document.querySelector(
-    "#rowsTable thead th.talep-action-col",
-  );
+  ifsInput.addEventListener("input", () => {
+    ifsInput.setCustomValidity("");
+    ifsInput.classList.remove("is-invalid");
+  });
+
+  const isCardLayout = Boolean(cardContainer);
+
+  const actionHeader = !isCardLayout
+    ? document.querySelector("#rowsTable thead th.talep-action-col")
+    : null;
 
   // Basit cache
   const cache = {};
@@ -85,9 +94,17 @@
   }
 
   function setStaticSelectsDisabled(disabled) {
-    tableBody
+    rowsContainer
       ?.querySelectorAll(".sel-donanim, .sel-marka")
       .forEach((sel) => setSelectDisabledForError(sel, disabled));
+  }
+
+  function getRowElements() {
+    if (!rowsContainer) return [];
+    if (isCardLayout) {
+      return Array.from(rowsContainer.querySelectorAll(".talep-item"));
+    }
+    return Array.from(rowsContainer.querySelectorAll("tr"));
   }
 
   function setFetchError(scope, hasError, message) {
@@ -159,18 +176,25 @@
   }
 
   function updateRemoveButtons() {
-    if (!tableBody) return;
-    const rows = Array.from(tableBody.querySelectorAll("tr"));
+    if (!rowsContainer) return;
+    const rows = getRowElements();
     const shouldHide = rows.length <= 1;
 
-    rows.forEach((tr) => {
-      const removeBtn = tr.querySelector(".btn-remove");
-      const actionCell = tr.querySelector(".talep-action-col");
+    rows.forEach((row, index) => {
+      const removeBtn = row.querySelector(".btn-remove");
+      const actionCell = row.querySelector(".talep-action-col");
       if (removeBtn) {
         removeBtn.classList.toggle("d-none", shouldHide);
+        removeBtn.disabled = shouldHide;
       }
       if (actionCell) {
         actionCell.classList.toggle("talep-action-col--compact", shouldHide);
+      }
+      if (isCardLayout) {
+        const indexEl = row.querySelector(".talep-item__index");
+        if (indexEl) {
+          indexEl.textContent = String(index + 1);
+        }
       }
     });
 
@@ -210,6 +234,56 @@
   }
 
   function rowTemplate() {
+    if (isCardLayout) {
+      const div = document.createElement("div");
+      div.className = "talep-item soft-card stack-md";
+      div.innerHTML = `
+        <div class="talep-item__header d-flex flex-wrap align-items-center justify-content-between gap-2">
+          <div class="talep-item__title">
+            <span class="talep-item__badge">Kalem</span>
+            <span class="talep-item__index">1</span>
+          </div>
+          <button type="button" class="btn btn-outline-danger btn-sm btn-remove">
+            <i class="bi bi-x-lg"></i>
+            Kaldır
+          </button>
+        </div>
+        <div class="row g-3 talep-item__grid">
+          <div class="col-md-6 col-xl-3">
+            <label class="form-label">Donanım Tipi <span class="text-danger">*</span></label>
+            <select class="form-select sel-donanim" required></select>
+          </div>
+          <div class="col-md-6 col-xl-3">
+            <label class="form-label">Miktar <span class="text-danger">*</span></label>
+            <input
+              type="number"
+              min="1"
+              step="1"
+              value="1"
+              inputmode="numeric"
+              class="form-control inp-miktar"
+              required
+            >
+          </div>
+          <div class="col-md-6 col-xl-3">
+            <label class="form-label">Marka</label>
+            <select class="form-select sel-marka"></select>
+          </div>
+          <div class="col-md-6 col-xl-3">
+            <label class="form-label">Model</label>
+            <select class="form-select sel-model" disabled>
+              <option value="">Önce marka seçin…</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Açıklama</label>
+            <textarea class="form-control inp-aciklama" rows="2" placeholder="Opsiyonel açıklama"></textarea>
+          </div>
+        </div>
+      `;
+      return div;
+    }
+
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>
@@ -296,7 +370,7 @@
 
   async function addRow() {
     const tr = rowTemplate();
-    tableBody.appendChild(tr);
+    rowsContainer.appendChild(tr);
     await fillStaticLookups(tr);
 
     // Eventler
@@ -316,7 +390,7 @@
 
   // Modal açıldığında ilk satırı garanti ekle
   modal?.addEventListener("shown.bs.modal", async () => {
-    if (!tableBody.children.length) {
+    if (!getRowElements().length) {
       await addRow();
     }
   });
@@ -331,8 +405,19 @@
     e.preventDefault();
 
     const ifs_no = ifsInput.value.trim();
+
+    if (!ifs_no) {
+      ifsInput.classList.add("is-invalid");
+      ifsInput.setCustomValidity("IFS numarası zorunludur.");
+      ifsInput.reportValidity();
+      ifsInput.focus();
+      return;
+    }
+
+    ifsInput.setCustomValidity("");
+    ifsInput.classList.remove("is-invalid");
     const lines = [];
-    tableBody.querySelectorAll("tr").forEach((tr) => {
+    getRowElements().forEach((tr) => {
       const donanimSelect = tr.querySelector(".sel-donanim");
       const miktarInput = tr.querySelector(".inp-miktar");
       const markaSelect = tr.querySelector(".sel-marka");
@@ -397,7 +482,7 @@
   updateRemoveButtons();
 
   // Modal dışında ayrı sayfada kullanıldığında ilk satırı otomatik ekle
-  if (!modal && tableBody && !tableBody.children.length) {
+  if (!modal && rowsContainer && !getRowElements().length) {
     addRow().catch((err) => console.error("Talep satırı eklenemedi", err));
   }
 })();
