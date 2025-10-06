@@ -1,13 +1,18 @@
-﻿{% extends "base.html" %}
-{% block title %}Ana Sayfa{% endblock %}
-{% block content %}
+﻿{% extends "base.html" %} {% block title %}Ana Sayfa{% endblock %} {% block
+content %}
 <div class="container-fluid py-4">
   <header class="mb-4">
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+    <div
+      class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3"
+    >
       <div>
-        <span class="text-uppercase text-muted small fw-semibold">Genel Bakış</span>
+        <span class="text-uppercase text-muted small fw-semibold"
+          >Genel Bakış</span
+        >
         <h1 class="h3 mb-1">Kontrol Paneli</h1>
-        <p class="text-muted mb-0">Envanter, lisans ve taleplerinizin güncel durumunu buradan takip edin.</p>
+        <p class="text-muted mb-0">
+          Envanter, lisans ve taleplerinizin güncel durumunu buradan takip edin.
+        </p>
       </div>
     </div>
   </header>
@@ -21,7 +26,10 @@
             <span class="text-primary"><i class="bi bi-hdd-stack"></i></span>
           </div>
           <h2 class="display-6 mb-1">{{ stats.toplam_cihaz }}</h2>
-          <p class="text-muted mb-0">Envanter: {{ stats.envanter_sayisi }} · Yazıcı: {{ stats.yazici_sayisi }}</p>
+          <p class="text-muted mb-0">
+            Envanter: {{ stats.envanter_sayisi }} · Yazıcı: {{
+            stats.yazici_sayisi }}
+          </p>
         </div>
       </article>
     </div>
@@ -33,7 +41,9 @@
             <span class="text-primary"><i class="bi bi-key"></i></span>
           </div>
           <h2 class="display-6 mb-1">{{ stats.lisans_sayisi }}</h2>
-          <p class="text-muted mb-0">Boş lisans: {{ stats.bos_lisans_sayisi }}</p>
+          <p class="text-muted mb-0">
+            Boş lisans: {{ stats.bos_lisans_sayisi }}
+          </p>
         </div>
       </article>
     </div>
@@ -42,10 +52,14 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-start mb-3">
             <span class="text-uppercase small text-muted">Arızalı Cihaz</span>
-            <span class="text-warning"><i class="bi bi-exclamation-triangle"></i></span>
+            <span class="text-warning"
+              ><i class="bi bi-exclamation-triangle"></i
+            ></span>
           </div>
           <h2 class="display-6 mb-1">{{ stats.arizali_cihaz_sayisi }}</h2>
-          <p class="text-muted mb-0">Servise yönlendirilen cihazların toplamı.</p>
+          <p class="text-muted mb-0">
+            Servise yönlendirilen cihazların toplamı.
+          </p>
         </div>
       </article>
     </div>
@@ -65,9 +79,13 @@
 
   <section class="card shadow-sm border-0">
     <div class="card-header border-0 bg-transparent pb-0">
-      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+      <div
+        class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2"
+      >
         <h2 class="h5 mb-0">Son İşlemler</h2>
-        <span class="badge bg-success-subtle text-success fw-semibold">Canlı</span>
+        <span class="badge bg-success-subtle text-success fw-semibold"
+          >Canlı</span
+        >
       </div>
     </div>
     <div class="card-body">
@@ -83,19 +101,26 @@
             </tr>
           </thead>
           <tbody>
-            {% if stats.son_islemler %}
-            {% for row in stats.son_islemler %}
+            {% if stats.son_islemler %} {% for row in stats.son_islemler %}
             <tr>
-              <td>{{ row.created_at.strftime('%d.%m.%Y %H:%M') if row.created_at else '-' }}</td>
+              <td>
+                {{ row.created_at.strftime('%d.%m.%Y %H:%M') if row.created_at
+                else '-' }}
+              </td>
               <td>{{ row.actor or '-' }}</td>
               <td>{{ row.action or '-' }}</td>
               <td>{{ row.no or '-' }}</td>
-              <td class="text-end"><span class="badge bg-success-subtle text-success">Tamamlandı</span></td>
+              <td class="text-end">
+                <span class="badge bg-success-subtle text-success"
+                  >Tamamlandı</span
+                >
+              </td>
             </tr>
-            {% endfor %}
-            {% else %}
+            {% endfor %} {% else %}
             <tr>
-              <td colspan="5" class="text-center text-muted py-3">Henüz kayıt bulunmuyor.</td>
+              <td colspan="5" class="text-center text-muted py-3">
+                Henüz kayıt bulunmuyor.
+              </td>
             </tr>
             {% endif %}
           </tbody>

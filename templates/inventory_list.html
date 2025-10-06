@@ -1,28 +1,40 @@
-﻿{% extends "base.html" %}
-{% block title %}Envanter{% endblock %}
-{% block content %}
+﻿{% extends "base.html" %} {% block title %}Envanter{% endblock %} {% block
+content %}
 <div class="container-fluid py-4" id="inventory-page">
   <header class="mb-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div
+      class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3"
+    >
       <div>
-        <span class="text-uppercase text-muted small fw-semibold">Envanter Yönetimi</span>
+        <span class="text-uppercase text-muted small fw-semibold"
+          >Envanter Yönetimi</span
+        >
         <h1 class="h3 mb-1">Envanter Listesi</h1>
-        <p class="text-muted mb-0">Aktif cihazlarınızı görüntüleyin, arayın ve hızlıca aksiyon alın.</p>
+        <p class="text-muted mb-0">
+          Aktif cihazlarınızı görüntüleyin, arayın ve hızlıca aksiyon alın.
+        </p>
       </div>
       <div class="d-flex flex-wrap gap-2">
         <a href="{{ url_for('inventory.new') }}" class="btn btn-success btn-sm">
           <i class="bi bi-plus-lg me-1"></i>
           Yeni Envanter
         </a>
-        {% with fault_entity='inventory', fault_prefix='inventory', fault_label='Envanter Arızalı Durum' %}
-          {% include 'partials/_fault_controls.html' %}
-        {% endwith %}
+        {% with fault_entity='inventory', fault_prefix='inventory',
+        fault_label='Envanter Arızalı Durum' %} {% include
+        'partials/_fault_controls.html' %} {% endwith %}
         <div class="dropdown">
-          <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <button
+            class="btn btn-outline-primary btn-sm dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
             <i class="bi bi-download me-1"></i> Excel
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="/inventory/export">Dışa Aktar</a></li>
+            <li>
+              <a class="dropdown-item" href="/inventory/export">Dışa Aktar</a>
+            </li>
           </ul>
         </div>
       </div>
@@ -31,25 +43,60 @@
 
   <div class="card shadow-sm border-0">
     <div class="card-body pb-2">
-      <form class="row g-2 align-items-center" id="inventoryFilters" autocomplete="off">
+      <form
+        class="row g-2 align-items-center"
+        id="inventoryFilters"
+        autocomplete="off"
+      >
         <div class="col-12 col-md-6 col-lg-4">
-          <label for="inventorySearch" class="form-label small text-uppercase text-muted mb-1">Ara</label>
+          <label
+            for="inventorySearch"
+            class="form-label small text-uppercase text-muted mb-1"
+            >Ara</label
+          >
           <div class="input-group input-group-sm">
             <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input id="inventorySearch" type="search" class="form-control" placeholder="No, marka, model veya sorumlu" />
+            <input
+              id="inventorySearch"
+              type="search"
+              class="form-control"
+              placeholder="No, marka, model veya sorumlu"
+            />
           </div>
         </div>
         <div class="col-6 col-lg-3">
-          <label for="factoryFilter" class="form-label small text-uppercase text-muted mb-1">Fabrika</label>
-          <input id="factoryFilter" type="text" class="form-control form-control-sm" placeholder="Filtrele" />
+          <label
+            for="factoryFilter"
+            class="form-label small text-uppercase text-muted mb-1"
+            >Fabrika</label
+          >
+          <input
+            id="factoryFilter"
+            type="text"
+            class="form-control form-control-sm"
+            placeholder="Filtrele"
+          />
         </div>
         <div class="col-6 col-lg-3">
-          <label for="departmentFilter" class="form-label small text-uppercase text-muted mb-1">Departman</label>
-          <input id="departmentFilter" type="text" class="form-control form-control-sm" placeholder="Filtrele" />
+          <label
+            for="departmentFilter"
+            class="form-label small text-uppercase text-muted mb-1"
+            >Departman</label
+          >
+          <input
+            id="departmentFilter"
+            type="text"
+            class="form-control form-control-sm"
+            placeholder="Filtrele"
+          />
         </div>
         <div class="col-12 col-lg-2 d-grid justify-content-lg-end">
-          <label class="form-label small text-uppercase text-muted mb-1">&nbsp;</label>
-          <button type="reset" class="btn btn-outline-secondary btn-sm">Temizle</button>
+          <label class="form-label small text-uppercase text-muted mb-1"
+            >&nbsp;</label
+          >
+          <button type="reset" class="btn btn-outline-secondary btn-sm">
+            Temizle
+          </button>
         </div>
       </form>
     </div>
@@ -69,8 +116,7 @@
           </tr>
         </thead>
         <tbody>
-          {% if items %}
-          {% for item in items %}
+          {% if items %} {% for item in items %}
           <tr
             data-search="{{ (item.no or '') ~ ' ' ~ (item.donanim_tipi or '') ~ ' ' ~ (item.marka or '') ~ ' ' ~ (item.model or '') ~ ' ' ~ (item.sorumlu_personel or '') | lower }}"
             data-factory="{{ (item.fabrika or '') | lower }}"
@@ -79,7 +125,9 @@
             <td class="fw-semibold">{{ item.no or '-' }}</td>
             <td>{{ item.donanim_tipi or '-' }}</td>
             <td>
-              <div class="fw-semibold">{{ item.marka or '-' }} {{ item.model or '' }}</div>
+              <div class="fw-semibold">
+                {{ item.marka or '-' }} {{ item.model or '' }}
+              </div>
               {% if item.seri_no %}
               <div class="text-muted small">Seri: {{ item.seri_no }}</div>
               {% endif %}
@@ -87,7 +135,9 @@
             <td>{{ item.sorumlu_personel or '-' }}</td>
             <td>
               {% if item.durum %}
-              <span class="badge bg-secondary-subtle text-body">{{ item.durum }}</span>
+              <span class="badge bg-secondary-subtle text-body"
+                >{{ item.durum }}</span
+              >
               {% else %}
               <span class="badge bg-success-subtle text-success">Aktif</span>
               {% endif %}
@@ -96,15 +146,24 @@
             <td>{{ item.departman or '-' }}</td>
             <td class="text-end">
               <div class="btn-group btn-group-sm" role="group">
-                <a href="{{ url_for('inventory.detail', item_id=item.id) }}" class="btn btn-outline-primary">Detay</a>
-                <a href="{{ url_for('inventory.edit', item_id=item.id) }}" class="btn btn-outline-secondary">Düzenle</a>
+                <a
+                  href="{{ url_for('inventory.detail', item_id=item.id) }}"
+                  class="btn btn-outline-primary"
+                  >Detay</a
+                >
+                <a
+                  href="{{ url_for('inventory.edit', item_id=item.id) }}"
+                  class="btn btn-outline-secondary"
+                  >Düzenle</a
+                >
               </div>
             </td>
           </tr>
-          {% endfor %}
-          {% else %}
+          {% endfor %} {% else %}
           <tr>
-            <td colspan="8" class="text-center text-muted py-4">Kayıt bulunamadı.</td>
+            <td colspan="8" class="text-center text-muted py-4">
+              Kayıt bulunamadı.
+            </td>
           </tr>
           {% endif %}
         </tbody>
@@ -112,19 +171,18 @@
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-{{ super() }}
+{% endblock %} {% block scripts %} {{ super() }}
 <script>
   (function () {
-    const searchInput = document.getElementById('inventorySearch');
-    const factoryInput = document.getElementById('factoryFilter');
-    const departmentInput = document.getElementById('departmentFilter');
-    const rows = Array.from(document.querySelectorAll('#inventoryTable tbody tr'));
+    const searchInput = document.getElementById("inventorySearch");
+    const factoryInput = document.getElementById("factoryFilter");
+    const departmentInput = document.getElementById("departmentFilter");
+    const rows = Array.from(
+      document.querySelectorAll("#inventoryTable tbody tr"),
+    );
 
     function normalize(value) {
-      return (value || '').trim().toLowerCase();
+      return (value || "").trim().toLowerCase();
     }
 
     function applyFilters() {
@@ -134,20 +192,27 @@
 
       rows.forEach((row) => {
         const matchesSearch = !search || row.dataset.search.includes(search);
-        const matchesFactory = !factory || row.dataset.factory.includes(factory);
-        const matchesDepartment = !department || row.dataset.department.includes(department);
-        row.classList.toggle('d-none', !(matchesSearch && matchesFactory && matchesDepartment));
+        const matchesFactory =
+          !factory || row.dataset.factory.includes(factory);
+        const matchesDepartment =
+          !department || row.dataset.department.includes(department);
+        row.classList.toggle(
+          "d-none",
+          !(matchesSearch && matchesFactory && matchesDepartment),
+        );
       });
     }
 
     [searchInput, factoryInput, departmentInput].forEach((input) => {
       if (!input) return;
-      input.addEventListener('input', applyFilters);
+      input.addEventListener("input", applyFilters);
     });
 
-    document.getElementById('inventoryFilters')?.addEventListener('reset', () => {
-      setTimeout(applyFilters, 0);
-    });
+    document
+      .getElementById("inventoryFilters")
+      ?.addEventListener("reset", () => {
+        setTimeout(applyFilters, 0);
+      });
   })();
 </script>
 {% endblock %}
