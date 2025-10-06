@@ -1,17 +1,19 @@
-from fastapi import APIRouter, Request, Depends, Form
+from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
-from sqlalchemy.orm import Session
 from fastapi.templating import Jinja2Templates
+from sqlalchemy.orm import Session
 
-from models import User
 from auth import get_db, hash_password
+from models import User
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 templates = Jinja2Templates(directory="templates")
 
 
 @router.get("", response_class=HTMLResponse)
-def admin_index(request: Request, q: str = "", role: str = "", db: Session = Depends(get_db)):
+def admin_index(
+    request: Request, q: str = "", role: str = "", db: Session = Depends(get_db)
+):
     users_q = db.query(User)
     if q:
         users_q = users_q.filter(

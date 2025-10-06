@@ -1,10 +1,11 @@
-{% extends "base.html" %}
-{% block title %}Envanter Detay - {{ inv.no }}{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Envanter Detay - {{ inv.no }}{%
+endblock %} {% block content %}
 <div class="container-fluid p-3">
   <div class="d-flex align-items-center justify-content-between mb-2">
     <h5>Envanter: {{ inv.no }}</h5>
-    <a href="/inventory" class="btn btn-sm btn-outline-secondary">← Listeye dön</a>
+    <a href="/inventory" class="btn btn-sm btn-outline-secondary"
+      >← Listeye dön</a
+    >
   </div>
 
   <div class="row g-3">
@@ -13,19 +14,32 @@
         <div class="card-header">Temel Bilgiler</div>
         <div class="card-body">
           <div class="row">
-            <div class="col-5 text-muted">Fabrika</div><div class="col-7">{{ inv.fabrika }}</div>
-            <div class="col-5 text-muted">Departman</div><div class="col-7">{{ inv.departman }}</div>
-            <div class="col-5 text-muted">Donanım Tipi</div><div class="col-7">{{ inv.donanim_tipi }}</div>
-            <div class="col-5 text-muted">Bilgisayar Adı</div><div class="col-7">{{ inv.bilgisayar_adi }}</div>
-            <div class="col-5 text-muted">Marka</div><div class="col-7">{{ inv.marka }}</div>
-            <div class="col-5 text-muted">Model</div><div class="col-7">{{ inv.model }}</div>
-            <div class="col-5 text-muted">Seri No</div><div class="col-7">{{ inv.seri_no }}</div>
-            <div class="col-5 text-muted">Sorumlu Personel</div><div class="col-7">{{ inv.sorumlu_personel }}</div>
-            <div class="col-5 text-muted">Bağlı Envanter No</div><div class="col-7">{{ inv.bagli_envanter_no }}</div>
-            <div class="col-5 text-muted">IFS No</div><div class="col-7">{{ inv.ifs_no }}</div>
-            <div class="col-5 text-muted">Tarih</div><div class="col-7">{{ inv.tarih }}</div>
-            <div class="col-5 text-muted">İşlem Yapan</div><div class="col-7">{{ inv.islem_yapan }}</div>
-            <div class="col-5 text-muted">Not</div><div class="col-7"><pre class="mb-0">{{ inv.not_ }}</pre></div>
+            <div class="col-5 text-muted">Fabrika</div>
+            <div class="col-7">{{ inv.fabrika }}</div>
+            <div class="col-5 text-muted">Departman</div>
+            <div class="col-7">{{ inv.departman }}</div>
+            <div class="col-5 text-muted">Donanım Tipi</div>
+            <div class="col-7">{{ inv.donanim_tipi }}</div>
+            <div class="col-5 text-muted">Bilgisayar Adı</div>
+            <div class="col-7">{{ inv.bilgisayar_adi }}</div>
+            <div class="col-5 text-muted">Marka</div>
+            <div class="col-7">{{ inv.marka }}</div>
+            <div class="col-5 text-muted">Model</div>
+            <div class="col-7">{{ inv.model }}</div>
+            <div class="col-5 text-muted">Seri No</div>
+            <div class="col-7">{{ inv.seri_no }}</div>
+            <div class="col-5 text-muted">Sorumlu Personel</div>
+            <div class="col-7">{{ inv.sorumlu_personel }}</div>
+            <div class="col-5 text-muted">Bağlı Envanter No</div>
+            <div class="col-7">{{ inv.bagli_envanter_no }}</div>
+            <div class="col-5 text-muted">IFS No</div>
+            <div class="col-7">{{ inv.ifs_no }}</div>
+            <div class="col-5 text-muted">Tarih</div>
+            <div class="col-7">{{ inv.tarih }}</div>
+            <div class="col-5 text-muted">İşlem Yapan</div>
+            <div class="col-7">{{ inv.islem_yapan }}</div>
+            <div class="col-5 text-muted">Not</div>
+            <div class="col-7"><pre class="mb-0">{{ inv.not_ }}</pre></div>
           </div>
         </div>
       </div>
@@ -51,14 +65,18 @@
                 {% for log in logs %}
                 <tr>
                   <td>{{ log.action }}</td>
-                  <td class="text-muted"><pre class="mb-0">{{ log.before_json }}</pre></td>
+                  <td class="text-muted">
+                    <pre class="mb-0">{{ log.before_json }}</pre>
+                  </td>
                   <td><pre class="mb-0">{{ log.after_json }}</pre></td>
                   <td>{{ log.note }}</td>
                   <td>{{ log.actor }}</td>
                   <td>{{ log.created_at }}</td>
                 </tr>
                 {% else %}
-                <tr><td colspan="6" class="text-muted">Henüz değişiklik yok</td></tr>
+                <tr>
+                  <td colspan="6" class="text-muted">Henüz değişiklik yok</td>
+                </tr>
                 {% endfor %}
               </tbody>
             </table>
@@ -68,14 +86,12 @@
     </div>
   </div>
 
-  <hr class="my-3">
+  <hr class="my-3" />
   <h5 class="mb-2">Lisanslar</h5>
 
-  {% set licenses = inv.licenses or [] %}
-
-  {% if licenses|length > 0 %}
+  {% set licenses = inv.licenses or [] %} {% if licenses|length > 0 %}
   <ul class="list-group">
-  {% for lic in licenses %}
+    {% for lic in licenses %}
     <li class="list-group-item">
       <strong>{{ lic.lisans_adi or "-" }}</strong>
       <div>Anahtar: {{ lic.lisans_anahtari or "-" }}</div>
@@ -84,11 +100,10 @@
       <div>Durum: {{ lic.durum or "-" }}</div>
       <div>Not: {{ lic.notlar or "-" }}</div>
     </li>
-  {% endfor %}
+    {% endfor %}
   </ul>
   {% else %}
   <div class="alert alert-info">Bu envantere bağlı lisans bulunamadı.</div>
   {% endif %}
 </div>
 {% endblock %}
-

@@ -9,6 +9,7 @@ from ldap3 import Connection, Server
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
+
 @router.get("/", response_class=HTMLResponse)
 async def integrations_home(request: Request):
     return templates.TemplateResponse("integrations/index.html", {"request": request})
@@ -25,7 +26,9 @@ async def ldap_users(request: Request):
     if server_uri and bind_dn and bind_password and base_dn:
         try:
             server = Server(server_uri)
-            conn = Connection(server, user=bind_dn, password=bind_password, auto_bind=True)
+            conn = Connection(
+                server, user=bind_dn, password=bind_password, auto_bind=True
+            )
             conn.search(base_dn, "(objectClass=person)", attributes=["cn", "mail"])
             for entry in conn.entries:
                 users.append(

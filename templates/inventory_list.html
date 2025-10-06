@@ -1,6 +1,5 @@
-{% extends "base.html" %}
-{% block title %}Envanter Listesi{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Envanter Listesi{% endblock %} {%
+block content %}
 <div class="container-fluid p-2">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <div class="d-flex align-items-center gap-2">
@@ -10,9 +9,21 @@
       <h5 class="mb-0">Envanter</h5>
     </div>
     <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-outline-secondary btn-sm" id="filterBtn">Filtre</button>
-      <button class="btn btn-outline-secondary btn-sm d-none" id="clearFilterBtn">Temizle</button>
-      <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Ara...">
+      <button class="btn btn-outline-secondary btn-sm" id="filterBtn">
+        Filtre
+      </button>
+      <button
+        class="btn btn-outline-secondary btn-sm d-none"
+        id="clearFilterBtn"
+      >
+        Temizle
+      </button>
+      <input
+        type="text"
+        id="searchInput"
+        class="form-control form-control-sm"
+        placeholder="Ara..."
+      />
     </div>
   </div>
 
@@ -24,7 +35,7 @@
         <th data-field="departman">Departman</th>
         <th data-field="sorumlu_personel">Sorumlu</th>
         <th data-field="marka">Marka/Model</th>
-        <th style="width:180px;">İşlemler</th>
+        <th style="width: 180px">İşlemler</th>
       </tr>
     </thead>
     <tbody>
@@ -36,9 +47,8 @@
         <td>{{ row.sorumlu_personel }}</td>
         <td>{{ row.marka }} {{ row.model }}</td>
         <td class="text-nowrap">
-          {% set entity = 'inventory' %}
-          {% set row_id = row.id %}
-          {% include 'partials/_actions_menu.html' %}
+          {% set entity = 'inventory' %} {% set row_id = row.id %} {% include
+          'partials/_actions_menu.html' %}
         </td>
       </tr>
       {% endfor %}
@@ -48,8 +58,14 @@
 
 <style>
   /* Satırın tamamı tıklanmasın */
-  tr.inv-row { cursor: default; }
-  tr.inv-row a, tr.inv-row button, tr.inv-row select { cursor: pointer; }
+  tr.inv-row {
+    cursor: default;
+  }
+  tr.inv-row a,
+  tr.inv-row button,
+  tr.inv-row select {
+    cursor: pointer;
+  }
 </style>
 
 <!-- Yeni Ekle Modal -->
@@ -58,10 +74,18 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Envanter Ekle</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body p-0">
-        <iframe id="addFrame" src="" style="width:100%;height:70vh;border:0;"></iframe>
+        <iframe
+          id="addFrame"
+          src=""
+          style="width: 100%; height: 70vh; border: 0"
+        ></iframe>
       </div>
     </div>
   </div>
@@ -73,13 +97,23 @@
     <form id="filterForm" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Filtrele</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body">
         <div id="filterRows"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Kapat</button>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          data-bs-dismiss="modal"
+        >
+          Kapat
+        </button>
         <button type="submit" class="btn btn-primary btn-sm">Uygula</button>
       </div>
     </form>
@@ -92,25 +126,41 @@
     <form id="assignForm" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Envanter Atama</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body row g-3">
-        <input type="hidden" name="item_id" id="assign_item_id">
+        <input type="hidden" name="item_id" id="assign_item_id" />
         <div class="col-md-3">
           <label class="form-label">Fabrika</label>
           <select name="fabrika" id="selFabrika" class="form-select"></select>
         </div>
         <div class="col-md-3">
           <label class="form-label">Departman</label>
-          <select name="departman" id="selDepartman" class="form-select"></select>
+          <select
+            name="departman"
+            id="selDepartman"
+            class="form-select"
+          ></select>
         </div>
         <div class="col-md-3">
           <label class="form-label">Sorumlu Personel</label>
-          <select name="sorumlu_personel" id="selPersonel" class="form-select"></select>
+          <select
+            name="sorumlu_personel"
+            id="selPersonel"
+            class="form-select"
+          ></select>
         </div>
         <div class="col-md-3">
           <label class="form-label">Bağlı Olduğu Envanter</label>
-          <select name="bagli_envanter_no" id="selBagli" class="form-select"></select>
+          <select
+            name="bagli_envanter_no"
+            id="selBagli"
+            class="form-select"
+          ></select>
         </div>
       </div>
       <div class="modal-footer">
@@ -126,19 +176,29 @@
     <form id="scrapForm" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Hurdaya Ayır</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body">
-        <input type="hidden" name="item_id" id="scrap_item_id">
+        <input type="hidden" name="item_id" id="scrap_item_id" />
         <p>Bu envanter hurdaya ayrılacak. Onaylıyor musunuz?</p>
         <div class="mb-2">
           <label class="form-label">Açıklama (opsiyonel)</label>
-          <textarea name="aciklama" class="form-control" rows="3"
-            placeholder="Hurda sebebi / not"></textarea>
+          <textarea
+            name="aciklama"
+            class="form-control"
+            rows="3"
+            placeholder="Hurda sebebi / not"
+          ></textarea>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Vazgeç</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">
+          Vazgeç
+        </button>
         <button class="btn btn-danger" type="submit">Hurdaya Ayır</button>
       </div>
     </form>
@@ -146,49 +206,60 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const assignModal = new bootstrap.Modal(document.getElementById('assignModal'));
-  const scrapModal  = new bootstrap.Modal(document.getElementById('scrapModal'));
-  const addModal    = new bootstrap.Modal(document.getElementById('addModal'));
-  const filterModal = new bootstrap.Modal(document.getElementById('filterModal'));
+  document.addEventListener("DOMContentLoaded", () => {
+    const assignModal = new bootstrap.Modal(
+      document.getElementById("assignModal"),
+    );
+    const scrapModal = new bootstrap.Modal(
+      document.getElementById("scrapModal"),
+    );
+    const addModal = new bootstrap.Modal(document.getElementById("addModal"));
+    const filterModal = new bootstrap.Modal(
+      document.getElementById("filterModal"),
+    );
 
-  const searchInput   = document.getElementById('searchInput');
-  const filterForm    = document.getElementById('filterForm');
-  const clearBtn      = document.getElementById('clearFilterBtn');
-  const filterRowsDiv = document.getElementById('filterRows');
-  const distinctUrl   = "{{ url_for('lookup.distinct', entity='inventory', column='__COL__') }}";
-  let activeFilters = [];
-  const columns = Array.from(document.querySelectorAll('table thead th'))
-    .map((th, idx) => ({ idx, name: th.textContent.trim(), field: th.dataset.field }))
-    .filter(c => c.field);
+    const searchInput = document.getElementById("searchInput");
+    const filterForm = document.getElementById("filterForm");
+    const clearBtn = document.getElementById("clearFilterBtn");
+    const filterRowsDiv = document.getElementById("filterRows");
+    const distinctUrl =
+      "{{ url_for('lookup.distinct', entity='inventory', column='__COL__') }}";
+    let activeFilters = [];
+    const columns = Array.from(document.querySelectorAll("table thead th"))
+      .map((th, idx) => ({
+        idx,
+        name: th.textContent.trim(),
+        field: th.dataset.field,
+      }))
+      .filter((c) => c.field);
 
-  document.getElementById('addBtn').addEventListener('click', () => {
-    document.getElementById('addFrame').src = '/inventory/new';
-    addModal.show();
-  });
+    document.getElementById("addBtn").addEventListener("click", () => {
+      document.getElementById("addFrame").src = "/inventory/new";
+      addModal.show();
+    });
 
-  document.getElementById('filterBtn').addEventListener('click', () => {
-    filterForm.reset();
-    filterRowsDiv.innerHTML = '';
-    createFilterRow();
-    filterModal.show();
-  });
+    document.getElementById("filterBtn").addEventListener("click", () => {
+      filterForm.reset();
+      filterRowsDiv.innerHTML = "";
+      createFilterRow();
+      filterModal.show();
+    });
 
-  clearBtn.addEventListener('click', () => {
-    activeFilters = [];
-    filterRows();
-    clearBtn.classList.add('d-none');
-  });
+    clearBtn.addEventListener("click", () => {
+      activeFilters = [];
+      filterRows();
+      clearBtn.classList.add("d-none");
+    });
 
-  searchInput.addEventListener('input', filterRows);
+    searchInput.addEventListener("input", filterRows);
 
-  function createFilterRow() {
-    const row = document.createElement('div');
-    row.className = 'row g-2 align-items-center mb-2 filter-row';
-    row.innerHTML = `
+    function createFilterRow() {
+      const row = document.createElement("div");
+      row.className = "row g-2 align-items-center mb-2 filter-row";
+      row.innerHTML = `
       <div class="col-5">
         <select class="form-select form-select-sm column-select">
-          ${columns.map(c => `<option value="${c.idx}">${c.name}</option>`).join('')}
+          ${columns.map((c) => `<option value="${c.idx}">${c.name}</option>`).join("")}
         </select>
       </div>
       <div class="col-5">
@@ -198,117 +269,157 @@ document.addEventListener('DOMContentLoaded', () => {
         <button type="button" class="btn btn-success btn-sm add-row">+</button>
         <button type="button" class="btn btn-danger btn-sm remove-row">-</button>
       </div>`;
-    filterRowsDiv.appendChild(row);
-    const colSel = row.querySelector('.column-select');
-    const valSel = row.querySelector('.value-select');
-    loadValues(colSel, valSel);
-    colSel.addEventListener('change', () => loadValues(colSel, valSel));
-    updateRemoveButtons();
-  }
-
-  async function loadValues(colSelect, valSelect) {
-    const col = columns.find(c => c.idx == colSelect.value);
-    const res = await fetch(distinctUrl.replace('__COL__', col.field));
-    const data = await res.json();
-    valSelect.innerHTML = '<option value="">Seçiniz</option>' +
-      data.map(v => `<option value="${v}">${v}</option>`).join('');
-  }
-
-  function updateRemoveButtons() {
-    const rows = filterRowsDiv.querySelectorAll('.filter-row');
-    rows.forEach(r => r.querySelector('.remove-row').classList.toggle('d-none', rows.length === 1));
-  }
-
-  filterForm.addEventListener('click', (e) => {
-    if (e.target.classList.contains('add-row')) {
-      createFilterRow();
-    } else if (e.target.classList.contains('remove-row')) {
-      e.target.closest('.filter-row').remove();
+      filterRowsDiv.appendChild(row);
+      const colSel = row.querySelector(".column-select");
+      const valSel = row.querySelector(".value-select");
+      loadValues(colSel, valSel);
+      colSel.addEventListener("change", () => loadValues(colSel, valSel));
       updateRemoveButtons();
     }
-  });
 
-  filterForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    activeFilters = [];
-    filterRowsDiv.querySelectorAll('.filter-row').forEach(row => {
-      const col = parseInt(row.querySelector('.column-select').value, 10);
-      const val = row.querySelector('.value-select').value.trim().toLowerCase();
-      if (val) activeFilters.push({ col, val });
-    });
-    filterModal.hide();
-    clearBtn.classList.toggle('d-none', activeFilters.length === 0);
-    filterRows();
-  });
+    async function loadValues(colSelect, valSelect) {
+      const col = columns.find((c) => c.idx == colSelect.value);
+      const res = await fetch(distinctUrl.replace("__COL__", col.field));
+      const data = await res.json();
+      valSelect.innerHTML =
+        '<option value="">Seçiniz</option>' +
+        data.map((v) => `<option value="${v}">${v}</option>`).join("");
+    }
 
-  function filterRows() {
-    const q = searchInput.value.toLowerCase();
-    document.querySelectorAll('tbody tr').forEach(tr => {
-      const cells = tr.querySelectorAll('td');
-      const texts = Array.from(cells).map(td => td.textContent.toLowerCase());
-      let match = texts.some(t => t.includes(q));
-      if (activeFilters.length) {
-        match = match && activeFilters.every(f => texts[f.col] && texts[f.col].includes(f.val));
+    function updateRemoveButtons() {
+      const rows = filterRowsDiv.querySelectorAll(".filter-row");
+      rows.forEach((r) =>
+        r
+          .querySelector(".remove-row")
+          .classList.toggle("d-none", rows.length === 1),
+      );
+    }
+
+    filterForm.addEventListener("click", (e) => {
+      if (e.target.classList.contains("add-row")) {
+        createFilterRow();
+      } else if (e.target.classList.contains("remove-row")) {
+        e.target.closest(".filter-row").remove();
+        updateRemoveButtons();
       }
-      tr.classList.toggle('d-none', !match);
     });
-  }
 
-  // İşlem seçimi
-  document.querySelectorAll('.action-select').forEach(sel => {
-    sel.addEventListener('change', async (e) => {
-      const id = e.target.dataset.id;
-      const val = e.target.value;
-      if (!val) return;
-
-      if (val === 'assign') {
-        await preloadAssignDropdowns(id);
-        document.getElementById('assign_item_id').value = id;
-        assignModal.show();
-      } else if (val === 'edit') {
-        window.location.href = `{{ url_for('inventory.edit', item_id='__ID__') }}`.replace('__ID__', id);
-      } else if (val === 'scrap') {
-        document.getElementById('scrap_item_id').value = id;
-        scrapModal.show();
-      }
-      e.target.value = '';
+    filterForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      activeFilters = [];
+      filterRowsDiv.querySelectorAll(".filter-row").forEach((row) => {
+        const col = parseInt(row.querySelector(".column-select").value, 10);
+        const val = row
+          .querySelector(".value-select")
+          .value.trim()
+          .toLowerCase();
+        if (val) activeFilters.push({ col, val });
+      });
+      filterModal.hide();
+      clearBtn.classList.toggle("d-none", activeFilters.length === 0);
+      filterRows();
     });
-  });
 
-  async function preloadAssignDropdowns(itemId) {
-    const [fabr, dept, users, invs] = await Promise.all([
-      fetch(`{{ url_for('inventory.assign_sources') }}?type=fabrika`).then(r=>r.json()),
-      fetch(`{{ url_for('inventory.assign_sources') }}?type=departman`).then(r=>r.json()),
-      fetch(`{{ url_for('inventory.assign_sources') }}?type=users`).then(r=>r.json()),
-      fetch(`{{ url_for('inventory.assign_sources') }}?type=envanter&exclude_id=` + itemId).then(r=>r.json()),
-    ]);
-    fillSelect('selFabrika', fabr);
-    fillSelect('selDepartman', dept);
-    fillSelect('selPersonel', users);
-    fillSelect('selBagli', invs);
-  }
-  function fillSelect(id, arr) {
-    const el = document.getElementById(id);
-    el.innerHTML = '<option value="">Seçiniz</option>' + arr.map(x =>
-      `<option value="${x.id}">${x.text}</option>`).join('');
-  }
+    function filterRows() {
+      const q = searchInput.value.toLowerCase();
+      document.querySelectorAll("tbody tr").forEach((tr) => {
+        const cells = tr.querySelectorAll("td");
+        const texts = Array.from(cells).map((td) =>
+          td.textContent.toLowerCase(),
+        );
+        let match = texts.some((t) => t.includes(q));
+        if (activeFilters.length) {
+          match =
+            match &&
+            activeFilters.every(
+              (f) => texts[f.col] && texts[f.col].includes(f.val),
+            );
+        }
+        tr.classList.toggle("d-none", !match);
+      });
+    }
 
-  // Atama submit
-  document.getElementById('assignForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const res = await fetch(`{{ url_for('inventory.assign') }}`, { method: 'POST', body: fd });
-    if (res.ok) location.reload(); else alert('Atama kaydedilemedi');
-  });
+    // İşlem seçimi
+    document.querySelectorAll(".action-select").forEach((sel) => {
+      sel.addEventListener("change", async (e) => {
+        const id = e.target.dataset.id;
+        const val = e.target.value;
+        if (!val) return;
 
-  // Hurda submit
-  document.getElementById('scrapForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const res = await fetch(`{{ url_for('inventory.scrap') }}`, { method: 'POST', body: fd });
-    if (res.ok) window.location.href = `{{ url_for('inventory.hurdalar') }}`;
-    else alert('Hurdaya ayırma başarısız');
+        if (val === "assign") {
+          await preloadAssignDropdowns(id);
+          document.getElementById("assign_item_id").value = id;
+          assignModal.show();
+        } else if (val === "edit") {
+          window.location.href =
+            `{{ url_for('inventory.edit', item_id='__ID__') }}`.replace(
+              "__ID__",
+              id,
+            );
+        } else if (val === "scrap") {
+          document.getElementById("scrap_item_id").value = id;
+          scrapModal.show();
+        }
+        e.target.value = "";
+      });
+    });
+
+    async function preloadAssignDropdowns(itemId) {
+      const [fabr, dept, users, invs] = await Promise.all([
+        fetch(`{{ url_for('inventory.assign_sources') }}?type=fabrika`).then(
+          (r) => r.json(),
+        ),
+        fetch(`{{ url_for('inventory.assign_sources') }}?type=departman`).then(
+          (r) => r.json(),
+        ),
+        fetch(`{{ url_for('inventory.assign_sources') }}?type=users`).then(
+          (r) => r.json(),
+        ),
+        fetch(
+          `{{ url_for('inventory.assign_sources') }}?type=envanter&exclude_id=` +
+            itemId,
+        ).then((r) => r.json()),
+      ]);
+      fillSelect("selFabrika", fabr);
+      fillSelect("selDepartman", dept);
+      fillSelect("selPersonel", users);
+      fillSelect("selBagli", invs);
+    }
+    function fillSelect(id, arr) {
+      const el = document.getElementById(id);
+      el.innerHTML =
+        '<option value="">Seçiniz</option>' +
+        arr.map((x) => `<option value="${x.id}">${x.text}</option>`).join("");
+    }
+
+    // Atama submit
+    document
+      .getElementById("assignForm")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const res = await fetch(`{{ url_for('inventory.assign') }}`, {
+          method: "POST",
+          body: fd,
+        });
+        if (res.ok) location.reload();
+        else alert("Atama kaydedilemedi");
+      });
+
+    // Hurda submit
+    document
+      .getElementById("scrapForm")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const res = await fetch(`{{ url_for('inventory.scrap') }}`, {
+          method: "POST",
+          body: fd,
+        });
+        if (res.ok)
+          window.location.href = `{{ url_for('inventory.hurdalar') }}`;
+        else alert("Hurdaya ayırma başarısız");
+      });
   });
-});
 </script>
 {% endblock %}

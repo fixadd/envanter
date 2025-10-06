@@ -1,11 +1,16 @@
-{% extends "base.html" %}
-{% block title %}Yazıcı Takip{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Yazıcı Takip{% endblock %} {% block
+content %}
 <div class="container-fluid p-3">
   <h5 class="mb-3">Yazıcılar</h5>
   <div class="d-flex justify-content-between mb-3">
     <div class="d-flex gap-2">
-      <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#yaziciEkleModal">Ekle</button>
+      <button
+        class="btn btn-success btn-sm"
+        data-bs-toggle="modal"
+        data-bs-target="#yaziciEkleModal"
+      >
+        Ekle
+      </button>
       <button class="btn btn-secondary btn-sm">Düzenle</button>
       <button class="btn btn-danger btn-sm">Sil</button>
     </div>
@@ -16,14 +21,18 @@
         <option value="100">100</option>
       </select>
       <button class="btn btn-primary btn-sm">🔍</button>
-      <input type="text" class="form-control form-control-sm" placeholder="Ara...">
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        placeholder="Ara..."
+      />
     </div>
   </div>
   <div class="table-responsive">
     <table class="table table-hover">
       <thead>
         <tr>
-          <th><input type="checkbox" onclick="stopRowClick(event)"></th>
+          <th><input type="checkbox" onclick="stopRowClick(event)" /></th>
           <th>Envanter No</th>
           <th>Marka</th>
           <th>Model</th>
@@ -36,7 +45,12 @@
         {% for r in rows %}
         <tr data-href="/printers/{{ r.id }}">
           <td>
-            <input type="checkbox" name="select_row" value="{{ r.id }}" onclick="stopRowClick(event)">
+            <input
+              type="checkbox"
+              name="select_row"
+              value="{{ r.id }}"
+              onclick="stopRowClick(event)"
+            />
           </td>
           <td>{{ r.envanter_no }}</td>
           <td>{{ r.brand.name if r.brand else "" }}</td>
@@ -44,12 +58,24 @@
           <td>{{ r.ip_adresi or '-' }}</td>
           <td>{{ r.kullanim_alani or '' }}</td>
           <td class="text-nowrap">
-            <a class="btn btn-sm btn-outline-primary" href="/printers/{{ r.id }}/edit" onclick="stopRowClick(event)">Düzenle</a>
-            <button class="btn btn-sm btn-outline-warning" onclick="stopRowClick(event); openTonerModal('{{ r.id }}')">Toner</button>
+            <a
+              class="btn btn-sm btn-outline-primary"
+              href="/printers/{{ r.id }}/edit"
+              onclick="stopRowClick(event)"
+              >Düzenle</a
+            >
+            <button
+              class="btn btn-sm btn-outline-warning"
+              onclick="stopRowClick(event); openTonerModal('{{ r.id }}')"
+            >
+              Toner
+            </button>
           </td>
         </tr>
         {% else %}
-        <tr><td colspan="7" class="text-muted">Kayıt yok</td></tr>
+        <tr>
+          <td colspan="7" class="text-muted">Kayıt yok</td>
+        </tr>
         {% endfor %}
       </tbody>
     </table>
@@ -60,53 +86,78 @@
       <form method="post" action="/printers" class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Yazıcı Ekle</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
         </div>
         <div class="modal-body">
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">Marka</label>
-              <select id="selYaziciMarka" name="marka_id" class="form-select"></select>
+              <select
+                id="selYaziciMarka"
+                name="marka_id"
+                class="form-select"
+              ></select>
             </div>
             <div class="col-md-6">
               <label class="form-label">Model</label>
-              <select id="selYaziciModel" name="model_id" class="form-select"></select>
+              <select
+                id="selYaziciModel"
+                name="model_id"
+                class="form-select"
+              ></select>
             </div>
             <div class="col-md-6">
               <label class="form-label">Kullanım Alanı</label>
-              <select id="selYaziciKullanim" name="kullanim_alani_id" class="form-select"></select>
+              <select
+                id="selYaziciKullanim"
+                name="kullanim_alani_id"
+                class="form-select"
+              ></select>
             </div>
             <div class="col-md-6">
               <label class="form-label">Envanter No</label>
-              <input name="envanter_no" class="form-control" required>
+              <input name="envanter_no" class="form-control" required />
             </div>
             <div class="col-md-4">
               <label class="form-label">IP Adresi</label>
-              <input name="ip_adresi" class="form-control">
+              <input name="ip_adresi" class="form-control" />
             </div>
             <div class="col-md-4">
               <label class="form-label">MAC</label>
-              <input name="mac" class="form-control">
+              <input name="mac" class="form-control" />
             </div>
             <div class="col-md-4">
               <label class="form-label">Hostname</label>
-              <input name="hostname" class="form-control">
+              <input name="hostname" class="form-control" />
             </div>
             <div class="col-md-4">
               <label class="form-label">IFS No</label>
-              <input name="ifs_no" class="form-control">
+              <input name="ifs_no" class="form-control" />
             </div>
             <div class="col-md-4">
               <label class="form-label">Tarih</label>
-              <input name="tarih" class="form-control" placeholder="YYYY-MM-DD">
+              <input
+                name="tarih"
+                class="form-control"
+                placeholder="YYYY-MM-DD"
+              />
             </div>
             <div class="col-md-4">
               <label class="form-label">İşlem Yapan</label>
-              <input name="islem_yapan" class="form-control">
+              <input name="islem_yapan" class="form-control" />
             </div>
             <div class="col-md-6">
               <label class="form-label">Sorumlu Personel</label>
-              <select id="selYaziciPersonel" name="sorumlu_personel" class="form-select">
+              <select
+                id="selYaziciPersonel"
+                name="sorumlu_personel"
+                class="form-select"
+              >
                 <option value="">Seçiniz</option>
                 {% for u in users %}
                 <option value="{{ u.full_name }}">{{ u.full_name }}</option>
@@ -115,7 +166,11 @@
             </div>
             <div class="col-md-6">
               <label class="form-label">Bağlı Envanter No</label>
-              <select id="selYaziciBagliEnvanter" name="bagli_envanter_no" class="form-select"></select>
+              <select
+                id="selYaziciBagliEnvanter"
+                name="bagli_envanter_no"
+                class="form-select"
+              ></select>
             </div>
           </div>
         </div>
@@ -127,36 +182,53 @@
   </div>
 </div>
 
-<link href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" rel="stylesheet">
+<link
+  href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"
+  rel="stylesheet"
+/>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
 <script src="/static/js/choices_helpers.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const modalEl = document.getElementById('yaziciEkleModal');
-  if (!modalEl) return;
+  document.addEventListener("DOMContentLoaded", () => {
+    const modalEl = document.getElementById("yaziciEkleModal");
+    if (!modalEl) return;
 
-  modalEl.addEventListener('shown.bs.modal', async () => {
-    try {
-      await choicesHelper.fillChoices({ endpoint: "/api/lookup/marka",          selectId: "selYaziciMarka",   placeholder: "Marka seçiniz…" });
-      await choicesHelper.fillChoices({ endpoint: "/api/lookup/kullanim-alani", selectId: "selYaziciKullanim", placeholder: "Kullanım alanı seçiniz…" });
+    modalEl.addEventListener("shown.bs.modal", async () => {
+      try {
+        await choicesHelper.fillChoices({
+          endpoint: "/api/lookup/marka",
+          selectId: "selYaziciMarka",
+          placeholder: "Marka seçiniz…",
+        });
+        await choicesHelper.fillChoices({
+          endpoint: "/api/lookup/kullanim-alani",
+          selectId: "selYaziciKullanim",
+          placeholder: "Kullanım alanı seçiniz…",
+        });
 
-      // Marka → Model
-      choicesHelper.bindBrandToModel("selYaziciMarka", "selYaziciModel");
+        // Marka → Model
+        choicesHelper.bindBrandToModel("selYaziciMarka", "selYaziciModel");
 
-      // Personel ve Bağlı Envanter
-      choicesHelper.initPersonelChoices("selYaziciPersonel", "Personel seçiniz…");
-      await choicesHelper.initBagliEnvanterChoices("selYaziciBagliEnvanter", 'table tbody a[href^="/inventory/"]');
-    } catch (e) {
-      console.error(e);
-    }
+        // Personel ve Bağlı Envanter
+        choicesHelper.initPersonelChoices(
+          "selYaziciPersonel",
+          "Personel seçiniz…",
+        );
+        await choicesHelper.initBagliEnvanterChoices(
+          "selYaziciBagliEnvanter",
+          'table tbody a[href^="/inventory/"]',
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    });
   });
-});
 </script>
 
 <script>
-function openTonerModal(id){
-  // … modal aç; satır yönlendirmesi tetiklenmez
-}
+  function openTonerModal(id) {
+    // … modal aç; satır yönlendirmesi tetiklenmez
+  }
 </script>
 {% endblock %}

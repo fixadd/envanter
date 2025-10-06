@@ -7,9 +7,8 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from auth import get_db
-from security import SessionUser, current_user
 from models import StockAssignment, StockLog
-
+from security import SessionUser, current_user
 
 router = APIRouter(prefix="/stock", tags=["Stock"])
 templates = Jinja2Templates(directory="templates")
@@ -42,9 +41,9 @@ def current_stock(db: Session):
         db.query(
             plus.c.donanim_tipi,
             plus.c.ifs_no,
-            (func.coalesce(plus.c.sum_plus, 0) - func.coalesce(minus.c.sum_minus, 0)).label(
-                "stok"
-            ),
+            (
+                func.coalesce(plus.c.sum_plus, 0) - func.coalesce(minus.c.sum_minus, 0)
+            ).label("stok"),
         )
         .outerjoin(
             minus,
@@ -70,9 +69,7 @@ def current_stock(db: Session):
     )
 
     all_rows = rows + orphan_minus
-    return [
-        {"donanim_tipi": r[0], "ifs_no": r[1], "stok": int(r[2])} for r in all_rows
-    ]
+    return [{"donanim_tipi": r[0], "ifs_no": r[1], "stok": int(r[2])} for r in all_rows]
 
 
 @router.get("", response_class=HTMLResponse)
@@ -132,7 +129,11 @@ def assign_stock(
 
     snapshot = current_stock(db)
     match = next(
-        (r for r in snapshot if r["donanim_tipi"] == donanim_tipi and r["ifs_no"] == ifs_no),
+        (
+            r
+            for r in snapshot
+            if r["donanim_tipi"] == donanim_tipi and r["ifs_no"] == ifs_no
+        ),
         None,
     )
     mevcut = match["stok"] if match else 0
@@ -167,4 +168,3 @@ def assign_stock(
 
     db.commit()
     return JSONResponse({"ok": True})
-

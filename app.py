@@ -1,44 +1,52 @@
 from __future__ import annotations
-import os, secrets
+
+import os
+import secrets
 from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request, Form, Depends, status, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import Depends, FastAPI, Form, HTTPException, Request, status
 from fastapi.exception_handlers import http_exception_handler
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from starlette.middleware.sessions import SessionMiddleware
-from starlette import status as st_status
 from sqlalchemy.orm import Session
+from starlette import status as st_status
+from starlette.middleware.sessions import SessionMiddleware
 
-from models import init_db
-from db_bootstrap import bootstrap_schema
 from auth import (
     get_db,
-    get_user_by_username,
     get_user_by_id,
-    verify_password,
+    get_user_by_username,
     hash_password,
+    verify_password,
 )
+from db_bootstrap import bootstrap_schema
+from models import init_db
+from routers import admin as admin_router
+from routers import catalog as catalog_router
 from routers import (
     home,
-    inventory as inventory_router,
-    license as license_router,
-    printers as printers_router,
+    integrations,
+)
+from routers import inventory as inventory_router
+from routers import license as license_router
+from routers import (
+    logs,
+    lookup,
+)
+from routers import panel as panel_router
+from routers import printers as printers_router
+from routers import (
     printers_scrap_list,
-    catalog as catalog_router,
-    requests as reqs,
+    profile,
+    refdata,
+)
+from routers import requests as reqs
+from routers import (
     stock,
     trash,
-    profile,
-    admin as admin_router,
-    integrations,
-    logs,
-    refdata,
-    panel as panel_router,
 )
-from routers import lookup
 from security import current_user, require_roles
 
 load_dotenv()
@@ -61,6 +69,7 @@ DEFAULT_ADMIN_FULLNAME = os.getenv("DEFAULT_ADMIN_FULLNAME", "Sistem Yöneticisi
 # --- App & Middleware ---------------------------------------------------------
 app = FastAPI(title="Envanter Takip – Login")
 
+
 @app.exception_handler(HTTPException)
 async def redirect_on_auth(request, exc: HTTPException):
     """Handle custom redirect signals while delegating other errors.
@@ -78,6 +87,7 @@ async def redirect_on_auth(request, exc: HTTPException):
     # Delegate to FastAPI's standard HTTP exception handler for all other
     # errors so the appropriate status code (e.g. 404) is returned.
     return await http_exception_handler(request, exc)
+
 
 app.add_middleware(
     SessionMiddleware,
@@ -100,26 +110,52 @@ app.include_router(license_router.router, dependencies=[Depends(current_user)])
 app.include_router(printers_router.router, dependencies=[Depends(current_user)])
 app.include_router(printers_scrap_list.router, dependencies=[Depends(current_user)])
 app.include_router(catalog_router.router, dependencies=[Depends(current_user)])
-app.include_router(reqs.router, prefix="/requests", tags=["Requests"], dependencies=[Depends(current_user)])
+app.include_router(
+    reqs.router,
+    prefix="/requests",
+    tags=["Requests"],
+    dependencies=[Depends(current_user)],
+)
 app.include_router(stock.router, dependencies=[Depends(current_user)])
-app.include_router(trash.router, prefix="/trash", tags=["Trash"], dependencies=[Depends(current_user)])
-app.include_router(profile.router, prefix="/profile", tags=["Profile"], dependencies=[Depends(current_user)])
-app.include_router(integrations.router, prefix="/integrations", tags=["Integrations"], dependencies=[Depends(current_user)])
+app.include_router(
+    trash.router, prefix="/trash", tags=["Trash"], dependencies=[Depends(current_user)]
+)
+app.include_router(
+    profile.router,
+    prefix="/profile",
+    tags=["Profile"],
+    dependencies=[Depends(current_user)],
+)
+app.include_router(
+    integrations.router,
+    prefix="/integrations",
+    tags=["Integrations"],
+    dependencies=[Depends(current_user)],
+)
 app.include_router(lookup.router)
 app.include_router(refdata.router, dependencies=[Depends(current_user)])
 
 # Sadece admin
-app.include_router(logs.router, prefix="/logs", tags=["Logs"], dependencies=[Depends(require_roles("admin"))])
+app.include_router(
+    logs.router,
+    prefix="/logs",
+    tags=["Logs"],
+    dependencies=[Depends(require_roles("admin"))],
+)
 app.include_router(admin_router.router, dependencies=[Depends(require_roles("admin"))])
+
 
 # --- Startup: DB init & default admin ----------------------------------------
 @app.on_event("startup")
 def on_startup():
     from models import SessionLocal, User
+
     init_db()
     db = SessionLocal()
     try:
-        existing = db.query(User).filter(User.username == DEFAULT_ADMIN_USERNAME).first()
+        existing = (
+            db.query(User).filter(User.username == DEFAULT_ADMIN_USERNAME).first()
+        )
         if not existing:
             u = User(
                 username=DEFAULT_ADMIN_USERNAME,
@@ -132,14 +168,19 @@ def on_startup():
     finally:
         db.close()
 
+
 # --- CSRF yardımcıları --------------------------------------------------------
 def _ensure_csrf(request: Request) -> str:
     token = secrets.token_urlsafe(32)
     request.session["csrf_token"] = token
     return token
 
+
 def _check_csrf(request: Request, token_from_form: Optional[str]) -> bool:
-    return bool(token_from_form) and request.session.get("csrf_token") == token_from_form
+    return (
+        bool(token_from_form) and request.session.get("csrf_token") == token_from_form
+    )
+
 
 # --- Login/Logout -------------------------------------------------------------
 @app.get("/login", response_class=HTMLResponse)
@@ -160,6 +201,7 @@ async def login_form(request: Request):
             "saved_password": saved_password,
         },
     )
+
 
 @app.post("/login", response_class=HTMLResponse)
 async def login_submit(
@@ -214,6 +256,7 @@ async def login_submit(
         response.delete_cookie("saved_username")
         response.delete_cookie("saved_password")
     return response
+
 
 @app.get("/logout")
 async def logout(request: Request):

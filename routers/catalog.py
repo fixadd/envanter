@@ -2,14 +2,16 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from auth import get_db
-from models import Brand, Model, UsageArea, Factory, LicenseName, HardwareType
+from models import Brand, Factory, HardwareType, LicenseName, Model, UsageArea
 
 router = APIRouter(prefix="/catalog", tags=["Katalog"])
+
 
 @router.get("/brands")
 def list_brands(db: Session = Depends(get_db)):
     items = db.query(Brand).order_by(Brand.name.asc()).all()
     return [{"id": b.id, "name": b.name} for b in items]
+
 
 @router.get("/models")
 def list_models(brand_id: int, db: Session = Depends(get_db)):
@@ -45,6 +47,7 @@ def list_hardware_types(db: Session = Depends(get_db)):
     items = db.query(HardwareType).order_by(HardwareType.name.asc()).all()
     return [{"id": h.id, "name": h.name} for h in items]
 
+
 @router.post("/brands")
 def create_brand(name: str, db: Session = Depends(get_db)):
     name = (name or "").strip()
@@ -57,6 +60,7 @@ def create_brand(name: str, db: Session = Depends(get_db)):
     db.add(b)
     db.commit()
     return {"ok": True, "id": b.id}
+
 
 @router.post("/models")
 def create_model(brand_id: int, name: str, db: Session = Depends(get_db)):

@@ -1,6 +1,5 @@
-{% extends "base.html" %}
-{% block title %}Hurdalar{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Hurdalar{% endblock %} {% block
+content %}
 <div class="container-fluid p-3">
   <h5 class="mb-3">Hurdalar</h5>
   <div class="table-responsive">
@@ -18,8 +17,7 @@
         </tr>
       </thead>
       <tbody>
-      {% if mode == "table" %}
-        {% for r in rows %}
+        {% if mode == "table" %} {% for r in rows %}
         <tr>
           <td>#{{ r.printer_id }}</td>
           <td>{{ r.snapshot.marka }} {{ r.snapshot.model }}</td>
@@ -30,9 +28,7 @@
           <td>{{ r.snapshot.bagli_envanter_no or '-' }}</td>
           <td>{{ r.created_at.strftime("%d.%m.%Y %H:%M") }}</td>
         </tr>
-        {% endfor %}
-      {% else %}
-        {% for p in rows %}
+        {% endfor %} {% else %} {% for p in rows %}
         <tr>
           <td>#{{ p.id }}</td>
           <td>{{ p.marka }} {{ p.model }}</td>
@@ -43,11 +39,9 @@
           <td>{{ p.bagli_envanter_no or '-' }}</td>
           <td>-</td>
         </tr>
-        {% endfor %}
-      {% endif %}
+        {% endfor %} {% endif %}
       </tbody>
     </table>
   </div>
 </div>
 {% endblock %}
-

@@ -1,9 +1,11 @@
 (function () {
-  function go(url) { window.location.href = url; }
+  function go(url) {
+    window.location.href = url;
+  }
 
   // Detay (göz)
-  document.addEventListener('click', function (e) {
-    const btn = e.target.closest('.js-view');
+  document.addEventListener("click", function (e) {
+    const btn = e.target.closest(".js-view");
     if (!btn) return;
     const { entity, id } = btn.dataset;
     if (!entity || !id) return;
@@ -11,8 +13,8 @@
   });
 
   // İşlemler select
-  document.addEventListener('change', function (e) {
-    const sel = e.target.closest('.js-actions');
+  document.addEventListener("change", function (e) {
+    const sel = e.target.closest(".js-actions");
     if (!sel) return;
     const { entity, id } = sel.dataset;
     const val = sel.value;
@@ -22,15 +24,19 @@
     // assign -> /{entity}/{id}/assign
     // edit   -> /{entity}/{id}/edit
     // scrap  -> /{entity}/{id}/scrap
-    const map = { assign: 'assign', edit: 'edit', scrap: 'scrap' };
+    const map = { assign: "assign", edit: "edit", scrap: "scrap" };
     if (map[val]) go(`/${entity}/${id}/${map[val]}`);
-    sel.value = '';
+    sel.value = "";
   });
 
   // Eğer tüm satır tıklanıyorsa iptal etmek istersen:
-  document.addEventListener('click', function (e) {
-    const rowLink = e.target.closest('.js-row-link');
-    if (rowLink && !e.target.closest('.js-view') && !e.target.closest('.js-actions')) {
+  document.addEventListener("click", function (e) {
+    const rowLink = e.target.closest(".js-row-link");
+    if (
+      rowLink &&
+      !e.target.closest(".js-view") &&
+      !e.target.closest(".js-actions")
+    ) {
       e.stopPropagation();
       e.preventDefault();
     }
