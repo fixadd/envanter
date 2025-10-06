@@ -44,6 +44,25 @@ def bootstrap_schema() -> None:
             stmts.append("ALTER TABLE licenses ADD COLUMN durum TEXT DEFAULT 'aktif';")
         if "notlar" not in cols:
             stmts.append("ALTER TABLE licenses ADD COLUMN notlar TEXT;")
+        if "license_code" not in cols:
+            stmts.append("ALTER TABLE licenses ADD COLUMN license_code TEXT;")
+            stmts.append(
+                "CREATE UNIQUE INDEX IF NOT EXISTS ix_licenses_license_code ON licenses(license_code);"
+            )
+        if "license_type" not in cols:
+            stmts.append("ALTER TABLE licenses ADD COLUMN license_type TEXT;")
+        if "seat_count" not in cols:
+            stmts.append("ALTER TABLE licenses ADD COLUMN seat_count INTEGER DEFAULT 1;")
+        if "start_date" not in cols:
+            stmts.append("ALTER TABLE licenses ADD COLUMN start_date DATE;")
+        if "end_date" not in cols:
+            stmts.append("ALTER TABLE licenses ADD COLUMN end_date DATE;")
+        if "factory_id" not in cols:
+            stmts.append("ALTER TABLE licenses ADD COLUMN factory_id INTEGER;")
+        if "department_id" not in cols:
+            stmts.append("ALTER TABLE licenses ADD COLUMN department_id INTEGER;")
+        if "owner_id" not in cols:
+            stmts.append("ALTER TABLE licenses ADD COLUMN owner_id INTEGER;")
 
         for stmt in stmts:
             conn.exec_driver_sql(stmt)
@@ -127,6 +146,31 @@ def init_db() -> None:
     insp = inspect(engine)
     cols = {col["name"] for col in insp.get_columns("licenses")}
     with engine.begin() as conn:
+        if "license_code" not in cols:
+            conn.execute(text("ALTER TABLE licenses ADD COLUMN license_code VARCHAR(64)"))
+            conn.execute(
+                text(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS ix_licenses_license_code ON licenses(license_code)"
+                )
+            )
+        if "license_type" not in cols:
+            conn.execute(text("ALTER TABLE licenses ADD COLUMN license_type VARCHAR(32)"))
+        if "seat_count" not in cols:
+            conn.execute(
+                text(
+                    "ALTER TABLE licenses ADD COLUMN seat_count INTEGER DEFAULT 1"
+                )
+            )
+        if "start_date" not in cols:
+            conn.execute(text("ALTER TABLE licenses ADD COLUMN start_date DATE"))
+        if "end_date" not in cols:
+            conn.execute(text("ALTER TABLE licenses ADD COLUMN end_date DATE"))
+        if "factory_id" not in cols:
+            conn.execute(text("ALTER TABLE licenses ADD COLUMN factory_id INTEGER"))
+        if "department_id" not in cols:
+            conn.execute(text("ALTER TABLE licenses ADD COLUMN department_id INTEGER"))
+        if "owner_id" not in cols:
+            conn.execute(text("ALTER TABLE licenses ADD COLUMN owner_id INTEGER"))
         if "lisans_adi" not in cols:
             if "adi" in cols:
                 conn.execute(
@@ -181,6 +225,15 @@ def init_db() -> None:
         if "mail_adresi" not in cols:
             conn.execute(
                 text("ALTER TABLE licenses ADD COLUMN mail_adresi VARCHAR(200)")
+            )
+        if "departments" not in insp.get_table_names():
+            conn.execute(
+                text(
+                    "CREATE TABLE IF NOT EXISTS departments ("
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    "name VARCHAR(150) NOT NULL UNIQUE"
+                    ")"
+                )
             )
 
     # -- License Logs ----------------------------------------------------------
