@@ -355,6 +355,7 @@ def edit_printer_post(
     ifs_no: str = Form(None),
     marka_id: str = Form(None),
     model_id: str = Form(None),
+    kullanim_alani: str = Form(None),
     kullanim_alani_id: str = Form(None),
     modal: bool = False,
     db: Session = Depends(get_db),
@@ -415,14 +416,14 @@ def edit_printer_post(
     if ifs_no is not None:
         new_vals["ifs_no"] = ifs_no or None
 
-    if kullanim_alani_id is not None:
-        usage_name = None
+    if kullanim_alani_id is not None or kullanim_alani is not None:
+        usage_name = kullanim_alani or None
         usage_pk = parse_int(kullanim_alani_id)
         if kullanim_alani_id == "":
             usage_name = None
         elif usage_pk is not None:
             area = db.get(UsageArea, usage_pk)
-            usage_name = area.name if area else None
+            usage_name = area.name if area else usage_name
         new_vals["kullanim_alani"] = usage_name
 
     if not new_vals:

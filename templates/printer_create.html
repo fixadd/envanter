@@ -44,9 +44,36 @@ content %}
       placeholder: "Kullanım alanı seçiniz…",
     });
     await _selects.bindMarkaModel("selYaziciMarka", "selYaziciModel");
-    _selects.enableRemoteSearch("selYaziciModel", "/api/lookup/model", () => ({
-      marka_id: document.getElementById("selYaziciMarka").value || "",
-    }));
+
+    const brandSelect = document.getElementById("selYaziciMarka");
+    const modelSelect = document.getElementById("selYaziciModel");
+    const usageSelect = document.getElementById("selYaziciKullanim");
+    const hiddenBrand = document.getElementById("printerMarkaName");
+    const hiddenModel = document.getElementById("printerModelName");
+    const hiddenUsage = document.getElementById("printerUsageName");
+
+    _selects.enableRemoteSearch("selYaziciModel", "/api/lookup/model", () => {
+      const raw = brandSelect?.value || "";
+      const parsed = Number.parseInt(raw, 10);
+      if (!Number.isFinite(parsed)) {
+        return { __skip: true };
+      }
+      return { marka_id: parsed };
+    });
+
+    const syncHidden = (select, hidden) => {
+      if (!select || !hidden) return;
+      const update = () => {
+        const opt = select.options[select.selectedIndex];
+        hidden.value = opt ? opt.text.trim() : "";
+      };
+      select.addEventListener("change", update);
+      update();
+    };
+
+    syncHidden(brandSelect, hiddenBrand);
+    syncHidden(modelSelect, hiddenModel);
+    syncHidden(usageSelect, hiddenUsage);
   });
 </script>
 {% endblock %}

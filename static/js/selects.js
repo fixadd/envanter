@@ -88,7 +88,8 @@ async function bindMarkaModel(markaSelectId, modelSelectId) {
   async function updateModels() {
     const m = markaEl.value;
     if (aborter) aborter.abort();
-    if (!m) {
+    const parsed = Number.parseInt(m, 10);
+    if (!m || Number.isNaN(parsed)) {
       modelInst.clearStore();
       modelInst.disable();
       return;
@@ -99,7 +100,7 @@ async function bindMarkaModel(markaSelectId, modelSelectId) {
       await fillChoices({
         endpoint: "/api/lookup/model",
         selectId: modelSelectId,
-        params: { marka_id: m },
+        params: { marka_id: parsed },
         placeholder: "Model seçiniz…",
         signal: aborter.signal,
       });
@@ -132,10 +133,17 @@ function enableRemoteSearch(
     "input",
     debounce(async () => {
       const q = input.value.trim();
+      const extras = extraParamsFn ? extraParamsFn() : {};
+      if (extras === false) return;
+      const params = { q, ...(extras || {}) };
+      if (params.__skip) {
+        return;
+      }
+      delete params.__skip;
       await fillChoices({
         endpoint,
         selectId,
-        params: { q, ...extraParamsFn() },
+        params,
         keepValue: false,
         mapFn,
       });
