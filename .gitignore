@@ -89,3 +89,36 @@ lerna-debug.log
 # System Files
 .DS_Store
 Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.sqlite
+*.db
+*.log
+.mypy_cache/
+.pytest_cache/
+*.coverage
+coverage.xml
+
+# Env/Secrets
+.env
+.env.*.local
+
+# Node/Vite
+node_modules/
+dist/
+build/
+*.map
+
+# Editors/OS
+.vscode/
+.idea/
+.DS_Store
+
+# Data / Dumps / Uploads
+data/
+uploads/
+reports/

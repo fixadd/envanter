@@ -13,27 +13,16 @@ from auth import get_user_by_username
 from database import get_db
 from routers import bilgiler as bilgiler_router
 from routers import catalog as catalog_router
-from routers import (
-    faults,
-)
+from routers import faults
 from routers import home as home_router
 from routers import inventory as inventory_router
 from routers import license as license_router
-from routers import (
-    logs,
-)
+from routers import logs
 from routers import panel as panel_router
 from routers import printers as printers_router
-from routers import (
-    printers_scrap_list,
-    profile,
-    refdata,
-)
+from routers import printers_scrap_list, profile, refdata
 from routers import requests as requests_router
-from routers import (
-    stock,
-    trash,
-)
+from routers import stock, trash
 from routers.api import router as api_router
 from routers.lookup import router as lookup_router
 from routers.picker import router as picker_router
