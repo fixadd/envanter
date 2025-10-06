@@ -52,7 +52,9 @@ def bootstrap_schema() -> None:
         if "license_type" not in cols:
             stmts.append("ALTER TABLE licenses ADD COLUMN license_type TEXT;")
         if "seat_count" not in cols:
-            stmts.append("ALTER TABLE licenses ADD COLUMN seat_count INTEGER DEFAULT 1;")
+            stmts.append(
+                "ALTER TABLE licenses ADD COLUMN seat_count INTEGER DEFAULT 1;"
+            )
         if "start_date" not in cols:
             stmts.append("ALTER TABLE licenses ADD COLUMN start_date DATE;")
         if "end_date" not in cols:
@@ -147,19 +149,21 @@ def init_db() -> None:
     cols = {col["name"] for col in insp.get_columns("licenses")}
     with engine.begin() as conn:
         if "license_code" not in cols:
-            conn.execute(text("ALTER TABLE licenses ADD COLUMN license_code VARCHAR(64)"))
+            conn.execute(
+                text("ALTER TABLE licenses ADD COLUMN license_code VARCHAR(64)")
+            )
             conn.execute(
                 text(
                     "CREATE UNIQUE INDEX IF NOT EXISTS ix_licenses_license_code ON licenses(license_code)"
                 )
             )
         if "license_type" not in cols:
-            conn.execute(text("ALTER TABLE licenses ADD COLUMN license_type VARCHAR(32)"))
+            conn.execute(
+                text("ALTER TABLE licenses ADD COLUMN license_type VARCHAR(32)")
+            )
         if "seat_count" not in cols:
             conn.execute(
-                text(
-                    "ALTER TABLE licenses ADD COLUMN seat_count INTEGER DEFAULT 1"
-                )
+                text("ALTER TABLE licenses ADD COLUMN seat_count INTEGER DEFAULT 1")
             )
         if "start_date" not in cols:
             conn.execute(text("ALTER TABLE licenses ADD COLUMN start_date DATE"))
