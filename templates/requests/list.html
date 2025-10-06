@@ -1,24 +1,58 @@
-{% extends "base.html" %}
-{% block title %}Talep Takip{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Talep Takip{% endblock %} {% block
+content %}
 <div class="container-fluid p-3">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0">Talep Takip</h5>
     <div class="d-flex gap-2">
-      <a href="/requests/export" class="btn btn-outline-secondary btn-sm">Excel</a>
-      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#talepModal">Talep Aç</button>
+      <a href="/requests/export" class="btn btn-outline-secondary btn-sm"
+        >Excel</a
+      >
+      <button
+        class="btn btn-primary btn-sm"
+        data-bs-toggle="modal"
+        data-bs-target="#talepModal"
+      >
+        Talep Aç
+      </button>
     </div>
   </div>
 
   <ul class="nav nav-tabs mb-3" id="talepTabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="tab-aktif-tab" data-bs-toggle="tab" data-bs-target="#tab-aktif" type="button" role="tab">Aktif</button>
+      <button
+        class="nav-link active"
+        id="tab-aktif-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#tab-aktif"
+        type="button"
+        role="tab"
+      >
+        Aktif
+      </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="tab-kapali-tab" data-bs-toggle="tab" data-bs-target="#tab-kapali" type="button" role="tab">Kapalı</button>
+      <button
+        class="nav-link"
+        id="tab-kapali-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#tab-kapali"
+        type="button"
+        role="tab"
+      >
+        Kapalı
+      </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="tab-iptal-tab" data-bs-toggle="tab" data-bs-target="#tab-iptal" type="button" role="tab">İptal</button>
+      <button
+        class="nav-link"
+        id="tab-iptal-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#tab-iptal"
+        type="button"
+        role="tab"
+      >
+        İptal
+      </button>
     </li>
   </ul>
 
@@ -26,45 +60,65 @@
     <div class="tab-pane fade show active" id="tab-aktif" role="tabpanel">
       <div class="accordion" id="accAktif">
         {% for ifs, talepler in gruplu['aktif'].items() %}
-          <div class="accordion-item mb-2">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a{{ loop.index }}">
-                IFS No: {{ 'Yok' if ifs.startswith('NO-IFS') else ifs }} — ({{ talepler|length }} talep)
-              </button>
-            </h2>
-            <div id="a{{ loop.index }}" class="accordion-collapse collapse" data-bs-parent="#accAktif">
-              <div class="accordion-body p-0">
-                <div class="table-responsive">
-                  <table class="table table-sm align-middle mb-0">
-                    <thead>
-                      <tr>
-                        <th>#</th><th>Tür</th><th>Marka</th><th>Model</th><th>Miktar</th>
-                        <th>Envanter No</th><th>Lisans Adı</th><th>Sorumlu</th><th>Açıklama</th><th>Tarih</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for t in talepler %}
-                      <tr>
-                        <td>{{ t.id }}</td>
-                        <td>{{ t.tur }}</td>
-                        <td>{{ t.marka or '-' }}</td>
-                        <td>{{ t.model or '-' }}</td>
-                        <td>{{ t.miktar or '-' }}</td>
-                        <td>{{ t.envanter_no or t.bagli_envanter_no or '-' }}</td>
-                        <td>{{ t.lisans_adi or '-' }}</td>
-                        <td>{{ t.sorumlu_personel or '-' }}</td>
-                        <td>{{ t.aciklama or '-' }}</td>
-                        <td>{{ t.olusturma_tarihi.strftime('%Y-%m-%d %H:%M') }}</td>
-                      </tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                </div>
+        <div class="accordion-item mb-2">
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#a{{ loop.index }}"
+            >
+              IFS No: {{ 'Yok' if ifs.startswith('NO-IFS') else ifs }} — ({{
+              talepler|length }} talep)
+            </button>
+          </h2>
+          <div
+            id="a{{ loop.index }}"
+            class="accordion-collapse collapse"
+            data-bs-parent="#accAktif"
+          >
+            <div class="accordion-body p-0">
+              <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Tür</th>
+                      <th>Marka</th>
+                      <th>Model</th>
+                      <th>Miktar</th>
+                      <th>Envanter No</th>
+                      <th>Lisans Adı</th>
+                      <th>Sorumlu</th>
+                      <th>Açıklama</th>
+                      <th>Tarih</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for t in talepler %}
+                    <tr>
+                      <td>{{ t.id }}</td>
+                      <td>{{ t.tur }}</td>
+                      <td>{{ t.marka or '-' }}</td>
+                      <td>{{ t.model or '-' }}</td>
+                      <td>{{ t.miktar or '-' }}</td>
+                      <td>{{ t.envanter_no or t.bagli_envanter_no or '-' }}</td>
+                      <td>{{ t.lisans_adi or '-' }}</td>
+                      <td>{{ t.sorumlu_personel or '-' }}</td>
+                      <td>{{ t.aciklama or '-' }}</td>
+                      <td>
+                        {{ t.olusturma_tarihi.strftime('%Y-%m-%d %H:%M') }}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
+        </div>
         {% else %}
-          <div class="alert alert-secondary">Aktif talep bulunamadı.</div>
+        <div class="alert alert-secondary">Aktif talep bulunamadı.</div>
         {% endfor %}
       </div>
     </div>
@@ -72,45 +126,65 @@
     <div class="tab-pane fade" id="tab-kapali" role="tabpanel">
       <div class="accordion" id="accKapali">
         {% for ifs, talepler in gruplu['kapali'].items() %}
-          <div class="accordion-item mb-2">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#k{{ loop.index }}">
-                IFS No: {{ 'Yok' if ifs.startswith('NO-IFS') else ifs }} — ({{ talepler|length }} talep)
-              </button>
-            </h2>
-            <div id="k{{ loop.index }}" class="accordion-collapse collapse" data-bs-parent="#accKapali">
-              <div class="accordion-body p-0">
-                <div class="table-responsive">
-                  <table class="table table-sm align-middle mb-0">
-                    <thead>
-                      <tr>
-                        <th>#</th><th>Tür</th><th>Marka</th><th>Model</th><th>Miktar</th>
-                        <th>Envanter No</th><th>Lisans Adı</th><th>Sorumlu</th><th>Açıklama</th><th>Tarih</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for t in talepler %}
-                      <tr>
-                        <td>{{ t.id }}</td>
-                        <td>{{ t.tur }}</td>
-                        <td>{{ t.marka or '-' }}</td>
-                        <td>{{ t.model or '-' }}</td>
-                        <td>{{ t.miktar or '-' }}</td>
-                        <td>{{ t.envanter_no or t.bagli_envanter_no or '-' }}</td>
-                        <td>{{ t.lisans_adi or '-' }}</td>
-                        <td>{{ t.sorumlu_personel or '-' }}</td>
-                        <td>{{ t.aciklama or '-' }}</td>
-                        <td>{{ t.olusturma_tarihi.strftime('%Y-%m-%d %H:%M') }}</td>
-                      </tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                </div>
+        <div class="accordion-item mb-2">
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#k{{ loop.index }}"
+            >
+              IFS No: {{ 'Yok' if ifs.startswith('NO-IFS') else ifs }} — ({{
+              talepler|length }} talep)
+            </button>
+          </h2>
+          <div
+            id="k{{ loop.index }}"
+            class="accordion-collapse collapse"
+            data-bs-parent="#accKapali"
+          >
+            <div class="accordion-body p-0">
+              <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Tür</th>
+                      <th>Marka</th>
+                      <th>Model</th>
+                      <th>Miktar</th>
+                      <th>Envanter No</th>
+                      <th>Lisans Adı</th>
+                      <th>Sorumlu</th>
+                      <th>Açıklama</th>
+                      <th>Tarih</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for t in talepler %}
+                    <tr>
+                      <td>{{ t.id }}</td>
+                      <td>{{ t.tur }}</td>
+                      <td>{{ t.marka or '-' }}</td>
+                      <td>{{ t.model or '-' }}</td>
+                      <td>{{ t.miktar or '-' }}</td>
+                      <td>{{ t.envanter_no or t.bagli_envanter_no or '-' }}</td>
+                      <td>{{ t.lisans_adi or '-' }}</td>
+                      <td>{{ t.sorumlu_personel or '-' }}</td>
+                      <td>{{ t.aciklama or '-' }}</td>
+                      <td>
+                        {{ t.olusturma_tarihi.strftime('%Y-%m-%d %H:%M') }}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
+        </div>
         {% else %}
-          <div class="alert alert-secondary">Kapalı talep bulunamadı.</div>
+        <div class="alert alert-secondary">Kapalı talep bulunamadı.</div>
         {% endfor %}
       </div>
     </div>
@@ -118,45 +192,65 @@
     <div class="tab-pane fade" id="tab-iptal" role="tabpanel">
       <div class="accordion" id="accIptal">
         {% for ifs, talepler in gruplu['iptal'].items() %}
-          <div class="accordion-item mb-2">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#i{{ loop.index }}">
-                IFS No: {{ 'Yok' if ifs.startswith('NO-IFS') else ifs }} — ({{ talepler|length }} talep)
-              </button>
-            </h2>
-            <div id="i{{ loop.index }}" class="accordion-collapse collapse" data-bs-parent="#accIptal">
-              <div class="accordion-body p-0">
-                <div class="table-responsive">
-                  <table class="table table-sm align-middle mb-0">
-                    <thead>
-                      <tr>
-                        <th>#</th><th>Tür</th><th>Marka</th><th>Model</th><th>Miktar</th>
-                        <th>Envanter No</th><th>Lisans Adı</th><th>Sorumlu</th><th>Açıklama</th><th>Tarih</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for t in talepler %}
-                      <tr>
-                        <td>{{ t.id }}</td>
-                        <td>{{ t.tur }}</td>
-                        <td>{{ t.marka or '-' }}</td>
-                        <td>{{ t.model or '-' }}</td>
-                        <td>{{ t.miktar or '-' }}</td>
-                        <td>{{ t.envanter_no or t.bagli_envanter_no or '-' }}</td>
-                        <td>{{ t.lisans_adi or '-' }}</td>
-                        <td>{{ t.sorumlu_personel or '-' }}</td>
-                        <td>{{ t.aciklama or '-' }}</td>
-                        <td>{{ t.olusturma_tarihi.strftime('%Y-%m-%d %H:%M') }}</td>
-                      </tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                </div>
+        <div class="accordion-item mb-2">
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#i{{ loop.index }}"
+            >
+              IFS No: {{ 'Yok' if ifs.startswith('NO-IFS') else ifs }} — ({{
+              talepler|length }} talep)
+            </button>
+          </h2>
+          <div
+            id="i{{ loop.index }}"
+            class="accordion-collapse collapse"
+            data-bs-parent="#accIptal"
+          >
+            <div class="accordion-body p-0">
+              <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Tür</th>
+                      <th>Marka</th>
+                      <th>Model</th>
+                      <th>Miktar</th>
+                      <th>Envanter No</th>
+                      <th>Lisans Adı</th>
+                      <th>Sorumlu</th>
+                      <th>Açıklama</th>
+                      <th>Tarih</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for t in talepler %}
+                    <tr>
+                      <td>{{ t.id }}</td>
+                      <td>{{ t.tur }}</td>
+                      <td>{{ t.marka or '-' }}</td>
+                      <td>{{ t.model or '-' }}</td>
+                      <td>{{ t.miktar or '-' }}</td>
+                      <td>{{ t.envanter_no or t.bagli_envanter_no or '-' }}</td>
+                      <td>{{ t.lisans_adi or '-' }}</td>
+                      <td>{{ t.sorumlu_personel or '-' }}</td>
+                      <td>{{ t.aciklama or '-' }}</td>
+                      <td>
+                        {{ t.olusturma_tarihi.strftime('%Y-%m-%d %H:%M') }}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
+        </div>
         {% else %}
-          <div class="alert alert-secondary">İptal talep bulunamadı.</div>
+        <div class="alert alert-secondary">İptal talep bulunamadı.</div>
         {% endfor %}
       </div>
     </div>
@@ -166,10 +260,18 @@
 <!-- Talep Aç Modal -->
 <div class="modal fade" id="talepModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <form id="frmTalep" class="modal-content" onsubmit="return talepGonder(event)">
+    <form
+      id="frmTalep"
+      class="modal-content"
+      onsubmit="return talepGonder(event)"
+    >
       <div class="modal-header">
         <h5 class="modal-title">Talep Aç</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
 
       <div class="modal-body">
@@ -187,19 +289,25 @@
         <div class="row g-2">
           <div class="col-6">
             <label class="form-label">IFS No (opsiyonel)</label>
-            <input name="ifs_no" class="form-control" placeholder="IFS No">
+            <input name="ifs_no" class="form-control" placeholder="IFS No" />
           </div>
           <div class="col-6">
             <label class="form-label">Miktar (opsiyonel)</label>
-            <input name="miktar" type="number" min="1" class="form-control" placeholder="Miktar">
+            <input
+              name="miktar"
+              type="number"
+              min="1"
+              class="form-control"
+              placeholder="Miktar"
+            />
           </div>
           <div class="col-6">
             <label class="form-label">Marka (opsiyonel)</label>
-            <input name="marka" class="form-control" placeholder="Marka">
+            <input name="marka" class="form-control" placeholder="Marka" />
           </div>
           <div class="col-6">
             <label class="form-label">Model (opsiyonel)</label>
-            <input name="model" class="form-control" placeholder="Model">
+            <input name="model" class="form-control" placeholder="Model" />
           </div>
         </div>
 
@@ -208,15 +316,27 @@
           <div class="row g-2">
             <div class="col-6">
               <label class="form-label">Envanter No (opsiyonel)</label>
-              <input name="envanter_no" class="form-control" placeholder="Envanter No">
+              <input
+                name="envanter_no"
+                class="form-control"
+                placeholder="Envanter No"
+              />
             </div>
             <div class="col-6">
               <label class="form-label">Sorumlu Personel (opsiyonel)</label>
-              <input name="sorumlu_personel" class="form-control" placeholder="Ad Soyad">
+              <input
+                name="sorumlu_personel"
+                class="form-control"
+                placeholder="Ad Soyad"
+              />
             </div>
             <div class="col-12">
               <label class="form-label">Bağlı Envanter No (opsiyonel)</label>
-              <input name="bagli_envanter_no" class="form-control" placeholder="Bağlı Envanter No">
+              <input
+                name="bagli_envanter_no"
+                class="form-control"
+                placeholder="Bağlı Envanter No"
+              />
             </div>
           </div>
         </div>
@@ -226,7 +346,11 @@
           <div class="row g-2">
             <div class="col-12">
               <label class="form-label">Lisans Adı (opsiyonel)</label>
-              <input name="lisans_adi" class="form-control" placeholder="Lisans Adı">
+              <input
+                name="lisans_adi"
+                class="form-control"
+                placeholder="Lisans Adı"
+              />
             </div>
           </div>
         </div>
@@ -234,12 +358,19 @@
         <!-- İsteğe bağlı açıklama -->
         <div class="mt-3">
           <label class="form-label">Açıklama (opsiyonel)</label>
-          <textarea name="aciklama" class="form-control" rows="2" placeholder="Not"></textarea>
+          <textarea
+            name="aciklama"
+            class="form-control"
+            rows="2"
+            placeholder="Not"
+          ></textarea>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Kapat</button>
+        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">
+          Kapat
+        </button>
         <button class="btn btn-primary" type="submit">Kaydet</button>
       </div>
     </form>
@@ -247,26 +378,26 @@
 </div>
 
 <script>
-  const turSel = document.getElementById('tur');
-  const grpEnvanter = document.getElementById('grpEnvanter');
-  const grpLisans = document.getElementById('grpLisans');
+  const turSel = document.getElementById("tur");
+  const grpEnvanter = document.getElementById("grpEnvanter");
+  const grpLisans = document.getElementById("grpLisans");
 
   function toggleGroups() {
     const val = turSel.value;
-    grpEnvanter.classList.toggle('d-none', val !== 'envanter');
-    grpLisans.classList.toggle('d-none', val !== 'lisans');
+    grpEnvanter.classList.toggle("d-none", val !== "envanter");
+    grpLisans.classList.toggle("d-none", val !== "lisans");
   }
-  turSel.addEventListener('change', toggleGroups);
+  turSel.addEventListener("change", toggleGroups);
   toggleGroups();
 
   async function talepGonder(e) {
     e.preventDefault();
-    const form = document.getElementById('frmTalep');
+    const form = document.getElementById("frmTalep");
     const fd = new FormData(form);
-    const res = await fetch('/requests', { method: 'POST', body: fd });
+    const res = await fetch("/requests", { method: "POST", body: fd });
     const data = await res.json();
     if (data.ok) location.reload();
-    else alert('Kayıt hatası');
+    else alert("Kayıt hatası");
     return false;
   }
 </script>

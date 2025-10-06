@@ -1,10 +1,11 @@
-{% extends "base.html" %}
-{% block title %}Envanter Detay - {{ inv.no }}{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Envanter Detay - {{ inv.no }}{%
+endblock %} {% block content %}
 <div class="container-fluid p-3">
   <div class="d-flex align-items-center justify-content-between mb-2">
     <h5>Envanter: {{ inv.no }}</h5>
-    <a href="/inventory" class="btn btn-sm btn-outline-secondary">← Listeye dön</a>
+    <a href="/inventory" class="btn btn-sm btn-outline-secondary"
+      >← Listeye dön</a
+    >
   </div>
 
   <div class="row g-3">
@@ -13,19 +14,32 @@
         <div class="card-header">Temel Bilgiler</div>
         <div class="card-body">
           <div class="row">
-            <div class="col-5 text-muted">Fabrika</div><div class="col-7">{{ inv.fabrika }}</div>
-            <div class="col-5 text-muted">Departman</div><div class="col-7">{{ inv.departman }}</div>
-            <div class="col-5 text-muted">Donanım Tipi</div><div class="col-7">{{ inv.donanim_tipi }}</div>
-            <div class="col-5 text-muted">Bilgisayar Adı</div><div class="col-7">{{ inv.bilgisayar_adi }}</div>
-            <div class="col-5 text-muted">Marka</div><div class="col-7">{{ inv.marka }}</div>
-            <div class="col-5 text-muted">Model</div><div class="col-7">{{ inv.model }}</div>
-            <div class="col-5 text-muted">Seri No</div><div class="col-7">{{ inv.seri_no }}</div>
-            <div class="col-5 text-muted">Sorumlu Personel</div><div class="col-7">{{ inv.sorumlu_personel }}</div>
-            <div class="col-5 text-muted">Bağlı Envanter No</div><div class="col-7">{{ inv.bagli_envanter_no }}</div>
-            <div class="col-5 text-muted">IFS No</div><div class="col-7">{{ inv.ifs_no }}</div>
-            <div class="col-5 text-muted">Tarih</div><div class="col-7">{{ inv.tarih }}</div>
-            <div class="col-5 text-muted">İşlem Yapan</div><div class="col-7">{{ inv.islem_yapan }}</div>
-            <div class="col-5 text-muted">Not</div><div class="col-7"><pre class="mb-0">{{ inv.not_ }}</pre></div>
+            <div class="col-5 text-muted">Fabrika</div>
+            <div class="col-7">{{ inv.fabrika }}</div>
+            <div class="col-5 text-muted">Departman</div>
+            <div class="col-7">{{ inv.departman }}</div>
+            <div class="col-5 text-muted">Donanım Tipi</div>
+            <div class="col-7">{{ inv.donanim_tipi }}</div>
+            <div class="col-5 text-muted">Bilgisayar Adı</div>
+            <div class="col-7">{{ inv.bilgisayar_adi }}</div>
+            <div class="col-5 text-muted">Marka</div>
+            <div class="col-7">{{ inv.marka }}</div>
+            <div class="col-5 text-muted">Model</div>
+            <div class="col-7">{{ inv.model }}</div>
+            <div class="col-5 text-muted">Seri No</div>
+            <div class="col-7">{{ inv.seri_no }}</div>
+            <div class="col-5 text-muted">Sorumlu Personel</div>
+            <div class="col-7">{{ inv.sorumlu_personel }}</div>
+            <div class="col-5 text-muted">Bağlı Envanter No</div>
+            <div class="col-7">{{ inv.bagli_envanter_no }}</div>
+            <div class="col-5 text-muted">IFS No</div>
+            <div class="col-7">{{ inv.ifs_no }}</div>
+            <div class="col-5 text-muted">Tarih</div>
+            <div class="col-7">{{ inv.tarih }}</div>
+            <div class="col-5 text-muted">İşlem Yapan</div>
+            <div class="col-7">{{ inv.islem_yapan }}</div>
+            <div class="col-5 text-muted">Not</div>
+            <div class="col-7"><pre class="mb-0">{{ inv.not_ }}</pre></div>
           </div>
         </div>
       </div>
@@ -36,11 +50,8 @@
         <div class="card-header">Değişiklik Geçmişi</div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            {% set islem_map = {
-              "assign": "Atama",
-              "edit": "Düzenleme",
-              "scrap": "Hurdaya Ayır"
-            } %}
+            {% set islem_map = { "assign": "Atama", "edit": "Düzenleme",
+            "scrap": "Hurdaya Ayır" } %}
             <table class="table table-sm table-striped mb-0">
               <thead>
                 <tr>
@@ -60,24 +71,24 @@
 
                   <!-- Önce -->
                   <td>
-                    {% if log.before_json %}
-                      {% for k, v in log.before_json.items() %}
-                        <div><strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v }}</div>
-                      {% endfor %}
-                    {% else %}
-                      Yok
-                    {% endif %}
+                    {% if log.before_json %} {% for k, v in
+                    log.before_json.items() %}
+                    <div>
+                      <strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v
+                      }}
+                    </div>
+                    {% endfor %} {% else %} Yok {% endif %}
                   </td>
 
                   <!-- Sonra -->
                   <td>
-                    {% if log.after_json %}
-                      {% for k, v in log.after_json.items() %}
-                        <div><strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v }}</div>
-                      {% endfor %}
-                    {% else %}
-                      Yok
-                    {% endif %}
+                    {% if log.after_json %} {% for k, v in
+                    log.after_json.items() %}
+                    <div>
+                      <strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v
+                      }}
+                    </div>
+                    {% endfor %} {% else %} Yok {% endif %}
                   </td>
 
                   <!-- Not / Kullanıcı -->
@@ -88,7 +99,9 @@
                   <td>{{ log.created_at.strftime("%d.%m.%Y %H:%M:%S") }}</td>
                 </tr>
                 {% else %}
-                <tr><td colspan="6" class="text-muted">Henüz değişiklik yok</td></tr>
+                <tr>
+                  <td colspan="6" class="text-muted">Henüz değişiklik yok</td>
+                </tr>
                 {% endfor %}
               </tbody>
             </table>
@@ -100,20 +113,27 @@
 
   <h6 class="mt-4">Bağlı Lisanslar</h6>
   <ul class="list-group">
-    {% if lisanslar and lisanslar|length %}
-      {% for l in lisanslar %}
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <span>{{ l.lisans_adi }}{% if l.lisans_anahtari %} - {{ l.lisans_anahtari }}{% endif %}</span>
-        <div class="d-flex align-items-center gap-2">
-          <span class="text-muted">{{ l.durum or 'Aktif' }}</span>
-          <button class="btn btn-sm btn-outline-secondary license-detail-btn" data-id="{{ l.id }}" title="Detayları Göster">
-            <i class="bi bi-eye"></i>
-          </button>
-        </div>
-      </li>
-      {% endfor %}
-    {% else %}
-      <li class="list-group-item text-muted">Kayıtlı lisans yok.</li>
+    {% if lisanslar and lisanslar|length %} {% for l in lisanslar %}
+    <li
+      class="list-group-item d-flex justify-content-between align-items-center"
+    >
+      <span
+        >{{ l.lisans_adi }}{% if l.lisans_anahtari %} - {{ l.lisans_anahtari
+        }}{% endif %}</span
+      >
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-muted">{{ l.durum or 'Aktif' }}</span>
+        <button
+          class="btn btn-sm btn-outline-secondary license-detail-btn"
+          data-id="{{ l.id }}"
+          title="Detayları Göster"
+        >
+          <i class="bi bi-eye"></i>
+        </button>
+      </div>
+    </li>
+    {% endfor %} {% else %}
+    <li class="list-group-item text-muted">Kayıtlı lisans yok.</li>
     {% endif %}
   </ul>
 
@@ -122,7 +142,11 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Lisans Detayı</h5>
-          <button class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+          <button
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Kapat"
+          ></button>
         </div>
         <div class="modal-body" id="licenseDetailBody">Yükleniyor...</div>
       </div>
@@ -130,17 +154,17 @@
   </div>
 
   <script>
-  document.querySelectorAll('.license-detail-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const id = btn.dataset.id;
-      const r = await fetch('/lisans/detail/' + id);
-      const h = await r.text();
-      document.getElementById('licenseDetailBody').innerHTML = h;
-      new bootstrap.Modal(document.getElementById('licenseDetailModal')).show();
+    document.querySelectorAll(".license-detail-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        const r = await fetch("/lisans/detail/" + id);
+        const h = await r.text();
+        document.getElementById("licenseDetailBody").innerHTML = h;
+        new bootstrap.Modal(
+          document.getElementById("licenseDetailModal"),
+        ).show();
+      });
     });
-  });
   </script>
-
 </div>
 {% endblock %}
-

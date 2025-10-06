@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-import sqlite3, sys, os
+import os
+import sqlite3
+import sys
 
 DB_PATH = os.environ.get("ENV_DB_PATH", "/app/data/envanter.db")
 
@@ -12,6 +14,7 @@ REQUIRED_COLS = [
     ("durum", "TEXT DEFAULT 'Aktif'"),
     ("notlar", "TEXT"),
 ]
+
 
 def main():
     if not os.path.exists(DB_PATH):
@@ -46,6 +49,7 @@ def main():
     con.commit()
     con.close()
     print("[✓] Eksik kolon(lar) eklendi.")
+
 
 if __name__ == "__main__":
     main()

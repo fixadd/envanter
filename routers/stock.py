@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request, UploadFile, File
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import (
     HTMLResponse,
     JSONResponse,
-    RedirectResponse,
     PlainTextResponse,
+    RedirectResponse,
     StreamingResponse,
 )
 from fastapi.templating import Jinja2Templates
@@ -13,22 +13,25 @@ from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 
 from database import get_db
+from models import HardwareType, StockAssignment, StockLog, UsageArea
 from security import SessionUser, current_user
-from models import StockAssignment, StockLog, HardwareType, UsageArea
-
 
 router = APIRouter(prefix="/stock", tags=["Stock"])
 templates = Jinja2Templates(directory="templates")
 
+
 @router.get("/export")
 async def export_stock(db: Session = Depends(get_db)):
     """Export stock logs as an Excel file."""
-    from openpyxl import Workbook
     from io import BytesIO
+
+    from openpyxl import Workbook
 
     wb = Workbook()
     ws = wb.active
-    ws.append(["ID", "Donanım Tipi", "Miktar", "IFS No", "Tarih", "İşlem", "İşlem Yapan"])
+    ws.append(
+        ["ID", "Donanım Tipi", "Miktar", "IFS No", "Tarih", "İşlem", "İşlem Yapan"]
+    )
 
     logs = db.query(StockLog).order_by(StockLog.id.asc()).all()
     for l in logs:
@@ -54,6 +57,7 @@ async def export_stock(db: Session = Depends(get_db)):
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers=headers,
     )
+
 
 @router.post("/import", response_class=PlainTextResponse)
 async def import_stock(file: UploadFile = File(...)):
@@ -87,9 +91,9 @@ def current_stock(db: Session):
         db.query(
             plus.c.donanim_tipi,
             plus.c.ifs_no,
-            (func.coalesce(plus.c.sum_plus, 0) - func.coalesce(minus.c.sum_minus, 0)).label(
-                "stok"
-            ),
+            (
+                func.coalesce(plus.c.sum_plus, 0) - func.coalesce(minus.c.sum_minus, 0)
+            ).label("stok"),
         )
         .outerjoin(
             minus,
@@ -115,16 +119,19 @@ def current_stock(db: Session):
     )
 
     all_rows = rows + orphan_minus
-    return [
-        {"donanim_tipi": r[0], "ifs_no": r[1], "stok": int(r[2])} for r in all_rows
-    ]
+    return [{"donanim_tipi": r[0], "ifs_no": r[1], "stok": int(r[2])} for r in all_rows]
 
 
 @router.get("", response_class=HTMLResponse)
 def stock_list(request: Request, db: Session = Depends(get_db)):
     logs = db.query(StockLog).order_by(StockLog.tarih.desc(), StockLog.id.desc()).all()
     hardware_types = db.query(HardwareType).order_by(HardwareType.name).all()
-    users = [r[0] for r in db.execute(text("SELECT full_name FROM users ORDER BY full_name")).fetchall()]
+    users = [
+        r[0]
+        for r in db.execute(
+            text("SELECT full_name FROM users ORDER BY full_name")
+        ).fetchall()
+    ]
     usage_areas = db.query(UsageArea).order_by(UsageArea.name).all()
     return templates.TemplateResponse(
         "stock_list.html",
@@ -148,7 +155,9 @@ def add_log(
     user: SessionUser = Depends(current_user),
 ):
     if islem not in ("girdi", "cikti", "hurda"):
-        raise HTTPException(status_code=400, detail="islem sadece girdi|cikti|hurda olabilir")
+        raise HTTPException(
+            status_code=400, detail="islem sadece girdi|cikti|hurda olabilir"
+        )
     if miktar <= 0:
         raise HTTPException(status_code=400, detail="miktar > 0 olmalı")
 
@@ -195,7 +204,11 @@ def assign_stock(
 
     snapshot = current_stock(db)
     match = next(
-        (r for r in snapshot if r["donanim_tipi"] == donanim_tipi and r["ifs_no"] == ifs_no),
+        (
+            r
+            for r in snapshot
+            if r["donanim_tipi"] == donanim_tipi and r["ifs_no"] == ifs_no
+        ),
         None,
     )
     mevcut = match["stok"] if match else 0
@@ -230,4 +243,3 @@ def assign_stock(
 
     db.commit()
     return JSONResponse({"ok": True})
-

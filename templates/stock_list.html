@@ -1,34 +1,64 @@
-{% extends "base.html" %}
-{% block title %}Stok Logları{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Stok Logları{% endblock %} {% block
+content %}
 <div class="container-fluid p-3">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h5 class="mb-0">Stok Logları (En Güncel)</h5>
     <div class="d-flex gap-2">
-      <button class="btn btn-outline-info btn-sm" type="button"
-              data-bs-toggle="modal" data-bs-target="#stockStatusModal">
+      <button
+        class="btn btn-outline-info btn-sm"
+        type="button"
+        data-bs-toggle="modal"
+        data-bs-target="#stockStatusModal"
+      >
         Stok Durumu
       </button>
-      <button class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#stockAddModal">
+      <button
+        class="btn btn-success btn-sm d-flex align-items-center gap-1"
+        title="Yeni Ekle"
+        data-bs-toggle="modal"
+        data-bs-target="#stockAddModal"
+      >
         <i class="bi bi-plus-lg"></i>
         <span>Ekle</span>
       </button>
       <div class="dropdown">
-        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <button
+          class="btn btn-outline-primary btn-sm dropdown-toggle"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
           Excel
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
           <li><a class="dropdown-item" href="/stock/export">Dışa Aktar</a></li>
           <li>
-            <form action="/stock/import" method="post" enctype="multipart/form-data">
-              <input type="file" name="file" id="stockExcel" class="d-none" onchange="this.form.submit()">
-              <label for="stockExcel" class="dropdown-item mb-0">İçe Aktar</label>
+            <form
+              action="/stock/import"
+              method="post"
+              enctype="multipart/form-data"
+            >
+              <input
+                type="file"
+                name="file"
+                id="stockExcel"
+                class="d-none"
+                onchange="this.form.submit()"
+              />
+              <label for="stockExcel" class="dropdown-item mb-0"
+                >İçe Aktar</label
+              >
             </form>
           </li>
         </ul>
       </div>
-      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#stockAssignModal">Atama</button>
+      <button
+        class="btn btn-primary btn-sm"
+        data-bs-toggle="modal"
+        data-bs-target="#stockAssignModal"
+      >
+        Atama
+      </button>
     </div>
   </div>
 
@@ -36,7 +66,7 @@
     <table class="table table-sm align-middle">
       <thead class="table-light">
         <tr>
-          <th style="width:72px;">ID</th>
+          <th style="width: 72px">ID</th>
           <th>Donanım Tipi</th>
           <th>Miktar</th>
           <th>IFS No</th>
@@ -52,11 +82,18 @@
           <td>{{ r.donanim_tipi }}</td>
           <td>{{ r.miktar }}</td>
           <td>{{ r.ifs_no or '-' }}</td>
-          <td>{{ (r.tarih).strftime("%d.%m.%Y %H:%M") if r.tarih else '-' }}</td>
           <td>
-            {% if r.islem == 'girdi' %}<span class="badge text-bg-success">Girdi</span>
-            {% elif r.islem == 'cikti' %}<span class="badge text-bg-warning">Çıktı</span>
-            {% else %}<span class="badge text-bg-secondary">Atama</span>{% endif %}
+            {{ (r.tarih).strftime("%d.%m.%Y %H:%M") if r.tarih else '-' }}
+          </td>
+          <td>
+            {% if r.islem == 'girdi' %}<span class="badge text-bg-success"
+              >Girdi</span
+            >
+            {% elif r.islem == 'cikti' %}<span class="badge text-bg-warning"
+              >Çıktı</span
+            >
+            {% else %}<span class="badge text-bg-secondary">Atama</span>{% endif
+            %}
           </td>
           <td>{{ r.actor or '-' }}</td>
         </tr>
@@ -72,7 +109,12 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Stok Durumu</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Kapat"
+        ></button>
       </div>
       <div class="modal-body">
         <div class="table-responsive">
@@ -98,12 +140,22 @@
     <form id="frmStockAdd" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Stok Ekle</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Kapat"
+        ></button>
       </div>
       <div class="modal-body row g-3">
         <div class="col-12">
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="chkIsLicense" name="is_license">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="chkIsLicense"
+              name="is_license"
+            />
             <label class="form-check-label" for="chkIsLicense">Lisans</label>
           </div>
         </div>
@@ -111,38 +163,67 @@
         <div id="hardwareFields" class="col-12 row g-3">
           <div class="col-md-4">
             <label class="form-label">Donanım Tipi</label>
-            <select id="donanim_tipi" name="donanim_tipi" class="form-select" required></select>
+            <select
+              id="donanim_tipi"
+              name="donanim_tipi"
+              class="form-select"
+              required
+            ></select>
           </div>
           <div class="col-md-3">
             <label class="form-label">Marka (opsiyonel)</label>
-            <input type="text" id="marka" name="marka" class="form-control">
+            <input type="text" id="marka" name="marka" class="form-control" />
           </div>
           <div class="col-md-3">
             <label class="form-label">Model (opsiyonel)</label>
-            <input type="text" id="model" name="model" class="form-control">
+            <input type="text" id="model" name="model" class="form-control" />
           </div>
           <div class="col-md-2" id="rowMiktar">
             <label class="form-label">Miktar</label>
-            <input type="number" min="1" id="miktar" name="miktar" class="form-control" required>
+            <input
+              type="number"
+              min="1"
+              id="miktar"
+              name="miktar"
+              class="form-control"
+              required
+            />
           </div>
           <div class="col-md-3">
             <label class="form-label">IFS No (opsiyonel)</label>
-            <input type="text" id="ifs_no" name="ifs_no" class="form-control">
+            <input type="text" id="ifs_no" name="ifs_no" class="form-control" />
           </div>
         </div>
 
         <div id="licenseFields" class="col-12 row g-3 d-none">
           <div class="col-md-4">
             <label class="form-label">Lisans Adı</label>
-            <input type="text" id="lisans_adi" name="lisans_adi" class="form-control" required>
+            <input
+              type="text"
+              id="lisans_adi"
+              name="lisans_adi"
+              class="form-control"
+              required
+            />
           </div>
           <div class="col-md-4">
             <label class="form-label">Lisans Anahtarı</label>
-            <input type="text" id="lisans_anahtari" name="lisans_anahtari" class="form-control" required>
+            <input
+              type="text"
+              id="lisans_anahtari"
+              name="lisans_anahtari"
+              class="form-control"
+              required
+            />
           </div>
           <div class="col-md-4">
             <label class="form-label">E-posta (opsiyonel)</label>
-            <input type="email" id="mail_adresi" name="mail_adresi" class="form-control">
+            <input
+              type="email"
+              id="mail_adresi"
+              name="mail_adresi"
+              class="form-control"
+            />
           </div>
         </div>
 
@@ -170,33 +251,70 @@
     <form id="frmStockAssign" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Stok Atama</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Kapat"
+        ></button>
       </div>
       <div class="modal-body">
         <label class="form-label d-block">Atama Türü</label>
         <div class="btn-group w-100 mb-3" role="group">
-          <input type="radio" class="btn-check" name="targetType" id="ttLisans" value="license">
+          <input
+            type="radio"
+            class="btn-check"
+            name="targetType"
+            id="ttLisans"
+            value="license"
+          />
           <label class="btn btn-outline-primary" for="ttLisans">Lisans</label>
-          <input type="radio" class="btn-check" name="targetType" id="ttEnvanter" value="inventory">
-          <label class="btn btn-outline-primary" for="ttEnvanter">Envanter</label>
-          <input type="radio" class="btn-check" name="targetType" id="ttYazici" value="printer">
+          <input
+            type="radio"
+            class="btn-check"
+            name="targetType"
+            id="ttEnvanter"
+            value="inventory"
+          />
+          <label class="btn btn-outline-primary" for="ttEnvanter"
+            >Envanter</label
+          >
+          <input
+            type="radio"
+            class="btn-check"
+            name="targetType"
+            id="ttYazici"
+            value="printer"
+          />
           <label class="btn btn-outline-primary" for="ttYazici">Yazıcı</label>
         </div>
 
         <div id="sectionLicense" class="d-none">
           <label class="form-label">Lisans</label>
-          <select id="selLicense" name="license_id" class="form-select"></select>
+          <select
+            id="selLicense"
+            name="license_id"
+            class="form-select"
+          ></select>
         </div>
         <div id="sectionInventory" class="d-none">
           <label class="form-label">Envanter</label>
-          <select id="selInventory" name="inventory_id" class="form-select"></select>
+          <select
+            id="selInventory"
+            name="inventory_id"
+            class="form-select"
+          ></select>
         </div>
         <div id="sectionPrinter" class="d-none">
           <label class="form-label">Yazıcı</label>
-          <select id="selPrinter" name="printer_id" class="form-select"></select>
+          <select
+            id="selPrinter"
+            name="printer_id"
+            class="form-select"
+          ></select>
         </div>
 
-        <input type="hidden" id="stock_row_id" name="stock_row_id">
+        <input type="hidden" id="stock_row_id" name="stock_row_id" />
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
@@ -205,9 +323,6 @@
     </form>
   </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script src="/static/js/stock.js"></script>
 {% endblock %}
-

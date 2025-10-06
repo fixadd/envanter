@@ -5,11 +5,13 @@
   </div>
   <div class="col-md-6">
     <label class="form-label">IFS No</label>
-    <select id="saIfs" class="form-select"><option value="">(Otomatik/tekse seçilmez)</option></select>
+    <select id="saIfs" class="form-select">
+      <option value="">(Otomatik/tekse seçilmez)</option>
+    </select>
   </div>
   <div class="col-md-6">
     <label class="form-label">Miktar</label>
-    <input id="saMiktar" type="number" min="1" class="form-control" required>
+    <input id="saMiktar" type="number" min="1" class="form-control" required />
     <div class="form-text" id="saMaxInfo"></div>
   </div>
   <div class="col-md-6">
@@ -22,62 +24,102 @@
   </div>
   <div class="col-md-6">
     <label class="form-label">Hedef Envanter No (ops)</label>
-    <input id="saHedefEnv" type="text" class="form-control">
+    <input id="saHedefEnv" type="text" class="form-control" />
   </div>
   <div class="col-md-6">
     <label class="form-label">Sorumlu Personel</label>
-    <select id="saPersonel" class="form-select"><option value="">Seçiniz</option></select>
+    <select id="saPersonel" class="form-select">
+      <option value="">Seçiniz</option>
+    </select>
   </div>
   <div class="col-md-6">
     <label class="form-label">Kullanım Alanı</label>
-    <select id="saKullanim" class="form-select"><option value="">Seçiniz</option></select>
+    <select id="saKullanim" class="form-select">
+      <option value="">Seçiniz</option>
+    </select>
   </div>
 </div>
 <script>
-let STATUS={totals:{},detail:{}};
-const el=(id)=>document.getElementById(id);
-function loadStatus(){
-  return fetch('/api/stock/status').then(r=>r.json()).then(s=>{ STATUS=s;
-    const sel=el('saDonanim'); sel.innerHTML='';
-    Object.keys(s.totals).forEach(dt=>{
-      const o=document.createElement('option'); o.value=o.textContent=`${dt} (stok: ${s.totals[dt]})`; sel.appendChild(o);
+  let STATUS = { totals: {}, detail: {} };
+  const el = (id) => document.getElementById(id);
+  function loadStatus() {
+    return fetch("/api/stock/status")
+      .then((r) => r.json())
+      .then((s) => {
+        STATUS = s;
+        const sel = el("saDonanim");
+        sel.innerHTML = "";
+        Object.keys(s.totals).forEach((dt) => {
+          const o = document.createElement("option");
+          o.value = o.textContent = `${dt} (stok: ${s.totals[dt]})`;
+          sel.appendChild(o);
+        });
+        onDonanimChange();
+      });
+  }
+  function onDonanimChange() {
+    const dt = el("saDonanim").value.split(" (")[0];
+    const max = STATUS.totals[dt] || 0;
+    el("saMiktar").max = max;
+    el("saMaxInfo").textContent = `Maksimum: ${max}`;
+    const ifsSel = el("saIfs");
+    ifsSel.innerHTML = '<option value="">(Otomatik/tekse seçilmez)</option>';
+    const detail = STATUS.detail[dt] || {};
+    Object.keys(detail).forEach((ifs) => {
+      const o = document.createElement("option");
+      o.value = ifs;
+      o.textContent = `${ifs} (${detail[ifs]})`;
+      ifsSel.appendChild(o);
     });
-    onDonanimChange();
-  });
-}
-function onDonanimChange(){
-  const dt = el('saDonanim').value.split(' (')[0];
-  const max = STATUS.totals[dt]||0;
-  el('saMiktar').max = max;
-  el('saMaxInfo').textContent = `Maksimum: ${max}`;
-  const ifsSel = el('saIfs'); ifsSel.innerHTML = '<option value="">(Otomatik/tekse seçilmez)</option>';
-  const detail = STATUS.detail[dt]||{};
-  Object.keys(detail).forEach(ifs=>{
-    const o=document.createElement('option'); o.value=ifs; o.textContent=`${ifs} (${detail[ifs]})`; ifsSel.appendChild(o);
-  });
-}
-el('saDonanim').addEventListener('change', onDonanimChange);
-// kullanıcı ve kullanım alanı
-fetch('/api/users/names').then(r=>r.json()).then(list=>{
-  const sel=el('saPersonel'); list.forEach(n=>{const o=document.createElement('option');o.value=o.textContent=n;sel.appendChild(o);});
-});
-fetch('/api/lookup/kullanim_alani').then(r=>r.json()).then(list=>{
-  const sel=el('saKullanim'); list.forEach(n=>{const o=document.createElement('option');o.value=o.textContent=n;sel.appendChild(o);});
-});
-loadStatus();
-async function submitAssign(){
-  const body = {
-    donanim_tipi: el('saDonanim').value.split(' (')[0],
-    miktar: Number(el('saMiktar').value),
-    ifs_no: el('saIfs').value || null,
-    hedef_tur: el('saHedefTur').value,
-    hedef_envanter_no: el('saHedefEnv').value || null,
-    sorumlu_personel: el('saPersonel').value || null,
-    kullanim_alani: el('saKullanim').value || null
-  };
-  if (body.miktar > Number(el('saMiktar').max)) { alert('Miktar stoktan fazla'); return; }
-  const r = await fetch('/api/stock/assign',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  if(!r.ok){ const e=await r.json(); alert(e.detail||'Hata'); return; }
-  alert('Atama başarılı'); loadStatus();
-}
+  }
+  el("saDonanim").addEventListener("change", onDonanimChange);
+  // kullanıcı ve kullanım alanı
+  fetch("/api/users/names")
+    .then((r) => r.json())
+    .then((list) => {
+      const sel = el("saPersonel");
+      list.forEach((n) => {
+        const o = document.createElement("option");
+        o.value = o.textContent = n;
+        sel.appendChild(o);
+      });
+    });
+  fetch("/api/lookup/kullanim_alani")
+    .then((r) => r.json())
+    .then((list) => {
+      const sel = el("saKullanim");
+      list.forEach((n) => {
+        const o = document.createElement("option");
+        o.value = o.textContent = n;
+        sel.appendChild(o);
+      });
+    });
+  loadStatus();
+  async function submitAssign() {
+    const body = {
+      donanim_tipi: el("saDonanim").value.split(" (")[0],
+      miktar: Number(el("saMiktar").value),
+      ifs_no: el("saIfs").value || null,
+      hedef_tur: el("saHedefTur").value,
+      hedef_envanter_no: el("saHedefEnv").value || null,
+      sorumlu_personel: el("saPersonel").value || null,
+      kullanim_alani: el("saKullanim").value || null,
+    };
+    if (body.miktar > Number(el("saMiktar").max)) {
+      alert("Miktar stoktan fazla");
+      return;
+    }
+    const r = await fetch("/api/stock/assign", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) {
+      const e = await r.json();
+      alert(e.detail || "Hata");
+      return;
+    }
+    alert("Atama başarılı");
+    loadStatus();
+  }
 </script>

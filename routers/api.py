@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import and_, case, func
 from sqlalchemy.orm import Session
-from database import get_db
+
 import models
-from sqlalchemy import func, case, and_
+from database import get_db
 
 router = APIRouter(prefix="/api", tags=["API"])
 
@@ -32,14 +33,25 @@ def user_names(db: Session = Depends(get_db)):
 @router.get("/licenses/names")
 def license_names(db: Session = Depends(get_db)):
     if hasattr(models, "LicenseName"):
-        rows = db.query(models.LicenseName.name).order_by(models.LicenseName.name.asc()).all()
+        rows = (
+            db.query(models.LicenseName.name)
+            .order_by(models.LicenseName.name.asc())
+            .all()
+        )
         return [r[0] for r in rows if r[0]]
-    rows = db.query(models.License.lisans_adi).distinct().order_by(models.License.lisans_adi.asc()).all()
+    rows = (
+        db.query(models.License.lisans_adi)
+        .distinct()
+        .order_by(models.License.lisans_adi.asc())
+        .all()
+    )
     return [r[0] for r in rows if r[0]]
 
 
 @router.get("/printers/models")
-def printer_models(brand: str = Query(..., min_length=1), db: Session = Depends(get_db)):
+def printer_models(
+    brand: str = Query(..., min_length=1), db: Session = Depends(get_db)
+):
     if not hasattr(models, "Model"):
         raise HTTPException(status_code=500, detail="Model tablosu tanımlı değil")
     rows = (
@@ -97,19 +109,16 @@ def printers_list(db: Session = Depends(get_db)):
 @router.get("/stock/status")
 def stock_status(db: Session = Depends(get_db)):
     totals = {t.donanim_tipi: t.toplam for t in db.query(models.StockTotal).all()}
-    q = (
-        db.query(
-            models.StockLog.donanim_tipi,
-            models.StockLog.ifs_no,
-            func.sum(
-                case(
-                    (models.StockLog.islem == "girdi", models.StockLog.miktar),
-                    else_=-models.StockLog.miktar,
-                )
-            ).label("qty"),
-        )
-        .group_by(models.StockLog.donanim_tipi, models.StockLog.ifs_no)
-    )
+    q = db.query(
+        models.StockLog.donanim_tipi,
+        models.StockLog.ifs_no,
+        func.sum(
+            case(
+                (models.StockLog.islem == "girdi", models.StockLog.miktar),
+                else_=-models.StockLog.miktar,
+            )
+        ).label("qty"),
+    ).group_by(models.StockLog.donanim_tipi, models.StockLog.ifs_no)
     detail: dict[str, dict[str, int]] = {}
     for dt, ifs, qty in q:
         if ifs and qty and qty > 0:
@@ -182,5 +191,9 @@ def stock_assign(
         db=db,
     )
     # TODO: hedef_tur'a göre ilişki tablosuna ekle
-    return {"ok": True, "donanim_tipi": donanim_tipi, "miktar": miktar, "ifs_no": ifs_no}
-
+    return {
+        "ok": True,
+        "donanim_tipi": donanim_tipi,
+        "miktar": miktar,
+        "ifs_no": ifs_no,
+    }

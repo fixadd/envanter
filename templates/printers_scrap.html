@@ -1,6 +1,5 @@
-{% extends "base.html" %}
-{% block title %}Hurdalar{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Hurdalar{% endblock %} {% block
+content %}
 <div class="container-fluid p-3">
   <h5 class="mb-3">Hurdalar</h5>
   <div class="table-responsive">
@@ -20,8 +19,7 @@
         </tr>
       </thead>
       <tbody>
-      {% if mode == "table" %}
-        {% for r in rows %}
+        {% if mode == "table" %} {% for r in rows %}
         <tr>
           <td>#{{ r.printer_id }}</td>
           <td>{{ r.snapshot.marka }} {{ r.snapshot.model }}</td>
@@ -33,14 +31,16 @@
           <td>{{ r.reason or '-' }}</td>
           <td>{{ r.created_at.strftime("%d.%m.%Y %H:%M") }}</td>
           <td>
-            <button class="btn btn-outline-secondary btn-sm view-btn" data-id="{{ r.printer_id }}" title="Detayı Göster">
+            <button
+              class="btn btn-outline-secondary btn-sm view-btn"
+              data-id="{{ r.printer_id }}"
+              title="Detayı Göster"
+            >
               <i class="bi bi-eye"></i>
             </button>
           </td>
         </tr>
-        {% endfor %}
-      {% else %}
-        {% for p in rows %}
+        {% endfor %} {% else %} {% for p in rows %}
         <tr>
           <td>#{{ p.id }}</td>
           <td>{{ p.marka }} {{ p.model }}</td>
@@ -52,13 +52,16 @@
           <td>-</td>
           <td>-</td>
           <td>
-            <button class="btn btn-outline-secondary btn-sm view-btn" data-id="{{ p.id }}" title="Detayı Göster">
+            <button
+              class="btn btn-outline-secondary btn-sm view-btn"
+              data-id="{{ p.id }}"
+              title="Detayı Göster"
+            >
               <i class="bi bi-eye"></i>
             </button>
           </td>
         </tr>
-        {% endfor %}
-      {% endif %}
+        {% endfor %} {% endif %}
       </tbody>
     </table>
   </div>
@@ -69,7 +72,11 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Hurda Detayı</h5>
-        <button class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+        <button
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Kapat"
+        ></button>
       </div>
       <div class="modal-body" id="hurdaDetayBody">Yükleniyor...</div>
     </div>
@@ -77,15 +84,15 @@
 </div>
 
 <script>
-document.querySelectorAll('.view-btn').forEach(b=>{
-  b.addEventListener('click', async ()=>{
-    const id = b.dataset.id;
-    const r = await fetch('/scrap/printer/'+id);
-    const h = await r.text();
-    document.getElementById('hurdaDetayBody').innerHTML = h;
-    new bootstrap.Modal(document.getElementById('hurdaDetayModal')).show();
+  document.querySelectorAll(".view-btn").forEach((b) => {
+    b.addEventListener("click", async () => {
+      const id = b.dataset.id;
+      const r = await fetch("/scrap/printer/" + id);
+      const h = await r.text();
+      document.getElementById("hurdaDetayBody").innerHTML = h;
+      new bootstrap.Modal(document.getElementById("hurdaDetayModal")).show();
+    });
   });
-});
 </script>
 
 {% endblock %}
