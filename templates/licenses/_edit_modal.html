@@ -1,22 +1,26 @@
-{% extends "components/modal_base.html" %}
-{% import "components/form_macros.html" as F %}
-{% set form_id = "licenseEditForm" %}
-{% set submit_text = "Kaydet" %}
-
-{% block modal_id %}licenseEditModal{% endblock %}
-{% block modal_theme %}purple{% endblock %}
-{% block modal_eyebrow %}LİSANS YÖNETİMİ{% endblock %}
-{% block modal_title %}Lisans Bilgilerini Güncelleyin{% endblock %}
-{% block modal_subtitle %}Lisans kayıtlarını güncel tutarak kullanım ve atama geçmişini netleştirin.{% endblock %}
-
-{% block modal_body %}
-<form id="{{ form_id }}" class="form-grid" method="post" action="/licenses/{{ license.id }}/update">
-  {{ F.select('license_id','Lisans Adı', licenses, value=license.license_id, required=True) }}
-  {{ F.input('license_key','Lisans Anahtarı','text',license.license_key,True,'XXXX-XXXX-XXXX-XXXX') }}
-  {{ F.select('owner_id','Sorumlu Personel', people, value=license.owner_id) }}
-  {{ F.select('inventory_id','Bağlı Olduğu Envanter', inventories, value=license.inventory_id, hint='Seçimsiz') }}
-  {{ F.input('ifs_no','IFS No','text',license.ifs_no) }}
-  {{ F.input('email','Mail Adresi','email',license.email) }}
-  <div class="col-2">{{ F.info('Değişiklikler lisans geçmişine kaydedilecektir.') }}</div>
+{% extends "components/modal_base.html" %} {% import
+"components/form_macros.html" as F %} {% set form_id = "licenseEditForm" %} {%
+set submit_text = "Kaydet" %} {% block modal_id %}licenseEditModal{% endblock %}
+{% block modal_theme %}purple{% endblock %} {% block modal_eyebrow %}LİSANS
+YÖNETİMİ{% endblock %} {% block modal_title %}Lisans Bilgilerini Güncelleyin{%
+endblock %} {% block modal_subtitle %}Lisans kayıtlarını güncel tutarak kullanım
+ve atama geçmişini netleştirin.{% endblock %} {% block modal_body %}
+<form
+  id="{{ form_id }}"
+  class="form-grid"
+  method="post"
+  action="/licenses/{{ license.id }}/update"
+>
+  {{ F.select('license_id','Lisans Adı', licenses, value=license.license_id,
+  required=True) }} {{ F.input('license_key','Lisans
+  Anahtarı','text',license.license_key,True,'XXXX-XXXX-XXXX-XXXX') }} {{
+  F.select('owner_id','Sorumlu Personel', people, value=license.owner_id) }} {{
+  F.select('inventory_id','Bağlı Olduğu Envanter', inventories,
+  value=license.inventory_id, hint='Seçimsiz') }} {{ F.input('ifs_no','IFS
+  No','text',license.ifs_no) }} {{ F.input('email','Mail
+  Adresi','email',license.email) }}
+  <div class="col-2">
+    {{ F.info('Değişiklikler lisans geçmişine kaydedilecektir.') }}
+  </div>
 </form>
 {% endblock %}
