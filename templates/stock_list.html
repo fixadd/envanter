@@ -1,34 +1,64 @@
-{% extends "base.html" %}
-{% block title %}Stok Logları{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Stok Logları{% endblock %} {% block
+content %}
 <div class="container-fluid p-3">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h5 class="mb-0">Stok Logları (En Güncel)</h5>
     <div class="d-flex gap-2">
-      <button class="btn btn-outline-info btn-sm" type="button"
-              data-bs-toggle="modal" data-bs-target="#stockStatusModal">
+      <button
+        class="btn btn-outline-info btn-sm"
+        type="button"
+        data-bs-toggle="modal"
+        data-bs-target="#stockStatusModal"
+      >
         Stok Durumu
       </button>
-      <button class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#stockAddModal">
+      <button
+        class="btn btn-success btn-sm d-flex align-items-center gap-1"
+        title="Yeni Ekle"
+        data-bs-toggle="modal"
+        data-bs-target="#stockAddModal"
+      >
         <i class="bi bi-plus-lg"></i>
         <span>Ekle</span>
       </button>
       <div class="dropdown">
-        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <button
+          class="btn btn-outline-primary btn-sm dropdown-toggle"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
           Excel
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
           <li><a class="dropdown-item" href="/stock/export">Dışa Aktar</a></li>
           <li>
-            <form action="/stock/import" method="post" enctype="multipart/form-data">
-              <input type="file" name="file" id="stockExcel" class="d-none" onchange="this.form.submit()">
-              <label for="stockExcel" class="dropdown-item mb-0">İçe Aktar</label>
+            <form
+              action="/stock/import"
+              method="post"
+              enctype="multipart/form-data"
+            >
+              <input
+                type="file"
+                name="file"
+                id="stockExcel"
+                class="d-none"
+                onchange="this.form.submit()"
+              />
+              <label for="stockExcel" class="dropdown-item mb-0"
+                >İçe Aktar</label
+              >
             </form>
           </li>
         </ul>
       </div>
-      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#stokAtamaModal">Atama</button>
+      <button
+        class="btn btn-primary btn-sm"
+        data-bs-toggle="modal"
+        data-bs-target="#stokAtamaModal"
+      >
+        Atama
+      </button>
     </div>
   </div>
 
@@ -36,7 +66,7 @@
     <table class="table table-sm align-middle">
       <thead class="table-light">
         <tr>
-          <th style="width:72px;">ID</th>
+          <th style="width: 72px">ID</th>
           <th>Donanım Tipi</th>
           <th>Miktar</th>
           <th>IFS No</th>
@@ -52,11 +82,18 @@
           <td>{{ r.donanim_tipi }}</td>
           <td>{{ r.miktar }}</td>
           <td>{{ r.ifs_no or '-' }}</td>
-          <td>{{ (r.tarih).strftime("%d.%m.%Y %H:%M") if r.tarih else '-' }}</td>
           <td>
-            {% if r.islem == 'girdi' %}<span class="badge text-bg-success">Girdi</span>
-            {% elif r.islem == 'cikti' %}<span class="badge text-bg-warning">Çıktı</span>
-            {% else %}<span class="badge text-bg-secondary">Atama</span>{% endif %}
+            {{ (r.tarih).strftime("%d.%m.%Y %H:%M") if r.tarih else '-' }}
+          </td>
+          <td>
+            {% if r.islem == 'girdi' %}<span class="badge text-bg-success"
+              >Girdi</span
+            >
+            {% elif r.islem == 'cikti' %}<span class="badge text-bg-warning"
+              >Çıktı</span
+            >
+            {% else %}<span class="badge text-bg-secondary">Atama</span>{% endif
+            %}
           </td>
           <td>{{ r.actor or '-' }}</td>
         </tr>
@@ -72,7 +109,12 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Stok Durumu</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Kapat"
+        ></button>
       </div>
       <div class="modal-body">
         <div class="table-responsive">
@@ -98,12 +140,22 @@
     <form id="frmStockAdd" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Stok Ekle</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Kapat"
+        ></button>
       </div>
       <div class="modal-body row g-3">
         <div class="col-12">
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="chkIsLicense" name="is_license">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="chkIsLicense"
+              name="is_license"
+            />
             <label class="form-check-label" for="chkIsLicense">Lisans</label>
           </div>
         </div>
@@ -111,7 +163,12 @@
         <div id="hardwareFields" class="col-12 row g-3">
           <div class="col-md-4">
             <label class="form-label">Donanım Tipi</label>
-            <select id="donanim_tipi" name="donanim_tipi" class="form-select" required></select>
+            <select
+              id="donanim_tipi"
+              name="donanim_tipi"
+              class="form-select"
+              required
+            ></select>
           </div>
           <div class="col-md-3">
             <label class="form-label">Marka (opsiyonel)</label>
@@ -123,29 +180,51 @@
           </div>
           <div class="col-md-2" id="rowMiktar">
             <label class="form-label">Miktar</label>
-            <input type="number" min="1" id="miktar" name="miktar" class="form-control" required>
+            <input
+              type="number"
+              min="1"
+              id="miktar"
+              name="miktar"
+              class="form-control"
+              required
+            />
           </div>
           <div class="col-md-3">
             <label class="form-label">IFS No (opsiyonel)</label>
-            <input type="text" id="ifs_no" name="ifs_no" class="form-control">
+            <input type="text" id="ifs_no" name="ifs_no" class="form-control" />
           </div>
         </div>
 
         <div id="licenseFields" class="col-12 row g-3 d-none">
           <div class="col-md-4">
             <label class="form-label">Lisans Adı</label>
-            <select id="lisans_adi" name="lisans_adi" class="form-select" required></select>
+            <select
+              id="lisans_adi"
+              name="lisans_adi"
+              class="form-select"
+              required
+            ></select>
           </div>
           <div class="col-md-4">
             <label class="form-label">Lisans Anahtarı</label>
-            <input type="text" id="lisans_anahtari" name="lisans_anahtari" class="form-control" required>
+            <input
+              type="text"
+              id="lisans_anahtari"
+              name="lisans_anahtari"
+              class="form-control"
+              required
+            />
           </div>
           <div class="col-md-4">
             <label class="form-label">E-posta (opsiyonel)</label>
-            <input type="email" id="mail_adresi" name="mail_adresi" class="form-control">
+            <input
+              type="email"
+              id="mail_adresi"
+              name="mail_adresi"
+              class="form-control"
+            />
           </div>
         </div>
-
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
@@ -161,7 +240,12 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Stok Atama</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Kapat"
+        ></button>
       </div>
 
       <div class="modal-body">
@@ -173,9 +257,9 @@
               <option value="">Seçiniz...</option>
             </select>
             <div id="sa_stock_meta" class="small text-muted mt-1 d-none">
-              <span id="sa_meta_tip"></span> ·
-              IFS: <span id="sa_meta_ifs"></span> ·
-              Mevcut: <span id="sa_meta_qty"></span>
+              <span id="sa_meta_tip"></span> · IFS:
+              <span id="sa_meta_ifs"></span> · Mevcut:
+              <span id="sa_meta_qty"></span>
             </div>
           </div>
 
@@ -184,19 +268,47 @@
             <label class="form-label fw-semibold">Atama Türü</label>
             <ul class="nav nav-tabs" id="sa_tabs" role="tablist">
               <li class="nav-item" role="presentation">
-                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#sa_tab_lisans" type="button" role="tab">Lisans</button>
+                <button
+                  class="nav-link active"
+                  data-bs-toggle="tab"
+                  data-bs-target="#sa_tab_lisans"
+                  type="button"
+                  role="tab"
+                >
+                  Lisans
+                </button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sa_tab_envanter" type="button" role="tab">Envanter</button>
+                <button
+                  class="nav-link"
+                  data-bs-toggle="tab"
+                  data-bs-target="#sa_tab_envanter"
+                  type="button"
+                  role="tab"
+                >
+                  Envanter
+                </button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sa_tab_yazici" type="button" role="tab">Yazıcı</button>
+                <button
+                  class="nav-link"
+                  data-bs-toggle="tab"
+                  data-bs-target="#sa_tab_yazici"
+                  type="button"
+                  role="tab"
+                >
+                  Yazıcı
+                </button>
               </li>
             </ul>
 
             <div class="tab-content border border-top-0 p-3 rounded-bottom">
               <!-- LISANS -->
-              <div class="tab-pane fade show active" id="sa_tab_lisans" role="tabpanel">
+              <div
+                class="tab-pane fade show active"
+                id="sa_tab_lisans"
+                role="tabpanel"
+              >
                 <div class="row g-3">
                   <div class="col-md-6">
                     <label class="form-label">Lisans</label>
@@ -229,7 +341,9 @@
                     </select>
                   </div>
                   <div class="col-md-6">
-                    <label class="form-label">Sorumlu Personel (opsiyonel)</label>
+                    <label class="form-label"
+                      >Sorumlu Personel (opsiyonel)</label
+                    >
                     <select id="sa_user2" class="form-select">
                       <option value="">Seçiniz...</option>
                     </select>
@@ -255,11 +369,22 @@
           <div class="row g-3">
             <div class="col-md-4">
               <label class="form-label">Miktar</label>
-              <input id="sa_miktar" type="number" class="form-control" value="1" min="1">
+              <input
+                id="sa_miktar"
+                type="number"
+                class="form-control"
+                value="1"
+                min="1"
+              />
             </div>
             <div class="col-md-8">
               <label class="form-label">Notlar (opsiyonel)</label>
-              <input id="sa_not" type="text" class="form-control" placeholder="İsteğe bağlı açıklama">
+              <input
+                id="sa_not"
+                type="text"
+                class="form-control"
+                placeholder="İsteğe bağlı açıklama"
+              />
             </div>
           </div>
         </form>
@@ -272,9 +397,6 @@
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script src="/static/js/stock.js"></script>
 {% endblock %}
-
