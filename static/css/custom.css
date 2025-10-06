@@ -1263,6 +1263,47 @@ tr[data-href] > td:first-child {
   width: 100%;
   object-fit: cover;
 }
+
+.bilgi-photo-preview-wrapper {
+  background-color: var(--bs-light, #f8f9fa);
+  border: 1px dashed var(--color-border, rgba(0, 0, 0, 0.1));
+  border-radius: var(--radius-sm, 0.5rem);
+  padding: 0.75rem;
+  max-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bilgi-photo-preview-container {
+  max-height: 40vh;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bilgi-photo-preview-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.bilgi-photo-preview-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 999px;
+}
+
+.bilgi-photo-preview-container::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.bilgi-photo-preview-image {
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+  width: auto;
+  object-fit: contain;
+}
 /* =============================================================================
    ENVANTER SAYFA DÜZELTMELERİ - TEK DOSYA
    Bu kodu static/css/custom.css dosyasının EN SONUNA ekleyin
