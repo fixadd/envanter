@@ -1,24 +1,49 @@
-{% macro select(name, label, options, value='', required=False, placeholder='Seçiniz...', hint=None) -%}
+{% macro select(name, label, options, value='', required=False,
+placeholder='Seçiniz...', hint=None) -%}
 <div>
   <label class="form-label">{{ label }}</label>
-  <select class="form-select" name="{{ name }}" {% if required %}required{% endif %}>
+  <select
+    class="form-select"
+    name="{{ name }}"
+    {%
+    if
+    required
+    %}required{%
+    endif
+    %}
+  >
     <option value="">{{ placeholder }}</option>
     {% for o in options %}
-      <option value="{{ o.id }}" {% if value==o.id %}selected{% endif %}>{{ o.name }}</option>
+    <option value="{{ o.id }}" {% if value="" ="o.id" %}selected{% endif %}>
+      {{ o.name }}
+    </option>
     {% endfor %}
   </select>
-  {% if hint %}<div class="help-text">{{ hint }}</div>{% endif %}
+  {% if hint %}
+  <div class="help-text">{{ hint }}</div>
+  {% endif %}
 </div>
-{%- endmacro %}
-
-{% macro input(name, label, type='text', value='', required=False, placeholder='', hint=None) -%}
+{%- endmacro %} {% macro input(name, label, type='text', value='',
+required=False, placeholder='', hint=None) -%}
 <div>
   <label class="form-label">{{ label }}</label>
-  <input class="form-control" type="{{ type }}" name="{{ name }}" value="{{ value }}" placeholder="{{ placeholder }}" {% if required %}required{% endif %}/>
-  {% if hint %}<div class="help-text">{{ hint }}</div>{% endif %}
+  <input
+    class="form-control"
+    type="{{ type }}"
+    name="{{ name }}"
+    value="{{ value }}"
+    placeholder="{{ placeholder }}"
+    {%
+    if
+    required
+    %}required{%
+    endif
+    %}
+  />
+  {% if hint %}
+  <div class="help-text">{{ hint }}</div>
+  {% endif %}
 </div>
-{%- endmacro %}
-
-{% macro info(text) -%}
+{%- endmacro %} {% macro info(text) -%}
 <div class="info-alert"><i class="bi bi-info-circle"></i> {{ text }}</div>
 {%- endmacro %}

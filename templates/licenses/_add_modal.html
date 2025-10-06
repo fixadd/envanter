@@ -1,21 +1,21 @@
-{% extends "components/modal_base.html" %}
-{% import "components/form_macros.html" as F %}
-{% set form_id = "licenseAddForm" %}
-{% set submit_text = "Kaydet" %}
-
-{% block modal_id %}licenseAddModal{% endblock %}
-{% block modal_theme %}purple{% endblock %}
-{% block modal_eyebrow %}LİSANS YÖNETİMİ{% endblock %}
-{% block modal_title %}Lisans Ekle{% endblock %}
-{% block modal_subtitle %}Yeni bir lisans kaydı oluşturarak stoğunuzu güncel tutun.{% endblock %}
-
-{% block modal_body %}
-<form id="{{ form_id }}" class="form-grid" method="post" action="/licenses/create">
-  {{ F.select('license_id','Lisans Adı', licenses, required=True) }}
-  {{ F.input('license_key','Lisans Anahtarı','text','',True,'XXXX-XXXX-XXXX-XXXX') }}
-  {{ F.select('owner_id','Sorumlu Personel', people) }}
-  {{ F.input('inventory_no','Bağlı Olduğu Envanter No','text') }}
-  {{ F.input('ifs_no','IFS No','text','',False,'','Opsiyonel') }}
-  {{ F.input('email','E-posta','email','',False,'','Opsiyonel') }}
+{% extends "components/modal_base.html" %} {% import
+"components/form_macros.html" as F %} {% set form_id = "licenseAddForm" %} {%
+set submit_text = "Kaydet" %} {% block modal_id %}licenseAddModal{% endblock %}
+{% block modal_theme %}purple{% endblock %} {% block modal_eyebrow %}LİSANS
+YÖNETİMİ{% endblock %} {% block modal_title %}Lisans Ekle{% endblock %} {% block
+modal_subtitle %}Yeni bir lisans kaydı oluşturarak stoğunuzu güncel tutun.{%
+endblock %} {% block modal_body %}
+<form
+  id="{{ form_id }}"
+  class="form-grid"
+  method="post"
+  action="/licenses/create"
+>
+  {{ F.select('license_id','Lisans Adı', licenses, required=True) }} {{
+  F.input('license_key','Lisans Anahtarı','text','',True,'XXXX-XXXX-XXXX-XXXX')
+  }} {{ F.select('owner_id','Sorumlu Personel', people) }} {{
+  F.input('inventory_no','Bağlı Olduğu Envanter No','text') }} {{
+  F.input('ifs_no','IFS No','text','',False,'','Opsiyonel') }} {{
+  F.input('email','E-posta','email','',False,'','Opsiyonel') }}
 </form>
 {% endblock %}

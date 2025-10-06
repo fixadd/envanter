@@ -1,31 +1,91 @@
-.modal-ux{border:0;border-radius:.9rem;box-shadow:0 12px 36px rgba(0,0,0,.14)}
-.modal-ux .modal-header{color:#fff;border:0;border-top-left-radius:.9rem;border-top-right-radius:.9rem;padding:18px 22px}
-.modal-ux .modal-title{margin:0}
-.modal-ux .eyebrow{letter-spacing:.14em;font-weight:700;opacity:.9}
-.modal-ux .subtitle{opacity:.95;margin-top:4px}
-.modal-ux .form-label{font-weight:600}
-.modal-ux .form-select,.modal-ux .form-control{height:44px}
-.modal-ux .btn-primary{border:0}
-.modal-ux .info-alert{background:#eff6ff;border:1px solid #dbeafe;border-radius:.6rem;padding:.6rem .8rem;color:#1e3a8a;font-size:.9rem}
-.modal-ux .help-text{font-size:.85rem;color:#6b7280;margin-top:4px}
+.modal-ux {
+  border: 0;
+  border-radius: 0.9rem;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.14);
+}
+.modal-ux .modal-header {
+  color: #fff;
+  border: 0;
+  border-top-left-radius: 0.9rem;
+  border-top-right-radius: 0.9rem;
+  padding: 18px 22px;
+}
+.modal-ux .modal-title {
+  margin: 0;
+}
+.modal-ux .eyebrow {
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  opacity: 0.9;
+}
+.modal-ux .subtitle {
+  opacity: 0.95;
+  margin-top: 4px;
+}
+.modal-ux .form-label {
+  font-weight: 600;
+}
+.modal-ux .form-select,
+.modal-ux .form-control {
+  height: 44px;
+}
+.modal-ux .btn-primary {
+  border: 0;
+}
+.modal-ux .info-alert {
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 0.6rem;
+  padding: 0.6rem 0.8rem;
+  color: #1e3a8a;
+  font-size: 0.9rem;
+}
+.modal-ux .help-text {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: 4px;
+}
 
 /* Tema renkleri */
-.modal-ux[data-theme="purple"] .modal-header{
-  background: linear-gradient(90deg,#7c3aed,#9333ea);
+.modal-ux[data-theme="purple"] .modal-header {
+  background: linear-gradient(90deg, #7c3aed, #9333ea);
 }
-.modal-ux[data-theme="orange"] .modal-header{
-  background: linear-gradient(90deg,#f59e0b,#ea580c);
+.modal-ux[data-theme="orange"] .modal-header {
+  background: linear-gradient(90deg, #f59e0b, #ea580c);
 }
-.modal-ux[data-theme="blue"] .modal-header{
-  background: linear-gradient(90deg,#0ea5ea,#2b6cb0);
+.modal-ux[data-theme="blue"] .modal-header {
+  background: linear-gradient(90deg, #0ea5ea, #2b6cb0);
 }
 
 /* Grid */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.form-grid .col-2{grid-column:1 / -1}
-@media (max-width: 992px){ .form-grid{grid-template-columns:1fr} }
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.form-grid .col-2 {
+  grid-column: 1 / -1;
+}
+@media (max-width: 992px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* Sekmeli gövde (stok atama gibi) */
-.tab-lite{display:flex;gap:12px;margin-bottom:14px}
-.tab-lite .btn{border-radius:999px;padding:.35rem .9rem;border:1px solid #e5e7eb;background:#fff}
-.tab-lite .btn.active{background:#eef2ff;border-color:#c7d2fe;color:#4338ca}
+.tab-lite {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.tab-lite .btn {
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+}
+.tab-lite .btn.active {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+  color: #4338ca;
+}

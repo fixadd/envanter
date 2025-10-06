@@ -1,13 +1,9 @@
-{% extends "components/modal_base.html" %}
-
-{% block modal_id %}modalStockAdd{% endblock %}
-{% block modal_dialog_classes %}modal-lg modal-dialog-scrollable{% endblock %}
-{% block modal_theme %}orange{% endblock %}
-{% block modal_eyebrow %}STOK YÖNETİMİ{% endblock %}
-{% block modal_title %}Stok Kaydını Düzenleyin{% endblock %}
-{% block modal_subtitle %}Envanter veya lisans stok hareketlerini sisteme ekleyin.{% endblock %}
-
-{% block modal_body %}
+{% extends "components/modal_base.html" %} {% block modal_id %}modalStockAdd{%
+endblock %} {% block modal_dialog_classes %}modal-lg modal-dialog-scrollable{%
+endblock %} {% block modal_theme %}orange{% endblock %} {% block modal_eyebrow
+%}STOK YÖNETİMİ{% endblock %} {% block modal_title %}Stok Kaydını Düzenleyin{%
+endblock %} {% block modal_subtitle %}Envanter veya lisans stok hareketlerini
+sisteme ekleyin.{% endblock %} {% block modal_body %}
 <form id="frmStockAdd" class="stack-md" autocomplete="off">
   <div class="tab-lite" role="tablist" aria-label="Stok kayıt tipi">
     <button
@@ -129,9 +125,7 @@
     </div>
   </div>
 </form>
-{% endblock %}
-
-{% block modal_footer %}
+{% endblock %} {% block modal_footer %}
 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
   Kapat
 </button>
