@@ -108,7 +108,9 @@
   </div>
 </div>
 
-{% include 'licenses/_license_add_modal.html' %}
+{% with form_action='/lisans/new' %}
+  {% include 'licenses/_license_add_modal.html' %}
+{% endwith %}
 {% endblock %}
 
 {% block scripts %}
