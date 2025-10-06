@@ -10,6 +10,7 @@ from utils.stock_log import create_stock_log, get_available_columns, normalize_i
 
 router = APIRouter(prefix="/api", tags=["API"])
 
+
 def _first_scalar_value(row: Any) -> Any:
     if isinstance(row, (list, tuple)):
         return row[0] if row else None
@@ -42,7 +43,9 @@ def _items_response(
     for row in rows:
         item: Dict[str, Any] = {}
         for key, accessor in field_map.items():
-            item[key] = accessor(row) if callable(accessor) else getattr(row, accessor, None)
+            item[key] = (
+                accessor(row) if callable(accessor) else getattr(row, accessor, None)
+            )
         items.append(item)
     return {"items": items}
 
@@ -69,9 +72,7 @@ def lookup_entity(entity: str, db: Session = Depends(get_db)):
 
 @router.get("/users/names")
 def user_names(db: Session = Depends(get_db)):
-    rows = (
-        db.query(models.User.full_name).order_by(models.User.full_name.asc()).all()
-    )
+    rows = db.query(models.User.full_name).order_by(models.User.full_name.asc()).all()
     return _collect_scalar_values(rows)
 
 
