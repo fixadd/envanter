@@ -1,0 +1,61 @@
+{% extends "components/modal_base.html" %} {% import
+"components/form_macros.html" as F %} {% set form_id = "stockAssignForm" %} {%
+set submit_text = "Kaydet" %} {% block modal_id %}stockAssignModal{% endblock %}
+{% block modal_theme %}orange{% endblock %} {% block modal_eyebrow %}STOK
+YÖNETİMİ{% endblock %} {% block modal_title %}Stok Kaydını Atayın{% endblock %}
+{% block modal_subtitle %}Stok durumu tablosundan seçtiğiniz kalemi envantere,
+yazıcıya veya lisansa atayın.{% endblock %} {% block modal_body %}
+<div class="mb-2">
+  {{ F.input('selected_stock','Seçilen Stok','text', selected_stock_readable,
+  False) }}
+</div>
+
+<div class="tabbed">
+  <div class="tab-lite" role="tablist">
+    <button type="button" class="btn active" data-target="#tab-license">
+      Lisans
+    </button>
+    <button type="button" class="btn" data-target="#tab-inventory">
+      Envanter
+    </button>
+    <button type="button" class="btn" data-target="#tab-printer">Yazıcı</button>
+  </div>
+
+  <form
+    id="{{ form_id }}"
+    class="form-grid"
+    method="post"
+    action="/stock/assign"
+  >
+    <input type="hidden" name="stock_id" value="{{ stock.id }}" />
+
+    <div id="tab-license" class="tab-pane">
+      {{ F.select('license_id','Lisans Adı', licenses, required=True) }} {{
+      F.select('owner_id','Sorumlu', people) }}
+      <div class="col-2">
+        {{ F.input('note','Açıklama','text','',False,'','Opsiyonel') }}
+      </div>
+    </div>
+
+    <div id="tab-inventory" class="tab-pane d-none">
+      {{ F.select('inventory_id','Envanter', inventories, required=True) }} {{
+      F.select('owner_id_inv','Sorumlu', people) }}
+      <div class="col-2">
+        {{ F.input('note_inv','Açıklama','text','',False,'','Opsiyonel') }}
+      </div>
+    </div>
+
+    <div id="tab-printer" class="tab-pane d-none">
+      {{ F.select('printer_id','Yazıcı', printers, required=True) }} {{
+      F.select('owner_id_prn','Sorumlu', people) }}
+      <div class="col-2">
+        {{ F.input('note_prn','Açıklama','text','',False,'','Opsiyonel') }}
+      </div>
+    </div>
+
+    <div class="col-2">
+      {{ F.input('global_note','Genel Not','text','',False,'','Opsiyonel') }}
+    </div>
+  </form>
+</div>
+{% endblock %}

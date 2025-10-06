@@ -1,11 +1,9 @@
 {% extends "components/modal_base.html" %} {% block modal_id %}assignModal{%
 endblock %} {% block modal_dialog_classes %}modal-lg modal-dialog-scrollable{%
-endblock %} {% block modal_title %}Envanter Atama{% endblock %} {% block
-modal_subtitle %}
-<p class="modal-subtitle">
-  Envanteri ilgili personel ve departmanla eşleştirin.
-</p>
-{% endblock %} {% block modal_body %}
+endblock %} {% block modal_theme %}blue{% endblock %} {% block modal_eyebrow
+%}ENVANTER YÖNETİMİ{% endblock %} {% block modal_title %}Envanter Atama{%
+endblock %} {% block modal_subtitle %}Envanteri ilgili personel ve departmanla
+eşleştirin.{% endblock %} {% block modal_body %}
 <form id="assignForm" class="form-grid" novalidate>
   <input type="hidden" name="item_id" id="assign_item_id" />
   <div class="field">

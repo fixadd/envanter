@@ -1,0 +1,20 @@
+{% extends "components/modal_base.html" %} {% import
+"components/form_macros.html" as F %} {% set form_id = "licenseAssignForm" %} {%
+set submit_text = "Kaydet" %} {% block modal_id %}licenseAssignModal{% endblock
+%} {% block modal_theme %}purple{% endblock %} {% block modal_title %}Lisansı
+Ata{% endblock %} {% block modal_subtitle %}Lisansı bir personele veya envanter
+kaydına bağlayın.{% endblock %} {% block modal_body %}
+<form
+  id="{{ form_id }}"
+  class="form-grid"
+  method="post"
+  action="/licenses/assign"
+>
+  {{ F.select('owner_id','Sorumlu Personel', people, value=default_owner_id) }}
+  {{ F.select('inventory_id','Bağlı Olduğu Envanter', inventories,
+  value=default_inventory_id) }}
+  <div class="col-2">
+    {{ F.info('Bu işlem lisansın geçmiş kayıtlarına eklenecek.') }}
+  </div>
+</form>
+{% endblock %}

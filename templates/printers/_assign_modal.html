@@ -1,0 +1,21 @@
+{% extends "components/modal_base.html" %} {% import
+"components/form_macros.html" as F %} {% set form_id = "printerAssignForm" %} {%
+set submit_text = "Atamayı Kaydet" %} {% block modal_id %}printerAssignModal{%
+endblock %} {% block modal_theme %}purple{% endblock %} {% block modal_title
+%}Yazıcıyı Ata — {{ printer.id }}{% endblock %} {% block modal_subtitle %}Yazıcı
+için fabrika, kullanım alanı ve sorumlu bilgilerini güncelleyin.{% endblock %}
+{% block modal_body %}
+<form
+  id="{{ form_id }}"
+  class="form-grid"
+  method="post"
+  action="/printers/{{ printer.id }}/assign"
+>
+  {{ F.select('factory_id','Fabrika', factories, value=printer.factory_id,
+  required=True) }} {{ F.select('usage_area_id','Kullanım Alanı', usage_areas,
+  value=printer.usage_area_id, required=True) }} {{ F.select('owner_id','Sorumlu
+  Personel', people, value=printer.owner_id) }} {{
+  F.select('inventory_id','Bağlı Olduğu Envanter', inventories,
+  value=printer.inventory_id) }}
+</form>
+{% endblock %}
