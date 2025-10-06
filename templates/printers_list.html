@@ -138,7 +138,14 @@ content %}
               data-kullanim="{{ p.kullanim_alani or '' }}"
               data-personel="{{ p.sorumlu_personel or '' }}"
               data-bagli="{{ p.bagli_envanter_no or '' }}"
-              {% if p.durum == 'arızalı' %}class="table-warning"{% endif %}
+              {%
+              if
+              p.durum=""
+              ="arızalı"
+              %}class="table-warning"
+              {%
+              endif
+              %}
             >
               <td>#{{ p.id }}</td>
               <td>{{ p.marka or '-' }}</td>
@@ -369,7 +376,11 @@ content %}
 
             <div class="col-md-6">
               <label for="selKullanim" class="form-label">Kullanım Alanı</label>
-              <select id="selKullanim" name="kullanim_alani" class="form-select">
+              <select
+                id="selKullanim"
+                name="kullanim_alani"
+                class="form-select"
+              >
                 <option value="">Seçiniz</option>
                 {% for a in areas %}
                 <option value="{{ a }}">{{ a }}</option>
@@ -378,8 +389,14 @@ content %}
             </div>
 
             <div class="col-md-6">
-              <label for="selPersonel" class="form-label">Sorumlu Personel</label>
-              <select id="selPersonel" name="sorumlu_personel" class="form-select">
+              <label for="selPersonel" class="form-label"
+                >Sorumlu Personel</label
+              >
+              <select
+                id="selPersonel"
+                name="sorumlu_personel"
+                class="form-select"
+              >
                 <option value="">Seçiniz</option>
                 {% for u in users %}
                 <option value="{{ u }}">{{ u }}</option>
@@ -388,8 +405,14 @@ content %}
             </div>
 
             <div class="col-md-6">
-              <label for="selBagliEnv" class="form-label">Bağlı Olduğu Envanter</label>
-              <select id="selBagliEnv" name="bagli_envanter_no" class="form-select">
+              <label for="selBagliEnv" class="form-label"
+                >Bağlı Olduğu Envanter</label
+              >
+              <select
+                id="selBagliEnv"
+                name="bagli_envanter_no"
+                class="form-select"
+              >
                 <option value="">Seçiniz</option>
                 {% for inv in inventory_nos %}
                 <option value="{{ inv }}">{{ inv }}</option>
