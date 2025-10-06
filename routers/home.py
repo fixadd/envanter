@@ -59,9 +59,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         or 0
     )
     faulty_printers = (
-        db.query(func.count(Printer.id))
-        .filter(Printer.durum == FAULTY_STATUS)
-        .scalar()
+        db.query(func.count(Printer.id)).filter(Printer.durum == FAULTY_STATUS).scalar()
         or 0
     )
 
