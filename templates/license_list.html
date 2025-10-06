@@ -174,45 +174,22 @@ content %}
         </div>
 
         <div class="modal-shell__body">
-          {% set license_form_config = {
-            "ids": {
-              "license_name": "selLisansAdi",
-              "license_key": "lisansAnahtari",
-              "responsible": "selPersonelAdd",
-              "inventory": "bagliEnvanter",
-              "ifs": "ifsNo",
-              "email": "lisansEmail",
-            },
-            "names": {
-              "license_name": "lisans_adi",
-              "license_key": "lisans_anahtari",
-              "responsible": "sorumlu_personel",
-              "inventory": "bagli_envanter_no",
-              "ifs": "ifs_no",
-              "email": "mail_adresi",
-            },
-            "values": {},
-            "required": ["license_name", "license_key", "inventory"],
-            "labels": {
-              "inventory": "Bağlı Olduğu Envanter No",
-              "email": "E-posta",
-            },
-            "optional_texts": {
-              "ifs": "(opsiyonel)",
-              "email": "(opsiyonel)",
-            },
-            "license_placeholder": "Seçiniz",
-            "responsible_placeholder": "Seçiniz",
-            "inventory_empty_label": "Seçiniz...",
-            "inventory_value_attr": "no",
-            "inventory_label_variant": "no_only",
-            "placeholders": {
-              "license_key": "XXXX-XXXX-XXXX-XXXX",
-              "ifs": "IFS numarası",
-              "email": "ornek@firma.com",
-            },
-          } %}
-          {% include "partials/license_form_fields.html" %}
+          {% set license_form_config = { "ids": { "license_name":
+          "selLisansAdi", "license_key": "lisansAnahtari", "responsible":
+          "selPersonelAdd", "inventory": "bagliEnvanter", "ifs": "ifsNo",
+          "email": "lisansEmail", }, "names": { "license_name": "lisans_adi",
+          "license_key": "lisans_anahtari", "responsible": "sorumlu_personel",
+          "inventory": "bagli_envanter_no", "ifs": "ifs_no", "email":
+          "mail_adresi", }, "values": {}, "required": ["license_name",
+          "license_key", "inventory"], "labels": { "inventory": "Bağlı Olduğu
+          Envanter No", "email": "E-posta", }, "optional_texts": { "ifs":
+          "(opsiyonel)", "email": "(opsiyonel)", }, "license_placeholder":
+          "Seçiniz", "responsible_placeholder": "Seçiniz",
+          "inventory_empty_label": "Seçiniz...", "inventory_value_attr": "no",
+          "inventory_label_variant": "no_only", "placeholders": { "license_key":
+          "XXXX-XXXX-XXXX-XXXX", "ifs": "IFS numarası", "email":
+          "ornek@firma.com", }, } %} {% include
+          "partials/license_form_fields.html" %}
         </div>
 
         <div class="modal-shell__footer">

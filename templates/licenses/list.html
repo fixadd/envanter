@@ -1,14 +1,23 @@
-{% extends "base.html" %}
-{% block title %}Lisanslar{% endblock %}
-{% block content %}
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+{% extends "base.html" %} {% block title %}Lisanslar{% endblock %} {% block
+content %}
+<div
+  class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4"
+>
   <div>
-    <span class="text-uppercase text-primary fw-semibold small">Lisans Yönetimi</span>
+    <span class="text-uppercase text-primary fw-semibold small"
+      >Lisans Yönetimi</span
+    >
     <h1 class="h4 mb-1">Lisanslar</h1>
-    <p class="text-muted mb-0">Yazılım lisanslarını görüntüleyin, yeni kayıt ekleyin ve yönetin.</p>
+    <p class="text-muted mb-0">
+      Yazılım lisanslarını görüntüleyin, yeni kayıt ekleyin ve yönetin.
+    </p>
   </div>
   <div class="d-flex gap-2">
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#licenseAddModal">
+    <button
+      class="btn btn-primary"
+      data-bs-toggle="modal"
+      data-bs-target="#licenseAddModal"
+    >
       <i class="bi bi-plus-lg me-1"></i>
       Lisans Ekle
     </button>
@@ -32,12 +41,13 @@
           </tr>
         </thead>
         <tbody>
-          {% if licenses %}
-          {% for lic in licenses %}
+          {% if licenses %} {% for lic in licenses %}
           <tr>
             <td class="fw-semibold">{{ lic.license_code or '-' }}</td>
             <td>
-              <div class="fw-semibold">{{ lic.product_name or lic.lisans_adi or '-' }}</div>
+              <div class="fw-semibold">
+                {{ lic.product_name or lic.lisans_adi or '-' }}
+              </div>
               {% if lic.license_key %}
               <div class="text-muted small">{{ lic.license_key }}</div>
               {% endif %}
@@ -49,10 +59,11 @@
             <td class="text-end">{{ lic.start_date or '-' }}</td>
             <td class="text-end">{{ lic.end_date or '-' }}</td>
           </tr>
-          {% endfor %}
-          {% else %}
+          {% endfor %} {% else %}
           <tr>
-            <td colspan="8" class="text-center text-muted py-4">Henüz lisans kaydı bulunmuyor.</td>
+            <td colspan="8" class="text-center text-muted py-4">
+              Henüz lisans kaydı bulunmuyor.
+            </td>
           </tr>
           {% endif %}
         </tbody>
@@ -61,10 +72,7 @@
   </div>
 </div>
 
-{% include "licenses/_license_add_modal.html" %}
-{% endblock %}
-
-{% block scripts %}
-{{ super() }}
+{% include "licenses/_license_add_modal.html" %} {% endblock %} {% block scripts
+%} {{ super() }}
 <script src="{{ url_for('static', path='js/licenses.add.js') }}"></script>
 {% endblock %}
