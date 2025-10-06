@@ -1,572 +1,151 @@
-{% extends "base.html" %} {% block title %}Lisans Takip{% endblock %} {% block
-content %}
-<div id="licenses-list" class="container-fluid py-4">
-  <div class="page-shell">
-    <header class="page-header">
-      <div class="page-header__heading">
-        <span class="eyebrow text-primary">LİSANS TAKİP</span>
-        <h1 class="page-header__title">Lisanslar</h1>
-        <p class="page-header__subtitle">
-          Yazılım lisanslarını görüntüleyin ve yönetin.
-        </p>
+﻿{% extends "base.html" %}
+{% block title %}Lisanslar{% endblock %}
+{% block content %}
+<div class="container-fluid py-4" id="license-page">
+  <header class="mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+      <div>
+        <span class="text-uppercase text-muted small fw-semibold">Lisans Takip</span>
+        <h1 class="h3 mb-1">Lisanslar</h1>
+        <p class="text-muted mb-0">Ürün lisanslarınızı takip edin, yeni kaydı birkaç saniyede oluşturun.</p>
       </div>
-      <div class="page-header__actions page-actions">
-        <div class="page-actions__group">
-          <a
-            href="#"
-            class="btn btn-success btn-sm"
-            title="Yeni Ekle"
-            data-bs-toggle="modal"
-            data-bs-target="#addModal"
-          >
-            <i class="bi bi-plus-lg"></i>
-            <span>Ekle</span>
-          </a>
-          <div class="dropdown">
-            <button
-              class="btn btn-outline-primary btn-sm dropdown-toggle"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              Excel
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li>
-                <a class="dropdown-item" href="/lisans/export">Dışa Aktar</a>
-              </li>
-              <li>
-                <form
-                  action="/lisans/import"
-                  method="post"
-                  enctype="multipart/form-data"
-                >
-                  <input
-                    type="file"
-                    name="file"
-                    id="licExcel"
-                    class="d-none"
-                    onchange="this.form.submit()"
-                  />
-                  <label for="licExcel" class="dropdown-item mb-0"
-                    >İçe Aktar</label
-                  >
-                </form>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <div class="filter-search-bar">
-      <div class="filter-search-bar__row">
-        <div class="filter-search-bar__main">
-          <div class="search-wrapper">
-            <i class="bi bi-search"></i>
-            <input
-              type="text"
-              id="searchInput"
-              class="form-control form-control-sm"
-              placeholder="Lisans ara..."
-            />
-          </div>
-        </div>
-        <div class="filter-search-bar__actions">
-          <button class="btn btn-primary btn-sm" id="filterBtn">
-            <i class="bi bi-funnel"></i>
-            Filtrele
-          </button>
-          <button
-            class="btn btn-outline-secondary btn-sm d-none"
-            id="clearFilterBtn"
-          >
-            <i class="bi bi-x-circle"></i>
-            Temizle
-          </button>
-        </div>
-      </div>
-      <div class="active-filters-section d-none" id="activeFiltersSection">
-        <div class="active-filters">
-          <span class="active-filters__label">Aktif Filtreler:</span>
-          <div id="activeFilterBadges"></div>
-        </div>
+      <div class="d-flex flex-wrap gap-2">
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#licenseAddModal">
+          <i class="bi bi-plus-lg me-1"></i>
+          Lisans Ekle
+        </button>
+        <a href="/lisans/export" class="btn btn-outline-primary btn-sm">
+          <i class="bi bi-download me-1"></i>
+          Dışa Aktar
+        </a>
       </div>
     </div>
+  </header>
 
-    <div class="page-card">
-      <div class="table-responsive">
-        <table
-          id="licensesTable"
-          class="table table-sm table-hover table-rounded align-middle mb-0"
-        >
-          <thead>
-            <tr>
-              <th data-field="no">No</th>
-              <th data-field="lisans_adi">Lisans Adı</th>
-              <th data-field="lisans_anahtari">Key</th>
-              <th data-field="sorumlu_personel">Sorumlu</th>
-              <th data-field="bagli_envanter_no">Bağlı Envanter</th>
-              <th data-field="mail_adresi">E-posta</th>
-              <th class="actions text-start">İşlemler</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for row in items %}
-            <tr
-              data-id="{{ row.id }}"
-              data-personel="{{ row.sorumlu_personel or '' }}"
-              data-bagli="{{ row.bagli_envanter_no or '' }}"
-            >
-              <td>{{ row.id }}</td>
-              <td>{{ row.lisans_adi }}</td>
-              <td class="text-truncate" style="max-width: 180px">
-                {{ row.lisans_key }}
-              </td>
-              <td>{{ row.sorumlu_personel or '-' }}</td>
-              <td>{{ row.bagli_envanter_no or '-' }}</td>
-              <td>{{ row.mail_adresi or '-' }}</td>
-              <td class="actions">
-                {% set entity = 'lisans' %} {% set row_id = row.id %} {% set
-                fault_status = row.durum %} {% include
-                'partials/_actions_menu.html' %}
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+  <div class="card shadow-sm border-0">
+    <div class="card-body pb-2">
+      <form class="row g-2 align-items-center" id="licenseFilters" autocomplete="off">
+        <div class="col-12 col-lg-4">
+          <label for="licenseSearch" class="form-label small text-uppercase text-muted mb-1">Ara</label>
+          <div class="input-group input-group-sm">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input id="licenseSearch" type="search" class="form-control" placeholder="Lisans kodu, ürün adı veya sorumlu" />
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <label for="licenseTypeFilter" class="form-label small text-uppercase text-muted mb-1">Tür</label>
+          <select id="licenseTypeFilter" class="form-select form-select-sm">
+            <option value="">Hepsi</option>
+            <option value="perpetual">Süresiz</option>
+            <option value="subscription">Abonelik</option>
+            <option value="oem">OEM</option>
+          </select>
+        </div>
+        <div class="col-6 col-lg-3">
+          <label for="seatFilter" class="form-label small text-uppercase text-muted mb-1">Minimum Koltuk</label>
+          <input id="seatFilter" type="number" min="0" class="form-control form-control-sm" placeholder="0" />
+        </div>
+        <div class="col-12 col-lg-2 d-grid justify-content-lg-end">
+          <label class="form-label small text-uppercase text-muted mb-1">&nbsp;</label>
+          <button type="reset" class="btn btn-outline-secondary btn-sm">Temizle</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table align-middle mb-0" id="licenseTable">
+        <thead class="table-light text-muted text-uppercase small">
+          <tr>
+            <th scope="col">Lisans No</th>
+            <th scope="col">Ürün</th>
+            <th scope="col">Tür</th>
+            <th scope="col">Koltuk</th>
+            <th scope="col">Sorumlu</th>
+            <th scope="col">Envanter</th>
+            <th scope="col">Geçerlilik</th>
+            <th scope="col" class="text-end">İşlem</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if items %}
+          {% for lic in items %}
+          <tr
+            data-search="{{ (lic.license_code or '') ~ ' ' ~ (lic.lisans_adi or lic.product_name or '') ~ ' ' ~ (lic.sorumlu_personel or '') | lower }}"
+            data-type="{{ (lic.license_type or '') | lower }}"
+            data-seat="{{ lic.seat_count or 0 }}"
+          >
+            <td class="fw-semibold">{{ lic.license_code or '-' }}</td>
+            <td>
+              <div class="fw-semibold">{{ lic.product_name or lic.lisans_adi or '-' }}</div>
+              {% if lic.lisans_anahtari %}
+              <div class="text-muted small">Anahtar: {{ lic.lisans_anahtari }}</div>
+              {% endif %}
+            </td>
+            <td>{{ lic.license_type or '-' }}</td>
+            <td>{{ lic.seat_count or 0 }}</td>
+            <td>{{ lic.sorumlu_personel or '-' }}</td>
+            <td>{{ lic.bagli_envanter_no or '-' }}</td>
+            <td>
+              <div>{{ lic.start_date or '-' }}</div>
+              <div class="text-muted small">{{ lic.end_date or '-' }}</div>
+            </td>
+            <td class="text-end">
+              <div class="btn-group btn-group-sm" role="group">
+                <a href="{{ url_for('license_detail', lic_id=lic.id) }}" class="btn btn-outline-primary">Detay</a>
+                <a href="{{ url_for('license.edit_form', lic_id=lic.id) }}" class="btn btn-outline-secondary">Düzenle</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="8" class="text-center text-muted py-4">Kayıt bulunamadı.</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
 
+{% include 'licenses/_license_add_modal.html' %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
 <script>
-  window.SKIP_SELECT_ENHANCE = true;
-</script>
+  (function () {
+    const searchInput = document.getElementById('licenseSearch');
+    const typeInput = document.getElementById('licenseTypeFilter');
+    const seatInput = document.getElementById('seatFilter');
+    const rows = Array.from(document.querySelectorAll('#licenseTable tbody tr'));
 
-<!-- Yeni Ekle Modal -->
-<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-  <div
-    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
-  >
-    <form
-      method="post"
-      action="/lisans/create"
-      class="modal-content border-0 bg-transparent p-0 needs-validation"
-      novalidate
-    >
-      <div class="modal-shell">
-        <div class="modal-shell__header">
-          <div class="modal-shell__heading">
-            <h5 class="modal-shell__title">Lisans Ekle</h5>
-            <p class="modal-shell__subtitle">
-              Yeni bir lisans kaydı oluşturarak stokunuzu güncel tutun.
-            </p>
-          </div>
-          <div class="modal-shell__header-actions">
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Kapat"
-            ></button>
-          </div>
-        </div>
-
-        <div class="modal-shell__body">
-          {% set license_form_config = {
-            "ids": {
-              "license_name": "selLisansAdi",
-              "license_key": "lisansAnahtari",
-              "responsible": "selPersonelAdd",
-              "inventory": "bagliEnvanter",
-              "ifs": "ifsNo",
-              "email": "lisansEmail",
-            },
-            "names": {
-              "license_name": "lisans_adi",
-              "license_key": "lisans_anahtari",
-              "responsible": "sorumlu_personel",
-              "inventory": "bagli_envanter_no",
-              "ifs": "ifs_no",
-              "email": "mail_adresi",
-            },
-            "values": {},
-            "required": ["license_name", "license_key", "inventory"],
-            "labels": {
-              "inventory": "Bağlı Olduğu Envanter No",
-              "email": "E-posta",
-            },
-            "optional_texts": {
-              "ifs": "(opsiyonel)",
-              "email": "(opsiyonel)",
-            },
-            "license_placeholder": "Seçiniz",
-            "responsible_placeholder": "Seçiniz",
-            "inventory_empty_label": "Seçiniz...",
-            "inventory_value_attr": "no",
-            "inventory_label_variant": "no_only",
-            "placeholders": {
-              "license_key": "XXXX-XXXX-XXXX-XXXX",
-              "ifs": "IFS numarası",
-              "email": "ornek@firma.com",
-            },
-          } %}
-          {% include "partials/license_form_fields.html" %}
-        </div>
-
-        <div class="modal-shell__footer">
-          <div class="modal-shell__actions">
-            <button
-              type="button"
-              class="btn btn-outline-secondary"
-              data-bs-dismiss="modal"
-            >
-              İptal
-            </button>
-            <button type="submit" class="btn btn-primary">Kaydet</button>
-          </div>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- ATAMA MODALI -->
-<div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-    <form
-      method="post"
-      id="assignForm"
-      class="modal-content border-0 bg-transparent p-0"
-    >
-      <div class="modal-shell">
-        <div class="modal-shell__header">
-          <div class="modal-shell__heading">
-            <h5 class="modal-shell__title">Lisansı Ata</h5>
-            <p class="modal-shell__subtitle">
-              Lisansı bir personele veya envanter kaydına bağlayın.
-            </p>
-          </div>
-          <div class="modal-shell__header-actions">
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Kapat"
-            ></button>
-          </div>
-        </div>
-
-        <div class="modal-shell__body">
-          <input
-            type="hidden"
-            name="islem_yapan"
-            value="{{ current_user.full_name if current_user else 'system' }}"
-          />
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label for="selPersonel" class="form-label"
-                >Sorumlu Personel</label
-              >
-              <select
-                name="sorumlu_personel"
-                class="form-select"
-                id="selPersonel"
-              >
-                <option value="">Seçiniz</option>
-                {% for u in users %}
-                <option value="{{ u }}">{{ u }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label for="selBagli" class="form-label"
-                >Bağlı Olduğu Envanter No</label
-              >
-              <select
-                name="bagli_envanter_no"
-                class="form-select"
-                id="selBagli"
-              >
-                <option value="">Seçiniz</option>
-                {% for inv in envanterler %}
-                <option value="{{ inv.no }}">
-                  {{ inv.no }} - {{ inv.bilgisayar_adi or inv.marka }}
-                </option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-          <small class="text-muted"
-            >Bu işlem lisansın geçmiş kayıtlarına eklenecek.</small
-          >
-        </div>
-
-        <div class="modal-shell__footer">
-          <div class="modal-shell__actions">
-            <button
-              class="btn btn-outline-secondary"
-              type="button"
-              data-bs-dismiss="modal"
-            >
-              İptal
-            </button>
-            <button class="btn btn-primary" type="submit">Kaydet</button>
-          </div>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- HURDA MODALI -->
-<div class="modal fade" id="scrapModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <form id="scrapForm" class="modal-content border-0 bg-transparent p-0">
-      <div class="modal-shell">
-        <div class="modal-shell__header">
-          <div class="modal-shell__heading">
-            <h5 class="modal-shell__title">Hurdaya Ayır</h5>
-            <p class="modal-shell__subtitle">
-              Lisansı hurdaya ayırmadan önce kısa bir not ekleyebilirsiniz.
-            </p>
-          </div>
-          <div class="modal-shell__header-actions">
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Kapat"
-            ></button>
-          </div>
-        </div>
-
-        <div class="modal-shell__body">
-          <p class="mb-2">Bu lisans hurdaya ayrılacak. Onaylıyor musunuz?</p>
-          <div class="row g-3">
-            <div class="col-12">
-              <label for="scrapNote" class="form-label"
-                >Açıklama <span class="muted">(opsiyonel)</span></label
-              >
-              <textarea
-                id="scrapNote"
-                name="aciklama"
-                class="form-control"
-                rows="3"
-                placeholder="Hurda sebebi / not"
-              ></textarea>
-            </div>
-          </div>
-          <input
-            type="hidden"
-            name="islem_yapan"
-            value="{{ current_user.full_name if current_user else 'system' }}"
-          />
-        </div>
-
-        <div class="modal-shell__footer">
-          <div class="modal-shell__actions">
-            <button
-              class="btn btn-outline-secondary"
-              data-bs-dismiss="modal"
-              type="button"
-            >
-              Vazgeç
-            </button>
-            <button class="btn btn-danger" type="submit">Hurdaya Ayır</button>
-          </div>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
-
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    window.filterSystem = new UnifiedFilterSystem({
-      tableSelector: "#licensesTable",
-      searchInputId: "searchInput",
-      filters: [],
-    });
-
-    // Mevcut atama/hurda işlemleri
-    const assignModal = new bootstrap.Modal(
-      document.getElementById("assignModal"),
-    );
-    const assignForm = document.getElementById("assignForm");
-    const selAssignPersonel = document.getElementById("selPersonel");
-    const selAssignBagli = document.getElementById("selBagli");
-    const scrapModal = new bootstrap.Modal(
-      document.getElementById("scrapModal"),
-    );
-    const scrapForm = document.getElementById("scrapForm");
-    let scrapId = null;
-    let personelChoices = null;
-    let bagliChoices = null;
-
-    document
-      .querySelectorAll("#licensesTable .action-select")
-      .forEach((sel) => {
-        sel.addEventListener("change", (e) => {
-          const val = e.target.value;
-          if (!val) return;
-          const id = e.target.dataset.id;
-          if (!id) return;
-
-          if (val === "assign") {
-            e.stopImmediatePropagation();
-            assignForm.setAttribute("action", `/lisans/${id}/assign`);
-            const tr = e.target.closest("tr");
-            if (tr) {
-              setSelectValue(
-                selAssignPersonel,
-                tr.dataset.personel,
-                personelChoices,
-              );
-              setSelectValue(selAssignBagli, tr.dataset.bagli, bagliChoices);
-            }
-            assignModal.show();
-            e.target.value = "";
-            return;
-          }
-
-          if (val === "fault") {
-            if (window.Faults) {
-              e.stopImmediatePropagation();
-              window.Faults.openMarkModal("license", {
-                entityId: Number(id),
-                entityKey: e.target.dataset.entityKey || id,
-                deviceNo: e.target.dataset.device || "",
-                title: e.target.dataset.title || "",
-              });
-            }
-            e.target.value = "";
-            return;
-          }
-
-          if (val === "repair") {
-            if (window.Faults) {
-              e.stopImmediatePropagation();
-              window.Faults.openRepairModal("license", {
-                entityId: Number(id),
-                entityKey: e.target.dataset.entityKey || id,
-                deviceNo: e.target.dataset.device || "",
-              });
-            }
-            e.target.value = "";
-            return;
-          }
-
-          if (val === "scrap") {
-            e.stopImmediatePropagation();
-            scrapId = id;
-            scrapModal.show();
-            e.target.value = "";
-          }
-        });
-      });
-
-    assignForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const actionUrl = assignForm.getAttribute("action");
-      if (!actionUrl) return;
-      const fd = new FormData(assignForm);
-      const res = await fetch(actionUrl, { method: "POST", body: fd });
-      if (res.ok) {
-        assignModal.hide();
-        location.reload();
-      } else {
-        alert("Atama kaydedilemedi");
-      }
-    });
-
-    scrapForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const fd = new FormData(scrapForm);
-      const res = await fetch(`/lisans/${scrapId}/scrap`, {
-        method: "POST",
-        body: fd,
-      });
-      if (res.ok) {
-        scrapModal.hide();
-        window.location.href = `{{ url_for('license_scrap_list') }}`;
-      } else {
-        alert("Hurdaya ayırma başarısız");
-      }
-    });
-
-    function setSelectValue(selectEl, value, choicesInstance) {
-      if (!selectEl) return;
-      const val = value || "";
-      if (
-        val &&
-        !Array.from(selectEl.options).some((opt) => opt.value === val)
-      ) {
-        const opt = document.createElement("option");
-        opt.value = val;
-        opt.textContent = val;
-        selectEl.appendChild(opt);
-        if (choicesInstance) {
-          choicesInstance.setChoices(
-            [{ value: val, label: val }],
-            "value",
-            "label",
-            false,
-          );
-        }
-      }
-      if (choicesInstance) {
-        choicesInstance.removeActiveItems();
-        if (val) {
-          choicesInstance.setChoiceByValue(val);
-        }
-      }
-      selectEl.value = val;
+    function normalize(value) {
+      return (value || '').trim().toLowerCase();
     }
 
-    if (window.Choices) {
-      new Choices("#selLisansAdi", { searchEnabled: true, shouldSort: false });
-      new Choices("#selPersonelAdd", {
-        searchEnabled: true,
-        shouldSort: false,
-      });
-      personelChoices = new Choices("#selPersonel", {
-        searchEnabled: true,
-        shouldSort: false,
-      });
-      bagliChoices = new Choices("#selBagli", {
-        searchEnabled: true,
-        shouldSort: false,
+    function applyFilters() {
+      const search = normalize(searchInput?.value);
+      const type = normalize(typeInput?.value);
+      const minSeat = Number(seatInput?.value) || 0;
+
+      rows.forEach((row) => {
+        const matchesSearch = !search || row.dataset.search.includes(search);
+        const matchesType = !type || row.dataset.type === type;
+        const seatCount = Number(row.dataset.seat || 0);
+        const matchesSeat = seatCount >= minSeat;
+        row.classList.toggle('d-none', !(matchesSearch && matchesType && matchesSeat));
       });
     }
-  });
+
+    [searchInput, typeInput, seatInput].forEach((input) => {
+      if (!input) return;
+      input.addEventListener('input', applyFilters);
+    });
+
+    document.getElementById('licenseFilters')?.addEventListener('reset', () => {
+      setTimeout(applyFilters, 0);
+    });
+  })();
 </script>
-
-<style>
-  #licenses-list .table-responsive {
-    overflow: visible;
-  }
-  #licensesTable th.actions,
-  #licensesTable td.actions {
-    white-space: nowrap;
-    width: 220px;
-  }
-
-  #licensesTable td.actions .action-select {
-    min-width: 160px;
-    display: inline-block;
-  }
-  #licensesTable td.actions .choices {
-    min-width: 160px;
-  }
-  #licensesTable td.actions .choices__inner {
-    min-height: 32px;
-    padding: 2px 30px 2px 8px;
-  }
-  #licensesTable td.actions .choices__list--dropdown.is-active {
-    z-index: 1080;
-    min-width: 180px;
-  }
-</style>
 {% endblock %}

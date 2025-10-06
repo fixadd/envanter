@@ -1,4 +1,4 @@
-{% set prefix = fault_prefix or fault_entity %}
+﻿{% set prefix = fault_prefix or fault_entity %}
 <div
   class="d-flex align-items-center"
   data-fault-entity="{{ fault_entity }}"
@@ -80,134 +80,20 @@
           />
         </div>
         <div class="mb-3">
-          <label class="form-label">Arıza Nedeni</label>
+          <label class="form-label">Açıklama</label>
           <textarea
             class="form-control form-control-sm"
-            name="reason"
             rows="3"
-            data-fault-input="reason"
-            required
-          ></textarea>
-        </div>
-        <div class="mb-1">
-          <label class="form-label">Gönderildiği Yer</label>
-          <input
-            type="text"
-            class="form-control form-control-sm"
-            name="destination"
-            data-fault-input="destination"
-          />
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-secondary btn-sm"
-          data-bs-dismiss="modal"
-        >
-          İptal
-        </button>
-        <button type="submit" class="btn btn-dark btn-sm">Kaydet</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<div
-  class="modal fade"
-  id="{{ prefix }}FaultRepairModal"
-  tabindex="-1"
-  aria-hidden="true"
-  data-fault-modal="repair"
-  data-fault-prefix="{{ prefix }}"
->
-  <div class="modal-dialog modal-dialog-centered modal-sm">
-    <form class="modal-content" data-fault-repair-form>
-      <div class="modal-header">
-        <h5 class="modal-title">Aktif Et</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Kapat"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" name="entity" value="{{ fault_entity }}" />
-        <input type="hidden" name="entity_id" data-fault-repair="entity-id" />
-        <input type="hidden" name="entity_key" data-fault-repair="entity-key" />
-        <div class="small mb-2">
-          <div>
-            <strong>Cihaz No:</strong> <span data-fault-info="device">-</span>
-          </div>
-          <div>
-            <strong>Arıza Nedeni:</strong>
-            <span data-fault-info="reason">-</span>
-          </div>
-          <div>
-            <strong>Gönderildiği Yer:</strong>
-            <span data-fault-info="destination">-</span>
-          </div>
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Not</label>
-          <textarea
-            class="form-control form-control-sm"
             name="note"
-            rows="2"
-            placeholder="Opsiyonel"
+            data-fault-input="note"
+            placeholder="Hızlı açıklama"
           ></textarea>
         </div>
-        <p class="small mb-0">
-          Bu kayıt aktif hale getirilecek ve arıza kapatılacak.
-        </p>
-      </div>
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-secondary btn-sm"
-          data-bs-dismiss="modal"
-        >
-          İptal
-        </button>
-        <button type="submit" class="btn btn-primary btn-sm">Onayla</button>
+        <div class="d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Vazgeç</button>
+          <button type="submit" class="btn btn-primary btn-sm">Kaydet</button>
+        </div>
       </div>
     </form>
   </div>
 </div>
-
-<style>
-  .fault-modal {
-    background-color: #c99700;
-    color: #1f1f1f;
-  }
-  .fault-modal .modal-header,
-  .fault-modal .modal-footer {
-    border-color: rgba(0, 0, 0, 0.15);
-  }
-  .fault-modal .form-control,
-  .fault-modal .form-control:focus {
-    background-color: rgba(255, 255, 255, 0.85);
-    color: #1f1f1f;
-    border-color: rgba(0, 0, 0, 0.2);
-  }
-  .fault-summary-list {
-    max-height: 240px;
-    overflow-y: auto;
-    display: grid;
-    gap: 0.5rem;
-  }
-  .fault-summary-item {
-    border: 1px solid #f1c21b;
-    border-radius: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    background: #fffbe6;
-  }
-  .fault-summary-item h6 {
-    font-size: 0.9rem;
-    margin-bottom: 0.25rem;
-  }
-  .fault-summary-item .small {
-    font-size: 0.75rem;
-  }
-</style>

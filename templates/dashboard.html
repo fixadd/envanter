@@ -1,171 +1,107 @@
-{% extends "base.html" %} {% block title %}Ana Sayfa{% endblock %} {% block
-content %}
-
-<div
-  class="d-flex flex-column flex-md-row align-items-start align-items-md-center mb-4 gap-2"
->
-  <div>
-    <span class="eyebrow d-block text-muted">Genel Bakış</span>
-    <h2 class="m-0">Ana Sayfa</h2>
-  </div>
-</div>
-
-<div class="row g-3 mb-4">
-  <div class="col-12 col-md-6 col-xl-3">
-    <article class="stat-card" data-variant="purple">
-      <div class="d-flex justify-content-between align-items-start">
-        <span class="stat-title">Toplam Cihaz</span>
-        <span class="stat-icon"><i class="bi bi-hdd-stack"></i></span>
+﻿{% extends "base.html" %}
+{% block title %}Ana Sayfa{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+  <header class="mb-4">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+      <div>
+        <span class="text-uppercase text-muted small fw-semibold">Genel Bakış</span>
+        <h1 class="h3 mb-1">Kontrol Paneli</h1>
+        <p class="text-muted mb-0">Envanter, lisans ve taleplerinizin güncel durumunu buradan takip edin.</p>
       </div>
-      <div class="stat-value" data-animate-count="{{ stats.toplam_cihaz }}">
-        {{ stats.toplam_cihaz }}
-      </div>
-      <div class="stat-sub">
-        Envanter: {{ stats.envanter_sayisi }} · Yazıcı: {{ stats.yazici_sayisi
-        }}
-      </div>
-    </article>
-  </div>
-  <div class="col-12 col-md-6 col-xl-3">
-    <article class="stat-card" data-variant="teal">
-      <div class="d-flex justify-content-between align-items-start">
-        <span class="stat-title">Lisans (aktif)</span>
-        <span class="stat-icon"><i class="bi bi-key"></i></span>
-      </div>
-      <div class="stat-value" data-animate-count="{{ stats.lisans_sayisi }}">
-        {{ stats.lisans_sayisi }}
-      </div>
-      <div class="stat-sub">Boş Lisans: {{ stats.bos_lisans_sayisi }}</div>
-    </article>
-  </div>
-  <div class="col-12 col-md-6 col-xl-3">
-    <article class="stat-card" data-variant="slate">
-      <div class="d-flex justify-content-between align-items-start">
-        <span class="stat-title">Arızalı Cihaz</span>
-        <span class="stat-icon"
-          ><i class="bi bi-exclamation-triangle"></i
-        ></span>
-      </div>
-      <div
-        class="stat-value"
-        data-animate-count="{{ stats.arizali_cihaz_sayisi }}"
-      >
-        {{ stats.arizali_cihaz_sayisi }}
-      </div>
-      <div class="stat-sub">Bakım bekleyenler dahil.</div>
-    </article>
-  </div>
-  <div class="col-12 col-md-6 col-xl-3">
-    <article class="stat-card" data-variant="amber">
-      <div class="d-flex justify-content-between align-items-start">
-        <span class="stat-title">Açık Talep</span>
-        <span class="stat-icon"><i class="bi bi-chat-left-dots"></i></span>
-      </div>
-      <div class="stat-value" data-animate-count="{{ stats.bekleyen_talep }}">
-        {{ stats.bekleyen_talep }}
-      </div>
-      <div class="stat-sub">İşleme alınmayı bekleyenler.</div>
-    </article>
-  </div>
-</div>
-
-<div class="soft-card p-0" id="recentActivityCard" data-auto-skeleton>
-  <div
-    class="px-3 py-2 border-bottom fw-semibold d-flex align-items-center justify-content-between"
-  >
-    <span class="d-flex align-items-center gap-2">
-      <i class="bi bi-activity text-primary"></i>
-      Son İşlemler
-    </span>
-    <span class="badge-dot text-success d-none d-md-inline">Güncel</span>
-  </div>
-  <div class="p-3 pt-2">
-    <div class="stack-sm mb-3" data-loading-skeleton>
-      <div class="skeleton skeleton-line" style="width: 45%"></div>
-      <div class="skeleton skeleton-line"></div>
-      <div class="skeleton skeleton-line" style="width: 60%"></div>
     </div>
-    <div class="table-responsive" data-loading-hide>
-      {% set islem_map = { "assign": "Atama", "create": "Oluşturma", "edit":
-      "Düzenleme", "stock": "Stok", "scrap": "Hurdaya Ayır" } %}
-      <table class="table align-middle table-hover table-rounded">
-        <thead>
-          <tr>
-            <th>Tarih</th>
-            <th>Kullanıcı</th>
-            <th>İşlem</th>
-            <th>Nesne</th>
-            <th>Durum</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for row in stats.son_islemler %}
-          <tr>
-            <td>{{ row.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-            <td>{{ row.actor or '-' }}</td>
-            <td>{{ islem_map.get(row.action, row.action) }}</td>
-            <td>{{ row.no }}</td>
-            <td><span class="badge-dot text-success">Başarılı</span></td>
-          </tr>
-          {% else %}
-          <tr>
-            <td colspan="5" class="text-center">Kayıt bulunamadı.</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  </header>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+      <article class="card shadow-sm h-100 border-0">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <span class="text-uppercase small text-muted">Toplam Cihaz</span>
+            <span class="text-primary"><i class="bi bi-hdd-stack"></i></span>
+          </div>
+          <h2 class="display-6 mb-1">{{ stats.toplam_cihaz }}</h2>
+          <p class="text-muted mb-0">Envanter: {{ stats.envanter_sayisi }} · Yazıcı: {{ stats.yazici_sayisi }}</p>
+        </div>
+      </article>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <article class="card shadow-sm h-100 border-0">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <span class="text-uppercase small text-muted">Aktif Lisans</span>
+            <span class="text-primary"><i class="bi bi-key"></i></span>
+          </div>
+          <h2 class="display-6 mb-1">{{ stats.lisans_sayisi }}</h2>
+          <p class="text-muted mb-0">Boş lisans: {{ stats.bos_lisans_sayisi }}</p>
+        </div>
+      </article>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <article class="card shadow-sm h-100 border-0">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <span class="text-uppercase small text-muted">Arızalı Cihaz</span>
+            <span class="text-warning"><i class="bi bi-exclamation-triangle"></i></span>
+          </div>
+          <h2 class="display-6 mb-1">{{ stats.arizali_cihaz_sayisi }}</h2>
+          <p class="text-muted mb-0">Servise yönlendirilen cihazların toplamı.</p>
+        </div>
+      </article>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <article class="card shadow-sm h-100 border-0">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <span class="text-uppercase small text-muted">Açık Talep</span>
+            <span class="text-info"><i class="bi bi-clipboard-data"></i></span>
+          </div>
+          <h2 class="display-6 mb-1">{{ stats.bekleyen_talep }}</h2>
+          <p class="text-muted mb-0">Onay veya işlem bekleyen talepler.</p>
+        </div>
+      </article>
     </div>
   </div>
+
+  <section class="card shadow-sm border-0">
+    <div class="card-header border-0 bg-transparent pb-0">
+      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+        <h2 class="h5 mb-0">Son İşlemler</h2>
+        <span class="badge bg-success-subtle text-success fw-semibold">Canlı</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead>
+            <tr class="text-muted text-uppercase small">
+              <th scope="col">Tarih</th>
+              <th scope="col">Kullanıcı</th>
+              <th scope="col">İşlem</th>
+              <th scope="col">Nesne</th>
+              <th scope="col" class="text-end">Durum</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if stats.son_islemler %}
+            {% for row in stats.son_islemler %}
+            <tr>
+              <td>{{ row.created_at.strftime('%d.%m.%Y %H:%M') if row.created_at else '-' }}</td>
+              <td>{{ row.actor or '-' }}</td>
+              <td>{{ row.action or '-' }}</td>
+              <td>{{ row.no or '-' }}</td>
+              <td class="text-end"><span class="badge bg-success-subtle text-success">Tamamlandı</span></td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+              <td colspan="5" class="text-center text-muted py-3">Henüz kayıt bulunmuyor.</td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
 </div>
-
-{% endblock %} {% block scripts %} {{ super() }}
-<script>
-  (function () {
-    const skeletonTargets = document.querySelectorAll("[data-auto-skeleton]");
-    skeletonTargets.forEach((el) => el.classList.add("is-loading"));
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const reduceMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-      const formatter = new Intl.NumberFormat("tr-TR");
-
-      document.querySelectorAll("[data-animate-count]").forEach((el) => {
-        const targetRaw = el.dataset.animateCount ?? el.textContent ?? "";
-        const target = Number(targetRaw);
-        if (!Number.isFinite(target)) return;
-
-        if (reduceMotion) {
-          el.textContent = formatter.format(target);
-          return;
-        }
-
-        const duration = 900;
-        const start = performance.now();
-
-        const step = (now) => {
-          const progress = Math.min((now - start) / duration, 1);
-          const value = Math.round(progress * target);
-          el.textContent = formatter.format(value);
-          if (progress < 1) {
-            requestAnimationFrame(step);
-          } else {
-            el.textContent = formatter.format(target);
-          }
-        };
-
-        requestAnimationFrame(step);
-      });
-
-      skeletonTargets.forEach((card) => {
-        const finish = () => card.classList.remove("is-loading");
-        if (reduceMotion) {
-          finish();
-        } else {
-          setTimeout(finish, 480);
-        }
-      });
-    });
-  })();
-</script>
 {% endblock %}

@@ -1,767 +1,153 @@
-{% extends "base.html" %} {% block title %}Envanter Listesi{% endblock %} {%
-block content %}
-<div class="container-fluid py-4">
-  <div class="page-shell">
-    <header class="page-header">
-      <div class="page-header__heading">
-        <span class="eyebrow text-primary">ENVANTER YÖNETİMİ</span>
-        <h1 class="page-header__title">Envanter Listesi</h1>
-        <p class="page-header__subtitle">
-          Envanterinizdeki tüm cihazları görüntüleyin ve yönetin.
-        </p>
+﻿{% extends "base.html" %}
+{% block title %}Envanter{% endblock %}
+{% block content %}
+<div class="container-fluid py-4" id="inventory-page">
+  <header class="mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+      <div>
+        <span class="text-uppercase text-muted small fw-semibold">Envanter Yönetimi</span>
+        <h1 class="h3 mb-1">Envanter Listesi</h1>
+        <p class="text-muted mb-0">Aktif cihazlarınızı görüntüleyin, arayın ve hızlıca aksiyon alın.</p>
       </div>
-      <div class="page-header__actions page-actions">
-        <div class="page-actions__group">
-          <a
-            href="#"
-            id="addBtn"
-            class="btn btn-success btn-sm"
-            title="Yeni Ekle"
-          >
-            <i class="bi bi-plus-lg"></i>
-            <span>Ekle</span>
-          </a>
-          {% with fault_entity='inventory', fault_prefix='inventory',
-          fault_label='Envanter Arızalı Durum' %} {% include
-          'partials/_fault_controls.html' %} {% endwith %}
-          <div class="dropdown">
-            <button
-              class="btn btn-outline-primary btn-sm dropdown-toggle"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              Excel
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li>
-                <a class="dropdown-item" href="/inventory/export">Dışa Aktar</a>
-              </li>
-              <li>
-                <form
-                  action="/inventory/import"
-                  method="post"
-                  enctype="multipart/form-data"
-                >
-                  <input
-                    type="file"
-                    name="file"
-                    id="invExcel"
-                    class="d-none"
-                    onchange="this.form.submit()"
-                  />
-                  <label for="invExcel" class="dropdown-item mb-0"
-                    >İçe Aktar</label
-                  >
-                </form>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <div class="filter-search-bar">
-      <div class="filter-search-bar__row">
-        <div class="filter-search-bar__main">
-          <div class="search-wrapper">
-            <i class="bi bi-search"></i>
-            <input
-              type="text"
-              id="searchInput"
-              class="form-control form-control-sm"
-              placeholder="Envanter ara..."
-            />
-          </div>
-          <div class="filter-group">
-            <label for="fabrikaFilter">Fabrika:</label>
-            <select id="fabrikaFilter" class="form-select form-select-sm">
-              <option value="">Tümü</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label for="departmanFilter">Departman:</label>
-            <select id="departmanFilter" class="form-select form-select-sm">
-              <option value="">Tümü</option>
-            </select>
-          </div>
-        </div>
-        <div class="filter-search-bar__actions">
-          <button class="btn btn-primary btn-sm" id="filterBtn">
-            <i class="bi bi-funnel"></i>
-            Filtrele
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{{ url_for('inventory.new') }}" class="btn btn-success btn-sm">
+          <i class="bi bi-plus-lg me-1"></i>
+          Yeni Envanter
+        </a>
+        {% with fault_entity='inventory', fault_prefix='inventory', fault_label='Envanter Arızalı Durum' %}
+          {% include 'partials/_fault_controls.html' %}
+        {% endwith %}
+        <div class="dropdown">
+          <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-download me-1"></i> Excel
           </button>
-          <button
-            class="btn btn-outline-secondary btn-sm d-none"
-            id="clearFilterBtn"
-          >
-            <i class="bi bi-x-circle"></i>
-            Temizle
-          </button>
-        </div>
-      </div>
-      <div class="active-filters-section d-none" id="activeFiltersSection">
-        <div class="active-filters">
-          <span class="active-filters__label">Aktif Filtreler:</span>
-          <div id="activeFilterBadges"></div>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="/inventory/export">Dışa Aktar</a></li>
+          </ul>
         </div>
       </div>
     </div>
+  </header>
 
-    <div class="page-card">
-      <div class="table-responsive">
-        <table
-          id="inventoryTable"
-          class="table table-sm table-hover table-rounded align-middle mb-0"
-        >
-          <thead>
-            <tr>
-              <th data-field="no">Envanter No</th>
-              <th data-field="fabrika">Fabrika</th>
-              <th data-field="departman">Departman</th>
-              <th data-field="sorumlu_personel">Sorumlu</th>
-              <th data-field="marka">Marka/Model</th>
-              <th style="width: 180px">İşlemler</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for row in items %}
-            <tr
-              data-id="{{ row.id }}"
-              data-fabrika="{{ row.fabrika or '' }}"
-              data-departman="{{ row.departman or '' }}"
-              data-sorumlu="{{ row.sorumlu_personel or '' }}"
-              data-bagli="{{ row.bagli_envanter_no or '' }}"
-              class="inv-row{% if row.durum == 'arızalı' %} table-warning{% endif %}"
-            >
-              <td>
-                {{ row.no }} {% if row.durum == 'arızalı' %}
-                <span class="badge text-bg-warning text-dark ms-1"
-                  >Arızalı</span
-                >
-                {% endif %}
-              </td>
-              <td>{{ row.fabrika }}</td>
-              <td>{{ row.departman }}</td>
-              <td>{{ row.sorumlu_personel }}</td>
-              <td>{{ row.marka }} {{ row.model }}</td>
-              <td class="text-nowrap">
-                {% set entity = 'inventory' %} {% set row_id = row.id %} {% set
-                fault_mode = True %} {% set fault_device = row.no %} {% set
-                fault_title = (row.marka ~ ' ' ~ row.model)|trim %} {% set
-                fault_entity_key = row.no %} {% set fault_status = row.durum %}
-                {% set edit_modal_chrome = 'frameless' %} {% include
-                'partials/_actions_menu.html' %}
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+  <div class="card shadow-sm border-0">
+    <div class="card-body pb-2">
+      <form class="row g-2 align-items-center" id="inventoryFilters" autocomplete="off">
+        <div class="col-12 col-md-6 col-lg-4">
+          <label for="inventorySearch" class="form-label small text-uppercase text-muted mb-1">Ara</label>
+          <div class="input-group input-group-sm">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input id="inventorySearch" type="search" class="form-control" placeholder="No, marka, model veya sorumlu" />
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <label for="factoryFilter" class="form-label small text-uppercase text-muted mb-1">Fabrika</label>
+          <input id="factoryFilter" type="text" class="form-control form-control-sm" placeholder="Filtrele" />
+        </div>
+        <div class="col-6 col-lg-3">
+          <label for="departmentFilter" class="form-label small text-uppercase text-muted mb-1">Departman</label>
+          <input id="departmentFilter" type="text" class="form-control form-control-sm" placeholder="Filtrele" />
+        </div>
+        <div class="col-12 col-lg-2 d-grid justify-content-lg-end">
+          <label class="form-label small text-uppercase text-muted mb-1">&nbsp;</label>
+          <button type="reset" class="btn btn-outline-secondary btn-sm">Temizle</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table align-middle mb-0" id="inventoryTable">
+        <thead class="table-light text-muted text-uppercase small">
+          <tr>
+            <th scope="col">No</th>
+            <th scope="col">Donanım Tipi</th>
+            <th scope="col">Marka / Model</th>
+            <th scope="col">Sorumlu</th>
+            <th scope="col">Durum</th>
+            <th scope="col">Fabrika</th>
+            <th scope="col">Departman</th>
+            <th scope="col" class="text-end">İşlem</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if items %}
+          {% for item in items %}
+          <tr
+            data-search="{{ (item.no or '') ~ ' ' ~ (item.donanim_tipi or '') ~ ' ' ~ (item.marka or '') ~ ' ' ~ (item.model or '') ~ ' ' ~ (item.sorumlu_personel or '') | lower }}"
+            data-factory="{{ (item.fabrika or '') | lower }}"
+            data-department="{{ (item.departman or '') | lower }}"
+          >
+            <td class="fw-semibold">{{ item.no or '-' }}</td>
+            <td>{{ item.donanim_tipi or '-' }}</td>
+            <td>
+              <div class="fw-semibold">{{ item.marka or '-' }} {{ item.model or '' }}</div>
+              {% if item.seri_no %}
+              <div class="text-muted small">Seri: {{ item.seri_no }}</div>
+              {% endif %}
+            </td>
+            <td>{{ item.sorumlu_personel or '-' }}</td>
+            <td>
+              {% if item.durum %}
+              <span class="badge bg-secondary-subtle text-body">{{ item.durum }}</span>
+              {% else %}
+              <span class="badge bg-success-subtle text-success">Aktif</span>
+              {% endif %}
+            </td>
+            <td>{{ item.fabrika or '-' }}</td>
+            <td>{{ item.departman or '-' }}</td>
+            <td class="text-end">
+              <div class="btn-group btn-group-sm" role="group">
+                <a href="{{ url_for('inventory.detail', item_id=item.id) }}" class="btn btn-outline-primary">Detay</a>
+                <a href="{{ url_for('inventory.edit', item_id=item.id) }}" class="btn btn-outline-secondary">Düzenle</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="8" class="text-center text-muted py-4">Kayıt bulunamadı.</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
+{% endblock %}
 
-<style>
-  /* Satırın tamamı tıklanmasın */
-  tr.inv-row {
-    cursor: default;
-  }
-  tr.inv-row a,
-  tr.inv-row button,
-  tr.inv-row select {
-    cursor: pointer;
-  }
-</style>
-
-<!-- Envanter Ekle Modal -->
-<div
-  class="modal fade"
-  id="inventoryCreateModal"
-  tabindex="-1"
-  aria-hidden="true"
->
-  <div
-    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
-  >
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Envanter Ekle</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Kapat"
-        ></button>
-      </div>
-
-      <div class="modal-body">
-        <form
-          method="post"
-          action="/inventory/create"
-          id="envanter-form"
-          novalidate
-        >
-          <div class="env-grid" id="envanter-ekle">
-            <!-- Envanter No -->
-            <div class="field">
-              <label>Envanter No</label>
-              <input
-                name="envanter_no"
-                type="text"
-                class="ctrl"
-                required
-                placeholder="ENV-000123"
-              />
-            </div>
-
-            <!-- Bilgisayar Adı -->
-            <div class="field">
-              <label>Bilgisayar Adı</label>
-              <input
-                name="bilgisayar_adi"
-                type="text"
-                class="ctrl"
-                required
-                placeholder="PC-OFIS-01"
-              />
-            </div>
-
-            <!-- Fabrika -->
-            <div class="field">
-              <label>Fabrika</label>
-              <select
-                name="fabrika"
-                id="fabrika"
-                class="ctrl"
-                required
-              ></select>
-            </div>
-
-            <!-- Departman -->
-            <div class="field">
-              <label>Departman</label>
-              <select
-                name="departman"
-                id="departman"
-                class="ctrl"
-                required
-              ></select>
-            </div>
-
-            <!-- Donanım Tipi -->
-            <div class="field">
-              <label>Donanım Tipi</label>
-              <select
-                name="donanim_tipi"
-                id="donanim_tipi"
-                class="ctrl"
-                required
-              ></select>
-            </div>
-
-            <!-- Sorumlu Personel -->
-            <div class="field">
-              <label>Sorumlu Personel</label>
-              <select
-                name="sorumlu_personel"
-                id="sorumlu_personel"
-                class="ctrl"
-                required
-              ></select>
-            </div>
-
-            <!-- Marka -->
-            <div class="field">
-              <label>Marka</label>
-              <select name="marka" id="marka" class="ctrl" required></select>
-            </div>
-
-            <!-- Model -->
-            <div class="field">
-              <label>Model</label>
-              <select name="model" id="model" class="ctrl" required disabled>
-                <option value="">Önce marka seçiniz...</option>
-              </select>
-            </div>
-
-            <!-- Seri No -->
-            <div class="field">
-              <label>Seri No</label>
-              <input
-                name="seri_no"
-                type="text"
-                class="ctrl"
-                required
-                placeholder="SN123456789"
-              />
-            </div>
-
-            <!-- IFS No (opsiyonel) -->
-            <div class="field">
-              <label>IFS No <span class="muted">(zorunlu değil)</span></label>
-              <input
-                name="ifs_no"
-                type="text"
-                class="ctrl"
-                placeholder="IFS-..."
-              />
-            </div>
-
-            <!-- Bağlı Makina No (opsiyonel) -->
-            <div class="field">
-              <label
-                >Bağlı Makina No
-                <span class="muted">(zorunlu değil)</span></label
-              >
-              <input
-                name="bagli_makina_no"
-                type="text"
-                class="ctrl"
-                placeholder="Makina No"
-              />
-            </div>
-
-            <!-- Not (opsiyonel) -->
-            <div class="field span-2">
-              <label>Not <span class="muted">(zorunlu değil)</span></label>
-              <textarea
-                name="notlar"
-                class="ctrl"
-                rows="2"
-                placeholder="Açıklama / notlar"
-              ></textarea>
-            </div>
-          </div>
-
-          <div class="mt-3 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Kaydet</button>
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              İptal
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
+{% block scripts %}
+{{ super() }}
 <script>
-  window.SKIP_SELECT_ENHANCE = true;
-</script>
+  (function () {
+    const searchInput = document.getElementById('inventorySearch');
+    const factoryInput = document.getElementById('factoryFilter');
+    const departmentInput = document.getElementById('departmentFilter');
+    const rows = Array.from(document.querySelectorAll('#inventoryTable tbody tr'));
 
-<!-- Filtre Modal -->
-<div class="modal fade" id="filterModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <form id="filterForm" class="modal-content border-0 bg-transparent p-0">
-      <div class="modal-shell">
-        <div class="modal-shell__header">
-          <h5 class="modal-shell__title">Gelişmiş Filtre</h5>
-          <p class="modal-shell__subtitle">
-            Birden fazla kritere göre filtreleyin
-          </p>
-        </div>
-        <div class="modal-shell__body filter-modal-body">
-          <div id="filterRows" class="filter-rows-container"></div>
-        </div>
-        <div class="modal-shell__footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
-            İptal
-          </button>
-          <button type="submit" class="btn btn-primary">Uygula</button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
+    function normalize(value) {
+      return (value || '').trim().toLowerCase();
+    }
 
-<!-- Atama Modal -->
-{% include "inventory/_assign_modal.html" %}
+    function applyFilters() {
+      const search = normalize(searchInput?.value);
+      const factory = normalize(factoryInput?.value);
+      const department = normalize(departmentInput?.value);
 
-<!-- Hurdaya Ayır Modal -->
-<div class="modal fade" id="scrapModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <form id="scrapForm" class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Hurdaya Ayır</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" name="item_id" id="scrap_item_id" />
-        <p>Bu envanter hurdaya ayrılacak. Onaylıyor musunuz?</p>
-        <div class="mb-2">
-          <label class="form-label">Açıklama (opsiyonel)</label>
-          <textarea
-            name="aciklama"
-            class="form-control"
-            rows="3"
-            placeholder="Hurda sebebi / not"
-          ></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">
-          Vazgeç
-        </button>
-        <button class="btn btn-danger" type="submit">Hurdaya Ayır</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<script>
-  document.addEventListener("DOMContentLoaded", async () => {
-    const assignModalEl = document.getElementById("assignModal");
-    const scrapModalEl = document.getElementById("scrapModal");
-    const addModalEl = document.getElementById("inventoryCreateModal");
-
-    const assignModal = assignModalEl
-      ? bootstrap.Modal.getOrCreateInstance(assignModalEl)
-      : null;
-    const scrapModal = scrapModalEl
-      ? bootstrap.Modal.getOrCreateInstance(scrapModalEl)
-      : null;
-    const addModal = addModalEl
-      ? bootstrap.Modal.getOrCreateInstance(addModalEl)
-      : null;
-
-    const addBtn = document.getElementById("addBtn");
-    if (addBtn && addModal) {
-      addBtn.addEventListener("click", (event) => {
-        event.preventDefault();
-        addModal.show();
+      rows.forEach((row) => {
+        const matchesSearch = !search || row.dataset.search.includes(search);
+        const matchesFactory = !factory || row.dataset.factory.includes(factory);
+        const matchesDepartment = !department || row.dataset.department.includes(department);
+        row.classList.toggle('d-none', !(matchesSearch && matchesFactory && matchesDepartment));
       });
     }
 
-    await loadInventoryFormOptions();
-
-    await populateDistinctValues("fabrikaFilter", "inventory", "fabrika");
-    await populateDistinctValues("departmanFilter", "inventory", "departman");
-
-    const filterSystem = new UnifiedFilterSystem({
-      tableSelector: "#inventoryTable",
-      searchInputId: "searchInput",
-      filters: [
-        { id: "fabrikaFilter", label: "Fabrika", columnField: "fabrika" },
-        { id: "departmanFilter", label: "Departman", columnField: "departman" },
-      ],
-    });
-    window.filterSystem = filterSystem;
-
-    const tableColumns = Array.from(
-      document.querySelectorAll("#inventoryTable thead th"),
-    )
-      .map((th) => ({
-        name: th.textContent.trim(),
-        field: th.dataset.field,
-      }))
-      .filter((column) => column.field);
-
-    if (tableColumns.length) {
-      const advancedFilter = new AdvancedFilterModal({
-        modalId: "filterModal",
-        formId: "filterForm",
-        triggerId: "filterBtn",
-        columns: tableColumns,
-        distinctUrl:
-          "{{ url_for('lookup.distinct', entity='inventory', column='__COL__') }}",
-      });
-      filterSystem.registerAdvancedFilter(advancedFilter);
-      window.advancedFilter = advancedFilter;
-    }
-
-    document.querySelectorAll(".action-select").forEach((sel) => {
-      sel.addEventListener("change", async (event) => {
-        const value = event.target.value;
-        if (!value) return;
-        const id = event.target.dataset.id;
-        if (!id) return;
-
-        if (value === "assign") {
-          event.stopImmediatePropagation();
-          const row = event.target.closest("tr");
-          const assignInput = document.getElementById("assign_item_id");
-          if (assignInput) {
-            assignInput.value = id;
-          }
-          await preloadAssignDropdowns(id);
-          if (row) {
-            setSelectValue("selFabrika", row.dataset.fabrika);
-            setSelectValue("selDepartman", row.dataset.departman);
-            setSelectValue("selPersonel", row.dataset.sorumlu);
-            setSelectValue("selBagli", row.dataset.bagli);
-          }
-          if (assignModal) assignModal.show();
-          event.target.value = "";
-          return;
-        }
-
-        if (value === "fault") {
-          if (window.Faults) {
-            event.stopImmediatePropagation();
-            window.Faults.openMarkModal("inventory", {
-              entityId: Number(id),
-              entityKey:
-                event.target.dataset.entityKey ||
-                event.target.dataset.device ||
-                id,
-              deviceNo: event.target.dataset.device || "",
-              title: event.target.dataset.title || "",
-            });
-          }
-          event.target.value = "";
-          return;
-        }
-
-        if (value === "repair") {
-          if (window.Faults) {
-            event.stopImmediatePropagation();
-            window.Faults.openRepairModal("inventory", {
-              entityId: Number(id),
-              entityKey:
-                event.target.dataset.entityKey ||
-                event.target.dataset.device ||
-                id,
-              deviceNo: event.target.dataset.device || "",
-            });
-          }
-          event.target.value = "";
-          return;
-        }
-
-        if (value === "scrap") {
-          event.stopImmediatePropagation();
-          const scrapInput = document.getElementById("scrap_item_id");
-          if (scrapInput) {
-            scrapInput.value = id;
-          }
-          if (scrapModal) scrapModal.show();
-          event.target.value = "";
-        }
-      });
+    [searchInput, factoryInput, departmentInput].forEach((input) => {
+      if (!input) return;
+      input.addEventListener('input', applyFilters);
     });
 
-    const assignForm = document.getElementById("assignForm");
-    if (assignForm) {
-      assignForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        const response = await fetch(`{{ url_for('inventory.assign') }}`, {
-          method: "POST",
-          body: formData,
-        });
-        if (response.ok) {
-          window.location.reload();
-        } else {
-          alert("Atama kaydedilemedi");
-        }
-      });
-    }
-
-    const scrapForm = document.getElementById("scrapForm");
-    if (scrapForm) {
-      scrapForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        const response = await fetch(`{{ url_for('inventory.scrap') }}`, {
-          method: "POST",
-          body: formData,
-        });
-        if (response.ok) {
-          window.location.href = `{{ url_for('inventory.hurdalar') }}`;
-        } else {
-          alert("Hurdaya ayırma başarısız");
-        }
-      });
-    }
-
-    function normalisePickerItems(data) {
-      if (!Array.isArray(data)) return [];
-      return data
-        .map((item) => {
-          if (typeof item === "string") {
-            const value = item.trim();
-            if (!value) return null;
-            return { id: value, text: value };
-          }
-          if (!item || typeof item !== "object") return null;
-          const text =
-            item.text ||
-            item.name ||
-            item.label ||
-            item.value ||
-            item.ad ||
-            item.adi ||
-            "";
-          const id = item.id ?? text;
-          if (!text) return null;
-          return { id, text };
-        })
-        .filter(Boolean);
-    }
-
-    async function fetchPickerItems(url) {
-      try {
-        const response = await fetch(url, {
-          headers: { Accept: "application/json" },
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        const payload = await response.json();
-        return normalisePickerItems(payload);
-      } catch (error) {
-        console.warn("fetchPickerItems failed", { url, error });
-        return [];
-      }
-    }
-
-    async function loadInventoryFormOptions() {
-      async function loadOptions(selectEl, url, options = {}) {
-        if (!selectEl) return [];
-        const { placeholder = "Seçiniz...", fallbackUrl } = options;
-        let items = await fetchPickerItems(url);
-        if (!items.length && fallbackUrl) {
-          items = await fetchPickerItems(fallbackUrl);
-        }
-        selectEl.innerHTML =
-          `<option value="">${placeholder}</option>` +
-          items
-            .map((item) => {
-              const dataId =
-                item.id !== undefined && item.id !== null
-                  ? ` data-id="${item.id}"`
-                  : "";
-              return `<option value="${item.text}"${dataId}>${item.text}</option>`;
-            })
-            .join("");
-        return items;
-      }
-
-      const fabrikaSel = document.getElementById("fabrika");
-      const departmanSel = document.getElementById("departman");
-      const donanimSel = document.getElementById("donanim_tipi");
-      const personelSel = document.getElementById("sorumlu_personel");
-      const markaSel = document.getElementById("marka");
-      const modelSel = document.getElementById("model");
-
-      await loadOptions(fabrikaSel, "/api/picker/fabrika");
-      await loadOptions(departmanSel, "/api/picker/kullanim_alani", {
-        fallbackUrl: "/inventory/assign/sources?type=departman",
-      });
-      await loadOptions(donanimSel, "/api/picker/donanim_tipi");
-
-      if (personelSel && window._selects) {
-        await _selects.fillChoices({
-          endpoint: "/api/picker/kullanici",
-          selectId: "sorumlu_personel",
-          mapFn: (row) => ({ value: row.text, label: row.text }),
-        });
-        _selects.enableRemoteSearch(
-          "sorumlu_personel",
-          "/api/picker/kullanici",
-          () => ({}),
-          (row) => ({ value: row.text, label: row.text }),
-        );
-      }
-
-      if (markaSel) {
-        const brands = await fetchPickerItems("/api/picker/marka");
-        markaSel.innerHTML =
-          '<option value="">Seçiniz...</option>' +
-          brands
-            .map((brand) => {
-              const dataId =
-                brand.id !== undefined && brand.id !== null
-                  ? ` data-id="${brand.id}"`
-                  : "";
-              return `<option value="${brand.text}"${dataId}>${brand.text}</option>`;
-            })
-            .join("");
-        markaSel.addEventListener("change", async () => {
-          const option = markaSel.options[markaSel.selectedIndex];
-          const brandId = option && option.dataset.id;
-          if (!modelSel) return;
-          modelSel.innerHTML = '<option value="">Seçiniz...</option>';
-          modelSel.disabled = !brandId;
-          if (!brandId) return;
-          const modelResponse = await fetch(
-            `/api/picker/model?marka_id=${brandId}`,
-          );
-          const models = await modelResponse.json();
-          modelSel.innerHTML += models
-            .map(
-              (model) => `<option value="${model.text}">${model.text}</option>`,
-            )
-            .join("");
-        });
-      }
-    }
-
-    async function preloadAssignDropdowns(itemId) {
-      const [factories, departmentsPrimary, departmentsFallback, users] =
-        await Promise.all([
-          fetchPickerItems("/api/picker/fabrika"),
-          fetchPickerItems("/api/picker/kullanim_alani"),
-          fetchPickerItems("/inventory/assign/sources?type=departman"),
-          fetchPickerItems("/api/picker/kullanici"),
-        ]);
-
-      const departments = departmentsPrimary.length
-        ? departmentsPrimary
-        : departmentsFallback;
-
-      fillSelect("selFabrika", factories);
-      fillSelect("selDepartman", departments);
-      fillSelect("selPersonel", users);
-    }
-
-    function fillSelect(selectId, items) {
-      const selectEl = document.getElementById(selectId);
-      if (!selectEl) return;
-      selectEl.innerHTML =
-        '<option value="">Seçiniz</option>' +
-        (items || [])
-          .map((item) => {
-            const text = item && item.text ? item.text : "";
-            return `<option value="${text}">${text}</option>`;
-          })
-          .join("");
-    }
-
-    function setSelectValue(selectId, value) {
-      const selectEl = document.getElementById(selectId);
-      if (!selectEl) return;
-      const normalized = value || "";
-      if (selectEl.tagName === "SELECT") {
-        if (
-          normalized &&
-          !Array.from(selectEl.options).some(
-            (option) => option.value === normalized,
-          )
-        ) {
-          const option = document.createElement("option");
-          option.value = normalized;
-          option.textContent = normalized;
-          selectEl.appendChild(option);
-        }
-        selectEl.value = normalized;
-      } else {
-        selectEl.value = normalized;
-      }
-    }
-  });
+    document.getElementById('inventoryFilters')?.addEventListener('reset', () => {
+      setTimeout(applyFilters, 0);
+    });
+  })();
 </script>
 {% endblock %}
