@@ -1,0 +1,58 @@
+{% extends "components/modal_base.html" %} {% block modal_id %}assignModal{%
+endblock %} {% block modal_dialog_classes %}modal-lg modal-dialog-scrollable{%
+endblock %} {% block modal_title %}Envanter Atama{% endblock %} {% block
+modal_subtitle %}
+<p class="modal-subtitle">
+  Envanteri ilgili personel ve departmanla eşleştirin.
+</p>
+{% endblock %} {% block modal_body %}
+<form id="assignForm" class="form-grid" novalidate>
+  <input type="hidden" name="item_id" id="assign_item_id" />
+  <div class="field">
+    <label for="selFabrika" class="form-label">Fabrika</label>
+    <select
+      name="fabrika"
+      id="selFabrika"
+      class="form-select ctrl"
+      required
+    ></select>
+  </div>
+  <div class="field">
+    <label for="selDepartman" class="form-label">Departman</label>
+    <select
+      name="departman"
+      id="selDepartman"
+      class="form-select ctrl"
+      required
+    ></select>
+  </div>
+  <div class="field">
+    <label for="selPersonel" class="form-label">Sorumlu Personel</label>
+    <select
+      name="sorumlu_personel"
+      id="selPersonel"
+      class="form-select ctrl"
+      required
+    ></select>
+  </div>
+  <div class="field">
+    <label for="selBagli" class="form-label">
+      Bağlı Olduğu Envanter <span class="help-text">(opsiyonel)</span>
+    </label>
+    <input
+      type="text"
+      name="bagli_envanter_no"
+      id="selBagli"
+      class="form-control ctrl"
+      placeholder="Bağlı envanter numarasını girin"
+    />
+  </div>
+</form>
+{% endblock %} {% block modal_footer %}
+<button type="button" class="btn btn-light" data-bs-dismiss="modal">
+  Kapat
+</button>
+<button type="submit" form="assignForm" class="btn btn-primary">
+  Atamayı Kaydet
+</button>
+{% endblock %}
