@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import secrets
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
@@ -11,7 +12,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette import status as st_status
 from starlette.middleware.sessions import SessionMiddleware
-from urllib.parse import urlparse
 
 from app.core.security import hash_password
 from app.db.init import bootstrap_schema, init_db
@@ -92,11 +92,7 @@ def _extract_error_message(detail: object) -> str:
         return "Beklenmeyen bir hata oluştu."
 
     if isinstance(detail, (list, tuple)):
-        rendered = [
-            _extract_error_message(item)
-            for item in detail
-            if item is not None
-        ]
+        rendered = [_extract_error_message(item) for item in detail if item is not None]
         return ", ".join(filter(None, rendered)) or "Beklenmeyen bir hata oluştu."
 
     return str(detail)
@@ -143,7 +139,9 @@ async def redirect_on_auth(request: Request, exc: HTTPException):
 
     accepts = (request.headers.get("accept") or "").lower()
     wants_html = "text/html" in accepts
-    is_api_request = request.url.path.startswith("/api") or "application/json" in accepts
+    is_api_request = (
+        request.url.path.startswith("/api") or "application/json" in accepts
+    )
 
     if wants_html and not is_api_request:
         templates: Jinja2Templates = request.app.state.templates
@@ -157,7 +155,9 @@ async def redirect_on_auth(request: Request, exc: HTTPException):
             "back_url": _safe_back_url(request),
         }
         status_code = exc.status_code or st_status.HTTP_500_INTERNAL_SERVER_ERROR
-        return templates.TemplateResponse("error_modal.html", context, status_code=status_code)
+        return templates.TemplateResponse(
+            "error_modal.html", context, status_code=status_code
+        )
 
     # Delegate to FastAPI's standard HTTP exception handler for API requests
     # so the appropriate status code (e.g. 404) is returned as JSON.
