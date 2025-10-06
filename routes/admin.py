@@ -14,6 +14,37 @@ router = APIRouter(prefix="/admin", tags=["Admin"])
 templates = Jinja2Templates(directory="templates")
 
 
+def _set_flash(
+    request: Request | None,
+    message: str,
+    *,
+    title: str | None = None,
+    variant: str = "primary",
+) -> None:
+    if request is None:
+        return
+    request.session["_flash"] = {
+        "message": message,
+        "title": title,
+        "variant": variant,
+    }
+
+
+def _error_response(
+    request: Request | None,
+    *,
+    status_code: int,
+    message: str,
+    title: str,
+    redirect_url: str = "/admin#users",
+    variant: str = "danger",
+):
+    if request is None:
+        raise HTTPException(status_code=status_code, detail=message)
+    _set_flash(request, message, title=title, variant=variant)
+    return RedirectResponse(url=redirect_url, status_code=303)
+
+
 @router.get("", response_class=HTMLResponse, name="admin_index")
 def admin_index(
     request: Request,
@@ -46,6 +77,8 @@ def admin_index(
             .all()
         )
 
+    flash = request.session.pop("_flash", None)
+
     ctx = {
         "request": request,
         "users": users,
@@ -57,6 +90,7 @@ def admin_index(
         "lookup_markalar": get("marka"),
         "lookup_modeller": get("model"),
         "connections": connections,
+        "flash": flash,
     }
     ctx["tab"] = tab
     return templates.TemplateResponse("admin/index.html", ctx)
@@ -173,9 +207,9 @@ def create_product(
     return RedirectResponse(url="/admin#products", status_code=303)
 
 
-@router.post("/users/{uid}/edit")
-def user_edit_post(
+def _user_edit_post(
     uid: int,
+    request: Request | None = None,
     username: str = Form(...),
     first_name: str = Form(""),
     last_name: str = Form(""),
@@ -194,15 +228,34 @@ def user_edit_post(
 
     u = db.get(User, uid)
     if not u:
-        raise HTTPException(404, "Kullanıcı bulunamadı")
+        return _error_response(
+            request,
+            status_code=404,
+            message="Kullanıcı bulunamadı.",
+            title="İşlem gerçekleştirilemedi",
+        )
     if u.role == "admin" and user.id != u.id and user.username.lower() != "admin":
-        raise HTTPException(403, "Adminler birbirini güncelleyemez")
-    _ensure_unique_user(
-        db,
-        username=normalized_username,
-        email=normalized_email,
-        exclude_user_id=uid,
-    )
+        return _error_response(
+            request,
+            status_code=403,
+            message="Adminler birbirini güncelleyemez.",
+            title="Erişim reddedildi",
+        )
+    try:
+        _ensure_unique_user(
+            db,
+            username=normalized_username,
+            email=normalized_email,
+            exclude_user_id=uid,
+        )
+    except HTTPException as exc:
+        detail = exc.detail if isinstance(exc.detail, str) else "Kullanıcı güncellenemedi."
+        return _error_response(
+            request,
+            status_code=exc.status_code or 400,
+            message=detail,
+            title="Geçersiz işlem",
+        )
     u.username = normalized_username
     u.first_name = normalized_first
     u.last_name = normalized_last
@@ -213,25 +266,92 @@ def user_edit_post(
         u.password_hash = hash_password(password)
     db.add(u)
     db.commit()
+    if request is not None:
+        _set_flash(
+            request,
+            f'"{u.username}" kullanıcısı güncellendi.',
+            title="Güncellendi",
+            variant="success",
+        )
     return RedirectResponse(url="/admin#users", status_code=303)
 
 
-@router.post("/users/{uid}/delete")
-def user_delete(
+@router.post("/users/{uid}/edit")
+def user_edit_post_endpoint(
     uid: int,
+    request: Request,
+    username: str = Form(...),
+    first_name: str = Form(""),
+    last_name: str = Form(""),
+    email: str = Form(""),
+    password: str = Form(""),
+    is_admin: bool = Form(False),
+    user: SessionUser = Depends(current_user),
+    db: Session = Depends(get_db),
+):
+    return _user_edit_post(
+        uid,
+        request,
+        username=username,
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        password=password,
+        is_admin=is_admin,
+        user=user,
+        db=db,
+    )
+
+
+def _user_delete(
+    uid: int,
+    request: Request | None = None,
     user: SessionUser = Depends(current_user),
     db: Session = Depends(get_db),
 ):
     target = db.get(User, uid)
     if not target:
-        raise HTTPException(404, "Kullanıcı bulunamadı")
+        return _error_response(
+            request,
+            status_code=404,
+            message="Kullanıcı bulunamadı.",
+            title="İşlem gerçekleştirilemedi",
+        )
     if target.username.lower() == "admin":
-        raise HTTPException(403, "Admin silinemez")
+        return _error_response(
+            request,
+            status_code=403,
+            message="Admin kullanıcısı silinemez.",
+            title="Erişim reddedildi",
+        )
     if user.username.lower() != "admin" and target.role == "admin":
-        raise HTTPException(403, "Adminler birbirini silemez")
+        return _error_response(
+            request,
+            status_code=403,
+            message="Adminler birbirini silemez.",
+            title="Erişim reddedildi",
+        )
+    username = target.username
     db.delete(target)
     db.commit()
+    if request is not None:
+        _set_flash(
+            request,
+            f'"{username}" kullanıcısı silindi.',
+            title="Silindi",
+            variant="success",
+        )
     return RedirectResponse(url="/admin#users", status_code=303)
+
+
+@router.post("/users/{uid}/delete")
+def user_delete_endpoint(
+    uid: int,
+    request: Request,
+    user: SessionUser = Depends(current_user),
+    db: Session = Depends(get_db),
+):
+    return _user_delete(uid, request, user=user, db=db)
 
 
 @router.get("/connections/ldap", response_class=HTMLResponse)
@@ -275,3 +395,8 @@ def ldap_post(
             s.value = v
     db.commit()
     return RedirectResponse(url="/admin/connections/ldap", status_code=303)
+
+
+# Module-level aliases for compatibility with tests/importers
+user_edit_post = _user_edit_post
+user_delete = _user_delete
