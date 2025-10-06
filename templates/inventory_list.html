@@ -384,63 +384,7 @@ block content %}
 </div>
 
 <!-- Atama Modal -->
-<div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
-  <div
-    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
-  >
-    <form id="assignForm" class="modal-content">
-      <div class="modal-header">
-        <div>
-          <h5 class="modal-title">Envanter Atama</h5>
-          <p class="modal-subtitle mb-0">
-            Envanteri ilgili personel ve departmanla eşleştirin.
-          </p>
-        </div>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" name="item_id" id="assign_item_id" />
-        <div class="env-grid" id="envanter-atama">
-          <div class="field">
-            <label for="selFabrika">Fabrika</label>
-            <select name="fabrika" id="selFabrika" class="ctrl"></select>
-          </div>
-          <div class="field">
-            <label for="selDepartman">Departman</label>
-            <select name="departman" id="selDepartman" class="ctrl"></select>
-          </div>
-          <div class="field">
-            <label for="selPersonel">Sorumlu Personel</label>
-            <select
-              name="sorumlu_personel"
-              id="selPersonel"
-              class="ctrl"
-            ></select>
-          </div>
-          <div class="field">
-            <label for="selBagli">
-              Bağlı Olduğu Envanter <span class="muted">(Opsiyonel)</span>
-            </label>
-            <input
-              type="text"
-              name="bagli_envanter_no"
-              id="selBagli"
-              class="ctrl"
-              placeholder="Bağlı envanter numarasını girin"
-            />
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" type="submit">Atamayı Kaydet</button>
-      </div>
-    </form>
-  </div>
-</div>
+{% include "inventory/_assign_modal.html" %}
 
 <!-- Hurdaya Ayır Modal -->
 <div class="modal fade" id="scrapModal" tabindex="-1" aria-hidden="true">

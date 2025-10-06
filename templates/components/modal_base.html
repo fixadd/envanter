@@ -1,0 +1,27 @@
+{% macro close_btn() -%}
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+{%- endmacro %}
+
+<div class="modal fade" id="{% block modal_id %}{% endblock %}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered {% block modal_dialog_classes %}modal-xl{% endblock %}">
+    <div class="modal-content modal-ux">
+      <div class="modal-header align-items-start gap-3">
+        <div class="flex-grow-1">
+          <h5 class="modal-title mb-1">{% block modal_title %}{% endblock %}</h5>
+          {% block modal_subtitle %}{% endblock %}
+        </div>
+        <div class="flex-shrink-0 d-flex align-items-start">
+          {% block modal_header_actions %}{{ close_btn() }}{% endblock %}
+        </div>
+      </div>
+      <div class="modal-body">
+        {% block modal_body %}{% endblock %}
+      </div>
+      <div class="modal-footer">
+        {% block modal_footer %}
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Kapat</button>
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+</div>
