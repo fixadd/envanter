@@ -1018,7 +1018,7 @@
       fetchSourceDetail(meta.source_type, meta.source_id)
         .then((detail) => {
           if (requestId !== state.sourceRequestId) return;
-          if (detail && detail.data) {
+          if (detail?.data) {
             applyAutoData(detail.data, {
               source: detail.type,
               clearMissing: true,
