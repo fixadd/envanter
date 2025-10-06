@@ -186,20 +186,81 @@ content %}
       setFormValue("hostname", {{ (p.hostname or '')|tojson }});
       setFormValue("ifs_no", {{ (p.ifs_no or '')|tojson }});
 
-      const setChoiceByLabel = (select, label) => {
+      const hiddenBrand = form.querySelector("#printerMarkaName");
+      const hiddenModel = form.querySelector("#printerModelName");
+      const hiddenUsage = form.querySelector("#printerUsageName");
+
+      const updateHiddenValue = (select, hidden) => {
+        if (!select || !hidden) return;
+        const opt = select.options[select.selectedIndex];
+        hidden.value = opt ? opt.text.trim() : "";
+      };
+
+      const attachHiddenSync = (select, hidden) => {
+        if (!select || !hidden) return;
+        select.addEventListener("change", () => updateHiddenValue(select, hidden));
+      };
+
+      const setChoiceByLabel = (select, label, { hidden, fallbackPrefix } = {}) => {
         if (!select) return null;
-        const targetLabel = String(label || "").trim().toLowerCase();
-        if (!targetLabel) return null;
-        const option = Array.from(select.options).find((opt) =>
-          opt.text.trim().toLowerCase() === targetLabel,
-        );
-        if (!option) return null;
-        const inst = select._choices;
-        if (inst && option.value !== undefined) {
-          inst.setChoiceByValue(String(option.value));
+        const targetLabel = String(label || "").trim();
+        if (!targetLabel) {
+          if (hidden) hidden.value = "";
+          return null;
         }
-        select.value = option.value;
-        return option.value;
+        const lower = targetLabel.toLowerCase();
+        const option = Array.from(select.options).find((opt) =>
+          opt.text.trim().toLowerCase() === lower,
+        );
+        if (option) {
+          const inst = select._choices;
+          if (inst && option.value !== undefined) {
+            inst.setChoiceByValue(String(option.value));
+          }
+          select.value = option.value;
+          if (hidden) hidden.value = option.text.trim();
+          return option.value;
+        }
+
+        const inst = select._choices;
+        const fallbackValue =
+          select.dataset.fallbackValue ||
+          `${fallbackPrefix || "__custom"}_${select.id || "choice"}`;
+        select.dataset.fallbackValue = fallbackValue;
+        if (inst) {
+          const hasExisting = Array.from(select.options).some(
+            (opt) => opt.value === fallbackValue,
+          );
+          if (!hasExisting) {
+            inst.setChoices(
+              [
+                {
+                  value: fallbackValue,
+                  label: targetLabel,
+                  selected: true,
+                },
+              ],
+              "value",
+              "label",
+              false,
+            );
+          }
+          inst.setChoiceByValue(fallbackValue);
+        } else {
+          let opt = Array.from(select.options).find(
+            (o) => o.value === fallbackValue,
+          );
+          if (!opt) {
+            opt = document.createElement("option");
+            opt.value = fallbackValue;
+            opt.textContent = targetLabel;
+            select.appendChild(opt);
+          }
+          opt.selected = true;
+          select.value = fallbackValue;
+        }
+        if (hidden) hidden.value = targetLabel;
+        return fallbackValue;
       };
 
       const initSelects = async () => {
@@ -209,34 +270,57 @@ content %}
         const usageSelect = form.querySelector("#selYaziciKullanim");
 
         if (brandSelect) {
+          attachHiddenSync(brandSelect, hiddenBrand);
           await window._selects.fillChoices({
             endpoint: "/api/lookup/marka",
             selectId: "selYaziciMarka",
             placeholder: "Yazıcı markası seçiniz…",
           });
-          setChoiceByLabel(brandSelect, {{ (p.marka or '')|tojson }});
+          setChoiceByLabel(brandSelect, {{ (p.marka or '')|tojson }}, {
+            hidden: hiddenBrand,
+            fallbackPrefix: "brand",
+          });
           await window._selects.bindMarkaModel(
             "selYaziciMarka",
             "selYaziciModel",
           );
           if (modelSelect) {
-            setChoiceByLabel(modelSelect, {{ (p.model or '')|tojson }});
+            attachHiddenSync(modelSelect, hiddenModel);
+            setChoiceByLabel(modelSelect, {{ (p.model or '')|tojson }}, {
+              hidden: hiddenModel,
+              fallbackPrefix: "model",
+            });
           }
           window._selects.enableRemoteSearch(
             "selYaziciModel",
             "/api/lookup/model",
-            () => ({ marka_id: brandSelect.value || "" }),
+            () => {
+              const raw = brandSelect.value || "";
+              const parsed = Number.parseInt(raw, 10);
+              if (!Number.isFinite(parsed)) {
+                return { __skip: true };
+              }
+              return { marka_id: parsed };
+            },
           );
         }
 
         if (usageSelect) {
+          attachHiddenSync(usageSelect, hiddenUsage);
           await window._selects.fillChoices({
             endpoint: "/api/lookup/kullanim-alani",
             selectId: "selYaziciKullanim",
             placeholder: "Kullanım alanı seçiniz…",
           });
-          setChoiceByLabel(usageSelect, {{ (p.kullanim_alani or '')|tojson }});
+          setChoiceByLabel(usageSelect, {{ (p.kullanim_alani or '')|tojson }}, {
+            hidden: hiddenUsage,
+            fallbackPrefix: "usage",
+          });
         }
+
+        updateHiddenValue(brandSelect, hiddenBrand);
+        updateHiddenValue(modelSelect, hiddenModel);
+        updateHiddenValue(usageSelect, hiddenUsage);
       };
 
       initSelects().catch((err) => {
