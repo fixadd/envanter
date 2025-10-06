@@ -1,36 +1,40 @@
+from typing import Any, Dict, List, Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, func
-from typing import List, Dict, Any, Optional
 
 from database import get_db
 
 # ==== MODELLERİNİ İMPORT ET (projeye göre güncellenmiş) ====
-from models import UsageArea, LicenseName, Factory, HardwareType, Brand, Model, User
+from models import Brand, Factory, HardwareType, LicenseName, Model, UsageArea, User
 
 router = APIRouter(prefix="/api/picker", tags=["Picker"])
 
 # entity -> model, label, opsiyonel parent_field
 ENTITY_MAP = {
-    "fabrika":        {"model": Factory,       "label": "name", "parent_field": None},
-    "kullanim_alani": {"model": UsageArea,     "label": "name", "parent_field": None},
-    "donanim_tipi":   {"model": HardwareType,  "label": "name", "parent_field": None},
-    "marka":          {"model": Brand,         "label": "name", "parent_field": None},
-    "model":          {"model": Model,         "label": "name", "parent_field": "brand_id"},
-    "lisans_adi":     {"model": LicenseName,   "label": "name", "parent_field": None},
+    "fabrika": {"model": Factory, "label": "name", "parent_field": None},
+    "kullanim_alani": {"model": UsageArea, "label": "name", "parent_field": None},
+    "donanim_tipi": {"model": HardwareType, "label": "name", "parent_field": None},
+    "marka": {"model": Brand, "label": "name", "parent_field": None},
+    "model": {"model": Model, "label": "name", "parent_field": "brand_id"},
+    "lisans_adi": {"model": LicenseName, "label": "name", "parent_field": None},
     # kullanıcı ayrı ele alınacak (birden çok ad sütunu olabiliyor)
 }
+
 
 class CreatePayload(BaseModel):
     text: str
     parent_id: Optional[int] = None  # örn: model eklerken marka_id
+
 
 def _resolve(entity: str):
     meta = ENTITY_MAP.get(entity)
     if not meta:
         raise HTTPException(404, "Entity bulunamadı.")
     return meta
+
 
 # ---- KULLANICI LİSTESİ (ekleme/silme YOK) ----
 @router.get("/kullanici", response_model=List[Dict[str, Any]])
@@ -55,7 +59,10 @@ def picker_users(q: Optional[str] = Query(None), db: Session = Depends(get_db)):
         candidates.append(("name",))
 
     if not candidates:
-        raise HTTPException(500, "User tam ad alanı bulunamadı (full_name / ad+soyad / first_name+last_name / name).")
+        raise HTTPException(
+            500,
+            "User tam ad alanı bulunamadı (full_name / ad+soyad / first_name+last_name / name).",
+        )
 
     # filtre kur: q varsa ilgili alan(lar) üzerinde ilike
     base = db.query(User)
@@ -66,7 +73,11 @@ def picker_users(q: Optional[str] = Query(None), db: Session = Depends(get_db)):
                 ilikes.append(getattr(User, cols[0]).ilike(f"%{q}%"))
             else:
                 # concat alanlar
-                ilikes.append(func.concat(getattr(User, cols[0]), " ", getattr(User, cols[1])).ilike(f"%{q}%"))
+                ilikes.append(
+                    func.concat(
+                        getattr(User, cols[0]), " ", getattr(User, cols[1])
+                    ).ilike(f"%{q}%")
+                )
         base = base.filter(or_(*ilikes))
 
     rows = base.order_by(getattr(User, candidates[0][0]).asc()).limit(200).all()
@@ -80,6 +91,7 @@ def picker_users(q: Optional[str] = Query(None), db: Session = Depends(get_db)):
         return str(getattr(u, "id"))
 
     return [{"id": getattr(u, "id"), "text": to_text(u)} for u in rows]
+
 
 # ---- GENEL LİSTELEME ----
 @router.get("/{entity}", response_model=List[Dict[str, Any]])
@@ -111,6 +123,7 @@ def picker_list(
     rows = query.order_by(getattr(Model, label).asc()).limit(200).all()
     return [{"id": getattr(r, "id"), "text": getattr(r, label)} for r in rows]
 
+
 # ---- EKLE (kullanici HARİÇ) ----
 @router.post("/{entity}", response_model=Dict[str, Any])
 def picker_create(entity: str, body: CreatePayload, db: Session = Depends(get_db)):
@@ -131,7 +144,9 @@ def picker_create(entity: str, body: CreatePayload, db: Session = Depends(get_db
         raise HTTPException(400, f"{parent_field} (parent_id) gerekli.")
 
     # duplicate kontrol (aynı parent içinde)
-    exists_q = db.query(Model).filter(func.lower(getattr(Model, label)) == func.lower(name))
+    exists_q = db.query(Model).filter(
+        func.lower(getattr(Model, label)) == func.lower(name)
+    )
     if parent_field and body.parent_id:
         exists_q = exists_q.filter(getattr(Model, parent_field) == body.parent_id)
     if db.query(exists_q.exists()).scalar():
@@ -146,6 +161,7 @@ def picker_create(entity: str, body: CreatePayload, db: Session = Depends(get_db
     db.commit()
     db.refresh(obj)
     return {"id": getattr(obj, "id"), "text": getattr(obj, label)}
+
 
 # ---- SİL (kullanici HARİÇ) ----
 @router.delete("/{entity}/{row_id}")

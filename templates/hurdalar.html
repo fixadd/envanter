@@ -1,21 +1,52 @@
-{% extends "base.html" %}
-{% block title %}Hurdalar{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Hurdalar{% endblock %} {% block
+content %}
 <div class="container-fluid p-3">
   <h3>Hurdalar</h3>
   <ul class="nav nav-tabs" id="hurdTab" role="tablist">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="envanter-tab" data-bs-toggle="tab" data-bs-target="#envanter" type="button" role="tab">Envanter Hurda</button>
+      <button
+        class="nav-link active"
+        id="envanter-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#envanter"
+        type="button"
+        role="tab"
+      >
+        Envanter Hurda
+      </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="lisans-tab" data-bs-toggle="tab" data-bs-target="#lisans" type="button" role="tab">Lisans</button>
+      <button
+        class="nav-link"
+        id="lisans-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#lisans"
+        type="button"
+        role="tab"
+      >
+        Lisans
+      </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="yazici-tab" data-bs-toggle="tab" data-bs-target="#yazici" type="button" role="tab">Yazıcı</button>
+      <button
+        class="nav-link"
+        id="yazici-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#yazici"
+        type="button"
+        role="tab"
+      >
+        Yazıcı
+      </button>
     </li>
   </ul>
   <div class="tab-content pt-3">
-    <div class="tab-pane fade show active" id="envanter" role="tabpanel" aria-labelledby="envanter-tab">
+    <div
+      class="tab-pane fade show active"
+      id="envanter"
+      role="tabpanel"
+      aria-labelledby="envanter-tab"
+    >
       <table class="table table-striped align-top">
         <thead>
           <tr>
@@ -48,7 +79,11 @@
               </ul>
             </td>
             <td class="text-nowrap">
-              <a href="/inventory/{{ item.id }}" class="btn btn-outline-secondary btn-sm" title="Detayı Göster">
+              <a
+                href="/inventory/{{ item.id }}"
+                class="btn btn-outline-secondary btn-sm"
+                title="Detayı Göster"
+              >
                 <i class="bi bi-eye"></i>
               </a>
             </td>
@@ -57,33 +92,59 @@
         </tbody>
       </table>
     </div>
-    <div class="tab-pane fade" id="lisans" role="tabpanel" aria-labelledby="lisans-tab">
+    <div
+      class="tab-pane fade"
+      id="lisans"
+      role="tabpanel"
+      aria-labelledby="lisans-tab"
+    >
       <table class="table table-sm align-middle">
         <thead>
-          <tr><th>No</th><th>Lisans Adı</th><th>Key</th><th>Sorumlu</th><th>Bağlı Envanter</th><th>Not</th><th></th></tr>
+          <tr>
+            <th>No</th>
+            <th>Lisans Adı</th>
+            <th>Key</th>
+            <th>Sorumlu</th>
+            <th>Bağlı Envanter</th>
+            <th>Not</th>
+            <th></th>
+          </tr>
         </thead>
         <tbody>
           {% for row in license_scraps %}
           <tr>
             <td>{{ row.id }}</td>
             <td>{{ row.lisans_adi }}</td>
-            <td class="text-truncate" style="max-width:220px;">{{ row.lisans_key }}</td>
+            <td class="text-truncate" style="max-width: 220px">
+              {{ row.lisans_key }}
+            </td>
             <td>{{ row.sorumlu_personel or '-' }}</td>
             <td>{{ row.bagli_envanter_no or '-' }}</td>
             <td>{{ row.notlar or '-' }}</td>
             <td class="text-nowrap">
-              <a href="/lisans/{{ row.id }}" class="btn btn-outline-secondary btn-sm" title="Detayı Göster">
+              <a
+                href="/lisans/{{ row.id }}"
+                class="btn btn-outline-secondary btn-sm"
+                title="Detayı Göster"
+              >
                 <i class="bi bi-eye"></i>
               </a>
             </td>
           </tr>
           {% else %}
-          <tr><td colspan="7" class="text-muted">Kayıt yok.</td></tr>
+          <tr>
+            <td colspan="7" class="text-muted">Kayıt yok.</td>
+          </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-    <div class="tab-pane fade" id="yazici" role="tabpanel" aria-labelledby="yazici-tab">
+    <div
+      class="tab-pane fade"
+      id="yazici"
+      role="tabpanel"
+      aria-labelledby="yazici-tab"
+    >
       <div class="table-responsive">
         <table class="table table-sm align-middle">
           <thead class="table-light">
@@ -113,13 +174,19 @@
               <td>{{ r.reason or '-' }}</td>
               <td>{{ r.created_at.strftime("%d.%m.%Y %H:%M") }}</td>
               <td>
-                <button class="btn btn-outline-secondary btn-sm view-btn" data-id="{{ r.printer_id }}" title="Detayı Göster">
+                <button
+                  class="btn btn-outline-secondary btn-sm view-btn"
+                  data-id="{{ r.printer_id }}"
+                  title="Detayı Göster"
+                >
                   <i class="bi bi-eye"></i>
                 </button>
               </td>
             </tr>
             {% else %}
-            <tr><td colspan="9" class="text-muted">Kayıt yok.</td></tr>
+            <tr>
+              <td colspan="9" class="text-muted">Kayıt yok.</td>
+            </tr>
             {% endfor %}
           </tbody>
         </table>
@@ -131,8 +198,13 @@
 <div class="modal fade" id="hurdaDetayModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">Hurda Detayı</h5>
-        <button class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      <div class="modal-header">
+        <h5 class="modal-title">Hurda Detayı</h5>
+        <button
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Kapat"
+        ></button>
       </div>
       <div class="modal-body" id="hurdaDetayBody">Yükleniyor...</div>
     </div>
@@ -140,15 +212,15 @@
 </div>
 
 <script>
-document.querySelectorAll('#yazici .view-btn').forEach(b=>{
-  b.addEventListener('click', async ()=>{
-    const id = b.dataset.id;
-    const r = await fetch('/scrap/printer/'+id);
-    const h = await r.text();
-    document.getElementById('hurdaDetayBody').innerHTML = h;
-    new bootstrap.Modal(document.getElementById('hurdaDetayModal')).show();
+  document.querySelectorAll("#yazici .view-btn").forEach((b) => {
+    b.addEventListener("click", async () => {
+      const id = b.dataset.id;
+      const r = await fetch("/scrap/printer/" + id);
+      const h = await r.text();
+      document.getElementById("hurdaDetayBody").innerHTML = h;
+      new bootstrap.Modal(document.getElementById("hurdaDetayModal")).show();
+    });
   });
-});
 </script>
 
 {% endblock %}

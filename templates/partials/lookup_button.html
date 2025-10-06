@@ -1,15 +1,21 @@
-{# YALNIZ BUTON + HIDDEN: partials/lookup_button.html #}
-{# Kullanım: {% include "partials/lookup_button.html" with context %} #}
-{# Beklenen değişkenler: label, name, entity #}
+{# YALNIZ BUTON + HIDDEN: partials/lookup_button.html #} {# Kullanım: {% include
+"partials/lookup_button.html" with context %} #} {# Beklenen değişkenler: label,
+name, entity #}
 
 <div class="col-md-6">
   <label class="form-label d-block">{{ label }}</label>
   <div class="d-flex align-items-center gap-2">
-    <button type="button"
-            class="btn btn-outline-secondary btn-sm lookup-btn"
-            data-entity="{{ entity }}"
-            aria-label="{{ label }}">&#9776;</button>
-    <span class="selected-text text-muted" data-for="{{ name }}">Seçilmedi</span>
-    <input type="hidden" name="{{ name }}" id="{{ name }}">
+    <button
+      type="button"
+      class="btn btn-outline-secondary btn-sm lookup-btn"
+      data-entity="{{ entity }}"
+      aria-label="{{ label }}"
+    >
+      &#9776;
+    </button>
+    <span class="selected-text text-muted" data-for="{{ name }}"
+      >Seçilmedi</span
+    >
+    <input type="hidden" name="{{ name }}" id="{{ name }}" />
   </div>
 </div>

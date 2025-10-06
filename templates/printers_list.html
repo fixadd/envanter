@@ -1,32 +1,67 @@
-{% extends "base.html" %}
-{% block title %}Yazıcı Takip{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Yazıcı Takip{% endblock %} {% block
+content %}
 <div class="container-fluid p-3">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h5 class="mb-0">Yazıcılar</h5>
     <div class="d-flex align-items-center gap-2">
-      <a href="#" class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#addModal">
+      <a
+        href="#"
+        class="btn btn-success btn-sm d-flex align-items-center gap-1"
+        title="Yeni Ekle"
+        data-bs-toggle="modal"
+        data-bs-target="#addModal"
+      >
         <i class="bi bi-plus-lg"></i>
         <span>Ekle</span>
       </a>
       <div class="dropdown">
-        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <button
+          class="btn btn-outline-primary btn-sm dropdown-toggle"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
           Excel
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" href="/printers/export">Dışa Aktar</a></li>
           <li>
-            <form action="/printers/import" method="post" enctype="multipart/form-data">
-              <input type="file" name="file" id="printerExcel" class="d-none" onchange="this.form.submit()">
-              <label for="printerExcel" class="dropdown-item mb-0">İçe Aktar</label>
+            <a class="dropdown-item" href="/printers/export">Dışa Aktar</a>
+          </li>
+          <li>
+            <form
+              action="/printers/import"
+              method="post"
+              enctype="multipart/form-data"
+            >
+              <input
+                type="file"
+                name="file"
+                id="printerExcel"
+                class="d-none"
+                onchange="this.form.submit()"
+              />
+              <label for="printerExcel" class="dropdown-item mb-0"
+                >İçe Aktar</label
+              >
             </form>
           </li>
         </ul>
       </div>
-      <button class="btn btn-outline-secondary btn-sm" id="filterBtn">Filtre</button>
-      <button class="btn btn-outline-secondary btn-sm d-none" id="clearFilterBtn">Temizle</button>
-      <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Ara...">
+      <button class="btn btn-outline-secondary btn-sm" id="filterBtn">
+        Filtre
+      </button>
+      <button
+        class="btn btn-outline-secondary btn-sm d-none"
+        id="clearFilterBtn"
+      >
+        Temizle
+      </button>
+      <input
+        type="text"
+        id="searchInput"
+        class="form-control form-control-sm"
+        placeholder="Ara..."
+      />
     </div>
   </div>
 
@@ -43,7 +78,7 @@
           <th data-field="sorumlu_personel">Sorumlu</th>
           <th data-field="bagli_envanter_no">Bağlı Env.</th>
           <th data-field="durum">Durum</th>
-          <th style="width:220px;">İşlemler</th>
+          <th style="width: 220px">İşlemler</th>
         </tr>
       </thead>
       <tbody>
@@ -59,15 +94,14 @@
           <td>{{ p.bagli_envanter_no or '-' }}</td>
           <td>
             {% if p.durum == 'hurda' %}
-              <span class="badge text-bg-secondary">Hurda</span>
+            <span class="badge text-bg-secondary">Hurda</span>
             {% else %}
-              <span class="badge text-bg-success">Aktif</span>
+            <span class="badge text-bg-success">Aktif</span>
             {% endif %}
           </td>
           <td class="text-nowrap">
-            {% set entity = 'printers' %}
-            {% set row_id = p.id %}
-            {% include 'partials/_actions_menu.html' %}
+            {% set entity = 'printers' %} {% set row_id = p.id %} {% include
+            'partials/_actions_menu.html' %}
           </td>
         </tr>
         {% endfor %}
@@ -82,19 +116,39 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Yazıcı Ekle</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body">
-        <form method="post" action="/printers/create" class="needs-validation" novalidate>
+        <form
+          method="post"
+          action="/printers/create"
+          class="needs-validation"
+          novalidate
+        >
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">Envanter No</label>
-              <input name="envanter_no" type="text" class="form-control" required placeholder="ENV-000123">
+              <input
+                name="envanter_no"
+                type="text"
+                class="form-control"
+                required
+                placeholder="ENV-000123"
+              />
             </div>
 
             <div class="col-md-6">
               <label class="form-label">Yazıcı Markası</label>
-              <select name="yazici_markasi" class="form-select" required id="selYaziciMarka">
+              <select
+                name="yazici_markasi"
+                class="form-select"
+                required
+                id="selYaziciMarka"
+              >
                 <option value="">Seçiniz...</option>
                 {% for m in marka_list %}
                 <option value="{{ m.name }}">{{ m.name }}</option>
@@ -104,10 +158,18 @@
 
             <div class="col-md-6">
               <label class="form-label">Yazıcı Modeli</label>
-              <select name="yazici_modeli" class="form-select" required id="selYaziciModel" disabled>
+              <select
+                name="yazici_modeli"
+                class="form-select"
+                required
+                id="selYaziciModel"
+                disabled
+              >
                 <option value="">Önce marka seçiniz...</option>
               </select>
-              <small class="text-muted">Not: Model listesi seçilen markaya göre filtrelenir.</small>
+              <small class="text-muted"
+                >Not: Model listesi seçilen markaya göre filtrelenir.</small
+              >
             </div>
 
             <div class="col-md-6">
@@ -122,26 +184,57 @@
 
             <div class="col-md-4">
               <label class="form-label">IP Adresi</label>
-              <input name="ip_adresi" type="text" class="form-control" required placeholder="10.0.0.10">
+              <input
+                name="ip_adresi"
+                type="text"
+                class="form-control"
+                required
+                placeholder="10.0.0.10"
+              />
             </div>
             <div class="col-md-4">
               <label class="form-label">MAC</label>
-              <input name="mac" type="text" class="form-control" required placeholder="AA:BB:CC:DD:EE:FF">
+              <input
+                name="mac"
+                type="text"
+                class="form-control"
+                required
+                placeholder="AA:BB:CC:DD:EE:FF"
+              />
             </div>
             <div class="col-md-4">
               <label class="form-label">Hostname</label>
-              <input name="hostname" type="text" class="form-control" required placeholder="PRN-OFIS-01">
+              <input
+                name="hostname"
+                type="text"
+                class="form-control"
+                required
+                placeholder="PRN-OFIS-01"
+              />
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">IFS No <small class="text-muted">(zorunlu değil)</small></label>
-              <input name="ifs_no" type="text" class="form-control" placeholder="IFS numarası">
+              <label class="form-label"
+                >IFS No <small class="text-muted">(zorunlu değil)</small></label
+              >
+              <input
+                name="ifs_no"
+                type="text"
+                class="form-control"
+                placeholder="IFS numarası"
+              />
             </div>
           </div>
 
           <div class="mt-3 d-flex gap-2">
             <button type="submit" class="btn btn-primary">Kaydet</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              İptal
+            </button>
           </div>
         </form>
       </div>
@@ -149,7 +242,9 @@
   </div>
 </div>
 
-<script>window.SKIP_SELECT_ENHANCE = true;</script>
+<script>
+  window.SKIP_SELECT_ENHANCE = true;
+</script>
 
 <!-- Filtre Modal -->
 <div class="modal fade" id="filterModal" tabindex="-1" aria-hidden="true">
@@ -157,13 +252,23 @@
     <form id="filterForm" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Filtrele</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body">
         <div id="filterRows"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Kapat</button>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          data-bs-dismiss="modal"
+        >
+          Kapat
+        </button>
         <button type="submit" class="btn btn-primary btn-sm">Uygula</button>
       </div>
     </form>
@@ -175,17 +280,25 @@
   <div class="modal-dialog modal-dialog-scrollable">
     <form class="modal-content" id="assignForm">
       <div class="modal-header">
-        <h6 class="modal-title">Atama Yap — <span id="assignPrinterLabel"></span></h6>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h6 class="modal-title">
+          Atama Yap — <span id="assignPrinterLabel"></span>
+        </h6>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body">
-        <input type="hidden" id="assignPrinterId" name="printer_id">
+        <input type="hidden" id="assignPrinterId" name="printer_id" />
 
         <div class="mb-2">
           <label class="form-label">Fabrika</label>
           <select id="selFabrika" name="fabrika" class="form-select">
             <option value="">Seçiniz</option>
-            {% for f in factories %}<option value="{{ f }}">{{ f }}</option>{% endfor %}
+            {% for f in factories %}
+            <option value="{{ f }}">{{ f }}</option>
+            {% endfor %}
           </select>
         </div>
 
@@ -193,7 +306,9 @@
           <label class="form-label">Kullanım Alanı</label>
           <select id="selKullanim" name="kullanim_alani" class="form-select">
             <option value="">Seçiniz</option>
-            {% for a in areas %}<option value="{{ a }}">{{ a }}</option>{% endfor %}
+            {% for a in areas %}
+            <option value="{{ a }}">{{ a }}</option>
+            {% endfor %}
           </select>
         </div>
 
@@ -201,7 +316,9 @@
           <label class="form-label">Sorumlu Personel</label>
           <select id="selPersonel" name="sorumlu_personel" class="form-select">
             <option value="">Seçiniz</option>
-            {% for u in users %}<option value="{{ u }}">{{ u }}</option>{% endfor %}
+            {% for u in users %}
+            <option value="{{ u }}">{{ u }}</option>
+            {% endfor %}
           </select>
         </div>
 
@@ -209,13 +326,16 @@
           <label class="form-label">Bağlı Olduğu Envanter</label>
           <select id="selBagliEnv" name="bagli_envanter_no" class="form-select">
             <option value="">Seçiniz</option>
-            {% for inv in inventory_nos %}<option value="{{ inv }}">{{ inv }}</option>{% endfor %}
+            {% for inv in inventory_nos %}
+            <option value="{{ inv }}">{{ inv }}</option>
+            {% endfor %}
           </select>
         </div>
-
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">İptal</button>
+        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">
+          İptal
+        </button>
         <button class="btn btn-success" type="submit">Atamayı Kaydet</button>
       </div>
     </form>
@@ -228,97 +348,118 @@
     <form id="scrapForm" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Hurdaya Ayır</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body">
-        <input type="hidden" id="scrapPrinterId">
+        <input type="hidden" id="scrapPrinterId" />
         <p>Bu envanter hurdaya ayrılacak. Onaylıyor musunuz?</p>
         <div class="mb-2">
           <label class="form-label">Açıklama (opsiyonel)</label>
-          <textarea name="reason" class="form-control" rows="3" placeholder="Hurda sebebi / not"></textarea>
+          <textarea
+            name="reason"
+            class="form-control"
+            rows="3"
+            placeholder="Hurda sebebi / not"
+          ></textarea>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Vazgeç</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">
+          Vazgeç
+        </button>
         <button class="btn btn-danger" type="submit">Hurdaya Ayır</button>
       </div>
     </form>
   </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+{% endblock %} {% block scripts %}
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"
+/>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const filterModal = new bootstrap.Modal(document.getElementById('filterModal'));
-  const searchInput = document.getElementById('searchInput');
-  const filterForm = document.getElementById('filterForm');
-  const clearBtn = document.getElementById('clearFilterBtn');
-  const filterRowsDiv = document.getElementById('filterRows');
-  const distinctUrl = "{{ url_for('lookup.distinct', entity='printer', column='__COL__') }}";
-  let activeFilters = [];
-  const columns = Array.from(document.querySelectorAll('table thead th'))
-    .map((th, idx) => ({ idx, name: th.textContent.trim(), field: th.dataset.field }))
-    .filter(c => c.field);
+  document.addEventListener("DOMContentLoaded", () => {
+    const filterModal = new bootstrap.Modal(
+      document.getElementById("filterModal"),
+    );
+    const searchInput = document.getElementById("searchInput");
+    const filterForm = document.getElementById("filterForm");
+    const clearBtn = document.getElementById("clearFilterBtn");
+    const filterRowsDiv = document.getElementById("filterRows");
+    const distinctUrl =
+      "{{ url_for('lookup.distinct', entity='printer', column='__COL__') }}";
+    let activeFilters = [];
+    const columns = Array.from(document.querySelectorAll("table thead th"))
+      .map((th, idx) => ({
+        idx,
+        name: th.textContent.trim(),
+        field: th.dataset.field,
+      }))
+      .filter((c) => c.field);
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const markaSel = document.getElementById('selYaziciMarka');
-    const modelSel = document.getElementById('selYaziciModel');
-    if (markaSel && modelSel) {
-      if (window.Choices) {
-        new Choices(markaSel, { searchEnabled: true, shouldSort: false });
-        new Choices(modelSel, { searchEnabled: true, shouldSort: false });
-      }
-      const loadModels = async () => {
-        const marka = markaSel.value;
-        modelSel.innerHTML = '<option value="">Seçiniz...</option>';
-        modelSel.disabled = !marka;
-        if (!marka) return;
-        try {
-          const resp = await fetch(`/api/printers/models?brand=${encodeURIComponent(marka)}`);
-          if (resp.ok) {
-            const data = await resp.json();
-            data.forEach(m => {
-              const opt = document.createElement('option');
-              opt.value = m;
-              opt.textContent = m;
-              modelSel.appendChild(opt);
-            });
-          }
-        } catch (e) {
-          console.error(e);
+    document.addEventListener("DOMContentLoaded", () => {
+      const markaSel = document.getElementById("selYaziciMarka");
+      const modelSel = document.getElementById("selYaziciModel");
+      if (markaSel && modelSel) {
+        if (window.Choices) {
+          new Choices(markaSel, { searchEnabled: true, shouldSort: false });
+          new Choices(modelSel, { searchEnabled: true, shouldSort: false });
         }
-      };
-      markaSel.addEventListener('change', loadModels);
-    }
-  });
+        const loadModels = async () => {
+          const marka = markaSel.value;
+          modelSel.innerHTML = '<option value="">Seçiniz...</option>';
+          modelSel.disabled = !marka;
+          if (!marka) return;
+          try {
+            const resp = await fetch(
+              `/api/printers/models?brand=${encodeURIComponent(marka)}`,
+            );
+            if (resp.ok) {
+              const data = await resp.json();
+              data.forEach((m) => {
+                const opt = document.createElement("option");
+                opt.value = m;
+                opt.textContent = m;
+                modelSel.appendChild(opt);
+              });
+            }
+          } catch (e) {
+            console.error(e);
+          }
+        };
+        markaSel.addEventListener("change", loadModels);
+      }
+    });
 
-  // Modal tetikleyici attribute ile handle ediliyor; ek JS gerekmez.
+    // Modal tetikleyici attribute ile handle ediliyor; ek JS gerekmez.
 
-  document.getElementById('filterBtn').addEventListener('click', () => {
-    filterForm.reset();
-    filterRowsDiv.innerHTML = '';
-    createFilterRow();
-    filterModal.show();
-  });
+    document.getElementById("filterBtn").addEventListener("click", () => {
+      filterForm.reset();
+      filterRowsDiv.innerHTML = "";
+      createFilterRow();
+      filterModal.show();
+    });
 
-  clearBtn.addEventListener('click', () => {
-    activeFilters = [];
-    filterRows();
-    clearBtn.classList.add('d-none');
-  });
+    clearBtn.addEventListener("click", () => {
+      activeFilters = [];
+      filterRows();
+      clearBtn.classList.add("d-none");
+    });
 
-  searchInput.addEventListener('input', filterRows);
+    searchInput.addEventListener("input", filterRows);
 
-  function createFilterRow() {
-    const row = document.createElement('div');
-    row.className = 'row g-2 align-items-center mb-2 filter-row';
-    row.innerHTML = `
+    function createFilterRow() {
+      const row = document.createElement("div");
+      row.className = "row g-2 align-items-center mb-2 filter-row";
+      row.innerHTML = `
       <div class="col-5">
         <select class="form-select form-select-sm column-select">
-          ${columns.map(c => `<option value="${c.idx}">${c.name}</option>`).join('')}
+          ${columns.map((c) => `<option value="${c.idx}">${c.name}</option>`).join("")}
         </select>
       </div>
       <div class="col-5">
@@ -328,120 +469,156 @@ document.addEventListener('DOMContentLoaded', () => {
         <button type="button" class="btn btn-success btn-sm add-row">+</button>
         <button type="button" class="btn btn-danger btn-sm remove-row">-</button>
       </div>`;
-    filterRowsDiv.appendChild(row);
-    const colSel = row.querySelector('.column-select');
-    const valSel = row.querySelector('.value-select');
-    loadValues(colSel, valSel);
-    colSel.addEventListener('change', () => loadValues(colSel, valSel));
-    updateRemoveButtons();
-  }
-
-  async function loadValues(colSelect, valSelect) {
-    const col = columns.find(c => c.idx == colSelect.value);
-    const res = await fetch(distinctUrl.replace('__COL__', col.field));
-    const data = await res.json();
-    valSelect.innerHTML = '<option value="">Seçiniz</option>' +
-      data.map(v => `<option value="${v}">${v}</option>`).join('');
-  }
-
-  function updateRemoveButtons() {
-    const rows = filterRowsDiv.querySelectorAll('.filter-row');
-    rows.forEach(r => r.querySelector('.remove-row').classList.toggle('d-none', rows.length === 1));
-  }
-
-  filterForm.addEventListener('click', (e) => {
-    if (e.target.classList.contains('add-row')) {
-      createFilterRow();
-    } else if (e.target.classList.contains('remove-row')) {
-      e.target.closest('.filter-row').remove();
+      filterRowsDiv.appendChild(row);
+      const colSel = row.querySelector(".column-select");
+      const valSel = row.querySelector(".value-select");
+      loadValues(colSel, valSel);
+      colSel.addEventListener("change", () => loadValues(colSel, valSel));
       updateRemoveButtons();
     }
-  });
 
-  filterForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    activeFilters = [];
-    filterRowsDiv.querySelectorAll('.filter-row').forEach(row => {
-      const col = parseInt(row.querySelector('.column-select').value, 10);
-      const val = row.querySelector('.value-select').value.trim().toLowerCase();
-      if (val) activeFilters.push({ col, val });
-    });
-    filterModal.hide();
-    clearBtn.classList.toggle('d-none', activeFilters.length === 0);
-    filterRows();
-  });
+    async function loadValues(colSelect, valSelect) {
+      const col = columns.find((c) => c.idx == colSelect.value);
+      const res = await fetch(distinctUrl.replace("__COL__", col.field));
+      const data = await res.json();
+      valSelect.innerHTML =
+        '<option value="">Seçiniz</option>' +
+        data.map((v) => `<option value="${v}">${v}</option>`).join("");
+    }
 
-  function filterRows() {
-    const q = searchInput.value.toLowerCase();
-    document.querySelectorAll('tbody tr').forEach(tr => {
-      const cells = tr.querySelectorAll('td');
-      const texts = Array.from(cells).map(td => td.textContent.toLowerCase());
-      let match = texts.some(t => t.includes(q));
-      if (activeFilters.length) {
-        match = match && activeFilters.every(f => texts[f.col] && texts[f.col].includes(f.val));
+    function updateRemoveButtons() {
+      const rows = filterRowsDiv.querySelectorAll(".filter-row");
+      rows.forEach((r) =>
+        r
+          .querySelector(".remove-row")
+          .classList.toggle("d-none", rows.length === 1),
+      );
+    }
+
+    filterForm.addEventListener("click", (e) => {
+      if (e.target.classList.contains("add-row")) {
+        createFilterRow();
+      } else if (e.target.classList.contains("remove-row")) {
+        e.target.closest(".filter-row").remove();
+        updateRemoveButtons();
       }
-      tr.classList.toggle('d-none', !match);
     });
-  }
 
-  // Atama/Hurda işlemleri
-  const assignModalEl = document.getElementById('assignModal');
-  const assignModal = new bootstrap.Modal(assignModalEl);
-  const assignForm = document.getElementById('assignForm');
-  const scrapModalEl = document.getElementById('scrapModal');
-  const scrapModal = new bootstrap.Modal(scrapModalEl);
-  const scrapForm = document.getElementById('scrapForm');
-
-  document.querySelectorAll('.action-select').forEach(sel => {
-    sel.addEventListener('change', (e) => {
-      e.stopImmediatePropagation();
-      const tr = e.target.closest('tr');
-      const printerId = tr.dataset.id;
-      const val = e.target.value;
-      if(!val) return;
-
-      if(val === 'edit'){
-        if(window.openModal){ openModal(`/printers/${printerId}/edit?modal=1`); }
-      } else if(val === 'assign'){
-        document.getElementById('assignPrinterId').value = printerId;
-        document.getElementById('assignPrinterLabel').innerText = `#${printerId}`;
-        assignModal.show();
-      } else if(val === 'scrap'){
-        document.getElementById('scrapPrinterId').value = printerId;
-        scrapModal.show();
-      }
-
-      e.target.value = '';
+    filterForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      activeFilters = [];
+      filterRowsDiv.querySelectorAll(".filter-row").forEach((row) => {
+        const col = parseInt(row.querySelector(".column-select").value, 10);
+        const val = row
+          .querySelector(".value-select")
+          .value.trim()
+          .toLowerCase();
+        if (val) activeFilters.push({ col, val });
+      });
+      filterModal.hide();
+      clearBtn.classList.toggle("d-none", activeFilters.length === 0);
+      filterRows();
     });
-  });
 
-  scrapForm.addEventListener('submit', function(e){
-    e.preventDefault();
-    const pid = document.getElementById('scrapPrinterId').value;
-    const formData = new FormData(scrapForm);
-    fetch(`/printers/${pid}/scrap`, { method: 'POST', body: formData })
-      .then(r => r.json()).then(j => {
-        if(j.ok){ scrapModal.hide(); window.location.href = '/printers/scrap'; }
-        else { alert('Hurdaya ayırma başarısız'); }
-      }).catch(()=> alert('Sunucu hatası'));
-  });
+    function filterRows() {
+      const q = searchInput.value.toLowerCase();
+      document.querySelectorAll("tbody tr").forEach((tr) => {
+        const cells = tr.querySelectorAll("td");
+        const texts = Array.from(cells).map((td) =>
+          td.textContent.toLowerCase(),
+        );
+        let match = texts.some((t) => t.includes(q));
+        if (activeFilters.length) {
+          match =
+            match &&
+            activeFilters.every(
+              (f) => texts[f.col] && texts[f.col].includes(f.val),
+            );
+        }
+        tr.classList.toggle("d-none", !match);
+      });
+    }
 
-  assignForm.addEventListener('submit', function(e){
-    e.preventDefault();
-    const pid = document.getElementById('assignPrinterId').value;
-    const formData = new FormData(assignForm);
-    fetch(`/printers/assign/${pid}`, { method: 'POST', body: formData })
-      .then(r => r.json()).then(j => {
-        if(j.ok){ assignModal.hide(); location.reload(); }
-        else{ alert('Atama kaydedilemedi.'); }
-      }).catch(()=> alert('Sunucu hatası'));
-  });
+    // Atama/Hurda işlemleri
+    const assignModalEl = document.getElementById("assignModal");
+    const assignModal = new bootstrap.Modal(assignModalEl);
+    const assignForm = document.getElementById("assignForm");
+    const scrapModalEl = document.getElementById("scrapModal");
+    const scrapModal = new bootstrap.Modal(scrapModalEl);
+    const scrapForm = document.getElementById("scrapForm");
 
-  ['selFabrika','selKullanim','selPersonel','selBagliEnv'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el){ new Choices(el, { removeItemButton: true, searchEnabled: true, shouldSort: false }); }
+    document.querySelectorAll(".action-select").forEach((sel) => {
+      sel.addEventListener("change", (e) => {
+        e.stopImmediatePropagation();
+        const tr = e.target.closest("tr");
+        const printerId = tr.dataset.id;
+        const val = e.target.value;
+        if (!val) return;
+
+        if (val === "edit") {
+          if (window.openModal) {
+            openModal(`/printers/${printerId}/edit?modal=1`);
+          }
+        } else if (val === "assign") {
+          document.getElementById("assignPrinterId").value = printerId;
+          document.getElementById("assignPrinterLabel").innerText =
+            `#${printerId}`;
+          assignModal.show();
+        } else if (val === "scrap") {
+          document.getElementById("scrapPrinterId").value = printerId;
+          scrapModal.show();
+        }
+
+        e.target.value = "";
+      });
+    });
+
+    scrapForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const pid = document.getElementById("scrapPrinterId").value;
+      const formData = new FormData(scrapForm);
+      fetch(`/printers/${pid}/scrap`, { method: "POST", body: formData })
+        .then((r) => r.json())
+        .then((j) => {
+          if (j.ok) {
+            scrapModal.hide();
+            window.location.href = "/printers/scrap";
+          } else {
+            alert("Hurdaya ayırma başarısız");
+          }
+        })
+        .catch(() => alert("Sunucu hatası"));
+    });
+
+    assignForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const pid = document.getElementById("assignPrinterId").value;
+      const formData = new FormData(assignForm);
+      fetch(`/printers/assign/${pid}`, { method: "POST", body: formData })
+        .then((r) => r.json())
+        .then((j) => {
+          if (j.ok) {
+            assignModal.hide();
+            location.reload();
+          } else {
+            alert("Atama kaydedilemedi.");
+          }
+        })
+        .catch(() => alert("Sunucu hatası"));
+    });
+
+    ["selFabrika", "selKullanim", "selPersonel", "selBagliEnv"].forEach(
+      (id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          new Choices(el, {
+            removeItemButton: true,
+            searchEnabled: true,
+            shouldSort: false,
+          });
+        }
+      },
+    );
   });
-});
 </script>
 {% endblock %}
-

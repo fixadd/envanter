@@ -1,21 +1,40 @@
-{% extends "base.html" %}{% block title %}Kayıtlar{% endblock %}
-{% block content %}
-{% set islem_map = {
-  "assign": "Atama",
-  "edit": "Düzenleme",
-  "scrap": "Hurdaya Ayır"
-} %}
+{% extends "base.html" %}{% block title %}Kayıtlar{% endblock %} {% block
+content %} {% set islem_map = { "assign": "Atama", "edit": "Düzenleme", "scrap":
+"Hurdaya Ayır" } %}
 <h2 class="h5 mb-3">Sistem Kayıtları</h2>
 <ul class="nav nav-tabs" id="logsTab" role="tablist">
   <li class="nav-item" role="presentation">
-    <button class="nav-link active" id="userlogs-tab" data-bs-toggle="tab" data-bs-target="#userlogs" type="button" role="tab">Kullanıcı Kayıtları</button>
+    <button
+      class="nav-link active"
+      id="userlogs-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#userlogs"
+      type="button"
+      role="tab"
+    >
+      Kullanıcı Kayıtları
+    </button>
   </li>
   <li class="nav-item" role="presentation">
-    <button class="nav-link" id="inventorylogs-tab" data-bs-toggle="tab" data-bs-target="#inventorylogs" type="button" role="tab">Envanter Kayıtları</button>
+    <button
+      class="nav-link"
+      id="inventorylogs-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#inventorylogs"
+      type="button"
+      role="tab"
+    >
+      Envanter Kayıtları
+    </button>
   </li>
 </ul>
 <div class="tab-content pt-3">
-  <div class="tab-pane fade show active" id="userlogs" role="tabpanel" aria-labelledby="userlogs-tab">
+  <div
+    class="tab-pane fade show active"
+    id="userlogs"
+    role="tabpanel"
+    aria-labelledby="userlogs-tab"
+  >
     <div class="card p-0">
       <div class="table-responsive">
         <table class="table table-sm table-striped mb-0">
@@ -28,22 +47,29 @@
             </tr>
           </thead>
           <tbody>
-          {% for log, inv_no in user_logs %}
+            {% for log, inv_no in user_logs %}
             <tr>
               <td>{{ log.actor }}</td>
               <td>{{ islem_map.get(log.action, log.action) }}</td>
               <td>{{ inv_no }}</td>
               <td>{{ log.created_at.strftime("%d.%m.%Y %H:%M:%S") }}</td>
             </tr>
-          {% else %}
-            <tr><td colspan="4" class="text-muted">Kayıt yok</td></tr>
-          {% endfor %}
+            {% else %}
+            <tr>
+              <td colspan="4" class="text-muted">Kayıt yok</td>
+            </tr>
+            {% endfor %}
           </tbody>
         </table>
       </div>
     </div>
   </div>
-  <div class="tab-pane fade" id="inventorylogs" role="tabpanel" aria-labelledby="inventorylogs-tab">
+  <div
+    class="tab-pane fade"
+    id="inventorylogs"
+    role="tabpanel"
+    aria-labelledby="inventorylogs-tab"
+  >
     <div class="card p-0">
       <div class="table-responsive">
         <table class="table table-sm table-striped mb-0">
@@ -58,7 +84,7 @@
             </tr>
           </thead>
           <tbody>
-          {% for log, inv_no in inventory_logs %}
+            {% for log, inv_no in inventory_logs %}
             <tr>
               <td>{{ inv_no }}</td>
               <!-- İşlem Türkçeleştirme -->
@@ -66,24 +92,21 @@
 
               <!-- Önce -->
               <td>
-                {% if log.before_json %}
-                  {% for k, v in log.before_json.items() %}
-                    <div><strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v }}</div>
-                  {% endfor %}
-                {% else %}
-                  Yok
-                {% endif %}
+                {% if log.before_json %} {% for k, v in log.before_json.items()
+                %}
+                <div>
+                  <strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v }}
+                </div>
+                {% endfor %} {% else %} Yok {% endif %}
               </td>
 
               <!-- Sonra -->
               <td>
-                {% if log.after_json %}
-                  {% for k, v in log.after_json.items() %}
-                    <div><strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v }}</div>
-                  {% endfor %}
-                {% else %}
-                  Yok
-                {% endif %}
+                {% if log.after_json %} {% for k, v in log.after_json.items() %}
+                <div>
+                  <strong>{{ k|replace("_"," ")|capitalize }}:</strong> {{ v }}
+                </div>
+                {% endfor %} {% else %} Yok {% endif %}
               </td>
 
               <!-- Kullanıcı -->
@@ -92,9 +115,11 @@
               <!-- Tarih (saliseyi atıyoruz) -->
               <td>{{ log.created_at.strftime("%d.%m.%Y %H:%M:%S") }}</td>
             </tr>
-          {% else %}
-            <tr><td colspan="6" class="text-muted">Kayıt yok</td></tr>
-          {% endfor %}
+            {% else %}
+            <tr>
+              <td colspan="6" class="text-muted">Kayıt yok</td>
+            </tr>
+            {% endfor %}
           </tbody>
         </table>
       </div>
@@ -102,4 +127,3 @@
   </div>
 </div>
 {% endblock %}
-

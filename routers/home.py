@@ -1,5 +1,5 @@
 # routers/home.py
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, text
@@ -39,7 +39,8 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         or 0
     )
     arizali_cihaz_sayisi += (
-        db.query(func.count(Printer.id)).filter(Printer.durum == "arızalı").scalar() or 0
+        db.query(func.count(Printer.id)).filter(Printer.durum == "arızalı").scalar()
+        or 0
     )
 
     try:

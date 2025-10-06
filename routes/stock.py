@@ -1,17 +1,20 @@
-from fastapi import APIRouter, Depends, Body, Request
-from sqlalchemy.orm import Session
 from datetime import datetime
+
+from fastapi import APIRouter, Body, Depends, Request
+from sqlalchemy.orm import Session
+
 from database import get_db
 from models import (
-    StockLog,
-    StockAssignment,
-    StockTotal,
-    License,
     Inventory,
+    License,
     Printer,
+    StockAssignment,
+    StockLog,
+    StockTotal,
 )
 
 router = APIRouter(prefix="/stock", tags=["Stock"])
+
 
 @router.post("/add")
 def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):
@@ -45,6 +48,7 @@ def stock_add(payload: dict = Body(...), db: Session = Depends(get_db)):
     db.commit()
     return {"ok": True, "id": log.id}
 
+
 @router.post("/assign")
 def stock_assign(payload: dict = Body(...), db: Session = Depends(get_db)):
     target_type = payload.get("targetType")
@@ -72,12 +76,12 @@ def stock_assign(payload: dict = Body(...), db: Session = Depends(get_db)):
         return {"ok": False, "error": "Geçersiz hedef"}
 
     assign = StockAssignment(
-        donanim_tipi = payload.get("donanim_tipi"),
-        miktar = int(payload.get("miktar") or 0),
-        ifs_no = payload.get("ifs_no") or None,
-        hedef_envanter_no = payload.get("inventory_id") or None,
-        actor = payload.get("islem_yapan") or "Sistem",
-        tarih = now,
+        donanim_tipi=payload.get("donanim_tipi"),
+        miktar=int(payload.get("miktar") or 0),
+        ifs_no=payload.get("ifs_no") or None,
+        hedef_envanter_no=payload.get("inventory_id") or None,
+        actor=payload.get("islem_yapan") or "Sistem",
+        tarih=now,
     )
     total = db.get(StockTotal, assign.donanim_tipi)
     if not total or total.toplam < assign.miktar:

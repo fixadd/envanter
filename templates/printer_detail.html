@@ -1,10 +1,11 @@
-{% extends "base.html" %}
-{% block title %}Yazıcı Detay - {{ item.hostname or item.envanter_no }}{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Yazıcı Detay - {{ item.hostname or
+item.envanter_no }}{% endblock %} {% block content %}
 <div class="container-fluid p-3">
   <div class="d-flex align-items-center justify-content-between mb-2">
     <h5>Yazıcı: {{ item.hostname or item.envanter_no }}</h5>
-    <a href="/printers" class="btn btn-sm btn-outline-secondary">← Listeye dön</a>
+    <a href="/printers" class="btn btn-sm btn-outline-secondary"
+      >← Listeye dön</a
+    >
   </div>
 
   <div class="row g-3">
@@ -13,18 +14,30 @@
         <div class="card-header">Temel Bilgiler</div>
         <div class="card-body">
           <div class="row">
-            <div class="col-5 text-muted">ID</div><div class="col-7">{{ item.id }}</div>
-            <div class="col-5 text-muted">Envanter No</div><div class="col-7">{{ item.envanter_no }}</div>
-            <div class="col-5 text-muted">Marka</div><div class="col-7">{{ item.brand.name if item.brand else "" }}</div>
-            <div class="col-5 text-muted">Model</div><div class="col-7">{{ item.model.name if item.model else "" }}</div>
-            <div class="col-5 text-muted">Kullanım Alanı</div><div class="col-7">{{ item.kullanim_alani }}</div>
-            <div class="col-5 text-muted">IP Adresi</div><div class="col-7">{{ item.ip_adresi }}</div>
-            <div class="col-5 text-muted">MAC</div><div class="col-7">{{ item.mac }}</div>
-            <div class="col-5 text-muted">Hostname</div><div class="col-7">{{ item.hostname }}</div>
-            <div class="col-5 text-muted">IFS No</div><div class="col-7">{{ item.ifs_no }}</div>
-            <div class="col-5 text-muted">Tarih</div><div class="col-7">{{ item.tarih }}</div>
-            <div class="col-5 text-muted">İşlem Yapan</div><div class="col-7">{{ item.islem_yapan }}</div>
-            <div class="col-5 text-muted">Sorumlu Personel</div><div class="col-7">{{ item.sorumlu_personel }}</div>
+            <div class="col-5 text-muted">ID</div>
+            <div class="col-7">{{ item.id }}</div>
+            <div class="col-5 text-muted">Envanter No</div>
+            <div class="col-7">{{ item.envanter_no }}</div>
+            <div class="col-5 text-muted">Marka</div>
+            <div class="col-7">{{ item.brand.name if item.brand else "" }}</div>
+            <div class="col-5 text-muted">Model</div>
+            <div class="col-7">{{ item.model.name if item.model else "" }}</div>
+            <div class="col-5 text-muted">Kullanım Alanı</div>
+            <div class="col-7">{{ item.kullanim_alani }}</div>
+            <div class="col-5 text-muted">IP Adresi</div>
+            <div class="col-7">{{ item.ip_adresi }}</div>
+            <div class="col-5 text-muted">MAC</div>
+            <div class="col-7">{{ item.mac }}</div>
+            <div class="col-5 text-muted">Hostname</div>
+            <div class="col-7">{{ item.hostname }}</div>
+            <div class="col-5 text-muted">IFS No</div>
+            <div class="col-7">{{ item.ifs_no }}</div>
+            <div class="col-5 text-muted">Tarih</div>
+            <div class="col-7">{{ item.tarih }}</div>
+            <div class="col-5 text-muted">İşlem Yapan</div>
+            <div class="col-7">{{ item.islem_yapan }}</div>
+            <div class="col-5 text-muted">Sorumlu Personel</div>
+            <div class="col-7">{{ item.sorumlu_personel }}</div>
           </div>
         </div>
       </div>
@@ -55,7 +68,9 @@
                   <td>{{ log.changed_at }}</td>
                 </tr>
                 {% else %}
-                <tr><td colspan="5" class="text-muted">Henüz değişiklik yok</td></tr>
+                <tr>
+                  <td colspan="5" class="text-muted">Henüz değişiklik yok</td>
+                </tr>
                 {% endfor %}
               </tbody>
             </table>
@@ -63,7 +78,6 @@
         </div>
       </div>
     </div>
-
   </div>
 </div>
 {% endblock %}

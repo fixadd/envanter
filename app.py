@@ -1,48 +1,56 @@
 from __future__ import annotations
-import os, secrets
+
+import os
+import secrets
 from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request, Form, Depends, status, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import Depends, FastAPI, Form, HTTPException, Request, status
 from fastapi.exception_handlers import http_exception_handler
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from starlette.middleware.sessions import SessionMiddleware
-from starlette import status as st_status
 from sqlalchemy.orm import Session
+from starlette import status as st_status
+from starlette.middleware.sessions import SessionMiddleware
 
-from models import init_db
-from db_bootstrap import bootstrap_schema
-from database import get_db
 from auth import (
     get_user_by_username,
-    verify_password,
     hash_password,
+    verify_password,
 )
+from database import get_db
+from db_bootstrap import bootstrap_schema
+from models import init_db
+from routers import catalog as catalog_router
 from routers import (
     home,
-    inventory as inventory_router,
-    license as license_router,
-    printers as printers_router,
+)
+from routers import inventory as inventory_router
+from routers import license as license_router
+from routers import (
+    logs,
+)
+from routers import panel as panel_router
+from routers import printers as printers_router
+from routers import (
     printers_scrap_list,
-    catalog as catalog_router,
-    requests as reqs,
+    profile,
+    refdata,
+)
+from routers import requests as reqs
+from routers import (
     stock,
     trash,
-    profile,
-    logs,
-    refdata,
-    panel as panel_router,
 )
+from routers.api import router as api_router
 from routers.lookup import router as lookup_router
 from routers.picker import router as picker_router
-from routers.api import router as api_router
 from routes.admin import router as admin_router
-from routes.stock import router as stock_extra_router
 from routes.scrap import router as scrap_router
-from utils.template_filters import register_filters
+from routes.stock import router as stock_extra_router
 from security import current_user, require_roles
+from utils.template_filters import register_filters
 
 load_dotenv()
 bootstrap_schema()
@@ -64,6 +72,7 @@ DEFAULT_ADMIN_FULLNAME = os.getenv("DEFAULT_ADMIN_FULLNAME", "Sistem Yöneticisi
 # --- App & Middleware ---------------------------------------------------------
 app = FastAPI(title="Envanter Takip – Login")
 
+
 @app.exception_handler(HTTPException)
 async def redirect_on_auth(request, exc: HTTPException):
     """Handle custom redirect signals while delegating other errors.
@@ -81,6 +90,7 @@ async def redirect_on_auth(request, exc: HTTPException):
     # Delegate to FastAPI's standard HTTP exception handler for all other
     # errors so the appropriate status code (e.g. 404) is returned.
     return await http_exception_handler(request, exc)
+
 
 app.add_middleware(
     SessionMiddleware,
@@ -103,51 +113,98 @@ app.include_router(license_router.router, dependencies=[Depends(current_user)])
 app.include_router(printers_scrap_list.router, dependencies=[Depends(current_user)])
 app.include_router(printers_router.router, dependencies=[Depends(current_user)])
 app.include_router(catalog_router.router, dependencies=[Depends(current_user)])
-app.include_router(reqs.router, prefix="/requests", tags=["Requests"], dependencies=[Depends(current_user)])
+app.include_router(
+    reqs.router,
+    prefix="/requests",
+    tags=["Requests"],
+    dependencies=[Depends(current_user)],
+)
 app.include_router(stock.router, dependencies=[Depends(current_user)])
 app.include_router(stock_extra_router, dependencies=[Depends(current_user)])
 app.include_router(scrap_router, dependencies=[Depends(current_user)])
-app.include_router(trash.router, prefix="/trash", tags=["Trash"], dependencies=[Depends(current_user)])
-app.include_router(profile.router, prefix="/profile", tags=["Profile"], dependencies=[Depends(current_user)])
+app.include_router(
+    trash.router, prefix="/trash", tags=["Trash"], dependencies=[Depends(current_user)]
+)
+app.include_router(
+    profile.router,
+    prefix="/profile",
+    tags=["Profile"],
+    dependencies=[Depends(current_user)],
+)
 app.include_router(api_router)
 app.include_router(picker_router)
 app.include_router(lookup_router)
 app.include_router(refdata.router, dependencies=[Depends(current_user)])
 
+
 @app.get("/licenses", include_in_schema=False)
-def licenses_list_alias(request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
+def licenses_list_alias(
+    request: Request, db: Session = Depends(get_db), user=Depends(current_user)
+):
     return license_router.license_list(request, db, user)
 
+
 @app.get("/licenses/{lic_id}", include_in_schema=False)
-def licenses_detail_alias(lic_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
+def licenses_detail_alias(
+    lic_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
+):
     return license_router.license_detail(lic_id, request, db)
 
 
 @app.get("/licenses/{lic_id}/edit", include_in_schema=False)
-def licenses_edit_alias(lic_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
+def licenses_edit_alias(
+    lic_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
+):
     return license_router.edit_license_form(lic_id, request, db)
 
 
 @app.get("/licenses/{lic_id}/assign", include_in_schema=False)
-def licenses_assign_alias(lic_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
+def licenses_assign_alias(
+    lic_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
+):
     return license_router.assign_license_form(lic_id, request, db, user)
 
+
 @app.get("/licenses/{lic_id}/stock", include_in_schema=False)
-def licenses_stock_alias(lic_id: int, request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
+def licenses_stock_alias(
+    lic_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
+):
     return license_router.stock_license(lic_id, db, user)
 
+
 # Sadece admin
-app.include_router(logs.router, prefix="/logs", tags=["Logs"], dependencies=[Depends(require_roles("admin"))])
+app.include_router(
+    logs.router,
+    prefix="/logs",
+    tags=["Logs"],
+    dependencies=[Depends(require_roles("admin"))],
+)
 app.include_router(admin_router, dependencies=[Depends(require_roles("admin"))])
+
 
 # --- Startup: DB init & default admin ----------------------------------------
 @app.on_event("startup")
 def on_startup():
     from models import SessionLocal, User
+
     init_db()
     db = SessionLocal()
     try:
-        existing = db.query(User).filter(User.username == DEFAULT_ADMIN_USERNAME).first()
+        existing = (
+            db.query(User).filter(User.username == DEFAULT_ADMIN_USERNAME).first()
+        )
         if not existing:
             u = User(
                 username=DEFAULT_ADMIN_USERNAME,
@@ -160,14 +217,19 @@ def on_startup():
     finally:
         db.close()
 
+
 # --- CSRF yardımcıları --------------------------------------------------------
 def _ensure_csrf(request: Request) -> str:
     token = secrets.token_urlsafe(32)
     request.session["csrf_token"] = token
     return token
 
+
 def _check_csrf(request: Request, token_from_form: Optional[str]) -> bool:
-    return bool(token_from_form) and request.session.get("csrf_token") == token_from_form
+    return (
+        bool(token_from_form) and request.session.get("csrf_token") == token_from_form
+    )
+
 
 # --- Login/Logout -------------------------------------------------------------
 @app.get("/login", response_class=HTMLResponse)
@@ -188,6 +250,7 @@ async def login_form(request: Request):
             "saved_password": saved_password,
         },
     )
+
 
 @app.post("/login", response_class=HTMLResponse)
 async def login_submit(
@@ -242,6 +305,7 @@ async def login_submit(
         response.delete_cookie("saved_username")
         response.delete_cookie("saved_password")
     return response
+
 
 @app.get("/logout")
 async def logout(request: Request):

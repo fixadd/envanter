@@ -1,35 +1,37 @@
-from fastapi import APIRouter, Request, Depends, Form, HTTPException, UploadFile, File
+from datetime import datetime
+from io import BytesIO
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import (
-    JSONResponse,
-    RedirectResponse,
-    PlainTextResponse,
-    StreamingResponse,
     HTMLResponse,
+    JSONResponse,
+    PlainTextResponse,
+    RedirectResponse,
+    StreamingResponse,
 )
+from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
-from datetime import datetime
-from fastapi.templating import Jinja2Templates
-from io import BytesIO
-from utils.template_filters import register_filters
 
 from database import get_db
 from models import (
+    Brand,
+    Factory,
+    HardwareType,
     Inventory,
     InventoryLog,
-    ScrapItem,
-    User,
-    Factory,
-    Brand,
-    Model,
-    UsageArea,
-    HardwareType,
     License,
     LicenseLog,
+    Model,
+    ScrapItem,
     ScrapPrinter,
     StockLog,
+    UsageArea,
+    User,
 )
 from security import current_user
+from utils.template_filters import register_filters
+
 templates = register_filters(Jinja2Templates(directory="templates"))
 
 
@@ -65,33 +67,33 @@ async def export_inventory(db: Session = Depends(get_db)):
 
     items = db.query(Inventory).order_by(Inventory.id.asc()).all()
     for i in items:
-        ws.append([
-            i.id,
-            i.no,
-            i.fabrika,
-            i.departman,
-            i.donanim_tipi,
-            i.bilgisayar_adi,
-            i.marka,
-            i.model,
-            i.seri_no,
-            i.sorumlu_personel,
-            i.bagli_envanter_no,
-            i.kullanim_alani,
-            i.ifs_no,
-            i.tarih,
-            i.islem_yapan,
-            i.durum,
-            i.not_,
-        ])
+        ws.append(
+            [
+                i.id,
+                i.no,
+                i.fabrika,
+                i.departman,
+                i.donanim_tipi,
+                i.bilgisayar_adi,
+                i.marka,
+                i.model,
+                i.seri_no,
+                i.sorumlu_personel,
+                i.bagli_envanter_no,
+                i.kullanim_alani,
+                i.ifs_no,
+                i.tarih,
+                i.islem_yapan,
+                i.durum,
+                i.not_,
+            ]
+        )
 
     stream = BytesIO()
     wb.save(stream)
     stream.seek(0)
 
-    headers = {
-        "Content-Disposition": "attachment; filename=inventory.xlsx"
-    }
+    headers = {"Content-Disposition": "attachment; filename=inventory.xlsx"}
     return StreamingResponse(
         stream,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -111,19 +113,25 @@ def current_full_name(request: Request) -> str:
         or "Bilinmeyen Kullanıcı"
     )
 
+
 @router.get("", name="inventory.list")
-def list_items(request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
-  items = (
-    db.query(Inventory)
-    .filter(Inventory.durum != "hurda")
-    .order_by(Inventory.id.desc())
-    .all()
-  )
-  return templates.TemplateResponse("inventory_list.html", {"request": request, "items": items})
+def list_items(
+    request: Request, db: Session = Depends(get_db), user=Depends(current_user)
+):
+    items = (
+        db.query(Inventory)
+        .filter(Inventory.durum != "hurda")
+        .order_by(Inventory.id.desc())
+        .all()
+    )
+    return templates.TemplateResponse(
+        "inventory_list.html", {"request": request, "items": items}
+    )
+
 
 @router.get("/new", name="inventory.new")
 def new_page(request: Request, user=Depends(current_user)):
-  return templates.TemplateResponse("inventory_add.html", {"request": request})
+    return templates.TemplateResponse("inventory_add.html", {"request": request})
 
 
 @router.post("/create")
@@ -163,48 +171,69 @@ def create_inventory(
     db.commit()
     return RedirectResponse(url="/inventory", status_code=303)
 
+
 @router.post("/new", name="inventory.new_post")
-async def new_post(request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
-  form = dict(await request.form())
+async def new_post(
+    request: Request, db: Session = Depends(get_db), user=Depends(current_user)
+):
+    form = dict(await request.form())
 
-  brand = db.get(Brand, int(form.get("marka"))) if form.get("marka") else None
-  model_obj = db.get(Model, int(form.get("model"))) if form.get("model") else None
-  usage = db.get(UsageArea, int(form.get("kullanim_alani"))) if form.get("kullanim_alani") else None
-  hw = db.get(HardwareType, int(form.get("donanim_tipi"))) if form.get("donanim_tipi") else None
-  factory = db.get(Factory, int(form.get("fabrika"))) if form.get("fabrika") else None
+    brand = db.get(Brand, int(form.get("marka"))) if form.get("marka") else None
+    model_obj = db.get(Model, int(form.get("model"))) if form.get("model") else None
+    usage = (
+        db.get(UsageArea, int(form.get("kullanim_alani")))
+        if form.get("kullanim_alani")
+        else None
+    )
+    hw = (
+        db.get(HardwareType, int(form.get("donanim_tipi")))
+        if form.get("donanim_tipi")
+        else None
+    )
+    factory = db.get(Factory, int(form.get("fabrika"))) if form.get("fabrika") else None
 
-  inv = Inventory(
-    no=form.get("no") or f"INV{int(datetime.utcnow().timestamp())}",
-    fabrika=factory.name if factory else None,
-    departman=form.get("departman"),
-    donanim_tipi=hw.name if hw else None,
-    bilgisayar_adi=form.get("bilgisayar_adi"),
-    marka=brand.name if brand else None,
-    model=model_obj.name if model_obj else None,
-    seri_no=form.get("seri_no"),
-    kullanim_alani=usage.name if usage else None,
-    ifs_no=form.get("ifs_no"),
-    not_=form.get("not") or None,
-    tarih=datetime.utcnow(),
-    islem_yapan=getattr(user, "full_name", None) or user.username,
-  )
-  db.add(inv)
-  db.commit()
-  db.refresh(inv)
-  db.add(InventoryLog(
-    inventory_id=inv.id,
-    action="create",
-    before_json=None,
-    after_json=inv.to_dict() if hasattr(inv, "to_dict") else None,
-    note="Oluşturuldu",
-    created_at=datetime.utcnow(),
-    actor=user.username,
-  ))
-  db.commit()
-  return RedirectResponse(url=request.url_for("inventory.detail", item_id=inv.id), status_code=303)
+    inv = Inventory(
+        no=form.get("no") or f"INV{int(datetime.utcnow().timestamp())}",
+        fabrika=factory.name if factory else None,
+        departman=form.get("departman"),
+        donanim_tipi=hw.name if hw else None,
+        bilgisayar_adi=form.get("bilgisayar_adi"),
+        marka=brand.name if brand else None,
+        model=model_obj.name if model_obj else None,
+        seri_no=form.get("seri_no"),
+        kullanim_alani=usage.name if usage else None,
+        ifs_no=form.get("ifs_no"),
+        not_=form.get("not") or None,
+        tarih=datetime.utcnow(),
+        islem_yapan=getattr(user, "full_name", None) or user.username,
+    )
+    db.add(inv)
+    db.commit()
+    db.refresh(inv)
+    db.add(
+        InventoryLog(
+            inventory_id=inv.id,
+            action="create",
+            before_json=None,
+            after_json=inv.to_dict() if hasattr(inv, "to_dict") else None,
+            note="Oluşturuldu",
+            created_at=datetime.utcnow(),
+            actor=user.username,
+        )
+    )
+    db.commit()
+    return RedirectResponse(
+        url=request.url_for("inventory.detail", item_id=inv.id), status_code=303
+    )
+
 
 @router.get("/{item_id:int}/detail", name="inventory.detail")
-def detail(request: Request, item_id: int, db: Session = Depends(get_db), user=Depends(current_user)):
+def detail(
+    request: Request,
+    item_id: int,
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
+):
     stmt = select(Inventory).where(Inventory.id == item_id)
     item = db.execute(stmt).scalar_one_or_none()
     if not item:
@@ -215,9 +244,13 @@ def detail(request: Request, item_id: int, db: Session = Depends(get_db), user=D
         .order_by(InventoryLog.created_at.desc())
         .all()
     )
-    lisanslar = db.query(License).filter(
-        (License.inventory_id == item_id) | (License.bagli_envanter_no == item.no)
-    ).all()
+    lisanslar = (
+        db.query(License)
+        .filter(
+            (License.inventory_id == item_id) | (License.bagli_envanter_no == item.no)
+        )
+        .all()
+    )
     return templates.TemplateResponse(
         "inventory_detail.html",
         {
@@ -228,9 +261,16 @@ def detail(request: Request, item_id: int, db: Session = Depends(get_db), user=D
         },
     )
 
+
 @router.get("/{item_id:int}", name="inventory.detail_short", include_in_schema=False)
-def detail_short(request: Request, item_id: int, db: Session = Depends(get_db), user=Depends(current_user)):
-  return detail(request, item_id, db, user)
+def detail_short(
+    request: Request,
+    item_id: int,
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
+):
+    return detail(request, item_id, db, user)
+
 
 @router.get("/assign/sources", name="inventory.assign_sources")
 def assign_sources(
@@ -290,177 +330,227 @@ def assign_sources(
         return [{"id": r.no, "text": r.no} for r in rows]
     return []
 
+
 @router.post("/assign", name="inventory.assign")
 def assign(
-  item_id: int = Form(...),
-  fabrika: str | None = Form(None),
-  departman: str | None = Form(None),
-  sorumlu_personel: str | None = Form(None),
-  bagli_envanter_no: str | None = Form(None),
-  db: Session = Depends(get_db),
-  user=Depends(current_user),
+    item_id: int = Form(...),
+    fabrika: str | None = Form(None),
+    departman: str | None = Form(None),
+    sorumlu_personel: str | None = Form(None),
+    bagli_envanter_no: str | None = Form(None),
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
 ):
-  item = db.query(Inventory).get(item_id)
-  if not item:
-    raise HTTPException(404)
+    item = db.query(Inventory).get(item_id)
+    if not item:
+        raise HTTPException(404)
 
-  before = {
-    "fabrika": item.fabrika,
-    "departman": item.departman,
-    "sorumlu_personel": item.sorumlu_personel,
-    "bagli_envanter_no": item.bagli_envanter_no,
-  }
+    before = {
+        "fabrika": item.fabrika,
+        "departman": item.departman,
+        "sorumlu_personel": item.sorumlu_personel,
+        "bagli_envanter_no": item.bagli_envanter_no,
+    }
 
-  item.fabrika = (fabrika or item.fabrika)
-  item.departman = (departman or item.departman)
-  item.sorumlu_personel = (sorumlu_personel or item.sorumlu_personel)
-  item.bagli_envanter_no = (bagli_envanter_no or item.bagli_envanter_no)
+    item.fabrika = fabrika or item.fabrika
+    item.departman = departman or item.departman
+    item.sorumlu_personel = sorumlu_personel or item.sorumlu_personel
+    item.bagli_envanter_no = bagli_envanter_no or item.bagli_envanter_no
 
-  db.add(item)
-  db.add(InventoryLog(
-    inventory_id=item.id,
-    action="assign",
-    before_json=before,
-    after_json={
-      "fabrika": item.fabrika,
-      "departman": item.departman,
-      "sorumlu_personel": item.sorumlu_personel,
-      "bagli_envanter_no": item.bagli_envanter_no,
-    },
-    note=f"{user.username} tarafından atama",
-    created_at=datetime.utcnow(),
-    actor=user.username
-  ))
-  db.commit()
-  return JSONResponse({"ok": True})
+    db.add(item)
+    db.add(
+        InventoryLog(
+            inventory_id=item.id,
+            action="assign",
+            before_json=before,
+            after_json={
+                "fabrika": item.fabrika,
+                "departman": item.departman,
+                "sorumlu_personel": item.sorumlu_personel,
+                "bagli_envanter_no": item.bagli_envanter_no,
+            },
+            note=f"{user.username} tarafından atama",
+            created_at=datetime.utcnow(),
+            actor=user.username,
+        )
+    )
+    db.commit()
+    return JSONResponse({"ok": True})
+
 
 @router.get("/{item_id:int}/edit", name="inventory.edit")
 def edit_page(
-  request: Request,
-  item_id: int,
-  modal: bool = False,
-  db: Session = Depends(get_db),
-  user=Depends(current_user),
+    request: Request,
+    item_id: int,
+    modal: bool = False,
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
 ):
-  item = db.query(Inventory).get(item_id)
-  if not item:
-    raise HTTPException(404)
-  return templates.TemplateResponse(
-    "inventory/edit.html", {"request": request, "item": item, "item_id": item.id, "modal": modal}
-  )
+    item = db.query(Inventory).get(item_id)
+    if not item:
+        raise HTTPException(404)
+    return templates.TemplateResponse(
+        "inventory/edit.html",
+        {"request": request, "item": item, "item_id": item.id, "modal": modal},
+    )
+
 
 @router.post("/{item_id:int}/edit", name="inventory.edit_post")
-async def edit_post(item_id: int, request: Request, modal: bool = False, db: Session = Depends(get_db), user=Depends(current_user)):
-  form = dict(await request.form())
-  item = db.query(Inventory).get(item_id)
-  if not item:
-    raise HTTPException(404)
+async def edit_post(
+    item_id: int,
+    request: Request,
+    modal: bool = False,
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
+):
+    form = dict(await request.form())
+    item = db.query(Inventory).get(item_id)
+    if not item:
+        raise HTTPException(404)
 
-  before = item.to_dict() if hasattr(item, "to_dict") else None
-  for k in ["fabrika","departman","sorumlu_personel","bagli_envanter_no","marka","model","kullanim_alani","ifs_no","not"]:
-    if k in form:
-      setattr(item, "not_" if k=="not" else k, form[k] or None)
+    before = item.to_dict() if hasattr(item, "to_dict") else None
+    for k in [
+        "fabrika",
+        "departman",
+        "sorumlu_personel",
+        "bagli_envanter_no",
+        "marka",
+        "model",
+        "kullanim_alani",
+        "ifs_no",
+        "not",
+    ]:
+        if k in form:
+            setattr(item, "not_" if k == "not" else k, form[k] or None)
 
-  db.add(item)
-  db.add(InventoryLog(
-    inventory_id=item.id,
-    action="edit",
-    before_json=before,
-    after_json=item.to_dict() if hasattr(item,"to_dict") else None,
-    note=f"{user.username} düzenledi",
-    created_at=datetime.utcnow(),
-    actor=user.username
-  ))
-  db.commit()
-  if modal:
-    return HTMLResponse("<script>window.parent.postMessage('modal-close','*');</script>")
-  return RedirectResponse(url=request.url_for("inventory.detail", item_id=item.id), status_code=303)
+    db.add(item)
+    db.add(
+        InventoryLog(
+            inventory_id=item.id,
+            action="edit",
+            before_json=before,
+            after_json=item.to_dict() if hasattr(item, "to_dict") else None,
+            note=f"{user.username} düzenledi",
+            created_at=datetime.utcnow(),
+            actor=user.username,
+        )
+    )
+    db.commit()
+    if modal:
+        return HTMLResponse(
+            "<script>window.parent.postMessage('modal-close','*');</script>"
+        )
+    return RedirectResponse(
+        url=request.url_for("inventory.detail", item_id=item.id), status_code=303
+    )
+
 
 @router.get("/{item_id:int}/stock", name="inventory.stock")
-def stock_entry(item_id: int, db: Session = Depends(get_db), user=Depends(current_user)):
-  item = db.query(Inventory).get(item_id)
-  if not item:
-    raise HTTPException(404)
-  actor = getattr(user, "full_name", None) or user.username
-  db.add(StockLog(
-    donanim_tipi=item.donanim_tipi or "Envanter",
-    miktar=1,
-    ifs_no=item.ifs_no,
-    marka=item.marka,
-    model=item.model,
-    islem="girdi",
-    actor=actor,
-  ))
-  db.add(InventoryLog(
-    inventory_id=item.id,
-    action="stock",
-    before_json=None,
-    after_json=item.to_dict() if hasattr(item, "to_dict") else None,
-    note="Stok girişi yapıldı",
-    created_at=datetime.utcnow(),
-    actor=actor,
-  ))
-  db.commit()
-  return RedirectResponse(url="/stock", status_code=303)
+def stock_entry(
+    item_id: int, db: Session = Depends(get_db), user=Depends(current_user)
+):
+    item = db.query(Inventory).get(item_id)
+    if not item:
+        raise HTTPException(404)
+    actor = getattr(user, "full_name", None) or user.username
+    db.add(
+        StockLog(
+            donanim_tipi=item.donanim_tipi or "Envanter",
+            miktar=1,
+            ifs_no=item.ifs_no,
+            marka=item.marka,
+            model=item.model,
+            islem="girdi",
+            actor=actor,
+        )
+    )
+    db.add(
+        InventoryLog(
+            inventory_id=item.id,
+            action="stock",
+            before_json=None,
+            after_json=item.to_dict() if hasattr(item, "to_dict") else None,
+            note="Stok girişi yapıldı",
+            created_at=datetime.utcnow(),
+            actor=actor,
+        )
+    )
+    db.commit()
+    return RedirectResponse(url="/stock", status_code=303)
+
 
 @router.post("/scrap", name="inventory.scrap")
-def scrap(item_id: int = Form(...), aciklama: str = Form(""), db: Session = Depends(get_db), user=Depends(current_user)):
-  item = db.query(Inventory).get(item_id)
-  if not item:
-    raise HTTPException(404)
+def scrap(
+    item_id: int = Form(...),
+    aciklama: str = Form(""),
+    db: Session = Depends(get_db),
+    user=Depends(current_user),
+):
+    item = db.query(Inventory).get(item_id)
+    if not item:
+        raise HTTPException(404)
 
-  s = ScrapItem.from_inventory(item, reason=aciklama, actor=user.username)
-  db.add(s)
+    s = ScrapItem.from_inventory(item, reason=aciklama, actor=user.username)
+    db.add(s)
 
-  item.durum = "hurda"
-  db.add(item)
+    item.durum = "hurda"
+    db.add(item)
 
-  for lic in list(item.licenses):
-    lic.sorumlu_personel = None
-    lic.bagli_envanter_no = None
-    lic.inventory_id = None
-    db.add(LicenseLog(
-      license_id=lic.id,
-      islem="ATAMA",
-      detay="Envanter hurdaya ayrıldığı için lisans bağlantısı kaldırıldı",
-      islem_yapan=user.username
-    ))
+    for lic in list(item.licenses):
+        lic.sorumlu_personel = None
+        lic.bagli_envanter_no = None
+        lic.inventory_id = None
+        db.add(
+            LicenseLog(
+                license_id=lic.id,
+                islem="ATAMA",
+                detay="Envanter hurdaya ayrıldığı için lisans bağlantısı kaldırıldı",
+                islem_yapan=user.username,
+            )
+        )
 
-  db.add(InventoryLog(
-    inventory_id=item.id,
-    action="scrap",
-    before_json=None,
-    after_json={"durum": "hurda", "aciklama": aciklama},
-    note="Hurdalara taşındı",
-    created_at=datetime.utcnow(),
-    actor=user.username
-  ))
-  db.commit()
-  return JSONResponse({"ok": True})
+    db.add(
+        InventoryLog(
+            inventory_id=item.id,
+            action="scrap",
+            before_json=None,
+            after_json={"durum": "hurda", "aciklama": aciklama},
+            note="Hurdalara taşındı",
+            created_at=datetime.utcnow(),
+            actor=user.username,
+        )
+    )
+    db.commit()
+    return JSONResponse({"ok": True})
+
 
 @router.get("/hurdalar", name="inventory.hurdalar")
-def hurdalar_listesi(request: Request, db: Session = Depends(get_db), user=Depends(current_user)):
-  hurdalar = db.query(Inventory).filter(Inventory.durum == "hurda").all()
-  logs_map = {
-    item.id: (
-      db.query(InventoryLog)
-      .filter(InventoryLog.inventory_id == item.id)
-      .order_by(InventoryLog.created_at.desc())
-      .all()
+def hurdalar_listesi(
+    request: Request, db: Session = Depends(get_db), user=Depends(current_user)
+):
+    hurdalar = db.query(Inventory).filter(Inventory.durum == "hurda").all()
+    logs_map = {
+        item.id: (
+            db.query(InventoryLog)
+            .filter(InventoryLog.inventory_id == item.id)
+            .order_by(InventoryLog.created_at.desc())
+            .all()
+        )
+        for item in hurdalar
+    }
+
+    license_scraps = db.query(License).filter(License.durum == "hurda").all()
+    printer_scraps = (
+        db.query(ScrapPrinter).order_by(ScrapPrinter.created_at.desc()).all()
     )
-    for item in hurdalar
-  }
 
-  license_scraps = db.query(License).filter(License.durum == "hurda").all()
-  printer_scraps = db.query(ScrapPrinter).order_by(ScrapPrinter.created_at.desc()).all()
-
-  return templates.TemplateResponse(
-    "hurdalar.html",
-    {
-      "request": request,
-      "hurdalar": hurdalar,
-      "logs_map": logs_map,
-      "license_scraps": license_scraps,
-      "printer_scraps": printer_scraps,
-    },
-  )
+    return templates.TemplateResponse(
+        "hurdalar.html",
+        {
+            "request": request,
+            "hurdalar": hurdalar,
+            "logs_map": logs_map,
+            "license_scraps": license_scraps,
+            "printer_scraps": printer_scraps,
+        },
+    )

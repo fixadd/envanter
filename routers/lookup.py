@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from database import get_db  # projedeki mevcut get_db
 
@@ -10,7 +10,7 @@ router = APIRouter(prefix="/api/lookup", tags=["lookup"])
 # (Gerekirse tablo adlarını birebir DB'nizdeki adlarla düzeltin.)
 ENTITY_TABLE = {
     "marka": "brands",
-    "model": "models",           # Not: model listesi brand_id filtresi bekleyebilir.
+    "model": "models",  # Not: model listesi brand_id filtresi bekleyebilir.
     "fabrika": "factories",
     "kullanim-alani": "usage_areas",
     "donanim-tipi": "hardware_types",
@@ -55,6 +55,7 @@ FILTER_MAP = {
         ],
     },
 }
+
 
 @router.get("/{entity}")
 def lookup_list(

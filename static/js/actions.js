@@ -1,9 +1,11 @@
 (function () {
-  function go(url) { window.location.href = url; }
+  function go(url) {
+    window.location.href = url;
+  }
 
   // Detay (göz)
-  document.addEventListener('click', function (e) {
-    const btn = e.target.closest('.js-view');
+  document.addEventListener("click", function (e) {
+    const btn = e.target.closest(".js-view");
     if (!btn) return;
     const { entity, id } = btn.dataset;
     if (!entity || !id) return;
@@ -11,8 +13,8 @@
   });
 
   // İşlemler select
-  document.addEventListener('change', function (e) {
-    const sel = e.target.closest('.js-actions');
+  document.addEventListener("change", function (e) {
+    const sel = e.target.closest(".js-actions");
     if (!sel) return;
     const { entity, id } = sel.dataset;
     const val = sel.value;
@@ -23,25 +25,33 @@
     // edit   -> /{entity}/{id}/edit
     // stock  -> /{entity}/{id}/stock
     // scrap  -> /{entity}/{id}/scrap
-    const map = { assign: 'assign', edit: 'edit', stock: 'stock', scrap: 'scrap' };
+    const map = {
+      assign: "assign",
+      edit: "edit",
+      stock: "stock",
+      scrap: "scrap",
+    };
     if (map[val]) {
       const url = `/${entity}/${id}/${map[val]}`;
-      if (val === 'edit' && window.openModal) {
-        openModal(url + '?modal=1');
+      if (val === "edit" && window.openModal) {
+        openModal(url + "?modal=1");
       } else {
         go(url);
       }
     }
-    sel.value = '';
+    sel.value = "";
   });
 
   // Eğer tüm satır tıklanıyorsa iptal etmek istersen:
-  document.addEventListener('click', function (e) {
-    const rowLink = e.target.closest('.js-row-link');
-    if (rowLink && !e.target.closest('.js-view') && !e.target.closest('.js-actions')) {
+  document.addEventListener("click", function (e) {
+    const rowLink = e.target.closest(".js-row-link");
+    if (
+      rowLink &&
+      !e.target.closest(".js-view") &&
+      !e.target.closest(".js-actions")
+    ) {
       e.stopPropagation();
       e.preventDefault();
     }
   });
 })();
-
