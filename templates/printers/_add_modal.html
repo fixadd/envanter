@@ -1,0 +1,22 @@
+{% extends "components/modal_base.html" %}
+{% import "components/form_macros.html" as F %}
+{% set form_id = "printerAddForm" %}
+{% set submit_text = "Kaydet" %}
+
+{% block modal_id %}printerAddModal{% endblock %}
+{% block modal_theme %}purple{% endblock %}
+{% block modal_eyebrow %}YAZICI YÖNETİMİ{% endblock %}
+{% block modal_title %}Yazıcı Ekle{% endblock %}
+{% block modal_subtitle %}Yeni bir yazıcıyı envantere ekleyin ve temel yapılandırmasını belirleyin.{% endblock %}
+
+{% block modal_body %}
+<form id="{{ form_id }}" class="form-grid" method="post" action="/printers/create">
+  {{ F.input('inventory_no','Envanter No','text', new_inventory_code, True) }}
+  {{ F.select('brand_id','Yazıcı Markası', brands, required=True) }}
+  {{ F.select('model_id','Yazıcı Modeli', models, hint='Model listesi seçilen markaya göre filtrelenir.') }}
+  {{ F.select('usage_area_id','Kullanım Alanı', usage_areas) }}
+  {{ F.input('ip','IP Adresi','text') }}
+  {{ F.input('mac','MAC','text','',False,'AA:BB:CC:DD:EE:FF') }}
+  {{ F.input('hostname','Hostname','text') }}
+</form>
+{% endblock %}
