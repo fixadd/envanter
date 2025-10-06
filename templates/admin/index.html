@@ -786,6 +786,18 @@ content %}
   </div>
 </div>
 {% endblock %} {% block scripts %} {{ super() }}
+{% if flash %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    if (window.showAlert) {
+      window.showAlert({{ flash.message|tojson }}, {
+        title: {{ (flash.title or 'Bilgi')|tojson }},
+        variant: {{ (flash.variant or 'primary')|tojson }},
+      });
+    }
+  });
+</script>
+{% endif %}
 <style>
   .chip {
     display: inline-flex;
