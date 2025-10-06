@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, date
+from datetime import date, datetime
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import RedirectResponse
@@ -37,11 +37,7 @@ def _to_optional_int(value: str | None) -> int | None:
 def _lists(db: Session) -> dict[str, object]:
     factories = db.query(Factory).order_by(Factory.name.asc()).all()
     departments = db.query(Department).order_by(Department.name.asc()).all()
-    persons = (
-        db.query(User)
-        .order_by(User.full_name.asc(), User.username.asc())
-        .all()
-    )
+    persons = db.query(User).order_by(User.full_name.asc(), User.username.asc()).all()
     inventories = db.query(Inventory).order_by(Inventory.no.asc()).all()
     return {
         "factories": factories,
@@ -83,11 +79,7 @@ def license_add(
     if not normalized_code:
         raise HTTPException(status_code=400, detail="Lisans numarası gerekli")
 
-    existing = (
-        db.query(License)
-        .filter(License.license_code == normalized_code)
-        .first()
-    )
+    existing = db.query(License).filter(License.license_code == normalized_code).first()
     if existing:
         raise HTTPException(status_code=400, detail="Bu lisans numarası zaten kayıtlı")
 
@@ -133,9 +125,7 @@ def license_add(
         lic.bagli_envanter_no = inventory.no
 
     lic.islem_yapan = (
-        getattr(user, "full_name", None)
-        or getattr(user, "username", "")
-        or "system"
+        getattr(user, "full_name", None) or getattr(user, "username", "") or "system"
     )
     db.add(lic)
     db.commit()
