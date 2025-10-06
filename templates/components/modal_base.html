@@ -1,39 +1,50 @@
 {% macro close_btn() -%}
-<button
-  type="button"
-  class="btn-close"
-  data-bs-dismiss="modal"
-  aria-label="Kapat"
-></button>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
 {%- endmacro %}
 
-<div
-  class="modal fade"
-  id="{% block modal_id %}{% endblock %}"
-  tabindex="-1"
-  aria-hidden="true"
->
-  <div
-    class="modal-dialog modal-dialog-centered {% block modal_dialog_classes %}modal-xl{% endblock %}"
-  >
-    <div class="modal-content modal-ux">
-      <div class="modal-header align-items-start gap-3">
-        <div class="flex-grow-1">
-          <h5 class="modal-title mb-1">
-            {% block modal_title %}{% endblock %}
-          </h5>
-          {% block modal_subtitle %}{% endblock %}
+<div class="modal fade" id="{% block modal_id %}{% endblock %}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered {% block modal_dialog_classes %}modal-xl{% endblock %}">
+    <div class="modal-content modal-ux" data-theme="{% block modal_theme %}{{ theme|default('purple') }}{% endblock %}">
+      <div class="modal-header">
+        <div>
+          {% set eyebrow_content -%}
+            {% block modal_eyebrow %}{% if eyebrow is defined %}{{ eyebrow }}{% endif %}{% endblock %}
+          {%- endset %}
+          {% if eyebrow_content|trim %}
+          <div class="eyebrow">{{ eyebrow_content|trim|safe }}</div>
+          {% endif %}
+
+          {% set title_content -%}
+            {% block modal_title %}{% if title is defined %}{{ title }}{% endif %}{% endblock %}
+          {%- endset %}
+          {% if title_content|trim %}
+          <h5 class="modal-title">{{ title_content|trim|safe }}</h5>
+          {% endif %}
+
+          {% set subtitle_content -%}
+            {% block modal_subtitle %}{% if subtitle is defined %}{{ subtitle }}{% endif %}{% endblock %}
+          {%- endset %}
+          {% if subtitle_content|trim %}
+          <div class="subtitle">{{ subtitle_content|trim|safe }}</div>
+          {% endif %}
         </div>
-        <div class="flex-shrink-0 d-flex align-items-start">
-          {% block modal_header_actions %}{{ close_btn() }}{% endblock %}
-        </div>
+        {% block modal_header_actions %}{{ close_btn() }}{% endblock %}
       </div>
-      <div class="modal-body">{% block modal_body %}{% endblock %}</div>
+
+      <div class="modal-body">
+        {% block body %}
+          {% block modal_body %}{% endblock %}
+        {% endblock %}
+      </div>
+
       <div class="modal-footer">
-        {% block modal_footer %}
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-          Kapat
-        </button>
+        {% block footer %}
+          {% block modal_footer %}
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">İptal</button>
+            <button type="submit" class="btn btn-primary"{% if form_id is defined %} form="{{ form_id }}"{% endif %}>
+              {{ submit_text|default('Kaydet') }}
+            </button>
+          {% endblock %}
         {% endblock %}
       </div>
     </div>
