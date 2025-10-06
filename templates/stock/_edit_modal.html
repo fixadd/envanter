@@ -1,135 +1,135 @@
-{% extends "components/modal_base.html" %}
+{% extends "components/modal_base.html" %} {% block modal_id %}modalStockAdd{%
+endblock %} {% block modal_dialog_classes %}modal-lg modal-dialog-scrollable{%
+endblock %} {% block modal_title %}Stok Kaydını Düzenleyin{% endblock %} {%
+block modal_subtitle %}
+<p class="modal-subtitle">
+  Envanter veya lisans stok hareketlerini sisteme ekleyin.
+</p>
+{% endblock %} {% block modal_body %}
+<form id="frmStockAdd" class="stack-md" autocomplete="off">
+  <div class="tab-lite" role="tablist" aria-label="Stok kayıt tipi">
+    <button
+      type="button"
+      class="btn active"
+      data-stock-add-type="inventory"
+      aria-selected="true"
+    >
+      Envanter
+    </button>
+    <button
+      type="button"
+      class="btn"
+      data-stock-add-type="license"
+      aria-selected="false"
+    >
+      Lisans
+    </button>
+  </div>
 
-{% block modal_id %}modalStockAdd{% endblock %}
-{% block modal_dialog_classes %}modal-lg modal-dialog-scrollable{% endblock %}
-{% block modal_title %}Stok Kaydını Düzenleyin{% endblock %}
-{% block modal_subtitle %}
-  <p class="modal-subtitle">Envanter veya lisans stok hareketlerini sisteme ekleyin.</p>
-{% endblock %}
-{% block modal_body %}
-  <form id="frmStockAdd" class="stack-md" autocomplete="off">
-    <div class="tab-lite" role="tablist" aria-label="Stok kayıt tipi">
-      <button
-        type="button"
-        class="btn active"
-        data-stock-add-type="inventory"
-        aria-selected="true"
-      >
-        Envanter
-      </button>
-      <button
-        type="button"
-        class="btn"
-        data-stock-add-type="license"
-        aria-selected="false"
-      >
-        Lisans
-      </button>
-    </div>
-
-    <div id="hardwareFields" class="stack-sm">
-      <span class="section-title">Envanter Bilgileri</span>
-      <div class="form-grid stok-row" id="stok-donanim-grid">
-        <div class="field">
-          <label for="stok_donanim_tipi" class="form-label">Donanım Tipi</label>
-          <select
-            name="donanim_tipi"
-            class="form-select ctrl"
-            data-lookup="donanim_tipi"
-            id="stok_donanim_tipi"
-            required
-          ></select>
-        </div>
-        <div class="field">
-          <label for="stok_marka" class="form-label">
-            Marka <span class="help-text">(opsiyonel)</span>
-          </label>
-          <select
-            name="marka"
-            class="form-select ctrl"
-            data-lookup="marka"
-            id="stok_marka"
-          ></select>
-        </div>
-        <div class="field">
-          <label for="stok_model" class="form-label">
-            Model <span class="help-text">(opsiyonel)</span>
-          </label>
-          <select
-            name="model"
-            class="form-select ctrl"
-            data-lookup="model"
-            data-depends="#stok_marka"
-            id="stok_model"
-          ></select>
-        </div>
-        <div class="field" id="rowMiktar">
-          <label for="miktar" class="form-label">Miktar</label>
-          <input
-            type="number"
-            min="1"
-            id="miktar"
-            name="miktar"
-            class="form-control ctrl"
-            required
-          />
-        </div>
-        <div class="field col-span-2">
-          <label for="ifs_no" class="form-label">
-            IFS No <span class="help-text">(opsiyonel)</span>
-          </label>
-          <input
-            type="text"
-            id="ifs_no"
-            name="ifs_no"
-            class="form-control ctrl"
-            placeholder="IFS numarası"
-          />
-        </div>
+  <div id="hardwareFields" class="stack-sm">
+    <span class="section-title">Envanter Bilgileri</span>
+    <div class="form-grid stok-row" id="stok-donanim-grid">
+      <div class="field">
+        <label for="stok_donanim_tipi" class="form-label">Donanım Tipi</label>
+        <select
+          name="donanim_tipi"
+          class="form-select ctrl"
+          data-lookup="donanim_tipi"
+          id="stok_donanim_tipi"
+          required
+        ></select>
+      </div>
+      <div class="field">
+        <label for="stok_marka" class="form-label">
+          Marka <span class="help-text">(opsiyonel)</span>
+        </label>
+        <select
+          name="marka"
+          class="form-select ctrl"
+          data-lookup="marka"
+          id="stok_marka"
+        ></select>
+      </div>
+      <div class="field">
+        <label for="stok_model" class="form-label">
+          Model <span class="help-text">(opsiyonel)</span>
+        </label>
+        <select
+          name="model"
+          class="form-select ctrl"
+          data-lookup="model"
+          data-depends="#stok_marka"
+          id="stok_model"
+        ></select>
+      </div>
+      <div class="field" id="rowMiktar">
+        <label for="miktar" class="form-label">Miktar</label>
+        <input
+          type="number"
+          min="1"
+          id="miktar"
+          name="miktar"
+          class="form-control ctrl"
+          required
+        />
+      </div>
+      <div class="field col-span-2">
+        <label for="ifs_no" class="form-label">
+          IFS No <span class="help-text">(opsiyonel)</span>
+        </label>
+        <input
+          type="text"
+          id="ifs_no"
+          name="ifs_no"
+          class="form-control ctrl"
+          placeholder="IFS numarası"
+        />
       </div>
     </div>
+  </div>
 
-    <div id="licenseFields" class="stack-sm d-none">
-      <span class="section-title">Lisans Bilgileri</span>
-      <div class="form-grid stok-row" id="stok-lisans-grid">
-        <div class="field">
-          <label for="lisans_adi" class="form-label">Lisans Adı</label>
-          <select
-            id="lisans_adi"
-            name="lisans_adi"
-            class="form-select ctrl"
-            data-lookup="lisans_adi"
-            required
-          ></select>
-        </div>
-        <div class="field">
-          <label for="lisans_anahtari" class="form-label">Lisans Anahtarı</label>
-          <input
-            type="text"
-            id="lisans_anahtari"
-            name="lisans_anahtari"
-            class="form-control ctrl"
-            required
-            placeholder="XXXX-XXXX-XXXX-XXXX"
-          />
-        </div>
-        <div class="field col-span-2">
-          <label for="mail_adresi" class="form-label">
-            E-posta <span class="help-text">(opsiyonel)</span>
-          </label>
-          <input
-            type="email"
-            id="mail_adresi"
-            name="mail_adresi"
-            class="form-control ctrl"
-            placeholder="ornek@firma.com"
-          />
-        </div>
+  <div id="licenseFields" class="stack-sm d-none">
+    <span class="section-title">Lisans Bilgileri</span>
+    <div class="form-grid stok-row" id="stok-lisans-grid">
+      <div class="field">
+        <label for="lisans_adi" class="form-label">Lisans Adı</label>
+        <select
+          id="lisans_adi"
+          name="lisans_adi"
+          class="form-select ctrl"
+          data-lookup="lisans_adi"
+          required
+        ></select>
+      </div>
+      <div class="field">
+        <label for="lisans_anahtari" class="form-label">Lisans Anahtarı</label>
+        <input
+          type="text"
+          id="lisans_anahtari"
+          name="lisans_anahtari"
+          class="form-control ctrl"
+          required
+          placeholder="XXXX-XXXX-XXXX-XXXX"
+        />
+      </div>
+      <div class="field col-span-2">
+        <label for="mail_adresi" class="form-label">
+          E-posta <span class="help-text">(opsiyonel)</span>
+        </label>
+        <input
+          type="email"
+          id="mail_adresi"
+          name="mail_adresi"
+          class="form-control ctrl"
+          placeholder="ornek@firma.com"
+        />
       </div>
     </div>
-  </form>
-{% endblock %}
-{% block modal_footer %}
-  <button type="button" class="btn btn-light" data-bs-dismiss="modal">Kapat</button>
-  <button type="submit" form="frmStockAdd" class="btn btn-primary">Kaydet</button>
+  </div>
+</form>
+{% endblock %} {% block modal_footer %}
+<button type="button" class="btn btn-light" data-bs-dismiss="modal">
+  Kapat
+</button>
+<button type="submit" form="frmStockAdd" class="btn btn-primary">Kaydet</button>
 {% endblock %}
