@@ -96,7 +96,9 @@ def _ensure_unique_user(
         username_query = username_query.filter(User.id != exclude_user_id)
     existing_username = username_query.first()
     if existing_username:
-        raise HTTPException(status_code=400, detail="Bu kullanıcı adı zaten kullanılıyor")
+        raise HTTPException(
+            status_code=400, detail="Bu kullanıcı adı zaten kullanılıyor"
+        )
 
     if email:
         email_query = db.query(User).filter(User.email == email)
