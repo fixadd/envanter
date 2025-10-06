@@ -283,12 +283,28 @@ class License(Base):
     lisans_anahtari = Column(String(500), nullable=True)
     lisans_key = synonym("lisans_anahtari")
     anahtar = synonym("lisans_anahtari")
+    license_key = synonym("lisans_anahtari")
+    product_name = synonym("lisans_adi")
     sorumlu_personel = Column(String(120), nullable=True)
     bagli_envanter_no = Column(String(120), nullable=True)
     ifs_no = Column(String(100), nullable=True)
     tarih = Column(Date, default=datetime.utcnow)
     islem_yapan = Column(String(120), nullable=True)
     mail_adresi = Column(String(200), nullable=True)
+    license_code = Column(String(64), unique=True, index=True, nullable=True)
+    license_type = Column(String(32), nullable=True)
+    seat_count = Column(Integer, nullable=False, default=1)
+    start_date = Column(Date, nullable=True)
+    end_date = Column(Date, nullable=True)
+    factory_id = Column(
+        Integer, ForeignKey("factories.id", ondelete="SET NULL"), nullable=True
+    )
+    department_id = Column(
+        Integer, ForeignKey("departments.id", ondelete="SET NULL"), nullable=True
+    )
+    owner_id = Column(
+        Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
     inventory_id = Column(
         Integer,
         ForeignKey("inventories.id", ondelete="SET NULL"),
@@ -297,11 +313,15 @@ class License(Base):
     )
     durum = Column(String(20), default="aktif")
     notlar = Column(Text, nullable=True)
+    note = synonym("notlar")
 
     logs = relationship(
         "LicenseLog", back_populates="license", cascade="all, delete-orphan"
     )
     inventory = relationship("Inventory", back_populates="licenses")
+    factory = relationship("Factory", foreign_keys=[factory_id])
+    department = relationship("Department", foreign_keys=[department_id])
+    owner = relationship("User", foreign_keys=[owner_id])
 
 
 class LicenseLog(Base):
@@ -352,6 +372,15 @@ class UsageArea(Base):
 
 class Factory(Base):
     __tablename__ = "factories"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(
+        String(150), unique=True, nullable=False, index=True
+    )
+
+
+class Department(Base):
+    __tablename__ = "departments"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(

@@ -38,6 +38,7 @@ from routers.api import router as api_router
 from routers.lookup import router as lookup_router
 from routers.picker import router as picker_router
 from routers.talep import router as talep_router
+from routes import licenses as licenses_router
 from routes.admin import router as admin_router
 from routes.scrap import router as scrap_router
 from routes.talepler import router as talepler_router
@@ -161,13 +162,6 @@ async def logout(request: Request):
     return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
 
 
-@router.get("/licenses", include_in_schema=False)
-def licenses_list_alias(
-    request: Request, db: Session = Depends(get_db), user=Depends(current_user)
-):
-    return license_router.license_list(request, db, user)
-
-
 @router.get("/licenses/{lic_id}", include_in_schema=False)
 def licenses_detail_alias(
     lic_id: int,
@@ -216,6 +210,7 @@ router.include_router(license_router.router, dependencies=[Depends(current_user)
 router.include_router(printers_scrap_list.router, dependencies=[Depends(current_user)])
 router.include_router(printers_router.router, dependencies=[Depends(current_user)])
 router.include_router(catalog_router.router, dependencies=[Depends(current_user)])
+router.include_router(licenses_router.router, dependencies=[Depends(current_user)])
 router.include_router(
     requests_router.router,
     prefix="/requests",
