@@ -62,6 +62,51 @@ def admin_index(
     return templates.TemplateResponse("admin/index.html", ctx)
 
 
+def _normalize_user_fields(
+    username: str,
+    first_name: str,
+    last_name: str,
+    email: str,
+) -> tuple[str, str, str, str | None]:
+    normalized_username = username.strip()
+    normalized_first = first_name.strip()
+    normalized_last = last_name.strip()
+    normalized_email = email.strip()
+    if not normalized_username:
+        raise HTTPException(status_code=400, detail="Kullanıcı adı gerekli")
+    if normalized_email == "":
+        normalized_email = None
+    return (
+        normalized_username,
+        normalized_first,
+        normalized_last,
+        normalized_email,
+    )
+
+
+def _ensure_unique_user(
+    db: Session,
+    *,
+    username: str,
+    email: str | None,
+    exclude_user_id: int | None = None,
+) -> None:
+    username_query = db.query(User).filter(User.username == username)
+    if exclude_user_id is not None:
+        username_query = username_query.filter(User.id != exclude_user_id)
+    existing_username = username_query.first()
+    if existing_username:
+        raise HTTPException(status_code=400, detail="Bu kullanıcı adı zaten kullanılıyor")
+
+    if email:
+        email_query = db.query(User).filter(User.email == email)
+        if exclude_user_id is not None:
+            email_query = email_query.filter(User.id != exclude_user_id)
+        existing_email = email_query.first()
+        if existing_email:
+            raise HTTPException(status_code=400, detail="Bu e-posta zaten kayıtlı")
+
+
 @router.post("/users/create")
 def create_user(
     username: str = Form(...),
@@ -72,13 +117,22 @@ def create_user(
     is_admin: bool = Form(False),
     db: Session = Depends(get_db),
 ):
+    (
+        normalized_username,
+        normalized_first,
+        normalized_last,
+        normalized_email,
+    ) = _normalize_user_fields(username, first_name, last_name, email)
+
+    _ensure_unique_user(db, username=normalized_username, email=normalized_email)
+
     u = User(
-        username=username,
+        username=normalized_username,
         password_hash=hash_password(password),
-        first_name=first_name,
-        last_name=last_name,
-        full_name=f"{first_name} {last_name}".strip(),
-        email=email or None,
+        first_name=normalized_first,
+        last_name=normalized_last,
+        full_name=f"{normalized_first} {normalized_last}".strip(),
+        email=normalized_email,
         role="admin" if is_admin else "user",
     )
     db.add(u)
@@ -131,16 +185,29 @@ def user_edit_post(
     user: SessionUser = Depends(current_user),
     db: Session = Depends(get_db),
 ):
+    (
+        normalized_username,
+        normalized_first,
+        normalized_last,
+        normalized_email,
+    ) = _normalize_user_fields(username, first_name, last_name, email)
+
     u = db.get(User, uid)
     if not u:
         raise HTTPException(404, "Kullanıcı bulunamadı")
     if u.role == "admin" and user.id != u.id and user.username.lower() != "admin":
         raise HTTPException(403, "Adminler birbirini güncelleyemez")
-    u.username = username
-    u.first_name = first_name
-    u.last_name = last_name
-    u.full_name = f"{first_name} {last_name}".strip()
-    u.email = email or None
+    _ensure_unique_user(
+        db,
+        username=normalized_username,
+        email=normalized_email,
+        exclude_user_id=uid,
+    )
+    u.username = normalized_username
+    u.first_name = normalized_first
+    u.last_name = normalized_last
+    u.full_name = f"{normalized_first} {normalized_last}".strip()
+    u.email = normalized_email
     u.role = "admin" if is_admin else "user"
     if password:
         u.password_hash = hash_password(password)
