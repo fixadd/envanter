@@ -138,7 +138,14 @@ content %}
               data-kullanim="{{ p.kullanim_alani or '' }}"
               data-personel="{{ p.sorumlu_personel or '' }}"
               data-bagli="{{ p.bagli_envanter_no or '' }}"
-              {% if p.durum == 'arızalı' %}class="table-warning"{% endif %}
+              {%
+              if
+              p.durum=""
+              ="arızalı"
+              %}class="table-warning"
+              {%
+              endif
+              %}
             >
               <td>#{{ p.id }}</td>
               <td>{{ p.marka or '-' }}</td>
@@ -179,56 +186,44 @@ content %}
   <div
     class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
   >
-    <form
-      method="post"
-      action="/printers/create"
-      class="modal-content border-0 bg-transparent p-0 needs-validation"
-      novalidate
-    >
-      <div class="modal-shell">
-        <div class="modal-shell__header">
-          <div class="modal-shell__heading">
-            <h5 class="modal-shell__title">Yazıcı Ekle</h5>
-            <p class="modal-shell__subtitle">
-              Yeni bir yazıcıyı envantere ekleyin ve temel yapılandırmasını
-              belirleyin.
-            </p>
-          </div>
-          <div class="modal-shell__header-actions">
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Kapat"
-            ></button>
-          </div>
-        </div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Yazıcı Ekle</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Kapat"
+        ></button>
+      </div>
 
-        <div class="modal-shell__body">
-          <div class="modal-form-grid">
-            <div class="mb-3">
-              <label class="form-label" for="printerEnvanter"
-                >Envanter No</label
-              >
+      <div class="modal-body">
+        <form
+          method="post"
+          action="/printers/create"
+          id="printerAddForm"
+          novalidate
+        >
+          <div class="env-grid" id="printer-ekle">
+            <div class="field">
+              <label for="printerEnvanter">Envanter No</label>
               <input
                 id="printerEnvanter"
                 name="envanter_no"
                 type="text"
-                class="form-control"
+                class="ctrl"
                 required
                 placeholder="ENV-000123"
               />
             </div>
 
-            <div class="mb-3">
-              <label class="form-label" for="selYaziciMarka"
-                >Yazıcı Markası</label
-              >
+            <div class="field">
+              <label for="selYaziciMarka">Yazıcı Markası</label>
               <select
-                name="yazici_markasi"
-                class="form-select"
-                required
                 id="selYaziciMarka"
+                name="yazici_markasi"
+                class="ctrl"
+                required
               >
                 <option value="">Seçiniz...</option>
                 {% for m in marka_list %}
@@ -237,32 +232,28 @@ content %}
               </select>
             </div>
 
-            <div class="mb-3">
-              <label class="form-label" for="selYaziciModel"
-                >Yazıcı Modeli</label
-              >
+            <div class="field">
+              <label for="selYaziciModel">Yazıcı Modeli</label>
               <select
-                name="yazici_modeli"
-                class="form-select"
-                required
                 id="selYaziciModel"
+                name="yazici_modeli"
+                class="ctrl"
+                required
                 disabled
               >
                 <option value="">Önce marka seçiniz...</option>
               </select>
-              <small class="text-muted"
+              <small class="help-text"
                 >Not: Model listesi seçilen markaya göre filtrelenir.</small
               >
             </div>
 
-            <div class="mb-3">
-              <label class="form-label" for="printerUsage"
-                >Kullanım Alanı</label
-              >
+            <div class="field">
+              <label for="printerUsage">Kullanım Alanı</label>
               <select
                 id="printerUsage"
                 name="kullanim_alani"
-                class="form-select"
+                class="ctrl"
                 required
               >
                 <option value="">Seçiniz...</option>
@@ -272,69 +263,71 @@ content %}
               </select>
             </div>
 
-            <div class="mb-3">
-              <label class="form-label" for="printerIp">IP Adresi</label>
+            <div class="field">
+              <label for="printerIp">IP Adresi</label>
               <input
                 id="printerIp"
                 name="ip_adresi"
                 type="text"
-                class="form-control"
+                class="ctrl"
                 required
                 placeholder="10.0.0.10"
               />
             </div>
-            <div class="mb-3">
-              <label class="form-label" for="printerMac">MAC</label>
+
+            <div class="field">
+              <label for="printerMac">MAC</label>
               <input
                 id="printerMac"
                 name="mac"
                 type="text"
-                class="form-control"
+                class="ctrl"
                 required
                 placeholder="AA:BB:CC:DD:EE:FF"
               />
             </div>
-            <div class="mb-3">
-              <label class="form-label" for="printerHostname">Hostname</label>
+
+            <div class="field">
+              <label for="printerHostname">Hostname</label>
               <input
                 id="printerHostname"
                 name="hostname"
                 type="text"
-                class="form-control"
+                class="ctrl"
                 required
                 placeholder="PRN-OFIS-01"
               />
             </div>
 
-            <div class="mb-3">
-              <label class="form-label" for="printerIfs">
-                IFS No <small class="text-muted">(opsiyonel)</small>
+            <div class="field">
+              <label for="printerIfs">
+                IFS No <span class="help-text">(opsiyonel)</span>
               </label>
               <input
                 id="printerIfs"
                 name="ifs_no"
                 type="text"
-                class="form-control"
+                class="ctrl"
                 placeholder="IFS numarası"
               />
             </div>
           </div>
-        </div>
-
-        <div class="modal-shell__footer">
-          <div class="modal-shell__actions">
-            <button
-              type="button"
-              class="btn btn-outline-secondary"
-              data-bs-dismiss="modal"
-            >
-              İptal
-            </button>
-            <button type="submit" class="btn btn-primary">Kaydet</button>
-          </div>
-        </div>
+        </form>
       </div>
-    </form>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-bs-dismiss="modal"
+        >
+          İptal
+        </button>
+        <button type="submit" form="printerAddForm" class="btn btn-primary">
+          Kaydet
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -383,7 +376,11 @@ content %}
 
             <div class="col-md-6">
               <label for="selKullanim" class="form-label">Kullanım Alanı</label>
-              <select id="selKullanim" name="kullanim_alani" class="form-select">
+              <select
+                id="selKullanim"
+                name="kullanim_alani"
+                class="form-select"
+              >
                 <option value="">Seçiniz</option>
                 {% for a in areas %}
                 <option value="{{ a }}">{{ a }}</option>
@@ -392,8 +389,14 @@ content %}
             </div>
 
             <div class="col-md-6">
-              <label for="selPersonel" class="form-label">Sorumlu Personel</label>
-              <select id="selPersonel" name="sorumlu_personel" class="form-select">
+              <label for="selPersonel" class="form-label"
+                >Sorumlu Personel</label
+              >
+              <select
+                id="selPersonel"
+                name="sorumlu_personel"
+                class="form-select"
+              >
                 <option value="">Seçiniz</option>
                 {% for u in users %}
                 <option value="{{ u }}">{{ u }}</option>
@@ -402,8 +405,14 @@ content %}
             </div>
 
             <div class="col-md-6">
-              <label for="selBagliEnv" class="form-label">Bağlı Olduğu Envanter</label>
-              <select id="selBagliEnv" name="bagli_envanter_no" class="form-select">
+              <label for="selBagliEnv" class="form-label"
+                >Bağlı Olduğu Envanter</label
+              >
+              <select
+                id="selBagliEnv"
+                name="bagli_envanter_no"
+                class="form-select"
+              >
                 <option value="">Seçiniz</option>
                 {% for inv in inventory_nos %}
                 <option value="{{ inv }}">{{ inv }}</option>
