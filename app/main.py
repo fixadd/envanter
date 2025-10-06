@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette import status as st_status
 from starlette.middleware.sessions import SessionMiddleware
+from urllib.parse import urlparse
 
 from app.core.security import hash_password
 from app.db.init import bootstrap_schema, init_db
@@ -73,16 +74,93 @@ if not SESSION_HTTPS_ONLY:
 app = FastAPI(title="Envanter Takip – Login")
 
 
+def _extract_error_message(detail: object) -> str:
+    """Create a human readable message from various HTTPException.detail shapes."""
+
+    if detail is None:
+        return "Beklenmeyen bir hata oluştu."
+
+    if isinstance(detail, str):
+        text = detail.strip()
+        return text or "Beklenmeyen bir hata oluştu."
+
+    if isinstance(detail, dict):
+        for key in ("message", "detail", "error", "msg"):
+            value = detail.get(key)
+            if value:
+                return _extract_error_message(value)
+        return "Beklenmeyen bir hata oluştu."
+
+    if isinstance(detail, (list, tuple)):
+        rendered = [
+            _extract_error_message(item)
+            for item in detail
+            if item is not None
+        ]
+        return ", ".join(filter(None, rendered)) or "Beklenmeyen bir hata oluştu."
+
+    return str(detail)
+
+
+def _resolve_error_title(status_code: int | None) -> str:
+    """Return a friendly title based on HTTP status code."""
+
+    mapping = {
+        st_status.HTTP_400_BAD_REQUEST: "Geçersiz işlem",
+        st_status.HTTP_401_UNAUTHORIZED: "Oturum gerekli",
+        st_status.HTTP_403_FORBIDDEN: "Erişim reddedildi",
+        st_status.HTTP_404_NOT_FOUND: "Sayfa bulunamadı",
+        st_status.HTTP_500_INTERNAL_SERVER_ERROR: "Sunucu hatası",
+    }
+    return mapping.get(status_code, "Bir sorun oluştu")
+
+
+def _safe_back_url(request: Request) -> str:
+    referer = request.headers.get("referer", "")
+    if not referer:
+        return "/"
+    try:
+        parsed = urlparse(referer)
+    except ValueError:
+        return "/"
+
+    if parsed.netloc and parsed.netloc != request.url.netloc:
+        return "/"
+
+    path = parsed.path or "/"
+    if parsed.query:
+        path += f"?{parsed.query}"
+    return path
+
+
 @app.exception_handler(HTTPException)
 async def redirect_on_auth(request: Request, exc: HTTPException):
-    """Handle custom redirect signals while delegating other errors."""
+    """Handle redirects and render friendly HTML errors for browser requests."""
 
     if isinstance(exc.detail, str) and exc.detail.startswith("redirect:/"):
         url = exc.detail.split(":", 1)[1]
         return RedirectResponse(url=url, status_code=st_status.HTTP_303_SEE_OTHER)
 
-    # Delegate to FastAPI's standard HTTP exception handler for all other
-    # errors so the appropriate status code (e.g. 404) is returned.
+    accepts = (request.headers.get("accept") or "").lower()
+    wants_html = "text/html" in accepts
+    is_api_request = request.url.path.startswith("/api") or "application/json" in accepts
+
+    if wants_html and not is_api_request:
+        templates: Jinja2Templates = request.app.state.templates
+        message = _extract_error_message(exc.detail)
+        title = _resolve_error_title(exc.status_code)
+        context = {
+            "request": request,
+            "status_code": exc.status_code or st_status.HTTP_500_INTERNAL_SERVER_ERROR,
+            "error_title": title,
+            "error_message": message,
+            "back_url": _safe_back_url(request),
+        }
+        status_code = exc.status_code or st_status.HTTP_500_INTERNAL_SERVER_ERROR
+        return templates.TemplateResponse("error_modal.html", context, status_code=status_code)
+
+    # Delegate to FastAPI's standard HTTP exception handler for API requests
+    # so the appropriate status code (e.g. 404) is returned as JSON.
     return await http_exception_handler(request, exc)
 
 
