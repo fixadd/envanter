@@ -70,10 +70,8 @@
   function getDependencyParams(entity, options) {
     const meta = MAP[entity];
     const depMeta = meta?.dependsOn;
-    const dependsOnId =
-      (options?.parentOverride) || (depMeta?.hiddenId);
-    const paramName =
-      (options?.parentParam) || (depMeta?.param);
+    const dependsOnId = options?.parentOverride || depMeta?.hiddenId;
+    const paramName = options?.parentParam || depMeta?.param;
     if (!dependsOnId) {
       return {
         extra: {},
@@ -97,7 +95,7 @@
   }
 
   function resolveStoreStrategy(hiddenEl, override) {
-    const candidate = override || (hiddenEl?.dataset.store);
+    const candidate = override || hiddenEl?.dataset.store;
     return candidate === "text" ? "text" : "id";
   }
 
