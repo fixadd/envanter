@@ -1,10 +1,20 @@
 /* -------------------------------------------------------------------------- */
 /* Design tokens & foundations                                                */
 /* -------------------------------------------------------------------------- */
-html, body { height: 100%; }
-body { margin: 0; }
-nav.navbar, .container-fluid { position: relative; }
-nav.navbar { z-index: 1; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+}
+nav.navbar,
+.container-fluid {
+  position: relative;
+}
+nav.navbar {
+  z-index: 1;
+}
 :root {
   --color-bg: #f3f6fb;
   --color-surface: #ffffff;
@@ -581,8 +591,6 @@ small,
   margin-right: 0 !important;
 }
 
-
-
 .nav-tabs .nav-link:hover {
   border-color: #e9ecef #e9ecef #dee2e6;
 }
@@ -771,12 +779,17 @@ tr[data-href] > td:first-child {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(
+  background:
+    radial-gradient(
       circle at top right,
       rgba(248, 250, 252, 0.85),
       transparent 56%
     ),
-    radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.75), transparent 60%);
+    radial-gradient(
+      circle at bottom left,
+      rgba(255, 255, 255, 0.75),
+      transparent 60%
+    );
   opacity: 0.75;
   pointer-events: none;
 }
@@ -881,12 +894,17 @@ body.theme-dark .form-shell {
 }
 
 body.theme-dark .form-shell::before {
-  background: radial-gradient(
+  background:
+    radial-gradient(
       circle at top right,
       rgba(148, 163, 184, 0.25),
       transparent 62%
     ),
-    radial-gradient(circle at bottom left, rgba(15, 23, 42, 0.4), transparent 60%);
+    radial-gradient(
+      circle at bottom left,
+      rgba(15, 23, 42, 0.4),
+      transparent 60%
+    );
   opacity: 0.6;
 }
 
@@ -924,12 +942,17 @@ body.theme-dark .form-hint {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(
+  background:
+    radial-gradient(
       circle at top right,
       rgba(255, 255, 255, 0.85),
       transparent 58%
     ),
-    radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.7), transparent 62%);
+    radial-gradient(
+      circle at bottom left,
+      rgba(255, 255, 255, 0.7),
+      transparent 62%
+    );
   opacity: 0.75;
   pointer-events: none;
 }
@@ -1002,12 +1025,17 @@ body.theme-dark .modal-modern .modal-content {
 }
 
 body.theme-dark .modal-modern .modal-content::before {
-  background: radial-gradient(
+  background:
+    radial-gradient(
       circle at top right,
       rgba(148, 163, 184, 0.18),
       transparent 60%
     ),
-    radial-gradient(circle at bottom left, rgba(15, 23, 42, 0.45), transparent 62%);
+    radial-gradient(
+      circle at bottom left,
+      rgba(15, 23, 42, 0.45),
+      transparent 62%
+    );
   opacity: 0.55;
 }
 
