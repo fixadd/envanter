@@ -1,38 +1,70 @@
-{% extends "base.html" %}{% block title %}Lisans – Liste{% endblock %} {% block
-content %}
-<h2 class="h5 mb-3">Lisans Listesi</h2>
-<div class="mb-3">
-  <div class="dropdown d-inline">
-    <button
-      class="btn btn-outline-primary btn-sm dropdown-toggle"
-      type="button"
-      data-bs-toggle="dropdown"
-      aria-expanded="false"
-    >
-      Excel
+{% extends "base.html" %}
+{% block title %}Lisanslar{% endblock %}
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+  <div>
+    <span class="text-uppercase text-primary fw-semibold small">Lisans Yönetimi</span>
+    <h1 class="h4 mb-1">Lisanslar</h1>
+    <p class="text-muted mb-0">Yazılım lisanslarını görüntüleyin, yeni kayıt ekleyin ve yönetin.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#licenseAddModal">
+      <i class="bi bi-plus-lg me-1"></i>
+      Lisans Ekle
     </button>
-    <ul class="dropdown-menu">
-      <li><a class="dropdown-item" href="/licenses/export">Dışa Aktar</a></li>
-      <li>
-        <form
-          action="/licenses/import"
-          method="post"
-          enctype="multipart/form-data"
-        >
-          <input
-            type="file"
-            name="file"
-            id="licensesExcel"
-            class="d-none"
-            onchange="this.form.submit()"
-          />
-          <label for="licensesExcel" class="dropdown-item mb-0"
-            >İçe Aktar</label
-          >
-        </form>
-      </li>
-    </ul>
   </div>
 </div>
-<div class="card p-3">Liste/filtre...</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Lisans No</th>
+            <th scope="col">Ürün / Yazılım</th>
+            <th scope="col">Tip</th>
+            <th scope="col">Koltuk</th>
+            <th scope="col">Sorumlu</th>
+            <th scope="col">Envanter</th>
+            <th scope="col" class="text-end">Başlangıç</th>
+            <th scope="col" class="text-end">Bitiş</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if licenses %}
+          {% for lic in licenses %}
+          <tr>
+            <td class="fw-semibold">{{ lic.license_code or '-' }}</td>
+            <td>
+              <div class="fw-semibold">{{ lic.product_name or lic.lisans_adi or '-' }}</div>
+              {% if lic.license_key %}
+              <div class="text-muted small">{{ lic.license_key }}</div>
+              {% endif %}
+            </td>
+            <td>{{ lic.license_type or '-' }}</td>
+            <td>{{ lic.seat_count or 0 }}</td>
+            <td>{{ lic.sorumlu_personel or '-' }}</td>
+            <td>{{ lic.bagli_envanter_no or '-' }}</td>
+            <td class="text-end">{{ lic.start_date or '-' }}</td>
+            <td class="text-end">{{ lic.end_date or '-' }}</td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="8" class="text-center text-muted py-4">Henüz lisans kaydı bulunmuyor.</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% include "licenses/_license_add_modal.html" %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', path='js/licenses.add.js') }}"></script>
 {% endblock %}
