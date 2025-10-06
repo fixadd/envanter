@@ -1,24 +1,29 @@
-{% extends "base.html" %}
-{% from "components/tabs.html" import tabs %}
-{% set active_key = request.query_params.get("durum") or "aktif" %}
-{% block title %}Talep Takip{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% from "components/tabs.html" import tabs %} {% set
+active_key = request.query_params.get("durum") or "aktif" %} {% block title
+%}Talep Takip{% endblock %} {% block content %}
 <div class="container-fluid p-3">
   {% set right_slot %}
-    <a href="{{ url_for('talep_export_excel') }}" class="btn btn-outline-secondary btn-sm">Excel</a>
-    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#talepModal">Talep Aç</button>
+  <a
+    href="{{ url_for('talep_export_excel') }}"
+    class="btn btn-outline-secondary btn-sm"
+    >Excel</a
+  >
+  <button
+    class="btn btn-primary btn-sm"
+    data-bs-toggle="modal"
+    data-bs-target="#talepModal"
+  >
+    Talep Aç
+  </button>
   {% endset %}
 
   <div class="tabs-wrap">
-    {{ tabs(
-        items=[
-          {"label":"Aktif","href": url_for('talep_list') ~ "?durum=aktif", "key":"aktif"},
-          {"label":"Kapalı","href": url_for('talep_list') ~ "?durum=kapali","key":"kapali"},
-          {"label":"İptal","href": url_for('talep_list') ~ "?durum=iptal","key":"iptal"},
-        ],
-        active_key=active_key,
-        right_slot=right_slot
-    ) }}
+    {{ tabs( items=[ {"label":"Aktif","href": url_for('talep_list') ~
+    "?durum=aktif", "key":"aktif"}, {"label":"Kapalı","href":
+    url_for('talep_list') ~ "?durum=kapali","key":"kapali"},
+    {"label":"İptal","href": url_for('talep_list') ~
+    "?durum=iptal","key":"iptal"}, ], active_key=active_key,
+    right_slot=right_slot ) }}
   </div>
 
   {% macro render_table(rows, empty_msg, show_actions=False) %}
@@ -26,56 +31,91 @@
     <table class="table table-striped table-hover table-sm align-middle">
       <thead>
         <tr>
-          <th>#</th><th>Tür</th><th>Donanım Tipi</th><th>Marka</th><th>Model</th><th>Miktar</th>
-          <th>IFS No</th><th>Envanter No</th><th>Lisans Adı</th><th>Sorumlu</th><th>Açıklama</th><th>Tarih</th>
-          {% if show_actions %}<th>İşlem</th>{% endif %}
+          <th>#</th>
+          <th>Tür</th>
+          <th>Donanım Tipi</th>
+          <th>Marka</th>
+          <th>Model</th>
+          <th>Miktar</th>
+          <th>IFS No</th>
+          <th>Envanter No</th>
+          <th>Lisans Adı</th>
+          <th>Sorumlu</th>
+          <th>Açıklama</th>
+          <th>Tarih</th>
+          {% if show_actions %}
+          <th>İşlem</th>
+          {% endif %}
         </tr>
       </thead>
       <tbody>
-        {% set groups = rows|groupby('ifs_no') %}
-        {% for g in groups %}
+        {% set groups = rows|groupby('ifs_no') %} {% for g in groups %}
         <tr class="table-light">
-          <td colspan="{{ 13 if show_actions else 12 }}">IFS No: {{ g.grouper or '-' }}</td>
+          <td colspan="{{ 13 if show_actions else 12 }}">
+            IFS No: {{ g.grouper or '-' }}
+          </td>
         </tr>
-          {% for t in g.list %}
-          <tr>
-            <td>{{ t.id }}</td>
-            <td>{{ t.tur }}</td>
-            <td>{{ t.donanim_tipi or '-' }}</td>
-            <td>{{ t.marka or '-' }}</td>
-            <td>{{ t.model or '-' }}</td>
-            <td>{{ t.miktar or '-' }}</td>
-            <td>{{ t.ifs_no or '-' }}</td>
-            <td>{{ t.envanter_no or t.bagli_envanter_no or '-' }}</td>
-            <td>{{ t.lisans_adi or '-' }}</td>
-            <td>{{ t.sorumlu_personel or '-' }}</td>
-            <td>{{ t.aciklama or '-' }}</td>
-            <td>{{ t.olusturma_tarihi.strftime('%Y-%m-%d %H:%M') }}</td>
-            {% if show_actions %}
-            <td>
-              <div class="btn-group">
-                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">İşlem</button>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#" onclick="talepIptal({{ t.id }}, {{ t.miktar or 1 }})">İptal Et</a></li>
-                  <li><a class="dropdown-item" href="#" onclick="talepKapat({{ t.id }}, {{ t.miktar or 1 }})">Stok Gir</a></li>
-                </ul>
-              </div>
-            </td>
-            {% endif %}
-          </tr>
-          {% endfor %}
-        {% endfor %}
-        {% if rows|length == 0 %}
+        {% for t in g.list %}
         <tr>
-          <td colspan="{{ 13 if show_actions else 12 }}" class="text-center text-muted">{{ empty_msg }}</td>
+          <td>{{ t.id }}</td>
+          <td>{{ t.tur }}</td>
+          <td>{{ t.donanim_tipi or '-' }}</td>
+          <td>{{ t.marka or '-' }}</td>
+          <td>{{ t.model or '-' }}</td>
+          <td>{{ t.miktar or '-' }}</td>
+          <td>{{ t.ifs_no or '-' }}</td>
+          <td>{{ t.envanter_no or t.bagli_envanter_no or '-' }}</td>
+          <td>{{ t.lisans_adi or '-' }}</td>
+          <td>{{ t.sorumlu_personel or '-' }}</td>
+          <td>{{ t.aciklama or '-' }}</td>
+          <td>{{ t.olusturma_tarihi.strftime('%Y-%m-%d %H:%M') }}</td>
+          {% if show_actions %}
+          <td>
+            <div class="btn-group">
+              <button
+                class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                data-bs-toggle="dropdown"
+              >
+                İşlem
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    onclick="talepIptal({{ t.id }}, {{ t.miktar or 1 }})"
+                    >İptal Et</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    onclick="talepKapat({{ t.id }}, {{ t.miktar or 1 }})"
+                    >Stok Gir</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %} {% endfor %} {% if rows|length == 0 %}
+        <tr>
+          <td
+            colspan="{{ 13 if show_actions else 12 }}"
+            class="text-center text-muted"
+          >
+            {{ empty_msg }}
+          </td>
         </tr>
         {% endif %}
       </tbody>
     </table>
   </div>
-  {% endmacro %}
-
-  {% set msg_map = {'aktif':'Aktif talep bulunamadı.','kapali':'Kapalı talep bulunamadı.','iptal':'İptal talep bulunamadı.'} %}
+  {% endmacro %} {% set msg_map = {'aktif':'Aktif talep
+  bulunamadı.','kapali':'Kapalı talep bulunamadı.','iptal':'İptal talep
+  bulunamadı.'} %}
   <div class="page-section">
     {{ render_table(rows, msg_map.get(active_key), active_key=='aktif') }}
   </div>
@@ -84,16 +124,24 @@
 <!-- Talep Aç Modal -->
 <div class="modal fade" id="talepModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <form id="frmTalep" class="modal-content" onsubmit="return talepGonder(event)">
+    <form
+      id="frmTalep"
+      class="modal-content"
+      onsubmit="return talepGonder(event)"
+    >
       <div class="modal-header">
         <h5 class="modal-title">Talep Aç</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
 
       <div class="modal-body">
         <div class="mb-3">
           <label class="form-label">IFS No</label>
-          <input id="ifsNoGlobal" class="form-control" placeholder="IFS No">
+          <input id="ifsNoGlobal" class="form-control" placeholder="IFS No" />
         </div>
         <div id="talepRows">
           <div class="talep-row row g-2 align-items-end mb-2 flex-nowrap">
@@ -105,34 +153,54 @@
             </div>
             <div class="col-md-1">
               <label class="form-label">Miktar</label>
-              <input name="miktar" type="number" min="1" class="form-control" placeholder="Miktar">
+              <input
+                name="miktar"
+                type="number"
+                min="1"
+                class="form-control"
+                placeholder="Miktar"
+              />
             </div>
             <div class="col-md-2">
               <label class="form-label">Marka</label>
-              <select name="marka" class="form-select">
-              </select>
+              <select name="marka" class="form-select"></select>
             </div>
             <div class="col-md-2">
               <label class="form-label">Model</label>
-              <select name="model" class="form-select">
-              </select>
+              <select name="model" class="form-select"></select>
             </div>
             <div class="col-md-3">
               <label class="form-label">Açıklama</label>
-              <input name="aciklama" class="form-control" placeholder="Açıklama">
+              <input
+                name="aciklama"
+                class="form-control"
+                placeholder="Açıklama"
+              />
             </div>
             <div class="col-md-1 text-end">
-              <button type="button" class="btn btn-outline-danger" onclick="talepSatirSil(this)">
+              <button
+                type="button"
+                class="btn btn-outline-danger"
+                onclick="talepSatirSil(this)"
+              >
                 <i class="bi bi-x"></i>
               </button>
             </div>
           </div>
         </div>
-        <button type="button" class="btn btn-outline-secondary" onclick="talepSatirEkle()">Satır Ekle</button>
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          onclick="talepSatirEkle()"
+        >
+          Satır Ekle
+        </button>
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Kapat
+        </button>
         <button type="submit" class="btn btn-primary">Gönder</button>
       </div>
     </form>
