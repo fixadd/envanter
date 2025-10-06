@@ -1,39 +1,56 @@
-{% extends "base.html" %}
-{% block title %}Ürün Ekle{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Ürün Ekle{% endblock %} {% block
+content %}
 <div class="row g-3">
   <div class="col-lg-4 col-md-6">
-    <div class="ref-card d-flex justify-content-between align-items-center" data-entity="kullanim-alani">
+    <div
+      class="ref-card d-flex justify-content-between align-items-center"
+      data-entity="kullanim-alani"
+    >
       <span>Kullanım Alanı</span>
       <button class="btn btn-success ref-add" type="button">Ekle</button>
     </div>
   </div>
   <div class="col-lg-4 col-md-6">
-    <div class="ref-card d-flex justify-content-between align-items-center" data-entity="lisans-adi">
+    <div
+      class="ref-card d-flex justify-content-between align-items-center"
+      data-entity="lisans-adi"
+    >
       <span>Lisans Adı</span>
       <button class="btn btn-success ref-add" type="button">Ekle</button>
     </div>
   </div>
   <div class="col-lg-4 col-md-6">
-    <div class="ref-card d-flex justify-content-between align-items-center" data-entity="fabrika">
+    <div
+      class="ref-card d-flex justify-content-between align-items-center"
+      data-entity="fabrika"
+    >
       <span>Fabrika</span>
       <button class="btn btn-success ref-add" type="button">Ekle</button>
     </div>
   </div>
   <div class="col-lg-4 col-md-6">
-    <div class="ref-card d-flex justify-content-between align-items-center" data-entity="donanim-tipi">
+    <div
+      class="ref-card d-flex justify-content-between align-items-center"
+      data-entity="donanim-tipi"
+    >
       <span>Donanım Tipi</span>
       <button class="btn btn-success ref-add" type="button">Ekle</button>
     </div>
   </div>
   <div class="col-lg-4 col-md-6">
-    <div class="ref-card d-flex justify-content-between align-items-center" data-entity="marka">
+    <div
+      class="ref-card d-flex justify-content-between align-items-center"
+      data-entity="marka"
+    >
       <span>Marka</span>
       <button class="btn btn-success ref-add" type="button">Ekle</button>
     </div>
   </div>
   <div class="col-lg-4 col-md-6">
-    <div class="ref-card d-flex justify-content-between align-items-center" data-entity="model">
+    <div
+      class="ref-card d-flex justify-content-between align-items-center"
+      data-entity="model"
+    >
       <span>Model</span>
       <button class="btn btn-success ref-add" type="button">Ekle</button>
     </div>
@@ -41,7 +58,7 @@
 </div>
 <script defer src="/static/js/refdata.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener("DOMContentLoaded", () => {
     if (window.initRefAdmin) window.initRefAdmin();
   });
 </script>

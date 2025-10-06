@@ -1,96 +1,174 @@
-{% extends "base.html" %}{% block title %}Admin – Kullanıcılar{% endblock %}
-{% block content %}
+{% extends "base.html" %}{% block title %}Admin – Kullanıcılar{% endblock %} {%
+block content %}
 
 <!-- KULLANICI KUTUSU -->
 <div class="collapse show" id="userBox">
   <div class="card mb-4">
-    <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+    <div
+      class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2"
+    >
       <div class="d-flex align-items-center gap-2">
         <!-- Kullanıcı Ekle: formu aç/kapa -->
-        <button class="btn btn-success btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#userCreateForm">
+        <button
+          class="btn btn-success btn-sm"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#userCreateForm"
+        >
           Kullanıcı Ekle
         </button>
         <!-- Düzenle: seçili kullanıcıyı formda aç -->
-        <button class="btn btn-warning btn-sm" type="button" id="btnEditUser">Düzenle</button>
+        <button class="btn btn-warning btn-sm" type="button" id="btnEditUser">
+          Düzenle
+        </button>
         <!-- Sil: seçili kullanıcıyı sil -->
         <form id="deleteForm" method="post" class="d-inline">
-          <button class="btn btn-danger btn-sm" type="submit" id="btnDeleteUser">Sil</button>
+          <button
+            class="btn btn-danger btn-sm"
+            type="submit"
+            id="btnDeleteUser"
+          >
+            Sil
+          </button>
         </form>
       </div>
 
       <!-- Liste içinde arama (client-side) -->
       <div class="d-flex align-items-center gap-2">
-        <input type="text" id="tblSearch" class="form-control form-control-sm" placeholder="Listede ara...">
+        <input
+          type="text"
+          id="tblSearch"
+          class="form-control form-control-sm"
+          placeholder="Listede ara..."
+        />
       </div>
     </div>
 
     <div class="card-body">
-
       <!-- Kullanıcı Ekle Formu -->
       <div class="collapse" id="userCreateForm">
-        <form method="post" action="/admin/users/create" class="border rounded p-3 mb-3">
+        <form
+          method="post"
+          action="/admin/users/create"
+          class="border rounded p-3 mb-3"
+        >
           <div class="row g-2">
             <div class="col-md-3">
               <label class="form-label">Kullanıcı Adı</label>
-              <input name="username" class="form-control form-control-sm" required>
+              <input
+                name="username"
+                class="form-control form-control-sm"
+                required
+              />
             </div>
             <div class="col-md-3">
               <label class="form-label">Şifre</label>
-              <input type="password" name="password" class="form-control form-control-sm" required>
+              <input
+                type="password"
+                name="password"
+                class="form-control form-control-sm"
+                required
+              />
             </div>
             <div class="col-md-2">
               <label class="form-label">Adı</label>
-              <input name="first_name" class="form-control form-control-sm">
+              <input name="first_name" class="form-control form-control-sm" />
             </div>
             <div class="col-md-2">
               <label class="form-label">Soyadı</label>
-              <input name="last_name" class="form-control form-control-sm">
+              <input name="last_name" class="form-control form-control-sm" />
             </div>
             <div class="col-md-2">
               <label class="form-label">Mail</label>
-              <input type="email" name="email" class="form-control form-control-sm">
+              <input
+                type="email"
+                name="email"
+                class="form-control form-control-sm"
+              />
             </div>
             <div class="col-12 d-flex align-items-center gap-2 mt-2">
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="is_admin" name="is_admin">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="is_admin"
+                  name="is_admin"
+                />
                 <label class="form-check-label" for="is_admin">Admin</label>
               </div>
-              <button class="btn btn-success btn-sm ms-auto" type="submit">Ekle</button>
+              <button class="btn btn-success btn-sm ms-auto" type="submit">
+                Ekle
+              </button>
             </div>
           </div>
         </form>
       </div>
 
       <!-- Kullanıcı Düzenle Formu (seçili kullanıcıyla doldurulur) -->
-      <form method="post" id="userEditForm" class="border rounded p-3 mb-3 d-none">
-        <input type="hidden" id="editAction" value="">
+      <form
+        method="post"
+        id="userEditForm"
+        class="border rounded p-3 mb-3 d-none"
+      >
+        <input type="hidden" id="editAction" value="" />
         <div class="row g-2">
           <div class="col-md-3">
             <label class="form-label">Kullanıcı Adı</label>
-            <input name="username" id="edit_username" class="form-control form-control-sm" required>
+            <input
+              name="username"
+              id="edit_username"
+              class="form-control form-control-sm"
+              required
+            />
           </div>
           <div class="col-md-3">
             <label class="form-label">Yeni Şifre (isteğe bağlı)</label>
-            <input type="password" name="password" id="edit_password" class="form-control form-control-sm" placeholder="Boş bırakılırsa değişmez">
+            <input
+              type="password"
+              name="password"
+              id="edit_password"
+              class="form-control form-control-sm"
+              placeholder="Boş bırakılırsa değişmez"
+            />
           </div>
           <div class="col-md-2">
             <label class="form-label">Adı</label>
-            <input name="first_name" id="edit_first_name" class="form-control form-control-sm">
+            <input
+              name="first_name"
+              id="edit_first_name"
+              class="form-control form-control-sm"
+            />
           </div>
           <div class="col-md-2">
             <label class="form-label">Soyadı</label>
-            <input name="last_name" id="edit_last_name" class="form-control form-control-sm">
+            <input
+              name="last_name"
+              id="edit_last_name"
+              class="form-control form-control-sm"
+            />
           </div>
           <div class="col-md-2">
             <label class="form-label">Mail</label>
-            <input type="email" name="email" id="edit_email" class="form-control form-control-sm">
+            <input
+              type="email"
+              name="email"
+              id="edit_email"
+              class="form-control form-control-sm"
+            />
           </div>
           <div class="col-12 d-flex align-items-center gap-2 mt-2">
             <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="edit_is_admin" name="is_admin">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="edit_is_admin"
+                name="is_admin"
+              />
               <label class="form-check-label" for="edit_is_admin">Admin</label>
             </div>
-            <button class="btn btn-warning btn-sm ms-auto" type="submit">Kaydet</button>
+            <button class="btn btn-warning btn-sm ms-auto" type="submit">
+              Kaydet
+            </button>
           </div>
         </div>
       </form>
@@ -100,7 +178,7 @@
         <table class="table table-sm table-hover align-middle" id="userTable">
           <thead>
             <tr>
-              <th style="width:36px;"></th>
+              <th style="width: 36px"></th>
               <th>ID</th>
               <th>Kullanıcı Adı</th>
               <th>Adı</th>
@@ -110,13 +188,15 @@
           </thead>
           <tbody>
             {% for u in users %}
-            <tr data-id="{{ u.id }}"
-                data-username="{{ u.username }}"
-                data-first_name="{{ u.first_name or '' }}"
-                data-last_name="{{ u.last_name or '' }}"
-                data-email="{{ u.email or '' }}"
-                data-is_admin="{{ 1 if u.is_admin else 0 }}">
-              <td><input type="radio" name="selUser" value="{{ u.id }}"></td>
+            <tr
+              data-id="{{ u.id }}"
+              data-username="{{ u.username }}"
+              data-first_name="{{ u.first_name or '' }}"
+              data-last_name="{{ u.last_name or '' }}"
+              data-email="{{ u.email or '' }}"
+              data-is_admin="{{ 1 if u.is_admin else 0 }}"
+            >
+              <td><input type="radio" name="selUser" value="{{ u.id }}" /></td>
               <td>{{ u.id }}</td>
               <td>{{ u.username }}</td>
               <td>{{ u.first_name or '' }}</td>
@@ -124,25 +204,26 @@
               <td>{{ u.email or '' }}</td>
             </tr>
             {% else %}
-            <tr><td colspan="6" class="text-muted">Kullanıcı yok</td></tr>
+            <tr>
+              <td colspan="6" class="text-muted">Kullanıcı yok</td>
+            </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
-
     </div>
   </div>
 </div>
 
 <script>
   // Liste içi arama (client-side)
-  const search = document.getElementById('tblSearch');
-  const table = document.getElementById('userTable');
+  const search = document.getElementById("tblSearch");
+  const table = document.getElementById("userTable");
   if (search && table) {
-    search.addEventListener('input', () => {
+    search.addEventListener("input", () => {
       const q = search.value.toLowerCase();
-      table.querySelectorAll('tbody tr').forEach(tr => {
-        tr.style.display = tr.innerText.toLowerCase().includes(q) ? '' : 'none';
+      table.querySelectorAll("tbody tr").forEach((tr) => {
+        tr.style.display = tr.innerText.toLowerCase().includes(q) ? "" : "none";
       });
     });
   }
@@ -151,47 +232,62 @@
   function getSelectedRow() {
     const checked = table?.querySelector('input[name="selUser"]:checked');
     if (!checked) return null;
-    return checked.closest('tr');
+    return checked.closest("tr");
   }
 
   // Düzenle
-  const btnEdit = document.getElementById('btnEditUser');
-  const editForm = document.getElementById('userEditForm');
-  const editAction = document.getElementById('editAction');
+  const btnEdit = document.getElementById("btnEditUser");
+  const editForm = document.getElementById("userEditForm");
+  const editAction = document.getElementById("editAction");
   if (btnEdit && editForm) {
-    btnEdit.addEventListener('click', () => {
+    btnEdit.addEventListener("click", () => {
       const row = getSelectedRow();
-      if (!row) { alert('Lütfen bir kullanıcı seçin.'); return; }
+      if (!row) {
+        alert("Lütfen bir kullanıcı seçin.");
+        return;
+      }
       const id = row.dataset.id;
       editAction.value = `/admin/users/${id}/update`;
-      editForm.setAttribute('action', editAction.value);
-      document.getElementById('edit_username').value = row.dataset.username || '';
-      document.getElementById('edit_first_name').value = row.dataset.first_name || '';
-      document.getElementById('edit_last_name').value = row.dataset.last_name || '';
-      document.getElementById('edit_email').value = row.dataset.email || '';
-      document.getElementById('edit_is_admin').checked = row.dataset.is_admin === '1';
-      document.getElementById('edit_password').value = '';
-      editForm.classList.remove('d-none');
-      editForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      editForm.setAttribute("action", editAction.value);
+      document.getElementById("edit_username").value =
+        row.dataset.username || "";
+      document.getElementById("edit_first_name").value =
+        row.dataset.first_name || "";
+      document.getElementById("edit_last_name").value =
+        row.dataset.last_name || "";
+      document.getElementById("edit_email").value = row.dataset.email || "";
+      document.getElementById("edit_is_admin").checked =
+        row.dataset.is_admin === "1";
+      document.getElementById("edit_password").value = "";
+      editForm.classList.remove("d-none");
+      editForm.scrollIntoView({ behavior: "smooth", block: "center" });
     });
   }
 
   // Sil
-  const btnDelete = document.getElementById('btnDeleteUser');
-  const deleteForm = document.getElementById('deleteForm');
+  const btnDelete = document.getElementById("btnDeleteUser");
+  const deleteForm = document.getElementById("deleteForm");
   if (btnDelete && deleteForm) {
-    btnDelete.addEventListener('click', (ev) => {
+    btnDelete.addEventListener("click", (ev) => {
       ev.preventDefault();
       const row = getSelectedRow();
-      if (!row) { alert('Lütfen bir kullanıcı seçin.'); return; }
-      const username = row.dataset.username;
-      if (username && username.toLowerCase() === 'admin') {
-        alert('Admin hesabı silinemez.');
+      if (!row) {
+        alert("Lütfen bir kullanıcı seçin.");
         return;
       }
-      if (!confirm(`'${username}' kullanıcısını silmek istediğinize emin misiniz?`)) return;
+      const username = row.dataset.username;
+      if (username && username.toLowerCase() === "admin") {
+        alert("Admin hesabı silinemez.");
+        return;
+      }
+      if (
+        !confirm(
+          `'${username}' kullanıcısını silmek istediğinize emin misiniz?`,
+        )
+      )
+        return;
       const id = row.dataset.id;
-      deleteForm.setAttribute('action', `/admin/users/${id}/delete`);
+      deleteForm.setAttribute("action", `/admin/users/${id}/delete`);
       deleteForm.submit();
     });
   }

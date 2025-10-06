@@ -1,12 +1,14 @@
-from fastapi import APIRouter, Request, Depends, Form
+from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
-from sqlalchemy.orm import Session
-from models import User, Lookup
-from auth import get_db
 from fastapi.templating import Jinja2Templates
+from sqlalchemy.orm import Session
+
+from auth import get_db
+from models import Lookup, User
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 templates = Jinja2Templates(directory="templates")
+
 
 @router.get("", response_class=HTMLResponse)
 def admin_index(request: Request, db: Session = Depends(get_db)):
@@ -32,6 +34,7 @@ def admin_index(request: Request, db: Session = Depends(get_db)):
     }
     return templates.TemplateResponse("admin.html", ctx)
 
+
 @router.post("/users/create")
 def create_user(
     full_name: str = Form(...),
@@ -43,6 +46,7 @@ def create_user(
     db.add(u)
     db.commit()
     return RedirectResponse(url="/admin#users", status_code=303)
+
 
 @router.post("/products/create")
 def create_product(

@@ -1,35 +1,78 @@
-{% extends "base.html" %}
-{% block title %}Admin Paneli{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Admin Paneli{% endblock %} {% block
+content %}
 <div class="container-fluid p-3">
-
   <!-- SEKME BAŞLIKLARI -->
   <ul class="nav nav-tabs" id="adminTabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="tab-users" data-bs-toggle="tab" data-bs-target="#pane-users" type="button" role="tab">Kullanıcı</button>
+      <button
+        class="nav-link active"
+        id="tab-users"
+        data-bs-toggle="tab"
+        data-bs-target="#pane-users"
+        type="button"
+        role="tab"
+      >
+        Kullanıcı
+      </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="tab-products" data-bs-toggle="tab" data-bs-target="#pane-products" type="button" role="tab">Ürün Ekle</button>
+      <button
+        class="nav-link"
+        id="tab-products"
+        data-bs-toggle="tab"
+        data-bs-target="#pane-products"
+        type="button"
+        role="tab"
+      >
+        Ürün Ekle
+      </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="tab-connections" data-bs-toggle="tab" data-bs-target="#pane-connections" type="button" role="tab">Bağlantılar</button>
+      <button
+        class="nav-link"
+        id="tab-connections"
+        data-bs-toggle="tab"
+        data-bs-target="#pane-connections"
+        type="button"
+        role="tab"
+      >
+        Bağlantılar
+      </button>
     </li>
   </ul>
 
-  <div class="tab-content border border-top-0 rounded-bottom p-3 bg-white" id="adminTabsContent">
-
+  <div
+    class="tab-content border border-top-0 rounded-bottom p-3 bg-white"
+    id="adminTabsContent"
+  >
     <!-- ========== KULLANICI ========== -->
-    <div class="tab-pane fade show active" id="pane-users" role="tabpanel" aria-labelledby="tab-users">
+    <div
+      class="tab-pane fade show active"
+      id="pane-users"
+      role="tabpanel"
+      aria-labelledby="tab-users"
+    >
       <div class="d-flex align-items-center justify-content-between mb-3">
         <h5 class="mb-0">Kullanıcı Yönetimi</h5>
-        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalUserCreate">+ Yeni Kullanıcı</button>
+        <button
+          class="btn btn-success btn-sm"
+          data-bs-toggle="modal"
+          data-bs-target="#modalUserCreate"
+        >
+          + Yeni Kullanıcı
+        </button>
       </div>
 
       <div class="table-responsive">
         <table class="table table-sm align-middle">
           <thead class="table-light">
-            <tr><th>#</th><th>Ad Soyad</th><th>E-posta</th><th>Rol</th><th class="text-end">İşlemler</th></tr>
+            <tr>
+              <th>#</th>
+              <th>Ad Soyad</th>
+              <th>E-posta</th>
+              <th>Rol</th>
+              <th class="text-end">İşlemler</th>
+            </tr>
           </thead>
           <tbody>
             {% for u in users or [] %}
@@ -37,14 +80,21 @@
               <td>{{ loop.index }}</td>
               <td>{{ u.full_name }}</td>
               <td>{{ u.email }}</td>
-              <td><span class="badge bg-{{ 'primary' if u.role=='admin' else 'secondary' }}">{{ u.role or 'user' }}</span></td>
+              <td>
+                <span
+                  class="badge bg-{{ 'primary' if u.role=='admin' else 'secondary' }}"
+                  >{{ u.role or 'user' }}</span
+                >
+              </td>
               <td class="text-end">
                 <button class="btn btn-outline-primary btn-sm">Düzenle</button>
                 <button class="btn btn-outline-danger btn-sm">Sil</button>
               </td>
             </tr>
             {% else %}
-            <tr><td colspan="5" class="text-center text-muted">Kayıt yok.</td></tr>
+            <tr>
+              <td colspan="5" class="text-center text-muted">Kayıt yok.</td>
+            </tr>
             {% endfor %}
           </tbody>
         </table>
@@ -52,70 +102,105 @@
     </div>
 
     <!-- ========== ÜRÜN / ENVANTER EKLE ========== -->
-    <div class="tab-pane fade" id="pane-products" role="tabpanel" aria-labelledby="tab-products">
+    <div
+      class="tab-pane fade"
+      id="pane-products"
+      role="tabpanel"
+      aria-labelledby="tab-products"
+    >
       <h5 class="mb-3">Ürün / Envanter Ekle</h5>
 
       <form method="post" action="/admin/products/create" class="row g-3">
-
-        {# 1. satır: Kullanım Alanı, Lisans Adı, Fabrika #}
-        {% set fields1 = [
-          {"title":"Kullanım Alanı","type":"kullanim-alani","name":"kullanim_alani","data":lookup_kullanim_alanlari},
-          {"title":"Lisans Adı","type":"lisans-adi","name":"lisans_adi","data":lookup_lisans_adlari},
-          {"title":"Fabrika","type":"fabrika","name":"fabrika","data":lookup_fabrikalar}
-        ] %}
-        {% for f in fields1 %}
+        {# 1. satır: Kullanım Alanı, Lisans Adı, Fabrika #} {% set fields1 = [
+        {"title":"Kullanım
+        Alanı","type":"kullanim-alani","name":"kullanim_alani","data":lookup_kullanim_alanlari},
+        {"title":"Lisans
+        Adı","type":"lisans-adi","name":"lisans_adi","data":lookup_lisans_adlari},
+        {"title":"Fabrika","type":"fabrika","name":"fabrika","data":lookup_fabrikalar}
+        ] %} {% for f in fields1 %}
         <div class="col-md-4">
-          <label class="form-label d-flex justify-content-between align-items-center">
+          <label
+            class="form-label d-flex justify-content-between align-items-center"
+          >
             <span>{{ f.title }}</span>
-            <button type="button" class="btn btn-sm btn-outline-secondary lm-open"
-                    data-lm-type="{{ f.type }}" data-lm-title="{{ f.title }}"
-                    data-lm-select="[name='{{ f.name }}']" title="{{ f.title }} değerlerini yönet">
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary lm-open"
+              data-lm-type="{{ f.type }}"
+              data-lm-title="{{ f.title }}"
+              data-lm-select="[name='{{ f.name }}']"
+              title="{{ f.title }} değerlerini yönet"
+            >
               <i class="bi bi-list"></i>
             </button>
           </label>
           <select class="form-select js-choices" name="{{ f.name }}">
             <option value="">Seçiniz…</option>
             {% for r in f.data or [] %}
-              <option value="{{ r.value }}">{{ r.value }}</option>
+            <option value="{{ r.value }}">{{ r.value }}</option>
             {% endfor %}
           </select>
         </div>
-        {% endfor %}
-
-        {# 2. satır: Donanım Tipi, Marka, Model #}
-        {% set fields2 = [
-          {"title":"Donanım Tipi","type":"donanim-tipi","name":"donanim_tipi","data":lookup_donanim_tipleri},
-          {"title":"Marka","type":"marka","name":"marka","data":lookup_markalar},
-          {"title":"Model","type":"model","name":"model","data":lookup_modeller}
-        ] %}
-        {% for f in fields2 %}
+        {% endfor %} {# 2. satır: Donanım Tipi, Marka, Model #} {% set fields2 =
+        [ {"title":"Donanım
+        Tipi","type":"donanim-tipi","name":"donanim_tipi","data":lookup_donanim_tipleri},
+        {"title":"Marka","type":"marka","name":"marka","data":lookup_markalar},
+        {"title":"Model","type":"model","name":"model","data":lookup_modeller} ]
+        %} {% for f in fields2 %}
         <div class="col-md-4">
-          <label class="form-label d-flex justify-content-between align-items-center">
+          <label
+            class="form-label d-flex justify-content-between align-items-center"
+          >
             <span>{{ f.title }}</span>
-            <button type="button" class="btn btn-sm btn-outline-secondary lm-open"
-                    data-lm-type="{{ f.type }}" data-lm-title="{{ f.title }}"
-                    data-lm-select="[name='{{ f.name }}']" title="{{ f.title }} değerlerini yönet">
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary lm-open"
+              data-lm-type="{{ f.type }}"
+              data-lm-title="{{ f.title }}"
+              data-lm-select="[name='{{ f.name }}']"
+              title="{{ f.title }} değerlerini yönet"
+            >
               <i class="bi bi-list"></i>
             </button>
           </label>
-          <select class="form-select js-choices" name="{{ f.name }}" {% if f.name=='donanim_tipi' %}required{% endif %}>
+          <select
+            class="form-select js-choices"
+            name="{{ f.name }}"
+            {%
+            if
+            f.name=""
+            ="donanim_tipi"
+            %}required{%
+            endif
+            %}
+          >
             <option value="">Seçiniz…</option>
             {% for r in f.data or [] %}
-              <option value="{{ r.value }}">{{ r.value }}</option>
+            <option value="{{ r.value }}">{{ r.value }}</option>
             {% endfor %}
           </select>
         </div>
         {% endfor %}
-
       </form>
     </div>
 
-    <div class="tab-pane fade" id="pane-connections" role="tabpanel" aria-labelledby="tab-connections">
+    <div
+      class="tab-pane fade"
+      id="pane-connections"
+      role="tabpanel"
+      aria-labelledby="tab-connections"
+    >
       <h5 class="mb-3">LDAP Bağlantıları</h5>
       <div class="table-responsive">
         <table class="table table-sm align-middle">
           <thead class="table-light">
-            <tr><th>Ad</th><th>Sunucu</th><th>Port</th><th>Base DN</th><th>Kullanıcı</th></tr>
+            <tr>
+              <th>Ad</th>
+              <th>Sunucu</th>
+              <th>Port</th>
+              <th>Base DN</th>
+              <th>Kullanıcı</th>
+            </tr>
           </thead>
           <tbody>
             {% for c in connections or [] %}
@@ -127,13 +212,14 @@
               <td>{{ c.user_dn }}</td>
             </tr>
             {% else %}
-            <tr><td colspan="5" class="text-center text-muted">Kayıt yok.</td></tr>
+            <tr>
+              <td colspan="5" class="text-center text-muted">Kayıt yok.</td>
+            </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -143,20 +229,33 @@
     <form class="modal-content" method="post" action="/admin/users/create">
       <div class="modal-header">
         <h5 class="modal-title">Yeni Kullanıcı</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body row g-3">
-        <div class="col-12"><label class="form-label">Ad Soyad</label><input class="form-control" name="full_name" required></div>
-        <div class="col-12"><label class="form-label">E-posta</label><input class="form-control" type="email" name="email" required></div>
+        <div class="col-12">
+          <label class="form-label">Ad Soyad</label
+          ><input class="form-control" name="full_name" required />
+        </div>
+        <div class="col-12">
+          <label class="form-label">E-posta</label
+          ><input class="form-control" type="email" name="email" required />
+        </div>
         <div class="col-12">
           <label class="form-label">Rol</label>
           <select class="form-select" name="role">
-            <option value="user">Kullanıcı</option><option value="admin">Admin</option>
+            <option value="user">Kullanıcı</option>
+            <option value="admin">Admin</option>
           </select>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">İptal</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">
+          İptal
+        </button>
         <button class="btn btn-primary" type="submit">Oluştur</button>
       </div>
     </form>
@@ -169,139 +268,210 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title"><span id="lm-title">Değerleri Yönet</span></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body">
         <div id="lm-chips" class="d-flex flex-wrap gap-2"></div>
-        <hr class="my-3">
+        <hr class="my-3" />
         <div class="row g-2">
-          <div class="col-md-9"><input id="lm-input" class="form-control" placeholder="Yeni değer…"></div>
-          <div class="col-md-3 d-grid"><button id="lm-add" type="button" class="btn btn-primary">Ekle</button></div>
+          <div class="col-md-9">
+            <input
+              id="lm-input"
+              class="form-control"
+              placeholder="Yeni değer…"
+            />
+          </div>
+          <div class="col-md-3 d-grid">
+            <button id="lm-add" type="button" class="btn btn-primary">
+              Ekle
+            </button>
+          </div>
         </div>
         <small class="text-muted d-block mt-2">Silme işlemi kalıcıdır.</small>
       </div>
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-{{ super() }}
+{% endblock %} {% block scripts %} {{ super() }}
 <style>
-  .chip{display:inline-flex;align-items:center;gap:.5rem;padding:.35rem .6rem;border:1px solid var(--bs-border-color);border-radius:999px;background:#fff}
-  .chip .chip-text{max-width:22rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 999px;
+    background: #fff;
+  }
+  .chip .chip-text {
+    max-width: 22rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 </style>
 <script>
   // Choices init
-  document.querySelectorAll('.js-choices').forEach(el=>{
-    if (window.Choices) new Choices(el, { searchEnabled:true, shouldSort:false });
+  document.querySelectorAll(".js-choices").forEach((el) => {
+    if (window.Choices)
+      new Choices(el, { searchEnabled: true, shouldSort: false });
   });
 
   // URL hash ile sekme seçimi
-  (function(){
-    const hash=location.hash.replace('#','');
-    if(hash){
-      const btn=document.querySelector(`[data-bs-target="#pane-${hash}"]`);
-      if(btn) new bootstrap.Tab(btn).show();
+  (function () {
+    const hash = location.hash.replace("#", "");
+    if (hash) {
+      const btn = document.querySelector(`[data-bs-target="#pane-${hash}"]`);
+      if (btn) new bootstrap.Tab(btn).show();
     }
-    document.querySelectorAll('#adminTabs [data-bs-toggle="tab"]').forEach(btn=>{
-      btn.addEventListener('shown.bs.tab', e=>{
-        const target=e.target.getAttribute('data-bs-target');
-        history.replaceState(null,'','#'+target.replace('#pane-',''));
+    document
+      .querySelectorAll('#adminTabs [data-bs-toggle="tab"]')
+      .forEach((btn) => {
+        btn.addEventListener("shown.bs.tab", (e) => {
+          const target = e.target.getAttribute("data-bs-target");
+          history.replaceState(null, "", "#" + target.replace("#pane-", ""));
+        });
       });
-    });
   })();
 
   // ===== Lookup Modal logic =====
-  (function(){
-    const modalEl=document.getElementById('modalLookupManage');
-    const chipsEl=document.getElementById('lm-chips');
-    const inputEl=document.getElementById('lm-input');
-    const addBtn=document.getElementById('lm-add');
-    const titleEl=document.getElementById('lm-title');
-    let current={type:null,title:null,select:null};
+  (function () {
+    const modalEl = document.getElementById("modalLookupManage");
+    const chipsEl = document.getElementById("lm-chips");
+    const inputEl = document.getElementById("lm-input");
+    const addBtn = document.getElementById("lm-add");
+    const titleEl = document.getElementById("lm-title");
+    let current = { type: null, title: null, select: null };
 
     // Açıcılar
-    document.querySelectorAll('.lm-open').forEach(btn=>{
-      btn.addEventListener('click',e=>{
+    document.querySelectorAll(".lm-open").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
         e.preventDefault();
-        current.type=btn.dataset.lmType;
-        current.title=btn.dataset.lmTitle;
-        current.select=document.querySelector(btn.dataset.lmSelect);
-        titleEl.textContent=`${current.title} — Değerleri Yönet`;
-        inputEl.value='';
+        current.type = btn.dataset.lmType;
+        current.title = btn.dataset.lmTitle;
+        current.select = document.querySelector(btn.dataset.lmSelect);
+        titleEl.textContent = `${current.title} — Değerleri Yönet`;
+        inputEl.value = "";
         loadItems();
         new bootstrap.Modal(modalEl).show();
       });
     });
 
-    async function loadItems(){
-      chipsEl.innerHTML='<div class="text-muted">Yükleniyor…</div>';
-      try{
-        const r=await fetch(`/api/lookup/${encodeURIComponent(current.type)}`);
-        const data=await r.json(); // [{id,name}]
+    async function loadItems() {
+      chipsEl.innerHTML = '<div class="text-muted">Yükleniyor…</div>';
+      try {
+        const r = await fetch(
+          `/api/lookup/${encodeURIComponent(current.type)}`,
+        );
+        const data = await r.json(); // [{id,name}]
         renderChips(data);
-      }catch{ chipsEl.innerHTML='<div class="text-danger">Liste alınamadı.</div>'; }
+      } catch {
+        chipsEl.innerHTML = '<div class="text-danger">Liste alınamadı.</div>';
+      }
     }
-    function renderChips(items){
-      chipsEl.innerHTML='';
-      if(!items||!items.length){ chipsEl.innerHTML='<div class="text-muted">Kayıt yok.</div>'; return; }
-      items.forEach(it=>{
-        const chip=document.createElement('span');
-        chip.className='chip'; chip.dataset.id=it.id;
-        chip.innerHTML=`<span class="chip-text">${it.name}</span>
+    function renderChips(items) {
+      chipsEl.innerHTML = "";
+      if (!items || !items.length) {
+        chipsEl.innerHTML = '<div class="text-muted">Kayıt yok.</div>';
+        return;
+      }
+      items.forEach((it) => {
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.dataset.id = it.id;
+        chip.innerHTML = `<span class="chip-text">${it.name}</span>
                         <button type="button" class="btn btn-sm btn-outline-danger px-2 py-0">✕</button>`;
-        chip.querySelector('button').addEventListener('click',()=>delItem(it.id,it.name));
+        chip
+          .querySelector("button")
+          .addEventListener("click", () => delItem(it.id, it.name));
         chipsEl.appendChild(chip);
       });
     }
 
-    addBtn.addEventListener('click',async()=>{
-      const val=(inputEl.value||'').trim(); if(!val) return;
-      addBtn.disabled=true;
-      try{
-        const r=await fetch(`/api/ref/${encodeURIComponent(current.type)}`,{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({name:val})
+    addBtn.addEventListener("click", async () => {
+      const val = (inputEl.value || "").trim();
+      if (!val) return;
+      addBtn.disabled = true;
+      try {
+        const r = await fetch(`/api/ref/${encodeURIComponent(current.type)}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: val }),
         });
-        if(!r.ok) throw 0;
-        const created=await r.json(); // {id,name}
+        if (!r.ok) throw 0;
+        const created = await r.json(); // {id,name}
         // chips’i yenile
         loadItems();
         // select’e ekle + seç
         upsertSelectOption(current.select, created.name, true);
-        inputEl.value='';
-      }catch{ alert('Eklenemedi'); } finally{ addBtn.disabled=false; }
+        inputEl.value = "";
+      } catch {
+        alert("Eklenemedi");
+      } finally {
+        addBtn.disabled = false;
+      }
     });
 
-    async function delItem(id,value){
-      if(!confirm(`Silinsin mi?\n${value}`)) return;
-      try{
-        const r=await fetch(`/api/ref/${encodeURIComponent(current.type)}/${id}`,{method:'DELETE'});
-        if(!r.ok) throw 0;
+    async function delItem(id, value) {
+      if (!confirm(`Silinsin mi?\n${value}`)) return;
+      try {
+        const r = await fetch(
+          `/api/ref/${encodeURIComponent(current.type)}/${id}`,
+          { method: "DELETE" },
+        );
+        if (!r.ok) throw 0;
         // Chips’ten/Select’ten kaldır
-        const c=chipsEl.querySelector(`.chip[data-id="${id}"]`); if(c) c.remove();
+        const c = chipsEl.querySelector(`.chip[data-id="${id}"]`);
+        if (c) c.remove();
         removeSelectOption(current.select, value);
-      }catch{ alert('Silinemedi'); }
+      } catch {
+        alert("Silinemedi");
+      }
     }
 
     // Select yardımcıları (Choices uyumlu)
-    function getChoicesInstance(sel){ return sel && (sel.choices || sel._choices) || null; }
-    function upsertSelectOption(sel,value,selectIt=false){
-      if(!sel) return;
-      const exists=Array.from(sel.options).find(o=>o.value===value);
-      if(exists){ if(selectIt){ exists.selected=true; sel.dispatchEvent(new Event('change')); } return; }
-      const ch=getChoicesInstance(sel);
-      if(ch && ch.setChoices){ ch.setChoices([{value,label:value,selected:selectIt}],'value','label',false); }
-      else { sel.add(new Option(value,value,selectIt,selectIt)); if(selectIt) sel.dispatchEvent(new Event('change')); }
+    function getChoicesInstance(sel) {
+      return (sel && (sel.choices || sel._choices)) || null;
     }
-    function removeSelectOption(sel,value){
-      if(!sel) return;
-      const ch=getChoicesInstance(sel);
-      if(ch && ch._store){ const opt=[...sel.options].find(o=>o.value===value); if(opt) opt.remove(); }
-      else { [...sel.options].forEach(o=>{ if(o.value===value) o.remove(); }); }
+    function upsertSelectOption(sel, value, selectIt = false) {
+      if (!sel) return;
+      const exists = Array.from(sel.options).find((o) => o.value === value);
+      if (exists) {
+        if (selectIt) {
+          exists.selected = true;
+          sel.dispatchEvent(new Event("change"));
+        }
+        return;
+      }
+      const ch = getChoicesInstance(sel);
+      if (ch && ch.setChoices) {
+        ch.setChoices(
+          [{ value, label: value, selected: selectIt }],
+          "value",
+          "label",
+          false,
+        );
+      } else {
+        sel.add(new Option(value, value, selectIt, selectIt));
+        if (selectIt) sel.dispatchEvent(new Event("change"));
+      }
+    }
+    function removeSelectOption(sel, value) {
+      if (!sel) return;
+      const ch = getChoicesInstance(sel);
+      if (ch && ch._store) {
+        const opt = [...sel.options].find((o) => o.value === value);
+        if (opt) opt.remove();
+      } else {
+        [...sel.options].forEach((o) => {
+          if (o.value === value) o.remove();
+        });
+      }
     }
   })();
 </script>
 {% endblock %}
-

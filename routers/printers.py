@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends, Request, Form, HTTPException
-from fastapi.responses import RedirectResponse, JSONResponse, HTMLResponse
-from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
-from typing import Optional, Dict, Any
 from datetime import datetime
+from typing import Any, Dict, Optional
+
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from auth import get_db
+from models import Brand, Model, Printer, PrinterHistory, ScrapPrinter, UsageArea
 from security import current_user
-from models import Printer, PrinterHistory, ScrapPrinter, Brand, Model, UsageArea
-from sqlalchemy import text
 
 templates = Jinja2Templates(directory="templates")
 router = APIRouter(prefix="/printers", tags=["Printers"])
@@ -74,10 +75,26 @@ def list_printers(
 
     printers = query.order_by(Printer.id.desc()).all()
 
-    users = [r[0] for r in db.execute(text("SELECT full_name FROM users ORDER BY full_name")).fetchall()]
-    invs = [r[0] for r in db.execute(text("SELECT no FROM inventories ORDER BY no")).fetchall()]
-    fabr = [r[0] for r in db.execute(text("SELECT name FROM factories ORDER BY name")).fetchall()]
-    areas = [r[0] for r in db.execute(text("SELECT name FROM usage_areas ORDER BY name")).fetchall()]
+    users = [
+        r[0]
+        for r in db.execute(
+            text("SELECT full_name FROM users ORDER BY full_name")
+        ).fetchall()
+    ]
+    invs = [
+        r[0]
+        for r in db.execute(text("SELECT no FROM inventories ORDER BY no")).fetchall()
+    ]
+    fabr = [
+        r[0]
+        for r in db.execute(text("SELECT name FROM factories ORDER BY name")).fetchall()
+    ]
+    areas = [
+        r[0]
+        for r in db.execute(
+            text("SELECT name FROM usage_areas ORDER BY name")
+        ).fetchall()
+    ]
     marka_list = db.query(Brand).order_by(Brand.name).all()
     model_list = db.query(Model).order_by(Model.name).all()
     kullanim_alanlari = db.query(UsageArea).order_by(UsageArea.name).all()
@@ -234,7 +251,9 @@ def edit_printer(printer_id: int, request: Request, db: Session = Depends(get_db
     p = db.get(Printer, printer_id)
     if not p:
         raise HTTPException(404, "Yazıcı bulunamadı")
-    return templates.TemplateResponse("printers_edit.html", {"request": request, "p": p})
+    return templates.TemplateResponse(
+        "printers_edit.html", {"request": request, "p": p}
+    )
 
 
 @router.post("/edit/{printer_id}")
@@ -301,4 +320,3 @@ def scrap_printer(
 
     db.commit()
     return JSONResponse({"ok": True})
-

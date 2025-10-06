@@ -1,16 +1,35 @@
-{% extends "base.html" %}
-{% block title %}Lisans Detayı{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Lisans Detayı{% endblock %} {% block
+content %}
 <div class="container-fluid p-2 content">
   <div class="table-responsive">
     <table class="table table-sm">
       <tbody>
-        <tr><th>No</th><td>{{ item.id }}</td></tr>
-        <tr><th>Lisans Adı</th><td>{{ item.lisans_adi }}</td></tr>
-        <tr><th>Key</th><td class="text-truncate" style="max-width:220px;">{{ item.lisans_key }}</td></tr>
-        <tr><th>Sorumlu</th><td>{{ item.sorumlu_personel or '-' }}</td></tr>
-        <tr><th>Bağlı Envanter</th><td>{{ item.bagli_envanter_no or '-' }}</td></tr>
-        <tr><th>Durum</th><td>{{ item.durum }}</td></tr>
+        <tr>
+          <th>No</th>
+          <td>{{ item.id }}</td>
+        </tr>
+        <tr>
+          <th>Lisans Adı</th>
+          <td>{{ item.lisans_adi }}</td>
+        </tr>
+        <tr>
+          <th>Key</th>
+          <td class="text-truncate" style="max-width: 220px">
+            {{ item.lisans_key }}
+          </td>
+        </tr>
+        <tr>
+          <th>Sorumlu</th>
+          <td>{{ item.sorumlu_personel or '-' }}</td>
+        </tr>
+        <tr>
+          <th>Bağlı Envanter</th>
+          <td>{{ item.bagli_envanter_no or '-' }}</td>
+        </tr>
+        <tr>
+          <th>Durum</th>
+          <td>{{ item.durum }}</td>
+        </tr>
       </tbody>
     </table>
   </div>

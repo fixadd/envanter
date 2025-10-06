@@ -28,4 +28,3 @@ def scrap_list(request: Request, db: Session = Depends(get_db)):
         return templates.TemplateResponse(
             "printers_scrap.html", {"request": request, "rows": rows, "mode": "filter"}
         )
-

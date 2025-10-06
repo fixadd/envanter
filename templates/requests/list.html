@@ -1,25 +1,71 @@
-{% extends "base.html" %}{% block title %}Talepler – Liste{% endblock %}
-{% block content %}
+{% extends "base.html" %}{% block title %}Talepler – Liste{% endblock %} {%
+block content %}
 <h2 class="h5 mb-3">Talepler</h2>
 <ul class="nav nav-tabs" id="requestTab" role="tablist">
   <li class="nav-item" role="presentation">
-    <button class="nav-link active" id="aktif-tab" data-bs-toggle="tab" data-bs-target="#aktif" type="button" role="tab">Aktif Talepler</button>
+    <button
+      class="nav-link active"
+      id="aktif-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#aktif"
+      type="button"
+      role="tab"
+    >
+      Aktif Talepler
+    </button>
   </li>
   <li class="nav-item" role="presentation">
-    <button class="nav-link" id="kapali-tab" data-bs-toggle="tab" data-bs-target="#kapali" type="button" role="tab">Kapalı Talepler</button>
+    <button
+      class="nav-link"
+      id="kapali-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#kapali"
+      type="button"
+      role="tab"
+    >
+      Kapalı Talepler
+    </button>
   </li>
   <li class="nav-item" role="presentation">
-    <button class="nav-link" id="iptal-tab" data-bs-toggle="tab" data-bs-target="#iptal" type="button" role="tab">İptal Talepler</button>
+    <button
+      class="nav-link"
+      id="iptal-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#iptal"
+      type="button"
+      role="tab"
+    >
+      İptal Talepler
+    </button>
   </li>
 </ul>
 <div class="tab-content pt-3">
-  <div class="tab-pane fade show active" id="aktif" role="tabpanel" aria-labelledby="aktif-tab">
-    <div class="card p-3"><a class="btn btn-primary btn-sm" href="/requests/create">Talep Oluştur</a></div>
+  <div
+    class="tab-pane fade show active"
+    id="aktif"
+    role="tabpanel"
+    aria-labelledby="aktif-tab"
+  >
+    <div class="card p-3">
+      <a class="btn btn-primary btn-sm" href="/requests/create"
+        >Talep Oluştur</a
+      >
+    </div>
   </div>
-  <div class="tab-pane fade" id="kapali" role="tabpanel" aria-labelledby="kapali-tab">
+  <div
+    class="tab-pane fade"
+    id="kapali"
+    role="tabpanel"
+    aria-labelledby="kapali-tab"
+  >
     <div class="card p-3">Kapalı talepler listesi...</div>
   </div>
-  <div class="tab-pane fade" id="iptal" role="tabpanel" aria-labelledby="iptal-tab">
+  <div
+    class="tab-pane fade"
+    id="iptal"
+    role="tabpanel"
+    aria-labelledby="iptal-tab"
+  >
     <div class="card p-3">İptal talepler listesi...</div>
   </div>
 </div>

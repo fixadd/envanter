@@ -1,19 +1,47 @@
-{% extends "base.html" %}{% block title %}Kayıtlar{% endblock %}
-{% block content %}
+{% extends "base.html" %}{% block title %}Kayıtlar{% endblock %} {% block
+content %}
 <h2 class="h5 mb-3">Sistem Kayıtları</h2>
 <ul class="nav nav-tabs" id="logsTab" role="tablist">
   <li class="nav-item" role="presentation">
-    <button class="nav-link active" id="userlogs-tab" data-bs-toggle="tab" data-bs-target="#userlogs" type="button" role="tab">Kullanıcı Kayıtları</button>
+    <button
+      class="nav-link active"
+      id="userlogs-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#userlogs"
+      type="button"
+      role="tab"
+    >
+      Kullanıcı Kayıtları
+    </button>
   </li>
   <li class="nav-item" role="presentation">
-    <button class="nav-link" id="inventorylogs-tab" data-bs-toggle="tab" data-bs-target="#inventorylogs" type="button" role="tab">Envanter Kayıtları</button>
+    <button
+      class="nav-link"
+      id="inventorylogs-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#inventorylogs"
+      type="button"
+      role="tab"
+    >
+      Envanter Kayıtları
+    </button>
   </li>
 </ul>
 <div class="tab-content pt-3">
-  <div class="tab-pane fade show active" id="userlogs" role="tabpanel" aria-labelledby="userlogs-tab">
+  <div
+    class="tab-pane fade show active"
+    id="userlogs"
+    role="tabpanel"
+    aria-labelledby="userlogs-tab"
+  >
     <div class="card p-3">Kullanıcı kayıtları listesi...</div>
   </div>
-  <div class="tab-pane fade" id="inventorylogs" role="tabpanel" aria-labelledby="inventorylogs-tab">
+  <div
+    class="tab-pane fade"
+    id="inventorylogs"
+    role="tabpanel"
+    aria-labelledby="inventorylogs-tab"
+  >
     <div class="card p-3">Envanter kayıtları listesi...</div>
   </div>
 </div>

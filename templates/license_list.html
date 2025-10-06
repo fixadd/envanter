@@ -1,19 +1,36 @@
-{% extends "base.html" %}
-{% block title %}Lisans Takip{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Lisans Takip{% endblock %} {% block
+content %}
 <div class="container-fluid p-2 content">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <div class="d-flex align-items-center gap-2">
-        <a href="#" class="btn btn-success btn-sm d-flex align-items-center gap-1" title="Yeni Ekle" data-bs-toggle="modal" data-bs-target="#addModal">
-          <i class="bi bi-plus-lg"></i>
-          <span>Ekle</span>
-        </a>
+      <a
+        href="#"
+        class="btn btn-success btn-sm d-flex align-items-center gap-1"
+        title="Yeni Ekle"
+        data-bs-toggle="modal"
+        data-bs-target="#addModal"
+      >
+        <i class="bi bi-plus-lg"></i>
+        <span>Ekle</span>
+      </a>
       <h5 class="mb-0">Lisans</h5>
     </div>
     <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-outline-secondary btn-sm" id="filterBtn">Filtre</button>
-      <button class="btn btn-outline-secondary btn-sm d-none" id="clearFilterBtn">Temizle</button>
-      <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Ara...">
+      <button class="btn btn-outline-secondary btn-sm" id="filterBtn">
+        Filtre
+      </button>
+      <button
+        class="btn btn-outline-secondary btn-sm d-none"
+        id="clearFilterBtn"
+      >
+        Temizle
+      </button>
+      <input
+        type="text"
+        id="searchInput"
+        class="form-control form-control-sm"
+        placeholder="Ara..."
+      />
     </div>
   </div>
   <div class="table-responsive">
@@ -26,7 +43,7 @@
           <th data-field="sorumlu_personel">Sorumlu</th>
           <th data-field="bagli_envanter_no">Bağlı Envanter</th>
           <th data-field="durum">Durum</th>
-          <th style="width:170px;">İşlemler</th>
+          <th style="width: 170px">İşlemler</th>
         </tr>
       </thead>
       <tbody>
@@ -34,17 +51,20 @@
         <tr>
           <td>{{ row.id }}</td>
           <td>{{ row.lisans_adi }}</td>
-          <td class="text-truncate" style="max-width:180px;">{{ row.lisans_key }}</td>
+          <td class="text-truncate" style="max-width: 180px">
+            {{ row.lisans_key }}
+          </td>
           <td>{{ row.sorumlu_personel or '-' }}</td>
           <td>{{ row.bagli_envanter_no or '-' }}</td>
           <td>
-            {% if row.durum == 'hurda' %}<span class="badge bg-secondary">Hurda</span>
+            {% if row.durum == 'hurda' %}<span class="badge bg-secondary"
+              >Hurda</span
+            >
             {% else %}<span class="badge bg-success">Aktif</span>{% endif %}
           </td>
           <td class="text-nowrap">
-            {% set entity = 'licenses' %}
-            {% set row_id = row.id %}
-            {% include 'partials/_actions_menu.html' %}
+            {% set entity = 'licenses' %} {% set row_id = row.id %} {% include
+            'partials/_actions_menu.html' %}
           </td>
         </tr>
         {% endfor %}
@@ -59,23 +79,50 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Lisans Ekle</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body">
-        <form method="post" action="/lisans/create" class="needs-validation" novalidate>
+        <form
+          method="post"
+          action="/lisans/create"
+          class="needs-validation"
+          novalidate
+        >
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">Lisans Adı</label>
-              <input name="lisans_adi" type="text" class="form-control" required placeholder="Lisans adı...">
+              <input
+                name="lisans_adi"
+                type="text"
+                class="form-control"
+                required
+                placeholder="Lisans adı..."
+              />
             </div>
             <div class="col-md-6">
               <label class="form-label">Lisans Anahtarı</label>
-              <input name="lisans_anahtari" type="text" class="form-control" required placeholder="XXXX-XXXX-XXXX-XXXX">
+              <input
+                name="lisans_anahtari"
+                type="text"
+                class="form-control"
+                required
+                placeholder="XXXX-XXXX-XXXX-XXXX"
+              />
             </div>
 
             <div class="col-md-6">
               <label class="form-label">Sorumlu Personel</label>
-              <input name="sorumlu_personel" type="text" class="form-control" required placeholder="Ad Soyad">
+              <input
+                name="sorumlu_personel"
+                type="text"
+                class="form-control"
+                required
+                placeholder="Ad Soyad"
+              />
             </div>
 
             <div class="col-md-6">
@@ -89,19 +136,38 @@
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">IFS No <small class="text-muted">(zorunlu değil)</small></label>
-              <input name="ifs_no" type="text" class="form-control" placeholder="IFS numarası">
+              <label class="form-label"
+                >IFS No <small class="text-muted">(zorunlu değil)</small></label
+              >
+              <input
+                name="ifs_no"
+                type="text"
+                class="form-control"
+                placeholder="IFS numarası"
+              />
             </div>
 
             <div class="col-md-6">
               <label class="form-label">Mail Adresi</label>
-              <input name="mail_adresi" type="email" class="form-control" required placeholder="ornek@firma.com">
+              <input
+                name="mail_adresi"
+                type="email"
+                class="form-control"
+                required
+                placeholder="ornek@firma.com"
+              />
             </div>
           </div>
 
           <div class="mt-3 d-flex gap-2">
             <button type="submit" class="btn btn-primary">Kaydet</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              İptal
+            </button>
           </div>
         </form>
       </div>
@@ -115,13 +181,23 @@
     <form id="filterForm" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Filtrele</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
       </div>
       <div class="modal-body">
         <div id="filterRows"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Kapat</button>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          data-bs-dismiss="modal"
+        >
+          Kapat
+        </button>
         <button type="submit" class="btn btn-primary btn-sm">Uygula</button>
       </div>
     </form>
@@ -135,29 +211,51 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Atama Yap</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+          ></button>
         </div>
         <div class="modal-body">
-          <input type="hidden" name="islem_yapan" value="{{ current_user.full_name if current_user else 'system' }}">
+          <input
+            type="hidden"
+            name="islem_yapan"
+            value="{{ current_user.full_name if current_user else 'system' }}"
+          />
           <div class="mb-2">
             <label class="form-label">Sorumlu Personel</label>
-            <select name="sorumlu_personel" class="form-select" id="selPersonel">
+            <select
+              name="sorumlu_personel"
+              class="form-select"
+              id="selPersonel"
+            >
               <option value="">Seçiniz</option>
-              {% for u in users %}<option value="{{ u.full_name }}">{{ u.full_name }}</option>{% endfor %}
+              {% for u in users %}
+              <option value="{{ u.full_name }}">{{ u.full_name }}</option>
+              {% endfor %}
             </select>
           </div>
           <div class="mb-2">
             <label class="form-label">Bağlı Olduğu Envanter No</label>
             <select name="bagli_envanter_no" class="form-select" id="selBagli">
               <option value="">Seçiniz</option>
-              {% for inv in envanterler %}<option value="{{ inv.no }}">{{ inv.no }} - {{ inv.bilgisayar_adi or inv.marka }}</option>{% endfor %}
+              {% for inv in envanterler %}
+              <option value="{{ inv.no }}">
+                {{ inv.no }} - {{ inv.bilgisayar_adi or inv.marka }}
+              </option>
+              {% endfor %}
             </select>
           </div>
-          <small class="text-muted">Bu işlem lisansın geçmiş kayıtlarına eklenecek.</small>
+          <small class="text-muted"
+            >Bu işlem lisansın geçmiş kayıtlarına eklenecek.</small
+          >
         </div>
         <div class="modal-footer">
           <button class="btn btn-primary" type="submit">Kaydet</button>
-          <button class="btn btn-light" type="button" data-bs-dismiss="modal">İptal</button>
+          <button class="btn btn-light" type="button" data-bs-dismiss="modal">
+            İptal
+          </button>
         </div>
       </div>
     </form>
@@ -165,41 +263,47 @@
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const filterModal = new bootstrap.Modal(document.getElementById('filterModal'));
-    const searchInput = document.getElementById('searchInput');
-    const filterForm = document.getElementById('filterForm');
-    const clearBtn = document.getElementById('clearFilterBtn');
-    const filterRowsDiv = document.getElementById('filterRows');
-    const distinctUrl = "{{ url_for('lookup.distinct', entity='license', column='__COL__') }}";
+  document.addEventListener("DOMContentLoaded", () => {
+    const filterModal = new bootstrap.Modal(
+      document.getElementById("filterModal"),
+    );
+    const searchInput = document.getElementById("searchInput");
+    const filterForm = document.getElementById("filterForm");
+    const clearBtn = document.getElementById("clearFilterBtn");
+    const filterRowsDiv = document.getElementById("filterRows");
+    const distinctUrl =
+      "{{ url_for('lookup.distinct', entity='license', column='__COL__') }}";
     let activeFilters = [];
-    const columns = Array.from(document.querySelectorAll('table thead th'))
-      .map((th, idx) => ({ idx, name: th.textContent.trim(), field: th.dataset.field }))
-      .filter(c => c.field);
+    const columns = Array.from(document.querySelectorAll("table thead th"))
+      .map((th, idx) => ({
+        idx,
+        name: th.textContent.trim(),
+        field: th.dataset.field,
+      }))
+      .filter((c) => c.field);
 
-
-    document.getElementById('filterBtn').addEventListener('click', () => {
+    document.getElementById("filterBtn").addEventListener("click", () => {
       filterForm.reset();
-      filterRowsDiv.innerHTML = '';
+      filterRowsDiv.innerHTML = "";
       createFilterRow();
       filterModal.show();
     });
 
-    clearBtn.addEventListener('click', () => {
+    clearBtn.addEventListener("click", () => {
       activeFilters = [];
       filterRows();
-      clearBtn.classList.add('d-none');
+      clearBtn.classList.add("d-none");
     });
 
-    searchInput.addEventListener('input', filterRows);
+    searchInput.addEventListener("input", filterRows);
 
     function createFilterRow() {
-      const row = document.createElement('div');
-      row.className = 'row g-2 align-items-center mb-2 filter-row';
+      const row = document.createElement("div");
+      row.className = "row g-2 align-items-center mb-2 filter-row";
       row.innerHTML = `
         <div class="col-5">
           <select class="form-select form-select-sm column-select">
-            ${columns.map(c => `<option value="${c.idx}">${c.name}</option>`).join('')}
+            ${columns.map((c) => `<option value="${c.idx}">${c.name}</option>`).join("")}
           </select>
         </div>
         <div class="col-5">
@@ -210,94 +314,113 @@
           <button type="button" class="btn btn-danger btn-sm remove-row">-</button>
         </div>`;
       filterRowsDiv.appendChild(row);
-      const colSel = row.querySelector('.column-select');
-      const valSel = row.querySelector('.value-select');
+      const colSel = row.querySelector(".column-select");
+      const valSel = row.querySelector(".value-select");
       loadValues(colSel, valSel);
-      colSel.addEventListener('change', () => loadValues(colSel, valSel));
+      colSel.addEventListener("change", () => loadValues(colSel, valSel));
       updateRemoveButtons();
     }
 
     async function loadValues(colSelect, valSelect) {
-      const col = columns.find(c => c.idx == colSelect.value);
-      const res = await fetch(distinctUrl.replace('__COL__', col.field));
+      const col = columns.find((c) => c.idx == colSelect.value);
+      const res = await fetch(distinctUrl.replace("__COL__", col.field));
       const data = await res.json();
-      valSelect.innerHTML = '<option value="">Seçiniz</option>' +
-        data.map(v => `<option value="${v}">${v}</option>`).join('');
+      valSelect.innerHTML =
+        '<option value="">Seçiniz</option>' +
+        data.map((v) => `<option value="${v}">${v}</option>`).join("");
     }
 
     function updateRemoveButtons() {
-      const rows = filterRowsDiv.querySelectorAll('.filter-row');
-      rows.forEach(r => r.querySelector('.remove-row').classList.toggle('d-none', rows.length === 1));
+      const rows = filterRowsDiv.querySelectorAll(".filter-row");
+      rows.forEach((r) =>
+        r
+          .querySelector(".remove-row")
+          .classList.toggle("d-none", rows.length === 1),
+      );
     }
 
-    filterForm.addEventListener('click', (e) => {
-      if (e.target.classList.contains('add-row')) {
+    filterForm.addEventListener("click", (e) => {
+      if (e.target.classList.contains("add-row")) {
         createFilterRow();
-      } else if (e.target.classList.contains('remove-row')) {
-        e.target.closest('.filter-row').remove();
+      } else if (e.target.classList.contains("remove-row")) {
+        e.target.closest(".filter-row").remove();
         updateRemoveButtons();
       }
     });
 
-    filterForm.addEventListener('submit', (e) => {
+    filterForm.addEventListener("submit", (e) => {
       e.preventDefault();
       activeFilters = [];
-      filterRowsDiv.querySelectorAll('.filter-row').forEach(row => {
-        const col = parseInt(row.querySelector('.column-select').value, 10);
-        const val = row.querySelector('.value-select').value.trim().toLowerCase();
+      filterRowsDiv.querySelectorAll(".filter-row").forEach((row) => {
+        const col = parseInt(row.querySelector(".column-select").value, 10);
+        const val = row
+          .querySelector(".value-select")
+          .value.trim()
+          .toLowerCase();
         if (val) activeFilters.push({ col, val });
       });
       filterModal.hide();
-      clearBtn.classList.toggle('d-none', activeFilters.length === 0);
+      clearBtn.classList.toggle("d-none", activeFilters.length === 0);
       filterRows();
     });
 
     function filterRows() {
       const q = searchInput.value.toLowerCase();
-      document.querySelectorAll('tbody tr').forEach(tr => {
-        const cells = tr.querySelectorAll('td');
-        const texts = Array.from(cells).map(td => td.textContent.toLowerCase());
-        let match = texts.some(t => t.includes(q));
+      document.querySelectorAll("tbody tr").forEach((tr) => {
+        const cells = tr.querySelectorAll("td");
+        const texts = Array.from(cells).map((td) =>
+          td.textContent.toLowerCase(),
+        );
+        let match = texts.some((t) => t.includes(q));
         if (activeFilters.length) {
-          match = match && activeFilters.every(f => texts[f.col] && texts[f.col].includes(f.val));
+          match =
+            match &&
+            activeFilters.every(
+              (f) => texts[f.col] && texts[f.col].includes(f.val),
+            );
         }
-        tr.classList.toggle('d-none', !match);
+        tr.classList.toggle("d-none", !match);
       });
     }
 
     // Mevcut atama/hurda işlemleri
-    const assignModal = new bootstrap.Modal(document.getElementById('assignModal'));
-    const assignForm  = document.getElementById('assignForm');
+    const assignModal = new bootstrap.Modal(
+      document.getElementById("assignModal"),
+    );
+    const assignForm = document.getElementById("assignForm");
 
-    document.querySelectorAll('.dropdown-menu [data-action]').forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (item.classList.contains('disabled')) return;
+    document
+      .querySelectorAll(".dropdown-menu [data-action]")
+      .forEach((item) => {
+        item.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (item.classList.contains("disabled")) return;
 
-        const id = item.dataset.id;
-        const action = item.dataset.action;
+          const id = item.dataset.id;
+          const action = item.dataset.action;
 
-        if (action === 'assign') {
-          assignForm.action = `/lisans/${id}/assign`;
-          assignModal.show();
-        } else if (action === 'scrap') {
-          const f = document.createElement('form');
-          f.method = 'post';
-          f.action = `/lisans/${id}/scrap`;
-          const who = document.createElement('input');
-          who.name = 'islem_yapan';
-          who.value = "{{ current_user.full_name if current_user else 'system' }}";
-          f.appendChild(who);
-          document.body.appendChild(f);
-          f.submit();
-        }
+          if (action === "assign") {
+            assignForm.action = `/lisans/${id}/assign`;
+            assignModal.show();
+          } else if (action === "scrap") {
+            const f = document.createElement("form");
+            f.method = "post";
+            f.action = `/lisans/${id}/scrap`;
+            const who = document.createElement("input");
+            who.name = "islem_yapan";
+            who.value =
+              "{{ current_user.full_name if current_user else 'system' }}";
+            f.appendChild(who);
+            document.body.appendChild(f);
+            f.submit();
+          }
+        });
       });
-    });
 
     if (window.Choices) {
-      new Choices('#selPersonel', { searchEnabled: true, shouldSort: false });
-      new Choices('#selBagli', { searchEnabled: true, shouldSort: false });
+      new Choices("#selPersonel", { searchEnabled: true, shouldSort: false });
+      new Choices("#selBagli", { searchEnabled: true, shouldSort: false });
     }
   });
 </script>

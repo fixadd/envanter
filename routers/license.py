@@ -1,20 +1,24 @@
-from fastapi import APIRouter, Depends, Request, Form, HTTPException
+from datetime import datetime
+
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from starlette import status
-from fastapi.responses import RedirectResponse, HTMLResponse
+
 from database import get_db
-from models import License, LicenseLog, Inventory
-from fastapi.templating import Jinja2Templates
+from models import Inventory, License, LicenseLog
 from security import current_user
-from datetime import datetime
-from sqlalchemy import text
 
 router = APIRouter(prefix="/lisans", tags=["Lisans"])
 templates = Jinja2Templates(directory="templates")
 
 
 def _logla(db: Session, lic: License, islem: str, detay: str, islem_yapan: str):
-    db.add(LicenseLog(license_id=lic.id, islem=islem, detay=detay, islem_yapan=islem_yapan))
+    db.add(
+        LicenseLog(license_id=lic.id, islem=islem, detay=detay, islem_yapan=islem_yapan)
+    )
 
 
 def get_current_user_name(request: Request) -> str:
@@ -49,7 +53,7 @@ def new_license_post(
     ifs_no: str = Form(""),
     mail_adresi: str = Form(""),
     db: Session = Depends(get_db),
-    user = Depends(current_user),
+    user=Depends(current_user),
 ):
     inv = db.query(Inventory).get(inventory_id) if inventory_id else None
     lic = License(
@@ -65,9 +69,17 @@ def new_license_post(
     )
     db.add(lic)
     db.commit()
-    _logla(db, lic, "EKLE", "Lisans oluşturuldu", getattr(user, "full_name", None) or "system")
+    _logla(
+        db,
+        lic,
+        "EKLE",
+        "Lisans oluşturuldu",
+        getattr(user, "full_name", None) or "system",
+    )
     db.commit()
-    return RedirectResponse(url=request.url_for("license_list"), status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(
+        url=request.url_for("license_list"), status_code=status.HTTP_303_SEE_OTHER
+    )
 
 
 @router.post("/create")
@@ -95,6 +107,7 @@ def create_license(
     db.commit()
     return RedirectResponse(url="/lisans", status_code=status.HTTP_303_SEE_OTHER)
 
+
 @router.post("/{lic_id}/assign")
 def assign_license(
     lic_id: int,
@@ -111,9 +124,17 @@ def assign_license(
     eski_bagli = lic.bagli_envanter_no or ""
     lic.sorumlu_personel = (sorumlu_personel or "").strip() or None
     lic.bagli_envanter_no = (bagli_envanter_no or "").strip() or None
-    _logla(db, lic, "ATAMA", f"Sorumlu: '{eski_sp}' -> '{lic.sorumlu_personel}', Bağlı Envanter: '{eski_bagli}' -> '{lic.bagli_envanter_no}'", islem_yapan)
+    _logla(
+        db,
+        lic,
+        "ATAMA",
+        f"Sorumlu: '{eski_sp}' -> '{lic.sorumlu_personel}', Bağlı Envanter: '{eski_bagli}' -> '{lic.bagli_envanter_no}'",
+        islem_yapan,
+    )
     db.commit()
-    return RedirectResponse(url=request.url_for("license_list"), status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(
+        url=request.url_for("license_list"), status_code=status.HTTP_303_SEE_OTHER
+    )
 
 
 @router.post("/{lic_id}/scrap")
@@ -129,7 +150,9 @@ def scrap_license(
     lic.durum = "hurda"
     _logla(db, lic, "HURDA", "Lisans hurdaya ayrıldı.", islem_yapan)
     db.commit()
-    return RedirectResponse(url=request.url_for("license_scrap_list"), status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(
+        url=request.url_for("license_scrap_list"), status_code=status.HTTP_303_SEE_OTHER
+    )
 
 
 @router.post("/{lic_id}/editquick")
@@ -147,24 +170,41 @@ def edit_quick_license(
     setattr(lic, "notlar", notlar)
     _logla(db, lic, "DUZENLE", f"Not: '{eski}' -> '{notlar}'", islem_yapan)
     db.commit()
-    return RedirectResponse(url=request.url_for("license_list"), status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(
+        url=request.url_for("license_list"), status_code=status.HTTP_303_SEE_OTHER
+    )
 
 
 @router.get("", name="license_list")
-def license_list(request: Request, db: Session = Depends(get_db), current_user=Depends(current_user)):
+def license_list(
+    request: Request, db: Session = Depends(get_db), current_user=Depends(current_user)
+):
     items = db.query(License).filter(License.durum != "hurda").all()
-    users = [r[0] for r in db.execute(text("SELECT full_name FROM users ORDER BY full_name")).fetchall()]
+    users = [
+        r[0]
+        for r in db.execute(
+            text("SELECT full_name FROM users ORDER BY full_name")
+        ).fetchall()
+    ]
     envanterler = db.query(Inventory).order_by(Inventory.no).all()
     return templates.TemplateResponse(
         "license_list.html",
-        {"request": request, "items": items, "users": users, "envanterler": envanterler, "current_user": current_user},
+        {
+            "request": request,
+            "items": items,
+            "users": users,
+            "envanterler": envanterler,
+            "current_user": current_user,
+        },
     )
 
 
 @router.get("/hurdalar", name="license_scrap_list")
 def license_scrap_list(request: Request, db: Session = Depends(get_db)):
     items = db.query(License).filter(License.durum == "hurda").all()
-    return templates.TemplateResponse("license_scrap_list.html", {"request": request, "items": items})
+    return templates.TemplateResponse(
+        "license_scrap_list.html", {"request": request, "items": items}
+    )
 
 
 @router.get("/{lic_id}", name="license_detail")
@@ -172,4 +212,6 @@ def license_detail(lic_id: int, request: Request, db: Session = Depends(get_db))
     lic = db.query(License).get(lic_id)
     if not lic:
         raise HTTPException(status_code=404, detail="Lisans bulunamadı")
-    return templates.TemplateResponse("license_detail.html", {"request": request, "item": lic})
+    return templates.TemplateResponse(
+        "license_detail.html", {"request": request, "item": lic}
+    )
