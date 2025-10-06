@@ -130,7 +130,9 @@ def _ensure_unique_user(
         username_query = username_query.filter(User.id != exclude_user_id)
     existing_username = username_query.first()
     if existing_username:
-        raise HTTPException(status_code=400, detail="Bu kullanıcı adı zaten kullanılıyor")
+        raise HTTPException(
+            status_code=400, detail="Bu kullanıcı adı zaten kullanılıyor"
+        )
 
     if email:
         email_query = db.query(User).filter(User.email == email)
@@ -249,7 +251,9 @@ def _user_edit_post(
             exclude_user_id=uid,
         )
     except HTTPException as exc:
-        detail = exc.detail if isinstance(exc.detail, str) else "Kullanıcı güncellenemedi."
+        detail = (
+            exc.detail if isinstance(exc.detail, str) else "Kullanıcı güncellenemedi."
+        )
         return _error_response(
             request,
             status_code=exc.status_code or 400,
