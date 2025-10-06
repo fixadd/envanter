@@ -2,11 +2,30 @@
   <div class="col-md-6">
     <label for="selYaziciMarka" class="form-label">Yazıcı Markası</label>
     <select id="selYaziciMarka" name="marka_id" class="form-select"></select>
+    <input
+      type="hidden"
+      name="marka"
+      id="printerMarkaName"
+      value="{{ (p.marka if p is defined else '') or '' }}"
+    />
   </div>
   <div class="col-md-6">
     <label for="selYaziciModel" class="form-label">Yazıcı Modeli</label>
-    <select id="selYaziciModel" name="model_id" class="form-select" disabled></select>
-    <div class="form-text">Not: Model listesi seçilen Markaya göre filtrelenir.</div>
+    <select
+      id="selYaziciModel"
+      name="model_id"
+      class="form-select"
+      disabled
+    ></select>
+    <div class="form-text">
+      Not: Model listesi seçilen Markaya göre filtrelenir.
+    </div>
+    <input
+      type="hidden"
+      name="model"
+      id="printerModelName"
+      value="{{ (p.model if p is defined else '') or '' }}"
+    />
   </div>
 
   <div class="col-md-6">
@@ -16,11 +35,22 @@
       name="kullanim_alani_id"
       class="form-select"
     ></select>
+    <input
+      type="hidden"
+      name="kullanim_alani"
+      id="printerUsageName"
+      value="{{ (p.kullanim_alani if p is defined else '') or '' }}"
+    />
   </div>
 
   <div class="col-md-6">
     <label for="printerEnvanterNo" class="form-label">Envanter No</label>
-    <input id="printerEnvanterNo" name="envanter_no" class="form-control" required />
+    <input
+      id="printerEnvanterNo"
+      name="envanter_no"
+      class="form-control"
+      required
+    />
   </div>
 
   <div class="col-md-6">
