@@ -1,16 +1,25 @@
-﻿{% extends "base.html" %}
-{% block title %}Lisanslar{% endblock %}
-{% block content %}
+﻿{% extends "base.html" %} {% block title %}Lisanslar{% endblock %} {% block
+content %}
 <div class="container-fluid py-4" id="license-page">
   <header class="mb-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div
+      class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3"
+    >
       <div>
-        <span class="text-uppercase text-muted small fw-semibold">Lisans Takip</span>
+        <span class="text-uppercase text-muted small fw-semibold"
+          >Lisans Takip</span
+        >
         <h1 class="h3 mb-1">Lisanslar</h1>
-        <p class="text-muted mb-0">Ürün lisanslarınızı takip edin, yeni kaydı birkaç saniyede oluşturun.</p>
+        <p class="text-muted mb-0">
+          Ürün lisanslarınızı takip edin, yeni kaydı birkaç saniyede oluşturun.
+        </p>
       </div>
       <div class="d-flex flex-wrap gap-2">
-        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#licenseAddModal">
+        <button
+          class="btn btn-primary btn-sm"
+          data-bs-toggle="modal"
+          data-bs-target="#licenseAddModal"
+        >
           <i class="bi bi-plus-lg me-1"></i>
           Lisans Ekle
         </button>
@@ -24,16 +33,33 @@
 
   <div class="card shadow-sm border-0">
     <div class="card-body pb-2">
-      <form class="row g-2 align-items-center" id="licenseFilters" autocomplete="off">
+      <form
+        class="row g-2 align-items-center"
+        id="licenseFilters"
+        autocomplete="off"
+      >
         <div class="col-12 col-lg-4">
-          <label for="licenseSearch" class="form-label small text-uppercase text-muted mb-1">Ara</label>
+          <label
+            for="licenseSearch"
+            class="form-label small text-uppercase text-muted mb-1"
+            >Ara</label
+          >
           <div class="input-group input-group-sm">
             <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input id="licenseSearch" type="search" class="form-control" placeholder="Lisans kodu, ürün adı veya sorumlu" />
+            <input
+              id="licenseSearch"
+              type="search"
+              class="form-control"
+              placeholder="Lisans kodu, ürün adı veya sorumlu"
+            />
           </div>
         </div>
         <div class="col-6 col-lg-3">
-          <label for="licenseTypeFilter" class="form-label small text-uppercase text-muted mb-1">Tür</label>
+          <label
+            for="licenseTypeFilter"
+            class="form-label small text-uppercase text-muted mb-1"
+            >Tür</label
+          >
           <select id="licenseTypeFilter" class="form-select form-select-sm">
             <option value="">Hepsi</option>
             <option value="perpetual">Süresiz</option>
@@ -42,12 +68,26 @@
           </select>
         </div>
         <div class="col-6 col-lg-3">
-          <label for="seatFilter" class="form-label small text-uppercase text-muted mb-1">Minimum Koltuk</label>
-          <input id="seatFilter" type="number" min="0" class="form-control form-control-sm" placeholder="0" />
+          <label
+            for="seatFilter"
+            class="form-label small text-uppercase text-muted mb-1"
+            >Minimum Koltuk</label
+          >
+          <input
+            id="seatFilter"
+            type="number"
+            min="0"
+            class="form-control form-control-sm"
+            placeholder="0"
+          />
         </div>
         <div class="col-12 col-lg-2 d-grid justify-content-lg-end">
-          <label class="form-label small text-uppercase text-muted mb-1">&nbsp;</label>
-          <button type="reset" class="btn btn-outline-secondary btn-sm">Temizle</button>
+          <label class="form-label small text-uppercase text-muted mb-1"
+            >&nbsp;</label
+          >
+          <button type="reset" class="btn btn-outline-secondary btn-sm">
+            Temizle
+          </button>
         </div>
       </form>
     </div>
@@ -67,8 +107,7 @@
           </tr>
         </thead>
         <tbody>
-          {% if items %}
-          {% for lic in items %}
+          {% if items %} {% for lic in items %}
           <tr
             data-search="{{ (lic.license_code or '') ~ ' ' ~ (lic.lisans_adi or lic.product_name or '') ~ ' ' ~ (lic.sorumlu_personel or '') | lower }}"
             data-type="{{ (lic.license_type or '') | lower }}"
@@ -76,9 +115,13 @@
           >
             <td class="fw-semibold">{{ lic.license_code or '-' }}</td>
             <td>
-              <div class="fw-semibold">{{ lic.product_name or lic.lisans_adi or '-' }}</div>
+              <div class="fw-semibold">
+                {{ lic.product_name or lic.lisans_adi or '-' }}
+              </div>
               {% if lic.lisans_anahtari %}
-              <div class="text-muted small">Anahtar: {{ lic.lisans_anahtari }}</div>
+              <div class="text-muted small">
+                Anahtar: {{ lic.lisans_anahtari }}
+              </div>
               {% endif %}
             </td>
             <td>{{ lic.license_type or '-' }}</td>
@@ -91,15 +134,24 @@
             </td>
             <td class="text-end">
               <div class="btn-group btn-group-sm" role="group">
-                <a href="{{ url_for('license_detail', lic_id=lic.id) }}" class="btn btn-outline-primary">Detay</a>
-                <a href="{{ url_for('license.edit_form', lic_id=lic.id) }}" class="btn btn-outline-secondary">Düzenle</a>
+                <a
+                  href="{{ url_for('license_detail', lic_id=lic.id) }}"
+                  class="btn btn-outline-primary"
+                  >Detay</a
+                >
+                <a
+                  href="{{ url_for('license.edit_form', lic_id=lic.id) }}"
+                  class="btn btn-outline-secondary"
+                  >Düzenle</a
+                >
               </div>
             </td>
           </tr>
-          {% endfor %}
-          {% else %}
+          {% endfor %} {% else %}
           <tr>
-            <td colspan="8" class="text-center text-muted py-4">Kayıt bulunamadı.</td>
+            <td colspan="8" class="text-center text-muted py-4">
+              Kayıt bulunamadı.
+            </td>
           </tr>
           {% endif %}
         </tbody>
@@ -108,22 +160,20 @@
   </div>
 </div>
 
-{% with form_action='/lisans/new' %}
-  {% include 'licenses/_license_add_modal.html' %}
-{% endwith %}
-{% endblock %}
-
-{% block scripts %}
-{{ super() }}
+{% with form_action='/lisans/new' %} {% include
+'licenses/_license_add_modal.html' %} {% endwith %} {% endblock %} {% block
+scripts %} {{ super() }}
 <script>
   (function () {
-    const searchInput = document.getElementById('licenseSearch');
-    const typeInput = document.getElementById('licenseTypeFilter');
-    const seatInput = document.getElementById('seatFilter');
-    const rows = Array.from(document.querySelectorAll('#licenseTable tbody tr'));
+    const searchInput = document.getElementById("licenseSearch");
+    const typeInput = document.getElementById("licenseTypeFilter");
+    const seatInput = document.getElementById("seatFilter");
+    const rows = Array.from(
+      document.querySelectorAll("#licenseTable tbody tr"),
+    );
 
     function normalize(value) {
-      return (value || '').trim().toLowerCase();
+      return (value || "").trim().toLowerCase();
     }
 
     function applyFilters() {
@@ -136,16 +186,19 @@
         const matchesType = !type || row.dataset.type === type;
         const seatCount = Number(row.dataset.seat || 0);
         const matchesSeat = seatCount >= minSeat;
-        row.classList.toggle('d-none', !(matchesSearch && matchesType && matchesSeat));
+        row.classList.toggle(
+          "d-none",
+          !(matchesSearch && matchesType && matchesSeat),
+        );
       });
     }
 
     [searchInput, typeInput, seatInput].forEach((input) => {
       if (!input) return;
-      input.addEventListener('input', applyFilters);
+      input.addEventListener("input", applyFilters);
     });
 
-    document.getElementById('licenseFilters')?.addEventListener('reset', () => {
+    document.getElementById("licenseFilters")?.addEventListener("reset", () => {
       setTimeout(applyFilters, 0);
     });
   })();
