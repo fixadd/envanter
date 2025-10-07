@@ -8,7 +8,12 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from app.core.security import hash_password, is_password_hash, verify_password
+from app.core.security import (
+    hash_password,
+    is_password_hash,
+    needs_password_rehash,
+    verify_password,
+)
 from auth import get_user_by_username
 from database import get_db
 from routers import bilgiler as bilgiler_router
@@ -113,6 +118,11 @@ async def login_submit(
     login_succeeded = False
     if user:
         if verify_password(password, user.password_hash):
+            if needs_password_rehash(user.password_hash):
+                user.password_hash = hash_password(password)
+                db.add(user)
+                db.commit()
+                db.refresh(user)
             login_succeeded = True
         elif not is_password_hash(user.password_hash) and secrets.compare_digest(
             password, user.password_hash
