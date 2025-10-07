@@ -35,3 +35,59 @@ def test_login_accepts_case_insensitive_username(db_session, dummy_request):
     assert request.session["user_name"] == user.full_name
     assert request.session["user_role"] == user.role
     assert "saved_username=demo" in response.headers.get("set-cookie", "")
+
+
+def test_login_handles_turkish_dotted_i(db_session, dummy_request):
+    db = db_session
+    user = models.User(
+        username="İBRAHİM",
+        password_hash=hash_password("demo"),
+        full_name="İbrahim Demo",
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    request = dummy_request
+
+    response = asyncio.run(
+        login_submit(
+            request,
+            username="ibrahim",
+            password="demo",
+            remember=None,
+            csrf_token="token",
+            db=db,
+        )
+    )
+
+    assert response.status_code == 303
+    assert request.session["user_id"] == user.id
+
+
+def test_login_handles_turkish_dotless_i(db_session, dummy_request):
+    db = db_session
+    user = models.User(
+        username="IŞIK",
+        password_hash=hash_password("demo"),
+        full_name="Işık Demo",
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    request = dummy_request
+
+    response = asyncio.run(
+        login_submit(
+            request,
+            username="isik",
+            password="demo",
+            remember=None,
+            csrf_token="token",
+            db=db,
+        )
+    )
+
+    assert response.status_code == 303
+    assert request.session["user_id"] == user.id
