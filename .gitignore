@@ -106,6 +106,7 @@ coverage.xml
 # Env/Secrets
 .env
 .env.*.local
+.session_secret
 
 # Node/Vite
 node_modules/

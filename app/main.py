@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import secrets
+from pathlib import Path
 from urllib.parse import urlparse
 
 from dotenv import load_dotenv
@@ -22,6 +23,39 @@ load_dotenv()
 
 
 # --- Secrets & Config ---------------------------------------------------------
+SESSION_SECRET_FILE = Path(__file__).resolve().parent.parent / ".session_secret"
+
+
+def _read_persisted_secret() -> str | None:
+    """Return a previously generated session secret if available."""
+
+    try:
+        data = SESSION_SECRET_FILE.read_text(encoding="utf-8").strip()
+    except FileNotFoundError:
+        return None
+    except OSError:
+        return None
+
+    if len(data) >= 32:
+        return data
+    return None
+
+
+def _persist_secret(value: str) -> None:
+    """Persist the generated secret to disk for multi-worker reuse."""
+
+    try:
+        SESSION_SECRET_FILE.write_text(value, encoding="utf-8")
+        try:
+            SESSION_SECRET_FILE.chmod(0o600)
+        except OSError:
+            # Best-effort; lack of chmod support (e.g. on Windows) shouldn't fail startup.
+            pass
+    except OSError:
+        # Persistence is best-effort; continue with in-memory secret if writing fails.
+        pass
+
+
 def _load_session_secret() -> str:
     """Return a session secret, generating a transient one if necessary."""
 
@@ -29,18 +63,34 @@ def _load_session_secret() -> str:
     if secret and len(secret) >= 32:
         return secret
 
+    persisted = _read_persisted_secret()
+    if persisted:
+        if secret and len(secret) < 32:
+            print(
+                "WARNING: SESSION_SECRET is shorter than 32 characters; "
+                "using stored fallback from .session_secret file."
+            )
+        else:
+            print(
+                "WARNING: SESSION_SECRET environment variable is not set. "
+                "Using previously generated value from .session_secret file."
+            )
+        os.environ.setdefault("SESSION_SECRET", persisted)
+        return persisted
+
     if secret:
         print(
             "WARNING: SESSION_SECRET is shorter than 32 characters; "
-            "generating a temporary value for development/test runs."
+            "generating and persisting a temporary value for development/test runs."
         )
     else:
         print(
             "WARNING: SESSION_SECRET environment variable is not set. "
-            "Generating a temporary value for development/test runs."
+            "Generating and persisting a temporary value for development/test runs."
         )
 
     generated = secrets.token_urlsafe(32)
+    _persist_secret(generated)
     os.environ.setdefault("SESSION_SECRET", generated)
     return generated
 
