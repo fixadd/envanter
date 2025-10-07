@@ -1,14 +1,16 @@
 import asyncio
 
 import models
-from app.core.security import is_password_hash
+from app.core.security import hash_password
 from app.web.router import login_submit
 
 
-def test_login_upgrades_plaintext_password(db_session, dummy_request):
+def test_login_accepts_case_insensitive_username(db_session, dummy_request):
     db = db_session
     user = models.User(
-        username="demo", password_hash="demo", full_name="Demo Kullanıcı"
+        username="demo",
+        password_hash=hash_password("demo"),
+        full_name="Demo Kullanıcı",
     )
     db.add(user)
     db.commit()
@@ -19,9 +21,9 @@ def test_login_upgrades_plaintext_password(db_session, dummy_request):
     response = asyncio.run(
         login_submit(
             request,
-            username="demo",
+            username="DeMo",
             password="demo",
-            remember=None,
+            remember="1",
             csrf_token="token",
             db=db,
         )
@@ -30,7 +32,6 @@ def test_login_upgrades_plaintext_password(db_session, dummy_request):
     assert response.status_code == 303
     assert response.headers["location"] == "/dashboard"
     assert request.session["user_id"] == user.id
-
-    db.refresh(user)
-    assert user.password_hash != "demo"
-    assert is_password_hash(user.password_hash)
+    assert request.session["user_name"] == user.full_name
+    assert request.session["user_role"] == user.role
+    assert "saved_username=demo" in response.headers.get("set-cookie", "")
