@@ -246,7 +246,12 @@ block content %}
     btnEdit.addEventListener("click", () => {
       const row = getSelectedRow();
       if (!row) {
-        window.showAlert ? window.showAlert("Lütfen bir kullanıcı seçin.", { variant: "warning", title: "Seçim Gerekli" }) : alert("Lütfen bir kullanıcı seçin.");
+        window.showAlert
+          ? window.showAlert("Lütfen bir kullanıcı seçin.", {
+              variant: "warning",
+              title: "Seçim Gerekli",
+            })
+          : alert("Lütfen bir kullanıcı seçin.");
         return;
       }
       const id = row.dataset.id;
@@ -275,12 +280,22 @@ block content %}
       ev.preventDefault();
       const row = getSelectedRow();
       if (!row) {
-        window.showAlert ? window.showAlert("Lütfen bir kullanıcı seçin.", { variant: "warning", title: "Seçim Gerekli" }) : alert("Lütfen bir kullanıcı seçin.");
+        window.showAlert
+          ? window.showAlert("Lütfen bir kullanıcı seçin.", {
+              variant: "warning",
+              title: "Seçim Gerekli",
+            })
+          : alert("Lütfen bir kullanıcı seçin.");
         return;
       }
       const username = row.dataset.username;
       if (username && username.toLowerCase() === "admin") {
-        window.showAlert ? window.showAlert("Admin hesabı silinemez.", { variant: "warning", title: "İzin Verilmiyor" }) : alert("Admin hesabı silinemez.");
+        window.showAlert
+          ? window.showAlert("Admin hesabı silinemez.", {
+              variant: "warning",
+              title: "İzin Verilmiyor",
+            })
+          : alert("Admin hesabı silinemez.");
         return;
       }
       const confirmed = await showConfirm({

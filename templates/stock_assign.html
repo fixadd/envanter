@@ -107,7 +107,10 @@
     };
     if (body.miktar > Number(el("saMiktar").max)) {
       if (window.showAlert) {
-        window.showAlert("Miktar stoktan fazla", { variant: "warning", title: "Geçersiz Değer" });
+        window.showAlert("Miktar stoktan fazla", {
+          variant: "warning",
+          title: "Geçersiz Değer",
+        });
       } else {
         alert("Miktar stoktan fazla");
       }
@@ -121,7 +124,10 @@
     if (!r.ok) {
       const e = await r.json();
       if (window.showAlert) {
-        window.showAlert(e.detail || "Hata", { variant: "danger", title: "İşlem Başarısız" });
+        window.showAlert(e.detail || "Hata", {
+          variant: "danger",
+          title: "İşlem Başarısız",
+        });
       } else {
         alert(e.detail || "Hata");
       }

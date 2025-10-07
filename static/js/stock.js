@@ -341,7 +341,10 @@
         payload = buildPayload(form);
       } catch (err) {
         if (window.showAlert) {
-          window.showAlert(err.message || "Kayıt başarısız", { variant: "danger", title: "İşlem Başarısız" });
+          window.showAlert(err.message || "Kayıt başarısız", {
+            variant: "danger",
+            title: "İşlem Başarısız",
+          });
         } else {
           alert(err.message || "Kayıt başarısız");
         }
@@ -354,14 +357,20 @@
           return;
         }
         if (window.showAlert) {
-          window.showAlert(result?.error || "Kayıt başarısız", { variant: "danger", title: "İşlem Başarısız" });
+          window.showAlert(result?.error || "Kayıt başarısız", {
+            variant: "danger",
+            title: "İşlem Başarısız",
+          });
         } else {
           alert(result?.error || "Kayıt başarısız");
         }
       } catch (err) {
         console.error("stock add failed", err);
         if (window.showAlert) {
-          window.showAlert(`Kayıt başarısız${err?.message ? `: ${err.message}` : ""}`, { variant: "danger", title: "İşlem Başarısız" });
+          window.showAlert(
+            `Kayıt başarısız${err?.message ? `: ${err.message}` : ""}`,
+            { variant: "danger", title: "İşlem Başarısız" },
+          );
         } else {
           alert(`Kayıt başarısız${err?.message ? `: ${err.message}` : ""}`);
         }
@@ -1074,7 +1083,10 @@
       } catch (err) {
         console.error("scrap decode failed", err);
         if (window.showAlert) {
-          window.showAlert("Geçersiz kayıt", { variant: "danger", title: "Hatalı Veri" });
+          window.showAlert("Geçersiz kayıt", {
+            variant: "danger",
+            title: "Hatalı Veri",
+          });
         } else {
           alert("Geçersiz kayıt");
         }
@@ -1085,7 +1097,10 @@
       const qty = Number(qtyStr);
       if (!qty || qty <= 0) {
         if (window.showAlert) {
-          window.showAlert("Geçersiz miktar", { variant: "warning", title: "Geçersiz Değer" });
+          window.showAlert("Geçersiz miktar", {
+            variant: "warning",
+            title: "Geçersiz Değer",
+          });
         } else {
           alert("Geçersiz miktar");
         }
@@ -1116,10 +1131,16 @@
           await refreshStockStatus();
         } else {
           if (window.showAlert) {
-            window.showAlert(result?.error || "İşlem başarısız", { variant: "danger", title: "İşlem Başarısız" });
+            window.showAlert(result?.error || "İşlem başarısız", {
+              variant: "danger",
+              title: "İşlem Başarısız",
+            });
           } else {
             if (window.showAlert) {
-              window.showAlert(result?.error || "İşlem başarısız", { variant: "danger", title: "İşlem Başarısız" });
+              window.showAlert(result?.error || "İşlem başarısız", {
+                variant: "danger",
+                title: "İşlem Başarısız",
+              });
             } else {
               alert(result?.error || "İşlem başarısız");
             }
@@ -1128,10 +1149,16 @@
       } catch (err) {
         console.error("scrap failed", err);
         if (window.showAlert) {
-          window.showAlert(err.message || "İşlem başarısız", { variant: "danger", title: "İşlem Başarısız" });
+          window.showAlert(err.message || "İşlem başarısız", {
+            variant: "danger",
+            title: "İşlem Başarısız",
+          });
         } else {
           if (window.showAlert) {
-            window.showAlert(err.message || "İşlem başarısız", { variant: "danger", title: "İşlem Başarısız" });
+            window.showAlert(err.message || "İşlem başarısız", {
+              variant: "danger",
+              title: "İşlem Başarısız",
+            });
           } else {
             alert(err.message || "İşlem başarısız");
           }
@@ -1182,10 +1209,16 @@
     function markFaultFromStatus(encoded) {
       if (!window.Faults || typeof window.Faults.openMarkModal !== "function") {
         if (window.showAlert) {
-          window.showAlert("Arıza ekranı açılamadı.", { variant: "danger", title: "Ekran Açılamadı" });
+          window.showAlert("Arıza ekranı açılamadı.", {
+            variant: "danger",
+            title: "Ekran Açılamadı",
+          });
         } else {
           if (window.showAlert) {
-            window.showAlert("Arıza ekranı açılamadı.", { variant: "danger", title: "Ekran Açılamadı" });
+            window.showAlert("Arıza ekranı açılamadı.", {
+              variant: "danger",
+              title: "Ekran Açılamadı",
+            });
           } else {
             alert("Arıza ekranı açılamadı.");
           }
@@ -1198,13 +1231,19 @@
       } catch (err) {
         console.error("fault decode failed", err);
         if (window.showAlert) {
-          window.showAlert("Geçersiz kayıt", { variant: "danger", title: "Hatalı Veri" });
+          window.showAlert("Geçersiz kayıt", {
+            variant: "danger",
+            title: "Hatalı Veri",
+          });
         } else {
-        if (window.showAlert) {
-          window.showAlert("Geçersiz kayıt", { variant: "danger", title: "Hatalı Veri" });
-        } else {
-          alert("Geçersiz kayıt");
-        }
+          if (window.showAlert) {
+            window.showAlert("Geçersiz kayıt", {
+              variant: "danger",
+              title: "Hatalı Veri",
+            });
+          } else {
+            alert("Geçersiz kayıt");
+          }
         }
         return;
       }
@@ -1225,10 +1264,16 @@
         typeof window.Faults.openRepairModal !== "function"
       ) {
         if (window.showAlert) {
-          window.showAlert("Arıza ekranı açılamadı.", { variant: "danger", title: "Ekran Açılamadı" });
+          window.showAlert("Arıza ekranı açılamadı.", {
+            variant: "danger",
+            title: "Ekran Açılamadı",
+          });
         } else {
           if (window.showAlert) {
-            window.showAlert("Arıza ekranı açılamadı.", { variant: "danger", title: "Ekran Açılamadı" });
+            window.showAlert("Arıza ekranı açılamadı.", {
+              variant: "danger",
+              title: "Ekran Açılamadı",
+            });
           } else {
             alert("Arıza ekranı açılamadı.");
           }
@@ -1241,13 +1286,19 @@
       } catch (err) {
         console.error("repair decode failed", err);
         if (window.showAlert) {
-          window.showAlert("Geçersiz kayıt", { variant: "danger", title: "Hatalı Veri" });
+          window.showAlert("Geçersiz kayıt", {
+            variant: "danger",
+            title: "Hatalı Veri",
+          });
         } else {
-        if (window.showAlert) {
-          window.showAlert("Geçersiz kayıt", { variant: "danger", title: "Hatalı Veri" });
-        } else {
-          alert("Geçersiz kayıt");
-        }
+          if (window.showAlert) {
+            window.showAlert("Geçersiz kayıt", {
+              variant: "danger",
+              title: "Hatalı Veri",
+            });
+          } else {
+            alert("Geçersiz kayıt");
+          }
         }
         return;
       }
@@ -1530,7 +1581,10 @@
       } catch (err) {
         console.error("system room add failed", err);
         if (window.showAlert) {
-          window.showAlert(err.message || "İşlem başarısız", { variant: "danger", title: "İşlem Başarısız" });
+          window.showAlert(err.message || "İşlem başarısız", {
+            variant: "danger",
+            title: "İşlem Başarısız",
+          });
         } else {
           alert(err.message || "İşlem başarısız");
         }
@@ -1548,7 +1602,10 @@
       } catch (err) {
         console.error("system room remove failed", err);
         if (window.showAlert) {
-          window.showAlert(err.message || "İşlem başarısız", { variant: "danger", title: "İşlem Başarısız" });
+          window.showAlert(err.message || "İşlem başarısız", {
+            variant: "danger",
+            title: "İşlem Başarısız",
+          });
         } else {
           alert(err.message || "İşlem başarısız");
         }
@@ -1596,7 +1653,10 @@
       } catch (err) {
         console.error("system room action failed", err);
         if (window.showAlert) {
-          window.showAlert(err.message || "İşlem başarısız", { variant: "danger", title: "İşlem Başarısız" });
+          window.showAlert(err.message || "İşlem başarısız", {
+            variant: "danger",
+            title: "İşlem Başarısız",
+          });
         } else {
           alert(err.message || "İşlem başarısız");
         }
@@ -1690,7 +1750,10 @@
 
       if (!modalEl || !listEl) {
         if (window.showAlert) {
-          window.showAlert(rows.map(([label, value]) => `${label}: ${value}`).join("\n"), { title: "Stok Kaydı" });
+          window.showAlert(
+            rows.map(([label, value]) => `${label}: ${value}`).join("\n"),
+            { title: "Stok Kaydı" },
+          );
         } else {
           alert(rows.map(([label, value]) => `${label}: ${value}`).join("\n"));
         }
@@ -1726,7 +1789,10 @@
       } catch (err) {
         console.error("stock detail modal failed", err);
         if (window.showAlert) {
-          window.showAlert(rows.map(([label, value]) => `${label}: ${value}`).join("\n"), { title: "Stok Kaydı" });
+          window.showAlert(
+            rows.map(([label, value]) => `${label}: ${value}`).join("\n"),
+            { title: "Stok Kaydı" },
+          );
         } else {
           alert(rows.map(([label, value]) => `${label}: ${value}`).join("\n"));
         }

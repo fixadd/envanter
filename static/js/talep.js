@@ -60,7 +60,10 @@
   function showFetchError(message) {
     if (!talepForm) {
       if (window.showAlert) {
-        window.showAlert(message, { variant: "danger", title: "Yükleme Hatası" });
+        window.showAlert(message, {
+          variant: "danger",
+          title: "Yükleme Hatası",
+        });
       } else {
         window.alert(message);
       }
@@ -656,7 +659,10 @@ window.talepIptal = async function (id, mevcut) {
       });
       if (!r.ok) {
         if (window.showAlert) {
-          window.showAlert("İşlem başarısız", { variant: "danger", title: "İşlem Başarısız" });
+          window.showAlert("İşlem başarısız", {
+            variant: "danger",
+            title: "İşlem Başarısız",
+          });
         } else {
           alert("İşlem başarısız");
         }
@@ -667,7 +673,10 @@ window.talepIptal = async function (id, mevcut) {
     } catch (err) {
       console.error(err);
       if (window.showAlert) {
-        window.showAlert("İşlem başarısız", { variant: "danger", title: "İşlem Başarısız" });
+        window.showAlert("İşlem başarısız", {
+          variant: "danger",
+          title: "İşlem Başarısız",
+        });
       } else {
         alert("İşlem başarısız");
       }

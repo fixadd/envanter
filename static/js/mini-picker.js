@@ -70,10 +70,8 @@
   function getDependencyParams(entity, options) {
     const meta = MAP[entity];
     const depMeta = meta?.dependsOn;
-    const dependsOnId =
-      (options?.parentOverride) || (depMeta?.hiddenId);
-    const paramName =
-      (options?.parentParam) || (depMeta?.param);
+    const dependsOnId = options?.parentOverride || depMeta?.hiddenId;
+    const paramName = options?.parentParam || depMeta?.param;
     if (!dependsOnId) {
       return {
         extra: {},
@@ -97,7 +95,7 @@
   }
 
   function resolveStoreStrategy(hiddenEl, override) {
-    const candidate = override || (hiddenEl?.dataset.store);
+    const candidate = override || hiddenEl?.dataset.store;
     return candidate === "text" ? "text" : "id";
   }
 
@@ -110,7 +108,10 @@
     const dep = getDependencyParams(entity, options);
     if (dep.extra === null) {
       if (window.showAlert) {
-        window.showAlert("Önce bağlı alanı seçin (örn. önce MARKA seçin).", { variant: "warning", title: "Eksik Seçim" });
+        window.showAlert("Önce bağlı alanı seçin (örn. önce MARKA seçin).", {
+          variant: "warning",
+          title: "Eksik Seçim",
+        });
       } else {
         alert("Önce bağlı alanı seçin (örn. önce MARKA seçin).");
       }
@@ -320,13 +321,19 @@
       closeModal();
     } else if (res.status === 409) {
       if (window.showAlert) {
-        window.showAlert("Bu kayıt zaten var.", { variant: "warning", title: "Zaten Var" });
+        window.showAlert("Bu kayıt zaten var.", {
+          variant: "warning",
+          title: "Zaten Var",
+        });
       } else {
         alert("Bu kayıt zaten var.");
       }
     } else {
       if (window.showAlert) {
-        window.showAlert("Ekleme başarısız!", { variant: "danger", title: "İşlem Başarısız" });
+        window.showAlert("Ekleme başarısız!", {
+          variant: "danger",
+          title: "İşlem Başarısız",
+        });
       } else {
         alert("Ekleme başarısız!");
       }
@@ -371,7 +378,10 @@
       if (!id) {
         console.warn("[mini-picker] Silinecek kayıt için id bulunamadı.");
         if (window.showAlert) {
-          window.showAlert("Silme başarısız!", { variant: "danger", title: "İşlem Başarısız" });
+          window.showAlert("Silme başarısız!", {
+            variant: "danger",
+            title: "İşlem Başarısız",
+          });
         } else {
           alert("Silme başarısız!");
         }
@@ -385,7 +395,10 @@
           current,
         );
         if (window.showAlert) {
-          window.showAlert("Silme desteklenmiyor!", { variant: "warning", title: "Desteklenmiyor" });
+          window.showAlert("Silme desteklenmiyor!", {
+            variant: "warning",
+            title: "Desteklenmiyor",
+          });
         } else {
           alert("Silme desteklenmiyor!");
         }
@@ -403,7 +416,10 @@
           $list.innerHTML = '<div class="picker-empty">Kayıt bulunamadı.</div>';
       } else {
         if (window.showAlert) {
-          window.showAlert("Silme başarısız!", { variant: "danger", title: "İşlem Başarısız" });
+          window.showAlert("Silme başarısız!", {
+            variant: "danger",
+            title: "İşlem Başarısız",
+          });
         } else {
           alert("Silme başarısız!");
         }

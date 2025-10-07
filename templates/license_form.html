@@ -43,39 +43,21 @@
       </div>
 
       <div class="modal-body">
-        {% set license_form_config = {
-          "ids": {
-            "license_name": "licenseAdi",
-            "license_key": "licenseKey",
-            "responsible": "licenseSorumlu",
-            "inventory": "selBagliEnvanter",
-            "ifs": "licenseIfs",
-            "email": "licenseMail",
-          },
-          "names": {
-            "license_name": "adi",
-            "license_key": "anahtar",
-            "responsible": "sorumlu_personel",
-            "inventory": "inventory_id",
-            "ifs": "ifs_no",
-            "email": "mail_adresi",
-          },
-          "values": {
-            "license_name": license.lisans_adi if license else "",
-            "license_key": license.anahtar if license else "",
-            "responsible": license.sorumlu_personel if license else "",
-            "inventory": license.inventory_id if license else "",
-            "ifs": license.ifs_no if license else "",
-            "email": license.mail_adresi if license else "",
-          },
-          "required": ["license_name"],
-          "labels": {
-            "inventory": "Bağlı Olduğu Envanter",
-          },
-          "license_placeholder": "Seçiniz...",
-          "inventory_empty_label": "Seçimsiz",
-        } %}
-        {% include "partials/license_form_fields.html" %}
+        {% set license_form_config = { "ids": { "license_name": "licenseAdi",
+        "license_key": "licenseKey", "responsible": "licenseSorumlu",
+        "inventory": "selBagliEnvanter", "ifs": "licenseIfs", "email":
+        "licenseMail", }, "names": { "license_name": "adi", "license_key":
+        "anahtar", "responsible": "sorumlu_personel", "inventory":
+        "inventory_id", "ifs": "ifs_no", "email": "mail_adresi", }, "values": {
+        "license_name": license.lisans_adi if license else "", "license_key":
+        license.anahtar if license else "", "responsible":
+        license.sorumlu_personel if license else "", "inventory":
+        license.inventory_id if license else "", "ifs": license.ifs_no if
+        license else "", "email": license.mail_adresi if license else "", },
+        "required": ["license_name"], "labels": { "inventory": "Bağlı Olduğu
+        Envanter", }, "license_placeholder": "Seçiniz...",
+        "inventory_empty_label": "Seçimsiz", } %} {% include
+        "partials/license_form_fields.html" %}
       </div>
 
       <div
@@ -127,45 +109,27 @@
       class="needs-validation"
       novalidate
     >
-      {% set license_form_config = {
-        "ids": {
-          "license_name": "licenseAdi",
-          "license_key": "licenseKey",
-          "responsible": "licenseSorumlu",
-          "inventory": "selBagliEnvanter",
-          "ifs": "licenseIfs",
-          "email": "licenseMail",
-        },
-        "names": {
-          "license_name": "adi",
-          "license_key": "anahtar",
-          "responsible": "sorumlu_personel",
-          "inventory": "inventory_id",
-          "ifs": "ifs_no",
-          "email": "mail_adresi",
-        },
-        "values": {
-          "license_name": license.lisans_adi if license else "",
-          "license_key": license.anahtar if license else "",
-          "responsible": license.sorumlu_personel if license else "",
-          "inventory": license.inventory_id if license else "",
-          "ifs": license.ifs_no if license else "",
-          "email": license.mail_adresi if license else "",
-        },
-        "required": ["license_name"],
-        "labels": {
-          "inventory": "Bağlı Olduğu Envanter No",
-        },
-        "license_placeholder": "Seçiniz...",
-        "inventory_empty_label": "(Seçimsiz)",
-      } %}
-      {% include "partials/license_form_fields.html" %}
+      {% set license_form_config = { "ids": { "license_name": "licenseAdi",
+      "license_key": "licenseKey", "responsible": "licenseSorumlu", "inventory":
+      "selBagliEnvanter", "ifs": "licenseIfs", "email": "licenseMail", },
+      "names": { "license_name": "adi", "license_key": "anahtar", "responsible":
+      "sorumlu_personel", "inventory": "inventory_id", "ifs": "ifs_no", "email":
+      "mail_adresi", }, "values": { "license_name": license.lisans_adi if
+      license else "", "license_key": license.anahtar if license else "",
+      "responsible": license.sorumlu_personel if license else "", "inventory":
+      license.inventory_id if license else "", "ifs": license.ifs_no if license
+      else "", "email": license.mail_adresi if license else "", }, "required":
+      ["license_name"], "labels": { "inventory": "Bağlı Olduğu Envanter No", },
+      "license_placeholder": "Seçiniz...", "inventory_empty_label":
+      "(Seçimsiz)", } %} {% include "partials/license_form_fields.html" %}
 
       <div class="row g-3 mt-1">
         <div class="col-12 d-flex justify-content-end gap-2">
           <button class="btn btn-primary" type="submit">Kaydet</button>
           {% if not modal %}
-          <a class="btn btn-outline-secondary" href="{{ url_for('license_list') }}"
+          <a
+            class="btn btn-outline-secondary"
+            href="{{ url_for('license_list') }}"
             >İptal</a
           >
           {% endif %}
