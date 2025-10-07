@@ -11,10 +11,11 @@ from fastapi.exception_handlers import http_exception_handler
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from passlib.exc import InvalidHash
 from starlette import status as st_status
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.core.security import hash_password
+from app.core.security import hash_password, pwd_context, verify_password
 from app.db.init import bootstrap_schema, init_db
 from app.web import register_web_routes
 from utils.template_filters import register_filters
@@ -260,5 +261,6 @@ def on_startup():
             db.add(u)
             db.commit()
             print(f"[*] Varsayılan admin oluşturuldu: {DEFAULT_ADMIN_USERNAME}")
+
     finally:
         db.close()
