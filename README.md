@@ -7,8 +7,6 @@ cp .env.example .env # düzenleyin, üretimde SESSION_HTTPS_ONLY=true yapın
 uvicorn app:app --reload --port 5000
 ```
 
-
-
 ## Güvenlik Notları
 
 - `.env` dosyasındaki `SESSION_SECRET` değerini **üretimde mutlaka** rastgele, en az 32 karakterlik bir anahtar ile değiştirin. Değer ayarlanmamışsa geliştirme ve test sırasında geçici bir anahtar otomatik olarak üretilir.
