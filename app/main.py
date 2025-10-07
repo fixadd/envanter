@@ -14,7 +14,9 @@ from fastapi.templating import Jinja2Templates
 from starlette import status as st_status
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.core.security import hash_password
+from passlib.exc import InvalidHash
+
+from app.core.security import hash_password, pwd_context, verify_password
 from app.db.init import bootstrap_schema, init_db
 from app.web import register_web_routes
 from utils.template_filters import register_filters
@@ -100,13 +102,12 @@ SESSION_SECRET = _load_session_secret()
 DEFAULT_ADMIN_USERNAME = os.getenv("DEFAULT_ADMIN_USERNAME", "admin")
 DEFAULT_ADMIN_PASSWORD = os.getenv("DEFAULT_ADMIN_PASSWORD")
 DEFAULT_ADMIN_FULLNAME = os.getenv("DEFAULT_ADMIN_FULLNAME", "Sistem Yöneticisi")
-_generated_admin_password: str | None = None
 if not DEFAULT_ADMIN_PASSWORD:
-    _generated_admin_password = secrets.token_urlsafe(20)
-    DEFAULT_ADMIN_PASSWORD = _generated_admin_password
+    DEFAULT_ADMIN_PASSWORD = os.getenv("DEFAULT_ADMIN_DEV_PASSWORD", "admin123")
     print(
         "WARNING: DEFAULT_ADMIN_PASSWORD environment variable is not set. "
-        "Generated a one-time password for the default admin user."
+        "Using the development default password 'admin123'. "
+        "Set DEFAULT_ADMIN_PASSWORD in production environments."
     )
 # Varsayılan olarak geliştirme ortamına uygun olsun; üretimde .env ile true yapın
 SESSION_HTTPS_ONLY = os.getenv("SESSION_HTTPS_ONLY", "false").lower() in (
@@ -249,9 +250,7 @@ def on_startup():
     init_db()
     db = SessionLocal()
     try:
-        existing = (
-            db.query(User).filter(User.username == DEFAULT_ADMIN_USERNAME).first()
-        )
+        existing = db.query(User).filter(User.username == DEFAULT_ADMIN_USERNAME).first()
         if not existing:
             u = User(
                 username=DEFAULT_ADMIN_USERNAME,
@@ -261,10 +260,42 @@ def on_startup():
             db.add(u)
             db.commit()
             print(f"[*] Varsayılan admin oluşturuldu: {DEFAULT_ADMIN_USERNAME}")
-            if _generated_admin_password:
-                print(
-                    "[*] Varsayılan admin için geçici parola: "
-                    f"{_generated_admin_password}"
+        else:
+            configured_password = DEFAULT_ADMIN_PASSWORD
+            password_matches = False
+            try:
+                password_matches = verify_password(
+                    configured_password, existing.password_hash
                 )
+            except (ValueError, InvalidHash):
+                password_matches = False
+
+            configured_explicitly = bool(os.getenv("DEFAULT_ADMIN_PASSWORD"))
+            hash_identified = False
+            try:
+                hash_identified = bool(
+                    existing.password_hash
+                    and pwd_context.identify(existing.password_hash)
+                )
+            except (ValueError, InvalidHash):
+                hash_identified = False
+
+            should_reset = False
+            reset_reason = ""
+            if configured_explicitly and not password_matches:
+                should_reset = True
+                reset_reason = "Configured DEFAULT_ADMIN_PASSWORD does not match stored hash; resetting to configured value."
+            elif not configured_explicitly and not password_matches and not hash_identified:
+                should_reset = True
+                reset_reason = (
+                    "Existing admin password used a legacy or plain-text format; "
+                    "resetting to development default 'admin123'."
+                )
+
+            if should_reset:
+                existing.password_hash = hash_password(configured_password)
+                db.add(existing)
+                db.commit()
+                print(f"[*] {reset_reason}")
     finally:
         db.close()
