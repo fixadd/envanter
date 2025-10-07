@@ -32,7 +32,9 @@ def db_session():
 
 def test_login_upgrades_plaintext_password(db_session):
     db = db_session
-    user = models.User(username="demo", password_hash="demo", full_name="Demo Kullanıcı")
+    user = models.User(
+        username="demo", password_hash="demo", full_name="Demo Kullanıcı"
+    )
     db.add(user)
     db.commit()
     db.refresh(user)

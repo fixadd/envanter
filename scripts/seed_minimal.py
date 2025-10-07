@@ -28,10 +28,15 @@ def main():
     try:
         # 1) Kullanıcılar (full_name dolu olmalı)
         if hasattr(models, "User"):
-            for username, full_name in ("kadir", "Kadir Can"), ("mehmet", "Mehmet Yılmaz"):
-                user = db.execute(
-                    select(models.User).filter_by(username=username)
-                ).scalars().first()
+            for username, full_name in ("kadir", "Kadir Can"), (
+                "mehmet",
+                "Mehmet Yılmaz",
+            ):
+                user = (
+                    db.execute(select(models.User).filter_by(username=username))
+                    .scalars()
+                    .first()
+                )
                 if user is None:
                     db.add(
                         models.User(
