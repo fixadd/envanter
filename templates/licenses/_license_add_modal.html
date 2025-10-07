@@ -1,100 +1,45 @@
+﻿{% set form_action = form_action or '/lisans/new' %}
 <div class="modal fade" id="licenseAddModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Lisans Ekle</h5>
+        <h5 class="modal-title">Yeni Lisans Ekle</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
       </div>
-
-      <form id="licenseAddForm" method="post" action="/licenses/add">
+      <form id="licenseAddForm" method="post" action="{{ form_action }}" class="needs-validation" novalidate>
         <div class="modal-body">
-          <div class="container-fluid">
-            <div class="row g-3">
-              <!-- Satır 1 -->
-              <div class="col-md-6">
-                <label class="form-label">Lisans No</label>
-                <input name="license_code" class="form-control" placeholder="LIC-000123" required />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Ürün / Yazılım Adı</label>
-                <input name="product_name" class="form-control" placeholder="Microsoft 365 Business Standard" required />
-              </div>
-
-              <!-- Satır 2 -->
-              <div class="col-md-6">
-                <label class="form-label">Fabrika</label>
-                <select name="factory_id" class="form-select" required>
-                  <option value="" selected>Seçiniz...</option>
-                  {% for f in factories %}<option value="{{f.id}}">{{f.name}}</option>{% endfor %}
-                </select>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Departman</label>
-                <select name="department_id" class="form-select" required>
-                  <option value="" selected>Seçiniz...</option>
-                  {% for d in departments %}<option value="{{d.id}}">{{d.name}}</option>{% endfor %}
-                </select>
-              </div>
-
-              <!-- Satır 3 -->
-              <div class="col-md-6">
-                <label class="form-label">Sorumlu Personel</label>
-                <select name="owner_id" class="form-select">
-                  <option value="" selected>Seçiniz...</option>
-                  {% for p in persons %}<option value="{{p.id}}">{{p.full_name or p.username}}</option>{% endfor %}
-                </select>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Atandığı Envanter</label>
-                <select name="inventory_id" class="form-select">
-                  <option value="">Seçiniz (opsiyonel)...</option>
-                  {% for i in inventories %}<option value="{{i.id}}">{{i.no}}{% if i.bilgisayar_adi %} - {{i.bilgisayar_adi}}{% endif %}</option>{% endfor %}
-                </select>
-              </div>
-
-              <!-- Satır 4 -->
-              <div class="col-md-6">
-                <label class="form-label">Lisans Tipi</label>
-                <select name="license_type" class="form-select" required>
-                  <option value="" selected>Seçiniz...</option>
-                  <option value="perpetual">Süresiz</option>
-                  <option value="subscription">Abonelik</option>
-                  <option value="oem">OEM</option>
-                </select>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Koltuk / Adet</label>
-                <input type="number" min="1" name="seat_count" class="form-control" placeholder="1" value="1" required />
-              </div>
-
-              <!-- Satır 5 -->
-              <div class="col-md-6">
-                <label class="form-label">Başlangıç Tarihi</label>
-                <input type="date" name="start_date" class="form-control" />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Bitiş Tarihi</label>
-                <input type="date" name="end_date" class="form-control" />
-              </div>
-
-              <!-- Satır 6 -->
-              <div class="col-md-12">
-                <label class="form-label">Lisans Anahtarı (opsiyonel)</label>
-                <input name="license_key" autocomplete="off" class="form-control" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" />
-              </div>
-
-              <!-- Satır 7 -->
-              <div class="col-md-12">
-                <label class="form-label">Not (zorunlu değil)</label>
-                <textarea name="note" class="form-control" rows="3" placeholder="Açıklama / notlar"></textarea>
-              </div>
-            </div>
-          </div>
+          {% set license_form_config = {
+            "ids": {
+              "license_name": "modalLicenseName",
+              "license_key": "modalLicenseKey",
+              "responsible": "modalLicenseResponsible",
+              "inventory": "modalLicenseInventory",
+              "ifs": "modalLicenseIfs",
+              "email": "modalLicenseEmail",
+            },
+            "names": {
+              "license_name": "adi",
+              "license_key": "anahtar",
+              "responsible": "sorumlu_personel",
+              "inventory": "inventory_id",
+              "ifs": "ifs_no",
+              "email": "mail_adresi",
+            },
+            "required": ["license_name"],
+            "placeholders": {
+              "license_key": "XXXX-XXXX-XXXX-XXXX",
+              "email": "eposta@ornek.com",
+            },
+            "labels": {
+              "inventory": "Bağlı Olduğu Envanter",
+            },
+            "inventory_empty_label": "Seçimsiz",
+          } %}
+          {% include 'partials/license_form_fields.html' %}
         </div>
-
         <div class="modal-footer">
-          <button class="btn btn-primary" type="submit">Kaydet</button>
-          <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">İptal</button>
+          <button type="submit" class="btn btn-primary">Kaydet</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Vazgeç</button>
         </div>
       </form>
     </div>

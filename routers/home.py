@@ -1,4 +1,4 @@
-# routers/home.py
+﻿# routers/home.py
 from types import SimpleNamespace
 
 from fastapi import APIRouter, Depends, Request
@@ -18,6 +18,8 @@ from models import (
     User,
 )
 
+FAULTY_STATUS = "ar\u0131zal\u0131"
+
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
@@ -33,10 +35,11 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     )
 
     total_inventory = (
-        db.query(func.count(Inventory.id)).filter(active_inventory).scalar()
+        db.query(func.count(Inventory.id)).filter(active_inventory).scalar() or 0
     )
-    total_printers = db.query(func.count(Printer.id)).filter(active_printers).scalar()
-    toplam_cihaz = (total_inventory or 0) + (total_printers or 0)
+    total_printers = (
+        db.query(func.count(Printer.id)).filter(active_printers).scalar() or 0
+    )
 
     lisans_sayisi = (
         db.query(func.count(License.id)).filter(active_licenses).scalar() or 0
@@ -49,12 +52,16 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         or 0
     )
 
-    arizali_cihaz_sayisi = (
-        db.query(func.count(Inventory.id)).filter(Inventory.durum == "arızalı").scalar()
+    faulty_inventory = (
+        db.query(func.count(Inventory.id))
+        .filter(Inventory.durum == FAULTY_STATUS)
+        .scalar()
         or 0
     )
-    arizali_cihaz_sayisi += (
-        db.query(func.count(Printer.id)).filter(Printer.durum == "arızalı").scalar()
+    faulty_printers = (
+        db.query(func.count(Printer.id))
+        .filter(Printer.durum == FAULTY_STATUS)
+        .scalar()
         or 0
     )
 
@@ -99,7 +106,7 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         for log in [*inv_logs, *stock_logs, *license_logs]
         if getattr(log, "actor", None)
     }
-    user_map = {}
+    user_map: dict[str, str] = {}
     if actors:
         users = (
             db.query(User.username, User.first_name, User.last_name, User.full_name)
@@ -124,12 +131,12 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     son_islemler = son_islemler[:5]
 
     stats = {
-        "toplam_cihaz": toplam_cihaz,
-        "envanter_sayisi": total_inventory or 0,
-        "yazici_sayisi": total_printers or 0,
+        "toplam_cihaz": total_inventory + total_printers,
+        "envanter_sayisi": total_inventory,
+        "yazici_sayisi": total_printers,
         "lisans_sayisi": lisans_sayisi,
         "bos_lisans_sayisi": bos_lisans_sayisi,
-        "arizali_cihaz_sayisi": arizali_cihaz_sayisi,
+        "arizali_cihaz_sayisi": faulty_inventory + faulty_printers,
         "bekleyen_talep": bekleyen_talep,
         "son_islemler": son_islemler,
     }

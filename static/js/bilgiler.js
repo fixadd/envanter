@@ -9,7 +9,7 @@
         if (data && typeof data.detail === "string") {
           return data.detail;
         }
-        if (data && data.detail && data.detail.message) {
+        if (data?.detail && data.detail.message) {
           return data.detail.message;
         }
         return fallback;
@@ -182,7 +182,7 @@
   }
 
   function handlePhotoPreview(input, previewWrapper, previewImg, errorBox) {
-    const file = input.files && input.files[0];
+    const file = input.files?.[0];
     if (!file) {
       if (previewWrapper) previewWrapper.classList.add("d-none");
       if (previewImg) previewImg.src = "";

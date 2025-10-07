@@ -1,4 +1,4 @@
-{% set cfg = license_form_config %}
+﻿{% set cfg = license_form_config %}
 {% set ids = cfg.ids %}
 {% set names = cfg.names %}
 {% set values = cfg.values if cfg.values is defined else {} %}
@@ -17,7 +17,7 @@
 {% set responsible_value = values.responsible if values.responsible is defined and values.responsible is not none else '' %}
 {% set inventory_value = values.inventory if values.inventory is defined else '' %}
 {% if inventory_value is none %}
-{% set inventory_value = '' %}
+  {% set inventory_value = '' %}
 {% endif %}
 {% set ifs_value = values.ifs if values.ifs is defined and values.ifs is not none else '' %}
 {% set email_value = values.email if values.email is defined and values.email is not none else '' %}
@@ -26,7 +26,7 @@
     <label for="{{ ids.license_name }}" class="form-label">
       {{ labels.license_name if labels.license_name is defined and labels.license_name is not none else 'Lisans Adı' }}
       {% if optional_texts.license_name is defined %}
-      <span class="text-muted">{{ optional_texts.license_name }}</span>
+        <span class="text-muted">{{ optional_texts.license_name }}</span>
       {% endif %}
     </label>
     <select
@@ -37,7 +37,7 @@
     >
       <option value="">{{ license_placeholder }}</option>
       {% for ln in license_names %}
-      <option value="{{ ln.name }}" {% if ln.name == license_value %}selected{% endif %}>{{ ln.name }}</option>
+        <option value="{{ ln.name }}" {% if ln.name == license_value %}selected{% endif %}>{{ ln.name }}</option>
       {% endfor %}
     </select>
   </div>
@@ -45,7 +45,7 @@
     <label for="{{ ids.license_key }}" class="form-label">
       {{ labels.license_key if labels.license_key is defined and labels.license_key is not none else 'Lisans Anahtarı' }}
       {% if optional_texts.license_key is defined %}
-      <span class="text-muted">{{ optional_texts.license_key }}</span>
+        <span class="text-muted">{{ optional_texts.license_key }}</span>
       {% endif %}
     </label>
     <input
@@ -62,7 +62,7 @@
     <label for="{{ ids.responsible }}" class="form-label">
       {{ labels.responsible if labels.responsible is defined and labels.responsible is not none else 'Sorumlu Personel' }}
       {% if optional_texts.responsible is defined %}
-      <span class="text-muted">{{ optional_texts.responsible }}</span>
+        <span class="text-muted">{{ optional_texts.responsible }}</span>
       {% endif %}
     </label>
     <select
@@ -73,7 +73,7 @@
     >
       <option value="">{{ responsible_placeholder }}</option>
       {% for u in users %}
-      <option value="{{ u }}" {% if u == responsible_value %}selected{% endif %}>{{ u }}</option>
+        <option value="{{ u }}" {% if u == responsible_value %}selected{% endif %}>{{ u }}</option>
       {% endfor %}
     </select>
   </div>
@@ -81,7 +81,7 @@
     <label for="{{ ids.inventory }}" class="form-label">
       {{ labels.inventory if labels.inventory is defined and labels.inventory is not none else 'Bağlı Olduğu Envanter' }}
       {% if optional_texts.inventory is defined %}
-      <span class="text-muted">{{ optional_texts.inventory }}</span>
+        <span class="text-muted">{{ optional_texts.inventory }}</span>
       {% endif %}
     </label>
     <select
@@ -92,17 +92,17 @@
     >
       <option value="{{ inventory_empty_value }}">{{ inventory_empty_label }}</option>
       {% for inv in envanterler %}
-      {% set option_value = inv|attr(inventory_value_attr) %}
-      <option
-        value="{{ option_value }}"
-        {% if option_value|string == inventory_value|string %}selected{% endif %}
-      >
-        {% if inventory_label_variant == 'no_only' %}
-          {{ inv.no }}
-        {% else %}
-          {{ inv.no }}{% if inv.marka %} — {{ inv.marka }}{% endif %}{% if inv.model %} {{ inv.model }}{% endif %}
-        {% endif %}
-      </option>
+        {% set option_value = inv|attr(inventory_value_attr) %}
+        <option
+          value="{{ option_value }}"
+          {% if option_value|string == inventory_value|string %}selected{% endif %}
+        >
+          {% if inventory_label_variant == 'no_only' %}
+            {{ inv.no }}
+          {% else %}
+            {{ inv.no }}{% if inv.marka %} · {{ inv.marka }}{% endif %}{% if inv.model %} {{ inv.model }}{% endif %}
+          {% endif %}
+        </option>
       {% endfor %}
     </select>
   </div>
@@ -110,7 +110,7 @@
     <label for="{{ ids.ifs }}" class="form-label">
       {{ labels.ifs if labels.ifs is defined and labels.ifs is not none else 'IFS No' }}
       {% if optional_texts.ifs is defined %}
-      <span class="text-muted">{{ optional_texts.ifs }}</span>
+        <span class="text-muted">{{ optional_texts.ifs }}</span>
       {% endif %}
     </label>
     <input
@@ -119,15 +119,14 @@
       type="text"
       class="form-control"
       value="{{ ifs_value }}"
-      placeholder="{{ placeholders.ifs if placeholders.ifs is defined else 'IFS referansı' }}"
-      {% if 'ifs' in required %}required{% endif %}
+      placeholder="{{ placeholders.ifs if placeholders.ifs is defined else '' }}"
     />
   </div>
   <div class="col-12 col-md-6">
     <label for="{{ ids.email }}" class="form-label">
-      {{ labels.email if labels.email is defined and labels.email is not none else 'Mail Adresi' }}
+      {{ labels.email if labels.email is defined and labels.email is not none else 'E-posta Adresi' }}
       {% if optional_texts.email is defined %}
-      <span class="text-muted">{{ optional_texts.email }}</span>
+        <span class="text-muted">{{ optional_texts.email }}</span>
       {% endif %}
     </label>
     <input
@@ -136,8 +135,7 @@
       type="email"
       class="form-control"
       value="{{ email_value }}"
-      placeholder="{{ placeholders.email if placeholders.email is defined else 'ornek@firma.com' }}"
-      {% if 'email' in required %}required{% endif %}
+      placeholder="{{ placeholders.email if placeholders.email is defined else 'eposta@ornek.com' }}"
     />
   </div>
 </div>

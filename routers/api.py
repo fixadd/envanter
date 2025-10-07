@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, Callable, Dict, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import case, func, literal, or_
@@ -9,6 +9,43 @@ from database import get_db
 from utils.stock_log import create_stock_log, get_available_columns, normalize_islem
 
 router = APIRouter(prefix="/api", tags=["API"])
+
+def _first_scalar_value(row: Any) -> Any:
+    if isinstance(row, (list, tuple)):
+        return row[0] if row else None
+    mapping = getattr(row, "_mapping", None)
+    if mapping:
+        try:
+            return next(iter(mapping.values()))
+        except StopIteration:
+            return None
+    return row
+
+
+def _collect_scalar_values(rows: List[Any]) -> List[Any]:
+    values: List[Any] = []
+    for row in rows:
+        value = _first_scalar_value(row)
+        if isinstance(value, str):
+            if not value.strip():
+                continue
+        elif value is None:
+            continue
+        values.append(value)
+    return values
+
+
+def _items_response(
+    rows: List[Any], field_map: Dict[str, str | Callable[[Any], Any]]
+) -> Dict[str, List[Dict[str, Any]]]:
+    items: List[Dict[str, Any]] = []
+    for row in rows:
+        item: Dict[str, Any] = {}
+        for key, accessor in field_map.items():
+            item[key] = accessor(row) if callable(accessor) else getattr(row, accessor, None)
+        items.append(item)
+    return {"items": items}
+
 
 # Basit lookup tablosu
 ENTITY_TABLE = {
@@ -27,13 +64,15 @@ def lookup_entity(entity: str, db: Session = Depends(get_db)):
     if not tbl:
         raise HTTPException(status_code=404, detail="Entity not found")
     rows = db.query(tbl.name).order_by(tbl.name.asc()).all()
-    return [r[0] for r in rows if r[0]]
+    return _collect_scalar_values(rows)
 
 
 @router.get("/users/names")
 def user_names(db: Session = Depends(get_db)):
-    users = db.query(models.User).order_by(models.User.full_name.asc()).all()
-    return [u.full_name for u in users if u.full_name]
+    rows = (
+        db.query(models.User.full_name).order_by(models.User.full_name.asc()).all()
+    )
+    return _collect_scalar_values(rows)
 
 
 @router.get("/licenses/names")
@@ -44,14 +83,14 @@ def license_names(db: Session = Depends(get_db)):
             .order_by(models.LicenseName.name.asc())
             .all()
         )
-        return [r[0] for r in rows if r[0]]
+        return _collect_scalar_values(rows)
     rows = (
         db.query(models.License.lisans_adi)
         .distinct()
         .order_by(models.License.lisans_adi.asc())
         .all()
     )
-    return [r[0] for r in rows if r[0]]
+    return _collect_scalar_values(rows)
 
 
 @router.get("/printers/models")
@@ -67,7 +106,7 @@ def printer_models(
         .order_by(models.Model.name.asc())
         .all()
     )
-    return [r[0] for r in rows if r[0]]
+    return _collect_scalar_values(rows)
 
 
 @router.get("/licenses/list")
@@ -82,16 +121,14 @@ def licenses_list(db: Session = Depends(get_db)):
         .order_by(models.License.id.asc())
         .all()
     )
-    return {
-        "items": [
-            {
-                "id": r.id,
-                "lisans_adi": r.lisans_adi,
-                "lisans_anahtari": r.lisans_anahtari,
-            }
-            for r in rows
-        ]
-    }
+    return _items_response(
+        rows,
+        {
+            "id": "id",
+            "lisans_adi": "lisans_adi",
+            "lisans_anahtari": "lisans_anahtari",
+        },
+    )
 
 
 @router.get("/printers/list")
@@ -105,17 +142,15 @@ def printers_list(db: Session = Depends(get_db)):
         .order_by(models.Printer.id.asc())
         .all()
     )
-    return {
-        "items": [
-            {
-                "id": r.id,
-                "marka": r.marka,
-                "model": r.model,
-                "seri_no": r.seri_no,
-            }
-            for r in rows
-        ]
-    }
+    return _items_response(
+        rows,
+        {
+            "id": "id",
+            "marka": "marka",
+            "model": "model",
+            "seri_no": "seri_no",
+        },
+    )
 
 
 @router.get("/users/list")
@@ -138,18 +173,16 @@ def users_list(
     if role:
         query = query.filter(models.User.role == role)
     rows = query.order_by(models.User.id.asc()).all()
-    return {
-        "items": [
-            {
-                "id": u.id,
-                "username": u.username,
-                "full_name": getattr(u, "full_name", None),
-                "email": u.email,
-                "role": u.role,
-            }
-            for u in rows
-        ]
-    }
+    return _items_response(
+        rows,
+        {
+            "id": "id",
+            "username": "username",
+            "full_name": lambda row: getattr(row, "full_name", None),
+            "email": "email",
+            "role": "role",
+        },
+    )
 
 
 @router.get("/inventory/list")
