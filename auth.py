@@ -13,9 +13,7 @@ def get_user_by_username(db: Session, username: str) -> User | None:
         return None
 
     return (
-        db.query(User)
-        .filter(func.lower(User.username) == normalized.lower())
-        .first()
+        db.query(User).filter(func.lower(User.username) == normalized.lower()).first()
     )
 
 
