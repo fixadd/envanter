@@ -30,5 +30,5 @@ parametresiz olarak da çalıştırabilirsiniz. 【F:scripts/reset_admin_passwor
 ## Güvenlik Notları
 
 - `.env` dosyasındaki `SESSION_SECRET` değerini **üretimde mutlaka** rastgele, en az 32 karakterlik bir anahtar ile değiştirin.
-Değer ayarlanmamışsa geliştirme ve test sırasında geçici bir anahtar otomatik olarak üretilir.
+  Değer ayarlanmamışsa geliştirme ve test sırasında geçici bir anahtar otomatik olarak üretilir.
 - Tarayıcı oturum çerezlerinin sadece HTTPS üzerinden gönderilmesi için `SESSION_HTTPS_ONLY=true` ayarını etkinleştirin ve uygulamayı TLS terminasyonu yapan bir ters proxy arkasında yayınlayın.
