@@ -8,7 +8,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from app.core.security import verify_password
+from app.core.security import hash_password, is_password_hash, verify_password
 from auth import get_user_by_username
 from database import get_db
 from routers import bilgiler as bilgiler_router
@@ -109,7 +109,20 @@ async def login_submit(
         )
 
     user = get_user_by_username(db, username.strip())
-    if not user or not verify_password(password, user.password_hash):
+    login_succeeded = False
+    if user:
+        if verify_password(password, user.password_hash):
+            login_succeeded = True
+        elif not is_password_hash(user.password_hash) and secrets.compare_digest(
+            password, user.password_hash
+        ):
+            user.password_hash = hash_password(password)
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+            login_succeeded = True
+
+    if not user or not login_succeeded:
         csrf_token = _ensure_csrf(request)
         return templates.TemplateResponse(
             "login.html",

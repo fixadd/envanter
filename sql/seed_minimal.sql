@@ -11,8 +11,16 @@ INSERT OR IGNORE INTO usage_areas (name) VALUES ('Muhasebe'), ('İK');
 INSERT OR IGNORE INTO hardware_types (name) VALUES ('Yazıcı'), ('Bilgisayar');
 INSERT OR IGNORE INTO license_names (name) VALUES ('Microsoft Office'), ('Windows Pro');
 
--- Kullanıcı (full_name dolu)
--- Parola hash'i olmadan demo; uygulama login akışında gerekecektir.
 INSERT OR IGNORE INTO users (username, full_name, role, password_hash)
-VALUES ('kadir','Kadir Can','user','demo'),
-       ('mehmet','Mehmet Yılmaz','user','demo');
+VALUES (
+    'kadir',
+    'Kadir Can',
+    'user',
+    '$2b$12$xRqrD1QKrHmAiwIMFHfDiOD.FuHln0R5BK3fbYf9Qb.V./dbM/Lmu'
+),
+(
+    'mehmet',
+    'Mehmet Yılmaz',
+    'user',
+    '$2b$12$rFExvANzbhJx6rATYpnDreL1ZeF5LfToIeS70QLle3XZGxJuFJOfC'
+);
