@@ -4,7 +4,19 @@ import os
 import sys
 from pathlib import Path
 
-ROUTE_DECORATOR_NAMES = {"get", "post", "put", "delete", "patch", "options", "head", "websocket", "route", "on_event"}
+ROUTE_DECORATOR_NAMES = {
+    "get",
+    "post",
+    "put",
+    "delete",
+    "patch",
+    "options",
+    "head",
+    "websocket",
+    "route",
+    "on_event",
+}
+
 
 def iter_python_files(root):
     for dirpath, dirnames, filenames in os.walk(root):
@@ -21,6 +33,7 @@ def iter_python_files(root):
                 continue
             yield path
 
+
 def module_name_from_path(root, path):
     rel = path.relative_to(root)
     parts = list(rel.parts)
@@ -32,10 +45,12 @@ def module_name_from_path(root, path):
         parts[-1] = parts[-1][:-3]
     return ".".join(part for part in parts if part)
 
+
 def attach_parents(tree):
     for parent in ast.walk(tree):
         for child in ast.iter_child_nodes(parent):
             setattr(child, "_parent", parent)
+
 
 def extract_target_names(target):
     names = []
@@ -45,6 +60,7 @@ def extract_target_names(target):
         for elt in target.elts:
             names.extend(extract_target_names(elt))
     return names
+
 
 def resolve_attribute_chain(node):
     attrs = []
@@ -57,6 +73,7 @@ def resolve_attribute_chain(node):
         return current.id, attrs
     return None, []
 
+
 def package_name(module_name, module_index):
     if not module_name:
         return None
@@ -65,6 +82,7 @@ def package_name(module_name, module_index):
         return module_name
     head, _, _ = module_name.rpartition(".")
     return head or None
+
 
 def resolve_import_module(current_module, level, module, module_index):
     if level == 0:
@@ -78,6 +96,7 @@ def resolve_import_module(current_module, level, module, module_index):
     except ImportError:
         return module or ""
 
+
 def resolve_alias_target(module_name, symbol_name, alias_registry):
     visited = set()
     current = (module_name, symbol_name)
@@ -85,6 +104,7 @@ def resolve_alias_target(module_name, symbol_name, alias_registry):
         visited.add(current)
         current = alias_registry[current]
     return current
+
 
 class Analyzer(ast.NodeVisitor):
     def __init__(self, module_name, module_index):
@@ -142,16 +162,27 @@ class Analyzer(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_ImportFrom(self, node):
-        base_module = resolve_import_module(self.current_module, node.level or 0, node.module, self.module_index)
+        base_module = resolve_import_module(
+            self.current_module, node.level or 0, node.module, self.module_index
+        )
         for alias in node.names:
             if alias.name == "*":
                 continue
             alias_name = alias.asname or alias.name
-            candidate_module = ".".join(part for part in [base_module, alias.name] if part)
+            candidate_module = ".".join(
+                part for part in [base_module, alias.name] if part
+            )
             if candidate_module in self.module_index:
-                self.aliases[alias_name] = {"kind": "module", "module": candidate_module}
+                self.aliases[alias_name] = {
+                    "kind": "module",
+                    "module": candidate_module,
+                }
             else:
-                self.aliases[alias_name] = {"kind": "symbol", "module": base_module, "name": alias.name}
+                self.aliases[alias_name] = {
+                    "kind": "symbol",
+                    "module": base_module,
+                    "name": alias.name,
+                }
                 if base_module:
                     self.alias_exports[alias_name] = (base_module, alias.name)
         self.generic_visit(node)
@@ -163,6 +194,7 @@ class Analyzer(ast.NodeVisitor):
                 self.attr_loads.append((root, attrs))
         self.generic_visit(node)
 
+
 def is_router_decorator(node):
     target = node
     if isinstance(node, ast.Call):
@@ -171,6 +203,7 @@ def is_router_decorator(node):
         if target.attr in ROUTE_DECORATOR_NAMES:
             return True
     return False
+
 
 def main():
     if len(sys.argv) > 1:
@@ -222,13 +255,21 @@ def main():
                 if name == "__getattr__":
                     continue
                 key = (module_name, name)
-                definitions[key] = {"kind": "function", "file": file_path, "line": lineno}
+                definitions[key] = {
+                    "kind": "function",
+                    "file": file_path,
+                    "line": lineno,
+                }
                 usage[key] = False
             for name, lineno in analyzer.variables.items():
                 if name == "__all__":
                     continue
                 key = (module_name, name)
-                definitions[key] = {"kind": "variable", "file": file_path, "line": lineno}
+                definitions[key] = {
+                    "kind": "variable",
+                    "file": file_path,
+                    "line": lineno,
+                }
                 usage[key] = False
         for name in analyzer.decorated_used:
             key = (module_name, name)
@@ -241,7 +282,9 @@ def main():
                 usage[key] = True
         for alias_name, alias_info in analyzer.aliases.items():
             if alias_info["kind"] == "symbol":
-                target = resolve_alias_target(alias_info["module"], alias_info["name"], alias_registry)
+                target = resolve_alias_target(
+                    alias_info["module"], alias_info["name"], alias_registry
+                )
                 if alias_name in analyzer.name_loads and target in usage:
                     usage[target] = True
         for root, attrs in analyzer.attr_loads:
@@ -263,13 +306,22 @@ def main():
                 if key in usage:
                     usage[key] = True
             elif alias_info["kind"] == "symbol":
-                target = resolve_alias_target(alias_info["module"], alias_info["name"], alias_registry)
+                target = resolve_alias_target(
+                    alias_info["module"], alias_info["name"], alias_registry
+                )
                 if target in usage:
                     usage[target] = True
     unused = []
     for key, info in definitions.items():
         if not usage.get(key):
-            unused.append({"kind": info["kind"], "name": key[1], "file": info["file"], "line": info["line"]})
+            unused.append(
+                {
+                    "kind": info["kind"],
+                    "name": key[1],
+                    "file": info["file"],
+                    "line": info["line"],
+                }
+            )
     unused.sort(key=lambda item: (str(item["file"]), item["line"], item["name"]))
     if unused:
         for item in unused:
@@ -280,6 +332,7 @@ def main():
             print(f"{item['kind']}\t{item['name']}\t{rel_path}:{item['line']}")
     else:
         print("No unused top-level functions or variables detected.")
+
 
 if __name__ == "__main__":
     main()
