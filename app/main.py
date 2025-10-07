@@ -100,13 +100,12 @@ SESSION_SECRET = _load_session_secret()
 DEFAULT_ADMIN_USERNAME = os.getenv("DEFAULT_ADMIN_USERNAME", "admin")
 DEFAULT_ADMIN_PASSWORD = os.getenv("DEFAULT_ADMIN_PASSWORD")
 DEFAULT_ADMIN_FULLNAME = os.getenv("DEFAULT_ADMIN_FULLNAME", "Sistem Yöneticisi")
-_generated_admin_password: str | None = None
 if not DEFAULT_ADMIN_PASSWORD:
-    _generated_admin_password = secrets.token_urlsafe(20)
-    DEFAULT_ADMIN_PASSWORD = _generated_admin_password
+    DEFAULT_ADMIN_PASSWORD = os.getenv("DEFAULT_ADMIN_DEV_PASSWORD", "admin123")
     print(
         "WARNING: DEFAULT_ADMIN_PASSWORD environment variable is not set. "
-        "Generated a one-time password for the default admin user."
+        "Using the development default password 'admin123'. "
+        "Set DEFAULT_ADMIN_PASSWORD in production environments."
     )
 # Varsayılan olarak geliştirme ortamına uygun olsun; üretimde .env ile true yapın
 SESSION_HTTPS_ONLY = os.getenv("SESSION_HTTPS_ONLY", "false").lower() in (
@@ -261,10 +260,5 @@ def on_startup():
             db.add(u)
             db.commit()
             print(f"[*] Varsayılan admin oluşturuldu: {DEFAULT_ADMIN_USERNAME}")
-            if _generated_admin_password:
-                print(
-                    "[*] Varsayılan admin için geçici parola: "
-                    f"{_generated_admin_password}"
-                )
     finally:
         db.close()
