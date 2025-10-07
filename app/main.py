@@ -11,10 +11,9 @@ from fastapi.exception_handlers import http_exception_handler
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from passlib.exc import InvalidHash
 from starlette import status as st_status
 from starlette.middleware.sessions import SessionMiddleware
-
-from passlib.exc import InvalidHash
 
 from app.core.security import hash_password, pwd_context, verify_password
 from app.db.init import bootstrap_schema, init_db
@@ -250,7 +249,9 @@ def on_startup():
     init_db()
     db = SessionLocal()
     try:
-        existing = db.query(User).filter(User.username == DEFAULT_ADMIN_USERNAME).first()
+        existing = (
+            db.query(User).filter(User.username == DEFAULT_ADMIN_USERNAME).first()
+        )
         if not existing:
             u = User(
                 username=DEFAULT_ADMIN_USERNAME,
@@ -285,7 +286,11 @@ def on_startup():
             if configured_explicitly and not password_matches:
                 should_reset = True
                 reset_reason = "Configured DEFAULT_ADMIN_PASSWORD does not match stored hash; resetting to configured value."
-            elif not configured_explicitly and not password_matches and not hash_identified:
+            elif (
+                not configured_explicitly
+                and not password_matches
+                and not hash_identified
+            ):
                 should_reset = True
                 reset_reason = (
                     "Existing admin password used a legacy or plain-text format; "
