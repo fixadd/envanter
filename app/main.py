@@ -11,7 +11,6 @@ from fastapi.exception_handlers import http_exception_handler
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from passlib.exc import InvalidHash
 from starlette import status as st_status
 from starlette.middleware.sessions import SessionMiddleware
 
