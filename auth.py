@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 from app.core.security import hash_password, pwd_context, verify_password
 from models import User
 
-
 _TURKISH_UPPER_REPLACEMENTS = {
     "İ": "I",
     "İ": "I",
