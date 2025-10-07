@@ -262,7 +262,11 @@
       );
       const fault = data?.fault;
       if (!fault) {
-        alert("Aktif arıza kaydı bulunamadı.");
+        if (window.showAlert) {
+          window.showAlert("Aktif arıza kaydı bulunamadı.", { variant: "warning", title: "Kayıt Yok" });
+        } else {
+          alert("Aktif arıza kaydı bulunamadı.");
+        }
         return;
       }
       repairInputs.entityId.value = entityId != null ? entityId : "";
@@ -277,7 +281,11 @@
       ensureBootstrapModal(repairModal).show();
     } catch (err) {
       console.error(err);
-      alert(err.message || "Arıza bilgisi alınamadı");
+      if (window.showAlert) {
+        window.showAlert(err.message || "Arıza bilgisi alınamadı", { variant: "danger", title: "Yükleme Hatası" });
+      } else {
+        alert(err.message || "Arıza bilgisi alınamadı");
+      }
     }
   }
 

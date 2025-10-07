@@ -56,7 +56,11 @@ async function fillChoices({
   );
   if (!res) return; // abort edilmiş olabilir
   if (res.status === 422) {
-    alert("Marka seçiniz");
+    if (window.showAlert) {
+      window.showAlert("Lütfen önce marka seçiniz.", { variant: "warning", title: "Eksik Seçim" });
+    } else {
+      alert("Marka seçiniz");
+    }
     return;
   }
   const data = res.ok ? await res.json() : [];

@@ -109,7 +109,11 @@
 
     const dep = getDependencyParams(entity, options);
     if (dep.extra === null) {
-      alert("Önce bağlı alanı seçin (örn. önce MARKA seçin).");
+      if (window.showAlert) {
+        window.showAlert("Önce bağlı alanı seçin (örn. önce MARKA seçin).", { variant: "warning", title: "Eksik Seçim" });
+      } else {
+        alert("Önce bağlı alanı seçin (örn. önce MARKA seçin).");
+      }
       return;
     }
 
@@ -315,9 +319,17 @@
       });
       closeModal();
     } else if (res.status === 409) {
-      alert("Bu kayıt zaten var.");
+      if (window.showAlert) {
+        window.showAlert("Bu kayıt zaten var.", { variant: "warning", title: "Zaten Var" });
+      } else {
+        alert("Bu kayıt zaten var.");
+      }
     } else {
-      alert("Ekleme başarısız!");
+      if (window.showAlert) {
+        window.showAlert("Ekleme başarısız!", { variant: "danger", title: "İşlem Başarısız" });
+      } else {
+        alert("Ekleme başarısız!");
+      }
     }
   }
 
@@ -358,7 +370,11 @@
       const id = row.dataset.id;
       if (!id) {
         console.warn("[mini-picker] Silinecek kayıt için id bulunamadı.");
-        alert("Silme başarısız!");
+        if (window.showAlert) {
+          window.showAlert("Silme başarısız!", { variant: "danger", title: "İşlem Başarısız" });
+        } else {
+          alert("Silme başarısız!");
+        }
         return;
       }
 
@@ -368,7 +384,11 @@
           "[mini-picker] Silme isteği için endpoint bulunamadı:",
           current,
         );
-        alert("Silme desteklenmiyor!");
+        if (window.showAlert) {
+          window.showAlert("Silme desteklenmiyor!", { variant: "warning", title: "Desteklenmiyor" });
+        } else {
+          alert("Silme desteklenmiyor!");
+        }
         return;
       }
 
@@ -382,7 +402,11 @@
         if (!$list.children.length)
           $list.innerHTML = '<div class="picker-empty">Kayıt bulunamadı.</div>';
       } else {
-        alert("Silme başarısız!");
+        if (window.showAlert) {
+          window.showAlert("Silme başarısız!", { variant: "danger", title: "İşlem Başarısız" });
+        } else {
+          alert("Silme başarısız!");
+        }
       }
     }
   });

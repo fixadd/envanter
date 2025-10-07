@@ -59,7 +59,11 @@
 
   function showFetchError(message) {
     if (!talepForm) {
-      window.alert(message);
+      if (window.showAlert) {
+        window.showAlert(message, { variant: "danger", title: "Yükleme Hatası" });
+      } else {
+        window.alert(message);
+      }
       return;
     }
     ensureFetchAlert();
@@ -651,14 +655,22 @@ window.talepIptal = async function (id, mevcut) {
         body: fd,
       });
       if (!r.ok) {
-        alert("İşlem başarısız");
+        if (window.showAlert) {
+          window.showAlert("İşlem başarısız", { variant: "danger", title: "İşlem Başarısız" });
+        } else {
+          alert("İşlem başarısız");
+        }
         return;
       }
       bootstrap.Modal.getInstance(modalEl)?.hide();
       location.reload();
     } catch (err) {
       console.error(err);
-      alert("İşlem başarısız");
+      if (window.showAlert) {
+        window.showAlert("İşlem başarısız", { variant: "danger", title: "İşlem Başarısız" });
+      } else {
+        alert("İşlem başarısız");
+      }
     }
   });
 })();

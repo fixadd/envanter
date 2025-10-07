@@ -75,7 +75,11 @@ async function fillChoices({
     data = await getJSON(url, { signal });
   } catch (e) {
     if (e.status === 422) {
-      alert("Marka seçiniz");
+      if (window.showAlert) {
+        window.showAlert("Lütfen önce marka seçiniz.", { variant: "warning", title: "Eksik Seçim" });
+      } else {
+        alert("Marka seçiniz");
+      }
       return;
     }
     if (e.name === "AbortError") return;

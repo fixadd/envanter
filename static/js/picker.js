@@ -86,7 +86,11 @@
     ) {
       const mid = current.markaGetter();
       if (!mid) {
-        alert("Önce Marka seçin.");
+        if (window.showAlert) {
+          window.showAlert("Önce Marka seçin.", { variant: "warning", title: "Eksik Seçim" });
+        } else {
+          alert("Önce Marka seçin.");
+        }
         return;
       }
       body.marka_id = parseInt(mid);
@@ -97,7 +101,11 @@
       body: JSON.stringify(body),
     });
     if (!r.ok) {
-      alert("Kaydedilemedi");
+      if (window.showAlert) {
+        window.showAlert("Kaydedilemedi", { variant: "danger", title: "İşlem Başarısız" });
+      } else {
+        alert("Kaydedilemedi");
+      }
       return;
     }
     const data = await r.json();

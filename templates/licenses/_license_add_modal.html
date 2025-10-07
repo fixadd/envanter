@@ -1,47 +1,42 @@
-﻿{% set form_action = form_action or '/lisans/new' %}
-<div class="modal fade" id="licenseAddModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Yeni Lisans Ekle</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-      </div>
-      <form id="licenseAddForm" method="post" action="{{ form_action }}" class="needs-validation" novalidate>
-        <div class="modal-body">
-          {% set license_form_config = {
-            "ids": {
-              "license_name": "modalLicenseName",
-              "license_key": "modalLicenseKey",
-              "responsible": "modalLicenseResponsible",
-              "inventory": "modalLicenseInventory",
-              "ifs": "modalLicenseIfs",
-              "email": "modalLicenseEmail",
-            },
-            "names": {
-              "license_name": "adi",
-              "license_key": "anahtar",
-              "responsible": "sorumlu_personel",
-              "inventory": "inventory_id",
-              "ifs": "ifs_no",
-              "email": "mail_adresi",
-            },
-            "required": ["license_name"],
-            "placeholders": {
-              "license_key": "XXXX-XXXX-XXXX-XXXX",
-              "email": "eposta@ornek.com",
-            },
-            "labels": {
-              "inventory": "Bağlı Olduğu Envanter",
-            },
-            "inventory_empty_label": "Seçimsiz",
-          } %}
-          {% include 'partials/license_form_fields.html' %}
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Kaydet</button>
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Vazgeç</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+{% extends "components/modal_base.html" %}
+{% set form_id = "licenseAddForm" %}
+{% set submit_text = "Kaydet" %}
+{% set form_action = form_action or '/lisans/new' %}
+
+{% block modal_id %}licenseAddModal{% endblock %}
+{% block modal_theme %}purple{% endblock %}
+{% block modal_eyebrow %}LİSANS YÖNETİMİ{% endblock %}
+{% block modal_title %}Lisans Ekle{% endblock %}
+{% block modal_subtitle %}Yeni bir lisans kaydı oluşturarak stoğunuzu güncel tutun.{% endblock %}
+
+{% block modal_body %}
+<form id="{{ form_id }}" class="form-grid" method="post" action="{{ form_action }}">
+  {% set license_form_config = {
+    "ids": {
+      "license_name": "modalLicenseName",
+      "license_key": "modalLicenseKey",
+      "responsible": "modalLicenseResponsible",
+      "inventory": "modalLicenseInventory",
+      "ifs": "modalLicenseIfs",
+      "email": "modalLicenseEmail",
+    },
+    "names": {
+      "license_name": "adi",
+      "license_key": "anahtar",
+      "responsible": "sorumlu_personel",
+      "inventory": "inventory_id",
+      "ifs": "ifs_no",
+      "email": "mail_adresi",
+    },
+    "required": ["license_name"],
+    "placeholders": {
+      "license_key": "XXXX-XXXX-XXXX-XXXX",
+      "email": "eposta@ornek.com",
+    },
+    "labels": { "inventory": "Bağlı Olduğu Envanter" },
+    "inventory_empty_label": "Seçimsiz",
+  } %}
+  {% include 'partials/license_form_fields.html' %}
+</form>
+{% endblock %}
+

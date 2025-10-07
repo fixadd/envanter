@@ -180,151 +180,44 @@ content %}
 
 <!-- Yeni Ekle Modal -->
 <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-  <div
-    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
-  >
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Yazıcı Ekle</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Kapat"
-        ></button>
-      </div>
-
-      <div class="modal-body">
-        <form
-          method="post"
-          action="/printers/create"
-          id="printerAddForm"
-          novalidate
-        >
-          <div class="env-grid" id="printer-ekle">
-            <div class="field">
-              <label for="printerEnvanter">Envanter No</label>
-              <input
-                id="printerEnvanter"
-                name="envanter_no"
-                type="text"
-                class="ctrl"
-                required
-                placeholder="ENV-000123"
-              />
-            </div>
-
-            <div class="field">
-              <label for="selYaziciMarka">Yazıcı Markası</label>
-              <select
-                id="selYaziciMarka"
-                name="yazici_markasi"
-                class="ctrl"
-                required
-              >
-                <option value="">Seçiniz...</option>
-                {% for m in marka_list %}
-                <option value="{{ m.name }}">{{ m.name }}</option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="selYaziciModel">Yazıcı Modeli</label>
-              <select
-                id="selYaziciModel"
-                name="yazici_modeli"
-                class="ctrl"
-                required
-                disabled
-              >
-                <option value="">Önce marka seçiniz...</option>
-              </select>
-              <small class="help-text"
-                >Not: Model listesi seçilen markaya göre filtrelenir.</small
-              >
-            </div>
-
-            <div class="field">
-              <label for="printerUsage">Kullanım Alanı</label>
-              <select
-                id="printerUsage"
-                name="kullanim_alani"
-                class="ctrl"
-                required
-              >
-                <option value="">Seçiniz...</option>
-                {% for k in kullanim_alanlari %}
-                <option value="{{ k.name }}">{{ k.name }}</option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="printerIp">IP Adresi</label>
-              <input
-                id="printerIp"
-                name="ip_adresi"
-                type="text"
-                class="ctrl"
-                required
-                placeholder="10.0.0.10"
-              />
-            </div>
-
-            <div class="field">
-              <label for="printerMac">MAC</label>
-              <input
-                id="printerMac"
-                name="mac"
-                type="text"
-                class="ctrl"
-                required
-                placeholder="AA:BB:CC:DD:EE:FF"
-              />
-            </div>
-
-            <div class="field">
-              <label for="printerHostname">Hostname</label>
-              <input
-                id="printerHostname"
-                name="hostname"
-                type="text"
-                class="ctrl"
-                required
-                placeholder="PRN-OFIS-01"
-              />
-            </div>
-
-            <div class="field">
-              <label for="printerIfs">
-                IFS No <span class="help-text">(opsiyonel)</span>
-              </label>
-              <input
-                id="printerIfs"
-                name="ifs_no"
-                type="text"
-                class="ctrl"
-                placeholder="IFS numarası"
-              />
-            </div>
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <form
+      class="modal-content border-0 bg-transparent p-0"
+      id="printerAddForm"
+      method="post"
+      action="/printers"
+      novalidate
+    >
+      <div class="modal-shell">
+        <div class="modal-shell__header">
+          <div class="modal-shell__heading">
+            <h5 class="modal-shell__title">Yazıcı Ekle</h5>
+            <p class="modal-shell__subtitle">
+              Yeni bir yazıcıyı envantere ekleyin ve temel yapılandırmasını belirleyin.
+            </p>
           </div>
-        </form>
-      </div>
+          <div class="modal-shell__header-actions">
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Kapat"
+            ></button>
+          </div>
+        </div>
 
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          data-bs-dismiss="modal"
-        >
-          İptal
-        </button>
-        <button type="submit" form="printerAddForm" class="btn btn-primary">
-          Kaydet
-        </button>
+        <div class="modal-shell__body">
+          {% include "_printer_form_fields.html" %}
+        </div>
+
+        <div class="modal-shell__footer">
+          <div class="modal-shell__actions">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+          </div>
+        </div>
       </div>
-    </div>
+    </form>
   </div>
 </div>
 
@@ -516,37 +409,47 @@ content %}
     });
     window.filterSystem = filterSystem;
 
-    const markaSel = document.getElementById("selYaziciMarka");
-    const modelSel = document.getElementById("selYaziciModel");
-    if (markaSel && modelSel) {
-      if (window.Choices) {
-        new Choices(markaSel, { searchEnabled: true, shouldSort: false });
-        new Choices(modelSel, { searchEnabled: true, shouldSort: false });
-      }
-      const loadModels = async () => {
-        const marka = markaSel.value;
-        modelSel.innerHTML = '<option value="">Seçiniz...</option>';
-        modelSel.disabled = !marka;
-        if (!marka) return;
-        try {
-          const resp = await fetch(
-            `/api/printers/models?brand=${encodeURIComponent(marka)}`,
-          );
-          if (resp.ok) {
-            const data = await resp.json();
-            data.forEach((m) => {
-              const opt = document.createElement("option");
-              opt.value = m;
-              opt.textContent = m;
-              modelSel.appendChild(opt);
-            });
-          }
-        } catch (e) {
-          console.error(e);
-        }
+    // Bootstrap 5 style printer add modal selects (brand/model/usage)
+    try {
+      await _selects.fillChoices({
+        endpoint: "/api/lookup/marka",
+        selectId: "selYaziciMarka",
+        placeholder: "Yazıcı markası seçiniz…",
+      });
+      await _selects.fillChoices({
+        endpoint: "/api/lookup/kullanim-alani",
+        selectId: "selYaziciKullanim",
+        placeholder: "Kullanım alanı seçiniz…",
+      });
+      await _selects.bindMarkaModel("selYaziciMarka", "selYaziciModel");
+      _selects.enableRemoteSearch("selYaziciModel", "/api/lookup/model", () => {
+        const raw = document.getElementById("selYaziciMarka")?.value || "";
+        const parsed = Number.parseInt(raw, 10);
+        if (!Number.isFinite(parsed)) return { __skip: true };
+        return { marka_id: parsed };
+      });
+
+      // Sync hidden text fields for names (used by backend/history)
+      const brandSelect = document.getElementById("selYaziciMarka");
+      const modelSelect = document.getElementById("selYaziciModel");
+      const usageSelect = document.getElementById("selYaziciKullanim");
+      const hiddenBrand = document.getElementById("printerMarkaName");
+      const hiddenModel = document.getElementById("printerModelName");
+      const hiddenUsage = document.getElementById("printerUsageName");
+      const syncHidden = (select, hidden) => {
+        if (!select || !hidden) return;
+        const update = () => {
+          const opt = select.options[select.selectedIndex];
+          hidden.value = opt ? opt.text.trim() : "";
+        };
+        select.addEventListener("change", update);
+        update();
       };
-      markaSel.addEventListener("change", loadModels);
-      loadModels();
+      syncHidden(brandSelect, hiddenBrand);
+      syncHidden(modelSelect, hiddenModel);
+      syncHidden(usageSelect, hiddenUsage);
+    } catch (err) {
+      console.error(err);
     }
 
     // Atama/Hurda işlemleri
@@ -668,10 +571,10 @@ content %}
             scrapModal.hide();
             window.location.href = "/printers/scrap";
           } else {
-            alert("Hurdaya ayırma başarısız");
+            window.showAlert("Hurdaya ayırma işlemi başarısız.", { variant: "danger", title: "İşlem başarısız" });
           }
         })
-        .catch(() => alert("Sunucu hatası"));
+        .catch(() => window.showAlert("Sunucu hatası oluştu.", { variant: "danger", title: "Sunucu Hatası" }));
     });
 
     assignForm.addEventListener("submit", function (e) {
@@ -685,10 +588,10 @@ content %}
             assignModal.hide();
             location.reload();
           } else {
-            alert("Atama kaydedilemedi.");
+            window.showAlert("Atama kaydedilemedi.", { variant: "danger", title: "İşlem başarısız" });
           }
         })
-        .catch(() => alert("Sunucu hatası"));
+        .catch(() => window.showAlert("Sunucu hatası oluştu.", { variant: "danger", title: "Sunucu Hatası" }));
     });
 
     if (window.Choices) {

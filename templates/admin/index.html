@@ -933,7 +933,7 @@ content %}
         upsertSelectOption(current.select, created.name, true);
         inputEl.value = "";
       } catch {
-        alert("Eklenemedi");
+        window.showAlert ? window.showAlert("Eklenemedi", { variant: "danger", title: "İşlem Başarısız" }) : alert("Eklenemedi");
       } finally {
         addBtn.disabled = false;
       }
@@ -959,7 +959,7 @@ content %}
         if (c) c.remove();
         removeSelectOption(current.select, value);
       } catch {
-        alert("Silinemedi");
+        window.showAlert ? window.showAlert("Silinemedi", { variant: "danger", title: "İşlem Başarısız" }) : alert("Silinemedi");
       }
     }
 

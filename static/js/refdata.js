@@ -164,7 +164,11 @@ function bindCard(card) {
           const brandSel = card.querySelector(".ref-brand");
           const brandId = brandSel?.value ? parseInt(brandSel.value, 10) : null;
           if (!brandId) {
-            alert("Lütfen önce marka seçin.");
+            if (window.showAlert) {
+              window.showAlert("Lütfen önce marka seçin.", { variant: "warning", title: "Eksik Seçim" });
+            } else {
+              alert("Lütfen önce marka seçin.");
+            }
             return;
           }
           await addRef("model", name, brandId);
@@ -174,7 +178,11 @@ function bindCard(card) {
         input.value = "";
         await refreshCard(card);
       } catch (e) {
-        alert("Kaydedilemedi: " + (e?.message || e));
+        if (window.showAlert) {
+          window.showAlert("Kaydedilemedi: " + (e?.message || e), { variant: "danger", title: "İşlem Başarısız" });
+        } else {
+          alert("Kaydedilemedi: " + (e?.message || e));
+        }
       }
     });
 
@@ -199,7 +207,11 @@ function bindCard(card) {
             await apiPut(`/api/ref/${entity}/${id}`, { name });
             await refreshCard(card);
           } catch (err) {
-            alert("Güncellenemedi: " + (err?.message || err));
+            if (window.showAlert) {
+              window.showAlert("Güncellenemedi: " + (err?.message || err), { variant: "danger", title: "İşlem Başarısız" });
+            } else {
+              alert("Güncellenemedi: " + (err?.message || err));
+            }
           }
           return;
         }
@@ -212,7 +224,11 @@ function bindCard(card) {
           await apiDelete(`/api/ref/${entity}/${id}`);
           await refreshCard(card);
         } catch (err) {
-          alert("Silinemedi: " + (err?.message || err));
+          if (window.showAlert) {
+            window.showAlert("Silinemedi: " + (err?.message || err), { variant: "danger", title: "İşlem Başarısız" });
+          } else {
+            alert("Silinemedi: " + (err?.message || err));
+          }
         }
       });
     }
@@ -223,9 +239,17 @@ function bindCard(card) {
       if (!name) return;
       try {
         await addRef(entity, name);
-        alert("Kaydedildi");
+        if (window.notify?.success) {
+          window.notify.success("Kaydedildi");
+        } else {
+          alert("Kaydedildi");
+        }
       } catch (e) {
-        alert("Kaydedilemedi: " + (e?.message || e));
+        if (window.showAlert) {
+          window.showAlert("Kaydedilemedi: " + (e?.message || e), { variant: "danger", title: "İşlem Başarısız" });
+        } else {
+          alert("Kaydedilemedi: " + (e?.message || e));
+        }
       }
     });
   }

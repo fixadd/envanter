@@ -160,7 +160,11 @@ content %}
       `Stok: ${row.net_miktar}`,
       `Son İşlem: ${dateFormatter(row.son_islem_ts)}`,
     ];
-    alert(lines.join("\n"));
+    if (window.showAlert) {
+      window.showAlert(lines.join("\n"), { title: "Stok Detayı" });
+    } else {
+      alert(lines.join("\n"));
+    }
   }
 
   function setStockTableMessage(message) {
