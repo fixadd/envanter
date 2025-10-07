@@ -92,7 +92,8 @@ async def login_submit(
     csrf_token: str = Form(""),
     db: Session = Depends(get_db),
 ):
-    saved_username = request.cookies.get("saved_username", "")
+    normalized_username = username.strip()
+    saved_username_cookie = request.cookies.get("saved_username", "")
     templates = _get_templates(request)
 
     if not _check_csrf(request, csrf_token):
@@ -103,12 +104,12 @@ async def login_submit(
                 "request": request,
                 "csrf_token": csrf_token,
                 "error": "Oturum süresi doldu. Lütfen tekrar deneyin.",
-                "saved_username": saved_username,
+                "saved_username": normalized_username or saved_username_cookie,
             },
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
-    user = get_user_by_username(db, username.strip())
+    user = get_user_by_username(db, normalized_username)
     login_succeeded = False
     if user:
         if verify_password(password, user.password_hash):
@@ -130,7 +131,7 @@ async def login_submit(
                 "request": request,
                 "csrf_token": csrf_token,
                 "error": "Kullanıcı adı veya parola hatalı.",
-                "saved_username": saved_username,
+                "saved_username": normalized_username or saved_username_cookie,
             },
             status_code=status.HTTP_401_UNAUTHORIZED,
         )
@@ -147,7 +148,7 @@ async def login_submit(
         secure_cookie = bool(getattr(request.app.state, "session_https_only", False))
         response.set_cookie(
             "saved_username",
-            username,
+            user.username,
             max_age=60 * 60 * 24 * 30,
             httponly=True,
             samesite="lax",
