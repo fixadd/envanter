@@ -263,7 +263,10 @@
       const fault = data?.fault;
       if (!fault) {
         if (window.showAlert) {
-          window.showAlert("Aktif arıza kaydı bulunamadı.", { variant: "warning", title: "Kayıt Yok" });
+          window.showAlert("Aktif arıza kaydı bulunamadı.", {
+            variant: "warning",
+            title: "Kayıt Yok",
+          });
         } else {
           alert("Aktif arıza kaydı bulunamadı.");
         }
@@ -282,7 +285,10 @@
     } catch (err) {
       console.error(err);
       if (window.showAlert) {
-        window.showAlert(err.message || "Arıza bilgisi alınamadı", { variant: "danger", title: "Yükleme Hatası" });
+        window.showAlert(err.message || "Arıza bilgisi alınamadı", {
+          variant: "danger",
+          title: "Yükleme Hatası",
+        });
       } else {
         alert(err.message || "Arıza bilgisi alınamadı");
       }

@@ -76,7 +76,10 @@ async function fillChoices({
   } catch (e) {
     if (e.status === 422) {
       if (window.showAlert) {
-        window.showAlert("Lütfen önce marka seçiniz.", { variant: "warning", title: "Eksik Seçim" });
+        window.showAlert("Lütfen önce marka seçiniz.", {
+          variant: "warning",
+          title: "Eksik Seçim",
+        });
       } else {
         alert("Marka seçiniz");
       }

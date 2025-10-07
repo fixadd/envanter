@@ -87,7 +87,10 @@
       const mid = current.markaGetter();
       if (!mid) {
         if (window.showAlert) {
-          window.showAlert("Önce Marka seçin.", { variant: "warning", title: "Eksik Seçim" });
+          window.showAlert("Önce Marka seçin.", {
+            variant: "warning",
+            title: "Eksik Seçim",
+          });
         } else {
           alert("Önce Marka seçin.");
         }
@@ -102,7 +105,10 @@
     });
     if (!r.ok) {
       if (window.showAlert) {
-        window.showAlert("Kaydedilemedi", { variant: "danger", title: "İşlem Başarısız" });
+        window.showAlert("Kaydedilemedi", {
+          variant: "danger",
+          title: "İşlem Başarısız",
+        });
       } else {
         alert("Kaydedilemedi");
       }

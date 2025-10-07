@@ -165,7 +165,10 @@ function bindCard(card) {
           const brandId = brandSel?.value ? parseInt(brandSel.value, 10) : null;
           if (!brandId) {
             if (window.showAlert) {
-              window.showAlert("Lütfen önce marka seçin.", { variant: "warning", title: "Eksik Seçim" });
+              window.showAlert("Lütfen önce marka seçin.", {
+                variant: "warning",
+                title: "Eksik Seçim",
+              });
             } else {
               alert("Lütfen önce marka seçin.");
             }
@@ -179,7 +182,10 @@ function bindCard(card) {
         await refreshCard(card);
       } catch (e) {
         if (window.showAlert) {
-          window.showAlert("Kaydedilemedi: " + (e?.message || e), { variant: "danger", title: "İşlem Başarısız" });
+          window.showAlert("Kaydedilemedi: " + (e?.message || e), {
+            variant: "danger",
+            title: "İşlem Başarısız",
+          });
         } else {
           alert("Kaydedilemedi: " + (e?.message || e));
         }
@@ -208,7 +214,10 @@ function bindCard(card) {
             await refreshCard(card);
           } catch (err) {
             if (window.showAlert) {
-              window.showAlert("Güncellenemedi: " + (err?.message || err), { variant: "danger", title: "İşlem Başarısız" });
+              window.showAlert("Güncellenemedi: " + (err?.message || err), {
+                variant: "danger",
+                title: "İşlem Başarısız",
+              });
             } else {
               alert("Güncellenemedi: " + (err?.message || err));
             }
@@ -225,7 +234,10 @@ function bindCard(card) {
           await refreshCard(card);
         } catch (err) {
           if (window.showAlert) {
-            window.showAlert("Silinemedi: " + (err?.message || err), { variant: "danger", title: "İşlem Başarısız" });
+            window.showAlert("Silinemedi: " + (err?.message || err), {
+              variant: "danger",
+              title: "İşlem Başarısız",
+            });
           } else {
             alert("Silinemedi: " + (err?.message || err));
           }
@@ -246,7 +258,10 @@ function bindCard(card) {
         }
       } catch (e) {
         if (window.showAlert) {
-          window.showAlert("Kaydedilemedi: " + (e?.message || e), { variant: "danger", title: "İşlem Başarısız" });
+          window.showAlert("Kaydedilemedi: " + (e?.message || e), {
+            variant: "danger",
+            title: "İşlem Başarısız",
+          });
         } else {
           alert("Kaydedilemedi: " + (e?.message || e));
         }

@@ -138,11 +138,21 @@ content %}
               data-kullanim="{{ p.kullanim_alani or '' }}"
               data-personel="{{ p.sorumlu_personel or '' }}"
               data-bagli="{{ p.bagli_envanter_no or '' }}"
-              {% if p.durum == 'arızalı' %}
+              {%
+              if
+              p.durum=""
+              ="arızalı"
+              %}
               class="table-warning"
-              {% elif p.durum == 'hurda' %}
+              {%
+              elif
+              p.durum=""
+              ="hurda"
+              %}
               class="table-secondary"
-              {% endif %}
+              {%
+              endif
+              %}
             >
               <td>#{{ p.id }}</td>
               <td>{{ p.marka or '-' }}</td>
@@ -180,7 +190,9 @@ content %}
 
 <!-- Yeni Ekle Modal -->
 <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+  <div
+    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+  >
     <form
       class="modal-content border-0 bg-transparent p-0"
       id="printerAddForm"
@@ -193,7 +205,8 @@ content %}
           <div class="modal-shell__heading">
             <h5 class="modal-shell__title">Yazıcı Ekle</h5>
             <p class="modal-shell__subtitle">
-              Yeni bir yazıcıyı envantere ekleyin ve temel yapılandırmasını belirleyin.
+              Yeni bir yazıcıyı envantere ekleyin ve temel yapılandırmasını
+              belirleyin.
             </p>
           </div>
           <div class="modal-shell__header-actions">
@@ -212,7 +225,13 @@ content %}
 
         <div class="modal-shell__footer">
           <div class="modal-shell__actions">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              data-bs-dismiss="modal"
+            >
+              İptal
+            </button>
             <button type="submit" class="btn btn-primary">Kaydet</button>
           </div>
         </div>
@@ -571,10 +590,18 @@ content %}
             scrapModal.hide();
             window.location.href = "/printers/scrap";
           } else {
-            window.showAlert("Hurdaya ayırma işlemi başarısız.", { variant: "danger", title: "İşlem başarısız" });
+            window.showAlert("Hurdaya ayırma işlemi başarısız.", {
+              variant: "danger",
+              title: "İşlem başarısız",
+            });
           }
         })
-        .catch(() => window.showAlert("Sunucu hatası oluştu.", { variant: "danger", title: "Sunucu Hatası" }));
+        .catch(() =>
+          window.showAlert("Sunucu hatası oluştu.", {
+            variant: "danger",
+            title: "Sunucu Hatası",
+          }),
+        );
     });
 
     assignForm.addEventListener("submit", function (e) {
@@ -588,10 +615,18 @@ content %}
             assignModal.hide();
             location.reload();
           } else {
-            window.showAlert("Atama kaydedilemedi.", { variant: "danger", title: "İşlem başarısız" });
+            window.showAlert("Atama kaydedilemedi.", {
+              variant: "danger",
+              title: "İşlem başarısız",
+            });
           }
         })
-        .catch(() => window.showAlert("Sunucu hatası oluştu.", { variant: "danger", title: "Sunucu Hatası" }));
+        .catch(() =>
+          window.showAlert("Sunucu hatası oluştu.", {
+            variant: "danger",
+            title: "Sunucu Hatası",
+          }),
+        );
     });
 
     if (window.Choices) {
