@@ -261,46 +261,6 @@ def on_startup():
             db.add(u)
             db.commit()
             print(f"[*] Varsayılan admin oluşturuldu: {DEFAULT_ADMIN_USERNAME}")
-        else:
-            configured_password = DEFAULT_ADMIN_PASSWORD
-            password_matches = False
-            try:
-                password_matches = verify_password(
-                    configured_password, existing.password_hash
-                )
-            except (ValueError, InvalidHash):
-                password_matches = False
 
-            configured_explicitly = bool(os.getenv("DEFAULT_ADMIN_PASSWORD"))
-            hash_identified = False
-            try:
-                hash_identified = bool(
-                    existing.password_hash
-                    and pwd_context.identify(existing.password_hash)
-                )
-            except (ValueError, InvalidHash):
-                hash_identified = False
-
-            should_reset = False
-            reset_reason = ""
-            if configured_explicitly and not password_matches:
-                should_reset = True
-                reset_reason = "Configured DEFAULT_ADMIN_PASSWORD does not match stored hash; resetting to configured value."
-            elif (
-                not configured_explicitly
-                and not password_matches
-                and not hash_identified
-            ):
-                should_reset = True
-                reset_reason = (
-                    "Existing admin password used a legacy or plain-text format; "
-                    "resetting to development default 'admin123'."
-                )
-
-            if should_reset:
-                existing.password_hash = hash_password(configured_password)
-                db.add(existing)
-                db.commit()
-                print(f"[*] {reset_reason}")
     finally:
         db.close()
