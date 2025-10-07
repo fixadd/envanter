@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 import models  # tablolar burada
+from app.core.security import hash_password, is_password_hash
 from database import SessionLocal  # repo mevcut dosyalar
 
 
@@ -26,22 +27,26 @@ def main():
     db = SessionLocal()
     try:
         # 1) Kullanıcılar (full_name dolu olmalı)
-        # Not: Parola hash'ini repo'daki user creation flow'u zaten üretiyor olabilir;
-        # burada demo amaçlı basit şifre yazıyoruz. Prod'da paneli kullan.
         if hasattr(models, "User"):
-            # aynı username varsa güncelle, yoksa ekle
-            upsert_one(
-                db,
-                models.User,
-                {"username": "kadir"},
-                {"full_name": "Kadir Can", "role": "user", "password_hash": "demo"},
-            )
-            upsert_one(
-                db,
-                models.User,
-                {"username": "mehmet"},
-                {"full_name": "Mehmet Yılmaz", "role": "user", "password_hash": "demo"},
-            )
+            for username, full_name in ("kadir", "Kadir Can"), ("mehmet", "Mehmet Yılmaz"):
+                user = db.execute(
+                    select(models.User).filter_by(username=username)
+                ).scalars().first()
+                if user is None:
+                    db.add(
+                        models.User(
+                            username=username,
+                            full_name=full_name,
+                            role="user",
+                            password_hash=hash_password("demo"),
+                        )
+                    )
+                else:
+                    user.full_name = full_name
+                    user.role = "user"
+                    if not is_password_hash(user.password_hash):
+                        user.password_hash = hash_password("demo")
+                    db.add(user)
 
         # 2) Referans tablolar
         # Marka
